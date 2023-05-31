@@ -1,9 +1,10 @@
 
 # Build Gramado OS.
 
-PHONY := secret-chord
-secret-chord: step2-desktop step3-core
+PHONY := step1-all
+step1-all: step2-desktop step3-core
 	@echo "Done"
+	@echo "Go to core/ and type ./run or ./runkvm"
 
 PHONY := step2-desktop
 step2-desktop:
