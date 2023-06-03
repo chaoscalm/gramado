@@ -1,7 +1,6 @@
 /*
  * File: window.c
  *      Creates a window.
- *      It's part of the gws project.
  * History:
  *     2019 - Created by Fred Nora.
  */
@@ -11,12 +10,11 @@
 // #todo
 // Para lidarmos com essas estruturas do kernel
 // devemos usar a chamada sci2. int 0x82. ??
-// todo
-// Quando estivermos contrindo as molduras das janelas,
+// #todo
+// Quando estivermos construindo as molduras das janelas,
 // as rotinas devem retornar suas alturas, para assim
-// o posicionamento do 'top' da área de cliente possa ser
-// atualizado. (rect)
-
+// o posicionamento do 'top' da área de cliente 
+// possa ser atualizado. (rect)
 
 #include "gwsint.h"
 
@@ -29,17 +27,15 @@
 
 static int config_use_transparency=FALSE;
 
-// habilitando/desabilitando globalmente 
-// alguns componentes da janela
-
+// Habilitando/desabilitando globalmente 
+// alguns componentes da janela.
+// #bugbug: Não confie nessas inicializações.
 int gUseShadow = TRUE;
 int gUseFrame = TRUE;
 //int gUseShadow = TRUE;
 // ...
 
-
 // Windows - (struct)
-
 extern struct gws_window_d  *__root_window; 
 extern struct gws_window_d *active_window;
 // If the window server has a taskbar.
@@ -65,6 +61,23 @@ static struct gws_window_d *__create_window_object(void);
 //
 // =====================================
 //
+
+// Create window structure.
+static struct gws_window_d *__create_window_object(void)
+{
+    struct gws_window_d *window;
+    window = (void *) malloc( sizeof(struct gws_window_d) );
+    if ( (void *) window == NULL ){
+        return NULL;
+    }
+    memset( window, 0, sizeof(struct gws_window_d) );
+    window->used = TRUE;
+    window->magic = 1234;
+// Validate.
+// This way the compositor can't redraw it.
+    window->dirty = FALSE;
+    return (struct gws_window_d *) window;
+}
 
 int 
 window_post_message_broadcast( 
@@ -115,7 +128,7 @@ window_post_message(
         goto fail;
 
     w = (void*) windowList[wid];
-    if ( (void*) w == NULL )
+    if ((void*) w == NULL)
         goto fail;
     if (w->magic != 1234)
         goto fail;
@@ -131,7 +144,7 @@ window_post_message(
     w->ev_long2[Tail] = (unsigned long) long2;
 // Circula
     w->ev_tail++;
-    if (w->ev_tail>=32){
+    if (w->ev_tail >= 32){
         w->ev_tail=0;
     }
 
@@ -184,26 +197,6 @@ void useFrame( int value )
     gUseFrame = FALSE;
 }
 */
-
-// Create window structure.
-static struct gws_window_d *__create_window_object(void)
-{
-    struct gws_window_d *window;
-
-    window = (void *) malloc( sizeof(struct gws_window_d) );
-    if ( (void *) window == NULL ){
-        return NULL;
-    }
-    memset( window, 0, sizeof(struct gws_window_d) );
-    window->used = TRUE;
-    window->magic = 1234;
-
-// Validate.
-// This way the compositor can't redraw it.
-    window->dirty = FALSE;
-
-    return (struct gws_window_d *) window;
-}
 
 /*
  * doCreateWindow:  
@@ -278,7 +271,6 @@ void *doCreateWindow (
 // The window object.
     register struct gws_window_d *window;
     struct gws_window_d *Parent;
-
 
 //
 // Internal flags.
@@ -392,6 +384,8 @@ void *doCreateWindow (
     //debug_print ("doCreateWindow:\n");
 
 // Style (rop)
+// #todo: 
+// What is this? Explain it better.
     int is_solid = TRUE;
     if (rop_flags != 0){
         is_solid = FALSE;
@@ -402,7 +396,6 @@ void *doCreateWindow (
     unsigned long __rop_flags=0;
 
 //---------------------------------------------------------
-
 
 //
 // style
@@ -446,7 +439,7 @@ void *doCreateWindow (
 // Salvar para depois restaurar os valores originais no fim da rotina.
 	//unsigned long saveLeft;
 	//unsigned long saveTop;
-	
+
 // Desktop:
 // #todo: Configurar desktop antes de tudo. 
 // #todo: Quando criamos uma janela temos de definir que ela
@@ -480,8 +473,7 @@ void *doCreateWindow (
 
 // Devemos checar se a janela está no mesmo desktop 
 // que a ajnela mãe.
-// No caso aqui, criarmos uma janela no mesmo desktop que a 
-// janela mãe.
+// No caso aqui, criarmos uma janela no mesmo desktop que a janela mãe.
 // Devemos setar uma flag que indique que essa 
 // é uma janela filha, caso seja uma. Essa flag 
 // deve ser passada via argumento @todo.
@@ -489,11 +481,10 @@ void *doCreateWindow (
 // se for uma janela filha e não tiver uma janela mãe associada a ela, 
 // não permita e encerre a função.
 
-	//if(FlagChild == 1)
-	//{
-		//if(pWindow = NULL) return NULL;
+	//if(FlagChild == 1){
+		//if(pWindow = NULL) 
+        //    return NULL;
 	//}
-
 
 // #todo: A atualização da contagem de janela deve ficar aqui,
 // mas me parece que está em outro lugar, ou não tem. ainda.
@@ -567,10 +558,10 @@ void *doCreateWindow (
 // #todo: use metrics.
     unsigned long __TBHeight = METRICS_TITLEBAR_DEFAULT_HEIGHT;
 
-
 // Event queue
     register int e=0;
-    for (e=0; e<32; e++){
+    for (e=0; e<32; e++)
+    {
         window->ev_wid[e]=0;
         window->ev_msg[e]=0;
         window->ev_long1[e]=0;
@@ -717,9 +708,9 @@ void *doCreateWindow (
 
 // Initial configuration for the window rectangle.
 // Relative values. (l,t,w,h)
-    window->rcWindow.left = (unsigned long) 0;
-    window->rcWindow.top = (unsigned long) 0;
-    window->rcWindow.width = (unsigned long) WindowWidth;
+    window->rcWindow.left   = (unsigned long) 0;
+    window->rcWindow.top    = (unsigned long) 0;
+    window->rcWindow.width  = (unsigned long) WindowWidth;
     window->rcWindow.height = (unsigned long) WindowHeight;
 
 // =================================
@@ -729,40 +720,37 @@ void *doCreateWindow (
 //
 
 // #todo:
-// We need a variable for border size.
+// We need a variable for border size in the structure.
 // #todo:
 // We need a variable for title bar height.
 
-// left
-// + borda da esq
-    clientRect.left = (unsigned long) __BorderSize;  
-// top
-// + borda superior 
-    clientRect.top  = (unsigned long) __BorderSize;  
-
-// borda + barra.
-    if (window->type == WT_OVERLAPPED)
-    {
-        clientRect.top  = 
-            (unsigned long) (__BorderSize + __TBHeight);
+// Left margin and top margin.
+// The top margin changes if we have a bar.
+    clientRect.left = (unsigned long) __BorderSize;
+    clientRect.top  = (unsigned long) __BorderSize;
+    if (window->type == WT_OVERLAPPED){
+        clientRect.top  = (unsigned long) (__TBHeight + __BorderSize);
     }
+
+// Width and height.
 // width
 // menos bordas laterais
+// height
+// menos bordas superior e inferior
+    // menos a barra de tarefas.
+
     clientRect.width  = 
         (unsigned long) ( 
             window->width -
             __BorderSize -
             __BorderSize );
-// height
-// menos bordas superior e inferior
-    // menos a barra de tarefas.
+
     clientRect.height = 
         (unsigned long) ( 
             window->height -
             __BorderSize -
             __TBHeight -
             __BorderSize); 
-
 
 // If we have scrollbars.
 // #todo: Diminuimos as dimensões se o style
@@ -786,14 +774,14 @@ void *doCreateWindow (
 
 //++
 // Margens.
-// Deslocando em relaçao a janela mae.
+// Deslocando em relaçao a janela mãe.
 
 // We don't have a parent wiindow.
 // If this is the first of all windows.
 
 // Relative
     window->left = WindowX;
-    window->top  = WindowY; 
+    window->top  = WindowY;
 
 // If we have a parent window.
 // parent + arguments
@@ -807,7 +795,7 @@ void *doCreateWindow (
     if ( (void*) window->parent == NULL )
     {
         window->absolute_x = WindowX;
-        window->absolute_y = WindowY; 
+        window->absolute_y = WindowY;
     }
 
 // Calcula o absoluto
@@ -876,10 +864,8 @@ void *doCreateWindow (
     window->absolute_right = 
         (unsigned long) (window->absolute_x + window->width);
     window->absolute_bottom = 
-        (unsigned long) (window->absolute_y + window->height); 
-
+        (unsigned long) (window->absolute_y + window->height);
 //--
-
 
 // Maximized. OK
 // Fit to the desktop working area.
@@ -896,7 +882,7 @@ void *doCreateWindow (
             window->absolute_right = 
                 (unsigned long) (window->absolute_x + window->width);
             window->absolute_bottom = 
-                (unsigned long) (window->absolute_y + window->height); 
+                (unsigned long) (window->absolute_y + window->height);
         }
     }
 
@@ -1071,8 +1057,8 @@ void *doCreateWindow (
     window->backgroundUsed = FALSE;  // 2
     window->titlebarUsed   = FALSE;  // 3
     window->controlsUsed   = FALSE;  // 4
-    window->borderUsed     = FALSE;  // 5  
-    window->menubarUsed    = FALSE;  // 6 
+    window->borderUsed     = FALSE;  // 5
+    window->menubarUsed    = FALSE;  // 6
     window->toolbarUsed    = FALSE;  // 7
     window->clientAreaUsed = FALSE;  // 8
     window->scrollbarUsed  = FALSE;  // 9
@@ -1109,7 +1095,7 @@ void *doCreateWindow (
         break;
 
     // Edit box. (Simples + borda preta).
-    // Editbox não tem sombra, tem bordas. 
+    // Editbox não tem sombra, tem bordas.
     //case WT_EDITBOX:
     case WT_EDITBOX_SINGLE_LINE:
     case WT_EDITBOX_MULTIPLE_LINES:
@@ -1133,9 +1119,9 @@ void *doCreateWindow (
         Shadow         = TRUE;
         Background     = TRUE;
         ClientArea     = TRUE;
-        MinimizeButton = TRUE; //Depends on the style.
-        MaximizeButton = TRUE; //Depends on the style.
-        CloseButton    = TRUE; //Depends on the style.
+        MinimizeButton = TRUE;  //Depends on the style.
+        MaximizeButton = TRUE;  //Depends on the style.
+        CloseButton    = TRUE;  //Depends on the style.
         // Always.
         window->shadowUsed     = TRUE;
         window->backgroundUsed = TRUE;
@@ -1213,9 +1199,13 @@ void *doCreateWindow (
     // We need to work on this case.
 
     default:
+        
         debug_print("doCreateWindow: [DEBUG] default\n");
              printf("doCreateWindow: [DEBUG] default\n");
-        while(1){}
+        while (1)
+        {
+        };
+
         //return NULL;
         break;
     };
@@ -1370,7 +1360,7 @@ void *doCreateWindow (
         // Cinza escuro.  CurrentColorScheme->elements[??] 
         // @TODO: criar elemento sombra no esquema. 
 
-        if ( (unsigned long) type == WT_OVERLAPPED )
+        if ((unsigned long) type == WT_OVERLAPPED)
         {
             if (window->focus == TRUE) { __tmp_color = xCOLOR_GRAY1; }
             if (window->focus == FALSE){ __tmp_color = xCOLOR_GRAY2; }
@@ -1626,11 +1616,9 @@ void *CreateWindow (
 // kinds of windows for now:
 // overlapped, editbox, button and simple.
     int ValidType=FALSE;
-
     size_t text_size = 0;
 
     //gwssrv_debug_print ("CreateWindow:\n");
-
 
 
 // =================
@@ -1666,7 +1654,7 @@ void *CreateWindow (
 
 // #todo: 
 // Colocar mascara nos valores passados via parâmetro.
-
+    // #todo: ValidType=FALSE;
     switch (type){
     case WT_OVERLAPPED:
     case WT_EDITBOX: 
@@ -1678,6 +1666,7 @@ void *CreateWindow (
         break;
     };
 
+    // #todo: if (ValidType != TRUE){
     if (ValidType == FALSE){
         gwssrv_debug_print ("CreateWindow: Invalid type\n");
         goto fail;
@@ -1699,12 +1688,9 @@ void *CreateWindow (
     //if ( (void*) windowname == NULL ){}
     //if ( *windowname == 0 ){}
 
-    
-
     //if (style & WS_MAXIMIZED){
     //    printf("MAX 1\n"); 
     //}
-
 
 // ============================
 // Types with frame.
@@ -1806,9 +1792,9 @@ void *CreateWindow (
 
         //--------------------
         // Let's setup the buffer for the text.
-        if(type == WT_EDITBOX)
+        if (type == WT_EDITBOX)
             text_size = 128;
-        if(type == WT_EDITBOX_MULTIPLE_LINES)
+        if (type == WT_EDITBOX_MULTIPLE_LINES)
             text_size = 256;
         __w->textbuffer_size_in_bytes = 0;
         __w->text_size_in_bytes = 0;
@@ -1822,8 +1808,8 @@ void *CreateWindow (
         __w->text_fd = 0;  // No file for now.
         //--------------------
 
-        // Pintamos simples, mas o tipo sera edit   
-        __w->type = type;  //:)
+        // Pintamos simples, mas o tipo sera editbox.
+        __w->type = type;  // Editbox.
         __w->locked = FALSE;
         goto draw_frame;
     }
@@ -1961,6 +1947,7 @@ draw_frame:
 // border size, border color1, border color2, bordercolor3,
 // ornament color1, ornament color2, 
 // style.
+// #todo: We need the style dependent variables for these colors.
 
     if ( type == WT_OVERLAPPED || 
          type == WT_EDITBOX_SINGLE_LINE || 
@@ -1974,11 +1961,11 @@ draw_frame:
                 (struct gws_window_d *) pWindow,
                 (struct gws_window_d *) __w, 
                 METRICS_BORDER_SIZE,
-                (unsigned int) COLOR_BLACK, 
-                (unsigned int) COLOR_BLACK,
-                (unsigned int) COLOR_BLACK,
-                (unsigned int) 0x00C3C3C3,  //xCOLOR_GRAY6,
-                (unsigned int) 0x00C3C3C3,  //xCOLOR_GRAY3,
+                (unsigned int) COLOR_BORDER2,  //COLOR_BLACK,  // border color 1
+                (unsigned int) COLOR_BORDER2,  //COLOR_BLACK,  // border color 2
+                (unsigned int) COLOR_BORDER2,  //COLOR_BLACK,  // border color 3
+                (unsigned int) COLOR_ORNAMENT,  //0x00C3C3C3,   // ornament color 1
+                (unsigned int) COLOR_ORNAMENT,  //0x00C3C3C3,   // ornament color 2
                 1 );  // style
         }
     }
@@ -2187,7 +2174,6 @@ int this_type_can_become_active(int window_type)
     return FALSE;
 }
 */
- 
 
 /*
 // #todo
@@ -2197,7 +2183,6 @@ struct gws_window_d *get_window_object(int wid)
 {
 }
 */
-
 
 //#todo
 // get client rect froma given window.
@@ -2238,10 +2223,7 @@ struct gws_rect_d *rect_from_window(struct gws_window_d *window)
     return (struct gws_rect_d *) rect;
 }
 
-
 //
-// End.
+// End
 //
-
-
 

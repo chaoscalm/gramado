@@ -2129,20 +2129,17 @@ wmCreateWindowFrame (
 // Editbox
 // EDITBOX NÃO PRECISA DE BARRA DE TÍTULOS.
 // MAS PRECISA DE FRAME ... QUE SERÃO AS BORDAS.
-    
-//
-// Type
-//
 
+// Type
 // Qual é o tipo da janela em qual precisamos
 // criar o frame. Isso indica o tipo de frame.
 
     Type = window->type;
 
     switch (Type){
-    
-    case WT_EDITBOX:     
-    case WT_EDITBOX_MULTIPLE_LINES:     
+
+    case WT_EDITBOX:
+    case WT_EDITBOX_MULTIPLE_LINES:
         useFrame=TRUE; 
         useIcon=FALSE;
         useBorder=TRUE;
@@ -2164,18 +2161,17 @@ wmCreateWindowFrame (
             useTitleBar=FALSE;
             useTitleString=FALSE;
             useIcon=FALSE;
-            useBorder=FALSE; 
+            useBorder=FALSE;
         }
         if (window->style & WS_STATUSBAR){
             useStatusBar=TRUE;
         }
         break;
-    
-    
+
     case WT_BUTTON:
     case WT_ICON:
         useFrame=TRUE;
-        useIcon=FALSE; 
+        useIcon=FALSE;
         break;
 
     //default: break;
@@ -2366,10 +2362,9 @@ wmCreateWindowFrame (
             //#debug
             //printf ("sb\n");
             //while(1){}
-            
+
             // #todo
-            // Move these variables to the start
-            // of the routine.
+            // Move these variables to the start of the routine.
             unsigned long sbLeft=0;
             unsigned long sbTop=0;
             unsigned long sbWidth=8;
@@ -2426,7 +2421,6 @@ wmCreateWindowFrame (
             // então devemos atualizar a altura da área de cliente.
             window->rcClient.height -= window->statusbar_height;
 
-            
             if ( (void *) sbWindow == NULL ){
                 gwssrv_debug_print ("wmCreateWindowFrame: sbWindow fail \n");
                 return -1;
@@ -2449,7 +2443,6 @@ wmCreateWindowFrame (
 // ===============================================
 // Icon
 
-
     if (Type == WT_ICON)
     {
         window->borderUsed = TRUE;
@@ -2457,7 +2450,6 @@ wmCreateWindowFrame (
         //printf("border\n"); while(1){}
         return 0;
     }
-
 
     return 0;
 }

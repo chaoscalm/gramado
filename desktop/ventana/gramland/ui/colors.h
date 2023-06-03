@@ -364,6 +364,10 @@ public BGREntry vga_palette4_gray[16] = {
 
 // Border
 #define COLOR_BORDER  COLOR_SILVER 
+#define COLOR_BORDER2  COLOR_BLACK
+
+// Ornament
+#define COLOR_ORNAMENT  0x00C3C3C3
 
 // Button
 #define COLOR_BUTTONFACE           0xF0F0F0
