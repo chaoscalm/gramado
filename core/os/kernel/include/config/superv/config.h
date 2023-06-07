@@ -21,10 +21,10 @@
 // o controlador de ata. ide. em ata.c ata_initialize.
 // USE PRIMARY MASTER!!
 // Portas bases encontradas nas BARs.
-// BAR0 = base port 1F0   (channel 0 primary master) (channel 0 primary slave) 
-// BAR1 = base port 3F6	 channel ??
-// BAR2 = base port 170   (channel 1 secondary master) (channel 1 secondary slave)
-// BAR3 = base port 376   channel ??
+// BAR0 = base port 1F0  (channel 0 primary master) (channel 0 primary slave) 
+// BAR1 = base port 3F6  channel ??
+// BAR2 = base port 170  (channel 1 secondary master) (channel 1 secondary slave)
+// BAR3 = base port 376  channel ??
 // #importante
 // master e slave é coisa do PATA
 // então 3f6 pode ser canal 2 e 376 pode ser canal 3.
@@ -67,9 +67,8 @@
 // selecionadores das BARs 0 e 2, onde estão as portas de HD.
 // #todo: rever o código nessa parte de configuração das BARs.
 
-
-//a questao 'e que existem canais extras
-//vamos presizar ler mais bars.
+// A questão é que existem canais extras.
+// Vamos presizar ler mais BARs?
 
 /*
 Current disk controller chips almost always support two ATA buses per chip. 
@@ -87,10 +86,9 @@ Device Control Registers/Alternate Status ports are IO ports 0x3E6, and 0x366.
 
 /*
 This is the multiple IDE interface driver, as evolved from hd.c.
-
-It supports up to 9 IDE interfaces per default, on one or more IRQs (usually
-14 & 15).  There can be up to two drives per interface, as per the ATA-6 spec.
-
+It supports up to 9 IDE interfaces per default, on one or 
+more IRQs (usually 14 & 15). 
+There can be up to two drives per interface, as per the ATA-6 spec.
 Primary:    ide0, port 0x1f0; major=3;  hda is minor=0; hdb is minor=64
 Secondary:  ide1, port 0x170; major=22; hdc is minor=0; hdd is minor=64
 Tertiary:   ide2, port 0x1e8; major=33; hde is minor=0; hdf is minor=64
@@ -116,14 +114,11 @@ sixth..     ide5, usually PCI, probed
 // #define DEFAULT_RUNLEVEL  0
 #define DEFAULT_RUNLEVEL  5
 
-
-
 /* configuração de compilação */
 
 // Algumas adaptações precisam ser feitas 
 // para que as ferramentas de compilação 
 // sejam usadas corretamente.
-
 
 // gcc version:
 // gcc 8 on manjaro
@@ -137,7 +132,6 @@ sixth..     ide5, usually PCI, probed
 // irão rodar na inicialização.
 // Se a configuração não indicar nenhum processo então o kernel deve 
 // falhar na inicialização, por enquanto. 
-
 
 //=====================================================
 //    ######## Creation flags ########
@@ -160,32 +154,30 @@ sixth..     ide5, usually PCI, probed
 //    ######## more ... ########
 //
 
-
 //Essa flag aciona a rotina que vai checar o máximo de 
 //configurações e inicializações válidas.
 
 #define ENTRY_DEBUG_CHECK_VALIDATIONS  1
 
-
 //
 // Set up what kind of debug message we wanna see.
 //
-
 
 // #bugbug
 // Essas flags perderam o sentido
 // precisamos renomear ou usarmos apenas a principal.
 
-//Esse é usado para exibir somente os marcadores principais,
-//que são mesnagens escritas em maiúculas.
-//fnciona como uma visão panorâmica, usa espinha dorsal, um esqueleto.
-#define KERNEL_VERBOSE 1
+// Esse é usado para exibir somente os marcadores principais,
+// que são mesnagens escritas em maiúculas.
+// funciona como uma visão panorâmica, 
+// uma espinha dorsal, um esqueleto.
+#define KERNEL_VERBOSE  1
 
-//Esse é usado para trabalhar a rotina de 
+// Esse é usado para trabalhar a rotina de 
 // entrypoint da arquitetura alvo.
 #define ENTRY_VERBOSE  1
 
-//Esses quatro são as camadas principais.
+// Esses quatro são as camadas principais.
 #define HAL_VERBOSE     1
 #define PS_VERBOSE      1
 #define EXECVE_VERBOSE  1
@@ -200,8 +192,7 @@ sixth..     ide5, usually PCI, probed
 // Set up what what is the breakpoint.
 //
 
-//Seriam inicializações parciais programadas. 
- 
+// Seriam inicializações parciais programadas. 
 
 //#todo
 //Criar um breakpoint apo's a sondagem de dispositivos pci.
@@ -216,8 +207,6 @@ sixth..     ide5, usually PCI, probed
 //#define BREAKPOINT_TARGET_AFTER_MK 1
 //#define BREAKPOINT_TARGET_AFTER_ENTRY 1
 
-
-
 //
 // ## targets ##
 //
@@ -225,15 +214,15 @@ sixth..     ide5, usually PCI, probed
 // Também pretendo fazer a inicialização mudar de 
 // direção dependendo do alvo programado.
 
-//Isso inicializa os três aplicativos do gramado core.
+// Isso inicializa os três aplicativos do gramado core.
 //#define TARGET_GRAMADOCORE_APPS 1
 
-//Isso inicializa apenas o app init do gramado core.
+// Isso inicializa apenas o app init do gramado core.
 //#define TARGET_GRAMADOCORE_INIT 1
 
-
 // See: fonts.h
-#define DEFAULT_FONT_SIZE FONT8X8
+// #bugbug: FONT8X8 is define bellow this definition.
+//#define DEFAULT_FONT_SIZE  FONT8X8
 //#define DEFAULT_FONT_SIZE FONT8X16
 //...
 
@@ -242,6 +231,6 @@ sixth..     ide5, usually PCI, probed
 //#define CONFIG_QUANTUM_MULTIPLIER    2
 //#define CONFIG_QUANTUM_MULTIPLIER    3
 
-
 #endif 
+
 
