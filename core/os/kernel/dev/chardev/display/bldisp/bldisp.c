@@ -277,7 +277,7 @@ void screenSetSize( unsigned long width, unsigned long height )
 // #todo
 // We can also use 16 bytes ... SSE?
 
-void fb_refresh_screen (unsigned long flags)
+void fb_refresh_screen(unsigned long flags)
 {
 
 // #option
@@ -337,7 +337,7 @@ void fb_refresh_screen (unsigned long flags)
 // para debug na inicializaçao.
 // entao vamos limitar o tamanho do refresh screen
 // isso ajuda no refresh screen, mas nao em outras rotinas graficas.
-    if ( g_use_fake_screen_size == TRUE)
+    if (g_use_fake_screen_size == TRUE)
     {
         //fake_screen_size_in_kb = (( 320*4*200 )/1024);
         TotalInBytes = (int) (fake_screen_size_in_kb * 1024);
@@ -401,13 +401,14 @@ int screenInit(void)
     screen_is_dirty = FALSE;
 
 // Configura globais com base nos valores passados pelo Boot Loader.
-    screenSetSize( 
+    screenSetSize(
         (unsigned long) gSavedX, 
         (unsigned long) gSavedY );
 
     screen_bpp = gSavedBPP;
-// Pitch
-// Ex: ((32/8)*800)
+// Pitch: bytes per line.
+// Ex: 
+// bytes per pixel = ((32/8)*800)
     screen_pitch = 
         (unsigned long) ( (gSavedBPP/8) * gSavedX );
     //...
@@ -492,7 +493,7 @@ void bldisp_show_info(void)
 // We need a generic worker to display information
 // about a given display device.
 
-    if ( (void*) bl_display_device == NULL )
+    if ((void*) bl_display_device == NULL)
         return;
     if (bl_display_device->magic != 1234)
         return;
@@ -512,41 +513,29 @@ static int __videoInit(void)
     int Status=0;
 
 // Se o modo de video nao esta habilitado
+// Can we use the panic function?
+// No we can't.
     if (VideoBlock.useGui != TRUE)
     {
-        // Can we use the function?
-        // No we can't
-        //panic("videoInit:\n");
         debug_print("__videoInit:\n");
-        asm ("cli \n");
-        while (1){
-            asm("hlt");
-        };
+        //panic("videoInit:\n");
+        soft_die();
     }
-
     VideoBlock.useGui = TRUE;
 
-//
-// LFB
-//
 
-// frontbuffer
+// Frontbuffer (LFB)
     __frontbuffer_pa = (unsigned long) gSavedLFB;
     __frontbuffer_va = (unsigned long) FRONTBUFFER_VA;
     g_frontbuffer_pa = (unsigned long) __frontbuffer_pa; 
     g_frontbuffer_va = (unsigned long) __frontbuffer_va;
 
-//
 // Backbuffer
-//
-
-// backbuffer
     g_backbuffer_va  = (unsigned long) BACKBUFFER_VA;
 
 // Device screen sizes. 
 // (herdadas do boot loader.)
 // See: globals/gdevice.h
-
     g_device_screen_width  = (unsigned long) gSavedX;
     g_device_screen_height = (unsigned long) gSavedY;
     g_device_screen_bpp    = (unsigned long) gSavedBPP;
@@ -576,22 +565,18 @@ int Video_initialize(void)
  * videoGetMode: 
  *     Obtem o modo de video atual.
  */
-
-//#todo
-//isso pode ser incluido em 'get system parameters' system call.
-
-unsigned long videoGetMode (void)
+// #todo
+// Isso pode ser incluido em 'get system parameters' system call.
+unsigned long videoGetMode(void)
 {
     return (unsigned long) g_current_video_mode;
 }
-
 
 /*
  * videoSetMode:
  *     Configura o modo de video atual.
  */
-
-void videoSetMode (unsigned long mode)
+void videoSetMode(unsigned long mode)
 {
     unsigned long VideoMode=0;
     unsigned long Width=0;
@@ -602,18 +587,21 @@ void videoSetMode (unsigned long mode)
 
     VideoMode = (unsigned long) mode;
 
-//
-// todo: Check limits.
-//
+// todo: 
+// Check limits.
 
     //if (){}
 
+// ??
 // Se estiver nos limites.
-    if ( VideoMode > 0 && VideoMode < 9000)
+    if ( VideoMode > 0 && 
+         VideoMode < 9000 )
     {
         //g_current_video_mode = (unsigned long) VideoMode;
-        g_video_mode = (unsigned long) VideoMode;
-        VideoBlock.vesaMode = (unsigned long) VideoMode; 
+        g_video_mode = 
+            (unsigned long) VideoMode;
+        VideoBlock.vesaMode = 
+            (unsigned long) VideoMode; 
         //...
     }
 
@@ -667,24 +655,22 @@ void videoSetMode (unsigned long mode)
 
     // Continua... (outros parametros)
 
-    g_current_video_mode = (unsigned long) VideoMode;
+    g_current_video_mode = 
+        (unsigned long) VideoMode;
 }
-
 
 /*
  * videoSetupCGAStartAddress:
  *     Configura o endereço inicial da memória de video em modo texto   
  *     fis=b8000  vir=??   #todo
  */
-
 void videoSetupCGAStartAddress (unsigned long address)
 {
     g_current_vm = (unsigned long) address;
     //g_current_cga_address
 }
 
-
 //
-// End.
+// End
 //
 

@@ -1,7 +1,6 @@
 
 // xpixel.c
 // Presentation: Put a pixel into the backbuffer.
-// #todo: We change this name to bltblt.c
 
 //D - Destination bitmap
 //P - Selected brush (also called pattern)
@@ -11,7 +10,6 @@
 // bit block transfer
 // https://en.wikipedia.org/wiki/Bit_blit
 // https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
-
 
 #include <kernel.h>
 
@@ -134,7 +132,7 @@ putpixel0 (
 
 // The first byte;
 // 0 ~ FF
-    int operation = (int) (_rop_flags & 0xFF);
+    int Operation = (int) (_rop_flags & 0xFF);
 
 // flags
 // 16, 32, 64, 128 
@@ -143,7 +141,8 @@ putpixel0 (
 // -------------------------
 // 0 - Sem modificação
 // A cor a ser registrada é a mesma enviada por argumento.
-    if (operation == 0){
+    if (Operation == 0)
+    {
         r3=r;  
         g3=g;  
         b3=b;  
@@ -151,7 +150,7 @@ putpixel0 (
     }
 // -------------------------
 // 1 = or
-    if (operation == 1)
+    if (Operation == 1)
     {
         r3 = (r2 | r);
         g3 = (g2 | g);
@@ -160,7 +159,7 @@ putpixel0 (
     }
 // -------------------------
 // 2 = and
-    if (operation == 2)
+    if (Operation == 2)
     {
         r3 = (r2 & r);
         g3 = (g2 & g);
@@ -169,7 +168,7 @@ putpixel0 (
     }
 // -------------------------
 // 3 = xor
-    if (operation == 3)
+    if (Operation == 3)
     {
         r3 = (r2 ^ r);
         g3 = (g2 ^ g);
@@ -178,7 +177,7 @@ putpixel0 (
     }
 // -------------------------
 // 4 - nand? #text
-    if (operation == 4)
+    if (Operation == 4)
     {
         r2 = ~r2;
         g2 = ~g2;
@@ -191,7 +190,7 @@ putpixel0 (
 
 // -------------------------
 // 10 - less red
-    if (operation == 10)
+    if (Operation == 10)
     {
         r3 = (r2 & 0xFE);
         g3 = g2;
@@ -200,7 +199,7 @@ putpixel0 (
     }
 // -------------------------
 // 11 - less green
-    if (operation == 11)
+    if (Operation == 11)
     {
         r3 = r2;
         g3 = (g2 & 0xFE);
@@ -209,7 +208,7 @@ putpixel0 (
     }
 // -------------------------
 // 12 - less blue
-    if (operation == 12)
+    if (Operation == 12)
     {
         r3 = r2;
         g3 = g2;
@@ -218,7 +217,7 @@ putpixel0 (
     }
 // -------------------------
 // 20 - gray
-    if (operation == 20)
+    if (Operation == 20)
     {
         r3 = (r2 & 0x80);
         g3 = (g2 & 0x80);
@@ -227,7 +226,7 @@ putpixel0 (
     }
 // -------------------------
 // 21 - no red 
-    if (operation == 21)
+    if (Operation == 21)
     {
         r3 = (r2 & 0x00);
         g3 = (g2 & 0xFF);
@@ -235,14 +234,14 @@ putpixel0 (
         a3 = a2;
     }
 
-// luminosity
+// Luminosity
 // Gray: luminosity = R*0.3 + G*0.59 + B *0.11
 
 /*
  // #test
  // This is a test yet.
     unsigned char common_gray=0;
-    if ( operation == 22 )
+    if (Operation == 22)
     {
         r3 = ((r2 * 30 )/100);
         g3 = ((g2 * 59 )/100);
@@ -265,10 +264,10 @@ putpixel0 (
     where[offset]    = b3;
     where[offset +1] = g3;
     where[offset +2] = r3;
-    if ( gSavedBPP == 32 ){ where[offset +3] = a3; };
+    if (gSavedBPP == 32){ where[offset +3] = a3; };
 
 // Number of changed pixels.
-    return 1;
+    return (int) 1;
 }
 
 int 

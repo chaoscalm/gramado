@@ -421,6 +421,12 @@ static void __a_soft_place_to_fall(void)
     };
 }
 
+void soft_die(void)
+{
+    __a_soft_place_to_fall();
+    soft_die();
+}
+
 // The kernel hangs.
 void die(void)
 {

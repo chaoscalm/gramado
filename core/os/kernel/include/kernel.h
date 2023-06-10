@@ -674,4 +674,5 @@ void gramado_shutdown (int how);
 // Finalizations support.
 void faults(unsigned long number);
 void panic ( const char *format, ... );
+void soft_die(void);
 void die (void);

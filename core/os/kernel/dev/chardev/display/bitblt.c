@@ -1,6 +1,8 @@
 
 // bitblt.c
 // Bit-block Transfer.
+// Operations just like copying a rectangle while
+// doing rop operations.
 
 #include <kernel.h>
 
@@ -13,3 +15,4 @@ bitblt(
 {
     return FALSE;
 }
+
