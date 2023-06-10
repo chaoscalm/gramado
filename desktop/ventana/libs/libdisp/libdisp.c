@@ -520,7 +520,6 @@ putpixel0 (
 // Positions
     int offset=0;   // the offset of the pixel into the buffer.
 
-
     int x = (int) (_x & 0xFFFF);
     int y = (int) (_y & 0xFFFF);
 

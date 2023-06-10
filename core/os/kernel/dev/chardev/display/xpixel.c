@@ -49,6 +49,11 @@ putpixel0 (
     g = (Color & 0xFF00) >> 8;
     r = (Color & 0xFF0000) >> 16;
     a = (Color >> 24) + 1;
+
+// The first byte;
+// 0 ~ FF
+    int Operation = (int) (_rop_flags & 0xFF);
+
 // Positions
     int x = (int) (_x & 0xFFFF);
     int y = (int) (_y & 0xFFFF);
@@ -123,30 +128,17 @@ putpixel0 (
     b2 = where[offset];
     g2 = where[offset +1];
     r2 = where[offset +2];
-    if ( gSavedBPP == 32 ){ a2 = where[offset +3]; };
+    if (gSavedBPP == 32){ a2 = where[offset +3]; };
 
 // ------------------------------
 // A cor transformada.
 // A cor a ser gravada.
     unsigned char b3, g3, r3, a3;
-
-// The first byte;
-// 0 ~ FF
-    int Operation = (int) (_rop_flags & 0xFF);
-
-// flags
-// 16, 32, 64, 128 
-
-
 // -------------------------
 // 0 - Sem modificação
 // A cor a ser registrada é a mesma enviada por argumento.
-    if (Operation == 0)
-    {
-        r3=r;  
-        g3=g;  
-        b3=b;  
-        a3=a;
+    if (Operation == 0){
+        r3=r; g3=g; b3=b; a3=a;
     }
 // -------------------------
 // 1 = or
