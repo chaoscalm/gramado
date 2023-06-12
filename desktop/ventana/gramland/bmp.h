@@ -5,7 +5,6 @@
 #ifndef __GRAMLAND_BMP_H
 #define __GRAMLAND_BMP_H    1
 
-
 // Signature. "MB".
 #define BMP_TYPE  0x4D42
 
@@ -117,9 +116,7 @@ bmp_decode_system_icon (
     unsigned long y,
     int show );
 
-
 #endif   
-
 
 //
 // End

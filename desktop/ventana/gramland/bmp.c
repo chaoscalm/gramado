@@ -32,6 +32,30 @@ struct gws_bmp_infoheader_d  __Local_bi;
 
 static void *__get_system_icon(int n);
 
+// ------------------------------------
+
+/*
+ * __get_system_icon:
+ *     Get an address to a shared memory buffer
+ * where there is an icon previously loaded by the kernel.
+ */
+// Called by gwssrv_display_system_icon.
+// O kernel vai retornar NULL se for fora do limite.
+// limits=(1~5)
+
+static void *__get_system_icon (int n)
+{
+
+// #bugbug
+// #todo: max limit
+
+    //#todo: if (n <= 0){
+    if (n<0){
+        return NULL;
+    }
+
+    return (void *) gramado_system_call(9100,n,n,n);
+}
 
 /*
  * bmpDisplayBMP0:
@@ -60,9 +84,6 @@ bmpDisplayBMP0 (
     if ((void*)address==NULL){
         goto fail;
     }
-
-    //struct gws_bmp_header_d      *bh;
-    //struct gws_bmp_infoheader_d  *bi;
 
     register int i=0;
     register int j=0;
@@ -139,27 +160,8 @@ bmpDisplayBMP0 (
         goto fail;
     }
 
-//
-// struct for Info header
-//
-
-// #todo: 
-// Podemos usar malloc?
-// Buffer para as estruturas.
-// #todo: Na verdade a estrutura ja está dentro do arquivo.
-// não precisamos alocar toda vez que queremos exibir.
-// Mas podemos fazer uma cópia local num buffer estatico.
-
-/*
-    bh = (struct gws_bmp_header_d *) malloc( sizeof(struct gws_bmp_header_d) );
-    if ( (void *) bh == NULL ){
-        gwssrv_debug_print ("bmpDisplayBMP: bh fail \n");
-        printf             ("bmpDisplayBMP: bh fail \n");
-        goto fail;
-    }
-*/
-
-// See: https://en.wikipedia.org/wiki/BMP_file_format
+// See: 
+// https://en.wikipedia.org/wiki/BMP_file_format
 
 // Signature
 // 2 bytes
@@ -200,7 +202,7 @@ bmpDisplayBMP0 (
 // The size of this header.
 // 4 bytes
     __Local_bi.bmpSize = *( unsigned int * ) &bmp[14];
-    //printf ("HeaderSize={%x}\n",bi->bmpSize);
+    //printf ("HeaderSize={%x}\n", __Local_bi.bmpSize);
 
 // X and Y.
 // #todo: tipagem (type) xxx;
@@ -220,9 +222,9 @@ bmpDisplayBMP0 (
 // 1, 4, 8, 16, 24 and 32.
 // #todo: tipagem (type) xxx;
     __Local_bi.bmpBitCount = *( unsigned short * ) &bmp[28];
-    //printf ("Count={%d}\n", bi->bmpBitCount );    
-//#limits
-    //if (bi->bmpBitCount != 24){
+    //printf ("Count={%d}\n", __Local_bi.bmpBitCount );    
+// #limits
+    //if (__Local_bi.bmpBitCount != 24){
     //    printf("bmpDisplayBMP: Count fail\n");
     //    goto fail;
     // }
@@ -233,13 +235,13 @@ bmpDisplayBMP0 (
 
 // 0 = No compression.
 
-    /*
-    if ( bi->bmpCompression != 0 ){
+/*
+    if (__Local_bi.bmpCompression != 0){
         gwssrv_debug_print ("bmpDisplayBMP: bmpCompression fail \n");
         printf             ("bmpDisplayBMP: bmpCompression fail \n");
         goto fail;
     }
-    */
+*/
 
 //
 // Draw
@@ -329,9 +331,9 @@ bmpDisplayBMP0 (
 // Draw
 //
 
-    for ( i=0; i < __Local_bi.bmpHeight; i++ )
+    for (i=0; i < __Local_bi.bmpHeight; i++)
     {
-        for ( j=0; j < __Local_bi.bmpWidth; j++ )
+        for (j=0; j < __Local_bi.bmpWidth; j++)
         {
             // >> 16 cores
             // Um pixel por nibble.
@@ -545,9 +547,11 @@ bmpDisplayBMP0 (
         }
     };
 
-// ## test palette 
+// #test: 
+// Palette 
+
     //int p;
-    //if (bi->bmpBitCount == 8)
+    //if (__Local_bi.bmpBitCount == 8)
     //{
     //    printf("\n");
     //    for ( p=0; p<16; ++p ){
@@ -575,7 +579,7 @@ done:
     // #debug
     //gwssrv_debug_print ("bmpDisplayBMP0: done \n");
     //printf             ("bmpDisplayBMP0: done \n");
-    //printf("w={%d} h={%d}\n", bi->bmpWidth, bi->bmpHeight );
+    //printf("w={%d} h={%d}\n", __Local_bi.bmpWidth, __Local_bi.bmpHeight );
 
     return 0;
 
@@ -603,29 +607,6 @@ bmpDisplayBMP (
         show );
 
     return (int) res;
-}
-
-/*
- * __get_system_icon:
- *     Get an address to a shared memory buffer
- * where there is an icon previously loaded by the kernel.
- */
-// Called by gwssrv_display_system_icon.
-// O kernel vai retornar NULL se for fora do limite.
-// limits=(1~5)
-
-static void *__get_system_icon (int n)
-{
-
-// #bugbug
-// #todo: max limit
-
-    //#todo: if (n <= 0){
-    if (n<0){
-        return NULL;
-    }
-
-    return (void *) gramado_system_call(9100,n,n,n);
 }
 
 // gwssrv_display_system_icon:
