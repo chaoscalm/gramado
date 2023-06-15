@@ -1,5 +1,6 @@
 
 // globals.c
+// 2022 - Created by Fred Nora.
 
 #include "gwsint.h"
 
@@ -70,10 +71,6 @@ int use_vsync=FALSE;
 //
 // Color scheme
 //
-
-
-
-
 
 /*
 // Losethos colors.

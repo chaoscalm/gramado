@@ -1,7 +1,19 @@
 # desktop - The Desktop Environment.
 
-Gramado Window System: 
-    Window server and clients.
+    Here your're gonna find:
+
+demos:
+    + 3D demos.
+games:
+    + games.
+ventana:
+    + The window server.
+    + Client-side GUI applications.
+    + Libraries.
+
+
+
+
 
 
 

@@ -1,14 +1,11 @@
 
 // globals.h
 
-
 #ifndef __GWSSRV_GLOBALS_H
 #define __GWSSRV_GLOBALS_H   1
 
-
 extern int gUseCallback;
 extern int gUseMouse;
-
 
 //
 // == buffer ===============================================
@@ -31,18 +28,17 @@ extern unsigned long next_response[32];
 
 //----------------------------------------
 
-
-struct initialization_d
-{
-
 // Initialization phase.
 // 0: Nothing
 // 1: Initialize global variables and structures.
 // 2: Initialize graphics infrastructure.
 // 3: Entering the main loop. 
 
+struct initialization_d
+{
+// Initialization phase
     int current_phase;
-    
+// Checkpoints
     int ws_struct_checkpoint;
     int wm_struct_checkpoint;
     int register_ws_checkpoint;
@@ -251,7 +247,7 @@ typedef enum {
 
 
 /*
- * color_scheme_d:
+ * gws_color_scheme_d:
  *     Estrutura para esquema de cores. 
  *     O esquema de cores se aplica ao servidor 
  * de recursos gráficos. GWS.
