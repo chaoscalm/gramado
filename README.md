@@ -62,11 +62,15 @@ desktop/ is a place for the graphical user interface.
      * `boot` - The boot loader.
      * `disk` - The root directory for the boot partition.
      * `kernel` - The Gramado OS kernel.
- * `desktop/` - The window server and it's clients.
-   * `apps` - Client applications.
-   * `eng` - Graphics engine.
-   * `gramland` - Window server.
-   * `libs` - Libraries.
+
+ * `desktop/` - Desktop Environment (DE).
+   * `demos` - Demos.
+     * `eng` - 3D demo.
+   * `games/` - Games.
+   * `ventana/`
+     * `apps` - Client-side GUI applications.
+     * `gramland` - Window server.
+     * `libs` - Libraries.
 
 ## Who are the developers?
 

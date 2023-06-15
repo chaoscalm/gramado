@@ -85,12 +85,10 @@ static int terminal___PID=0;
 /*
 // #todo
 const char *errno_list[32] = {
-
     "error 0",
     "error 1",
     "error 2",
     // ...
-
 };
 */
 
@@ -106,6 +104,7 @@ void stdioSetCursor( unsigned long x, unsigned long y );
 unsigned long stdioGetCursorX(void); 
 unsigned long stdioGetCursorY(void); 
 static size_t stdio_strlen (const char *s);
+static char *_vsputs_r(char *dest, char *src);
 //--
 
 //
@@ -132,22 +131,21 @@ char terry_toupper(char ch)
 {
     if (ch>='a' && ch<='z')
         return ch + 'A'-'a'; 
-    else return ch;
+    else 
+        return ch;
 }
 */
-
-
 
 int rtl_y_or_n(void)
 {
     static int ch=0;
     printf ("Type: 'y' or 'n'\n");
+
+// Get and convert to capital.
     while (1)
     {
-        // Get and convert to capital.
         ch = (int) fgetc(stdin);
         ch = (int) toupper(ch);
-
         if (ch == 'Y'){
             printf ("~YES!\n");
             return TRUE;
@@ -156,6 +154,7 @@ int rtl_y_or_n(void)
             return FALSE;
         };
     };
+    // return (int) -1;
 }
 
 int rtl_are_you_sure(void)
@@ -163,8 +162,6 @@ int rtl_are_you_sure(void)
     printf ("Are You sure?\n");
     return (int) rtl_y_or_n();
 }
-
-
 
 // stdio_atoi:
 // Talvez isso possa ir para o topo do 
@@ -196,7 +193,6 @@ int stdio_atoi (char *s)
         rv = (rv * 10) + (*s - '0');
         s++;
     };
-
 
     if (sign){ 
         return (-rv);
@@ -250,7 +246,6 @@ void stdio_fntos (char *name)
 
         //ext[i] = name[i+1];
 
-
         // #testando
         //Se não for letra então não colocamos no buffer de extensão;
 
@@ -279,7 +274,6 @@ void stdio_fntos (char *name)
     *name = '\0';
     //*name = 0;
 }
-
 
 /*
  # todo
@@ -316,18 +310,14 @@ FILE *__make_FILE (int fd)
      
     // CLean 
     memset (fp, 0, sizeof(FILE));
-    
+
     unsigned char *buffer;
-    
     buffer = (unsigned char *) malloc (BUFSIZ);
-    
     __init_FILE ( (FILE *) fp, (int) fd, (unsigned char *) buffer, 0 );
-    
+
     return (FILE *) fp;
 }
 */
-
-
 
 /*
  * remove:
@@ -345,8 +335,15 @@ int remove (const char *pathname)
 {
     debug_print ("remove: [TODO] It removes a file from the file system\n");
     if( (void*) pathname == NULL){
-        return -1;
+        goto fail;
     }
+    if (*pathname == 0){
+        goto fail;
+    }
+
+// #todo
+
+fail:
     return (int) (-1);
 }
 
@@ -370,7 +367,6 @@ _strout (
             putc (*string++, file);
             count--;
         }
-
         putc (fillch, file);
         adjust++;
     };
@@ -385,76 +381,12 @@ _strout (
     };
 }
 
-
 //
 // == low level =====================
 //
 
-// #todo:
-// We need a table.
-int fflush_all(void)
-{
-    printf("fflush_all: #todo\n");
-    return 0;
-}
-
-// #importante
-// A informaçao eh entregue para ser salva no disco,
-// Ela nao eh salva no disco.
-// O sistema operacional decide qual eh a melhor hora,
-// Ao menos que seja explicitamente chamado alguma rotina
-// dizendo que eh pra salvar no disco ... sync.
-// Eh um tipo de commit. Um comprometimento.
-// Note that fflush() only flushes the user space buffers 
-// provided by the C library. To ensure that the data is 
-// physically stored on disk the kernel buffers must be flushed too. 
-// The contents of the stream buffer are written 
-// to the underlying file or device and the buffer is discarded.
-// A call to fflush negates the effect of any prior 
-// call to ungetc for the stream. The stream remains open after the call.
-// ms-commit
-// The commit-to-disk feature of the run-time library 
-// lets you ensure that critical data is written directly to disk 
-// rather than to the operating-system buffers.
-// The fflush() function ensures that data has been written 
-// to the kernel buffer pools from your application's buffer 
-// (either for a single file, or for all output files if you use fflush(0) or fflush(NULL)).
-// If a file is open, can write and is buffered,
-// so we flush the ring3 buffer. It will send the data
-// to the file in ring0.
-// + if the stream is a console device, so the data will be show in the screen
-// + if it is a regular file, so it will be saved into the disk, i guess (commit)
-// See:
-// sync, syncfs - commit buffer cache to disk.
-// sync() causes all buffered modifications to file metadata and 
-// data to be written to the underlying file systems.
-// fflush - flush a stream
-// For  output  streams,  fflush() forces a write of all 
-// user-space buffered data for the given output or 
-// update stream via the stream's underlying write function.  
-// For input streams, fflush() discards any buffered data 
-// that has been fetched from the underlying file, 
-// but has not been consumed by the application.  
-// The open status  of the stream is unaffected.
-// See:
-// for sync(), see unistd.c
-// IN:
-// NULL is ok.
-// NULL will flush all the streams in the table[].
-// #todo: We need a talbe here in the lib.
-
-int fflush (FILE *stream)
-{
-    if ( (void*) stream == NULL ){
-        return (int) fflush_all();
-    }
-    return (int) __fflush(stream);
-}
-
-
-// real flush.
-// called by fflush();
-
+// fflush() implementation.
+// Called by fflush();
 int __fflush (FILE *stream)
 {
     ssize_t nwrite = -1;
@@ -559,6 +491,66 @@ int __fflush (FILE *stream)
     return 0;
 }
 
+// #todo:
+// We need a table.
+int fflush_all(void)
+{
+    printf("fflush_all: #todo\n");
+    return 0;
+}
+
+// #importante
+// A informaçao eh entregue para ser salva no disco,
+// Ela nao eh salva no disco.
+// O sistema operacional decide qual eh a melhor hora,
+// Ao menos que seja explicitamente chamado alguma rotina
+// dizendo que eh pra salvar no disco ... sync.
+// Eh um tipo de commit. Um comprometimento.
+// Note that fflush() only flushes the user space buffers 
+// provided by the C library. To ensure that the data is 
+// physically stored on disk the kernel buffers must be flushed too. 
+// The contents of the stream buffer are written 
+// to the underlying file or device and the buffer is discarded.
+// A call to fflush negates the effect of any prior 
+// call to ungetc for the stream. The stream remains open after the call.
+// ms-commit
+// The commit-to-disk feature of the run-time library 
+// lets you ensure that critical data is written directly to disk 
+// rather than to the operating-system buffers.
+// The fflush() function ensures that data has been written 
+// to the kernel buffer pools from your application's buffer 
+// (either for a single file, or for all output files if you use fflush(0) or fflush(NULL)).
+// If a file is open, can write and is buffered,
+// so we flush the ring3 buffer. It will send the data
+// to the file in ring0.
+// + if the stream is a console device, so the data will be show in the screen
+// + if it is a regular file, so it will be saved into the disk, i guess (commit)
+// See:
+// sync, syncfs - commit buffer cache to disk.
+// sync() causes all buffered modifications to file metadata and 
+// data to be written to the underlying file systems.
+// fflush - flush a stream
+// For  output  streams,  fflush() forces a write of all 
+// user-space buffered data for the given output or 
+// update stream via the stream's underlying write function.  
+// For input streams, fflush() discards any buffered data 
+// that has been fetched from the underlying file, 
+// but has not been consumed by the application.  
+// The open status  of the stream is unaffected.
+// See:
+// for sync(), see unistd.c
+// IN:
+// NULL is ok.
+// NULL will flush all the streams in the table[].
+// #todo: We need a talbe here in the lib.
+
+int fflush (FILE *stream)
+{
+    if ( (void*) stream == NULL ){
+        return (int) fflush_all();
+    }
+    return (int) __fflush(stream);
+}
 
 //
 // == Root 1 =================

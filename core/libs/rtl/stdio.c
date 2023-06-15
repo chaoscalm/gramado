@@ -101,12 +101,12 @@ void stdioSetCursor( unsigned long x, unsigned long y );
 unsigned long stdioGetCursorX(void); 
 unsigned long stdioGetCursorY(void); 
 static size_t stdio_strlen (const char *s);
+static char *_vsputs_r(char *dest, char *src);
 //--
 
 //
 // =========================================================
 //
-
 
 /*
 char *out_char(char *dst,char ch);
@@ -2287,7 +2287,6 @@ void kinguio_puts(const char* str)
     };
 }
 
-
 // #todo
 // #bugbug
 // Parameters can't be NULL.
@@ -2297,13 +2296,12 @@ static char *_vsputs_r(char *dest, char *src)
     unsigned char *udest = (unsigned char *) dest;
 
     while (*usrc) 
-    { 
+    {
         *udest++ = *usrc++; 
     };
 
     return (char * ) udest;
 }
-
 
 int 
 kinguio_vsprintf( 

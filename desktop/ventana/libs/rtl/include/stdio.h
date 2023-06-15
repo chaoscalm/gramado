@@ -439,9 +439,9 @@ extern int prompt_status;
 // Root 1.
 //
 
+int __fflush ( FILE *stream);
 int fflush_all(void);
 int fflush (FILE *stream);
-int __fflush ( FILE *stream);
 int __getc ( FILE *stream );
 int __putc (int ch, FILE *stream);
 int ____bfill(FILE *stream);
@@ -644,22 +644,17 @@ char *kinguio_itoa (int val, char *str);
 int kinguio_printf(const char *fmt, ...);
 int printf(const char *fmt, ...);
 void kinguio_puts(const char* str);
-static char *_vsputs_r(char *dest, char *src);
 int kinguio_vsprintf(char * str,const char * fmt, va_list ap);
-
 //#define printf  kinguio_printf
-
 // ===================================
-
 
 // Next line sprintf,
 int nlsprintf ( char *out, const char *format, ... );
 
 // Find next line
-char *stdio_nextline ( char *string );
+char *stdio_nextline(char *string);
 
 void rewind (FILE *stream);
-
 
 //
 // Normal input.

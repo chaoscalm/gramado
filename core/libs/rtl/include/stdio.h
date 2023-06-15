@@ -651,38 +651,26 @@ char *kinguio_itoa (int val, char *str);
 int kinguio_printf(const char *fmt, ...);
 int printf(const char *fmt, ...);
 void kinguio_puts(const char* str);
-static char *_vsputs_r(char *dest, char *src);
 int kinguio_vsprintf(char * str,const char * fmt, va_list ap);
-
 //#define printf  kinguio_printf
-
 // ===================================
-
-
-
 
 // Next line sprintf,
 int nlsprintf ( char *out, const char *format, ... );
 
-// Find next line
-char *stdio_nextline ( char *string );
-
+// Find next line.
+char *stdio_nextline(char *string);
 
 void rewind (FILE *stream);
-
 
 //
 // Normal input.
 //
  
-
 // input(): 
 // Usado por interpretadores de comando.
 // Recebem input e colocam em prompt[].
-
 unsigned long input (unsigned long ch);
-
-
 
 //
 // Formatted Input
@@ -700,9 +688,7 @@ int sscanf(const char *str, const char *format, ...);
  
 long ftell (FILE *stream);
 
-
 char *uclib_gets (char *str); 
-
 
 
 //--save
@@ -713,7 +699,6 @@ char *fgets2 (char *s, int count, FILE *fp);
 int fputs2 ( const char *str, FILE *stream );
 
 int ungetc ( int c, FILE *stream );
-
 
 
 //++
@@ -730,7 +715,6 @@ int linux_fputc (int c, FILE *f);
 //--
 
 
-
 // prompt support.
 // coloca no prompt[] em ring3 e exibe com uma rotina em ring0.
 int prompt_putchar ( int c, int con_id );
@@ -739,13 +723,9 @@ int prompt_strcat (char *string);
 int prompt_flush ( int con_id );
 void prompt_clean (void);
 
-
-
 //
 // Direct Input and Output Functions
 //
- 
- 
  
 //
 // File Positioning Functions
@@ -754,21 +734,17 @@ void prompt_clean (void);
 int fseek (FILE *stream, long offset, int whence);
 
 
-
 //
 // Error Functions
 //
  
 int feof( FILE *stream );
 int ferror( FILE *stream ); 
-
  
 void scroll (void);
 
-
 // ??
 int drawBar (int color);  
-
 
 //#todo
 int snprintf (char *str,size_t count,const char *fmt,...);
@@ -802,10 +778,7 @@ _strout (
     FILE *file, 
     int fillch );
 
-
-
 int unix_get (int ifile); 
-
 
 //
 // initialization
@@ -825,5 +798,5 @@ void stdio_fntos (char *name);
 #endif    //__STDIO_H__
 
 //
-// End.
+// End
 //
