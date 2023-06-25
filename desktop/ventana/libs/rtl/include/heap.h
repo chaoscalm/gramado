@@ -23,7 +23,7 @@ extern unsigned long HEAP_END;
 extern unsigned long HEAP_SIZE;
  
 // see: stdlib.c
-unsigned long heapCount;
+extern unsigned long heapCount;
 
 // see: stdlib.c
 extern unsigned long heap_start;        // Start

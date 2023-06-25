@@ -108,6 +108,13 @@ LTS releases.
     GNU ld (GNU Binutils for Ubuntu) 2.34
     NASM version 2.14.02
 ```
+```
+    Host machine: Ubuntu 22.04.2 LTS
+    Linux 5.15.0-75-generic x86_64
+    gcc (Ubuntu) 11.3.0 
+    GNU ld (GNU Binutils for Ubuntu) 2.38
+    NASM version 2.15.05
+```
 
 ## Can I test the system on a virtual machine?
 

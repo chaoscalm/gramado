@@ -36,7 +36,6 @@ static unsigned long mm_prev_pointer=0;  // Endereço da úntima estrutura aloca
 
 // =================================
 
-
 unsigned long HEAP_START=0;
 unsigned long HEAP_END=0;
 unsigned long HEAP_SIZE=0;

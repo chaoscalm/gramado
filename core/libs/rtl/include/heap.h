@@ -14,7 +14,6 @@
 #ifndef __HEAP_H
 #define __HEAP_H  1
 
-
 //Contagem de heap.
 #define HEAP_COUNT_MAX  256 
 
