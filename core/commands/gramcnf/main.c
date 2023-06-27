@@ -110,10 +110,8 @@ static int gramcnf_initialize(void)
     program.function_list = NULL;
     //...
 
-
 // Initializing the metadata structure.
 // See: globals.h and globals.c
-
     for (i=0; i<32; i++)
     {
         metadata[i].id = 0;
@@ -152,6 +150,7 @@ static void debugShowStat(void)
 
     printf("\n");
     printf("==========================================\n");
+    printf("Printing metadata structure. :)\n");
 
 // metadata
     for (i=0; i<32; i++)

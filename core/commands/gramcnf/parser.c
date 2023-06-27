@@ -9,7 +9,7 @@
 // Getting the string from "asm()" and saving here
 // as a structured data.
 
-static int meta_index=0;
+int meta_index=0;
 size_t string_size=0;
 int meta_stage=0;
 // -------------------------------------
@@ -362,7 +362,7 @@ static int parse_content(int token)
     int inside = 0;
 
     //debug
-    //printf("parse_asm: Initializing ...\n");
+    printf("[CONTENT]\n");
 
 // Se entramos errado.
     if (token != TK_KEYWORD){
@@ -412,18 +412,17 @@ static int parse_content(int token)
         // para manipular strings por outros motivos.
         // Isso pode ser algum tipo de dado vindo 
         // de um arquivo de configuração.
-        //printf ("content-string: {%s}\n",
-            //real_token_buffer );
+        //printf ("content-string: {%s}\n", real_token_buffer );
 
         //Stage 1: Get the content string
-        if(meta_stage == 1)
+        if (meta_stage == 1)
         {
             string_size = (size_t) strlen(real_token_buffer);
             if (string_size <= 0 ){
                 printf("string size min\n");
                 goto error0;
             }
-            if (string_size >= 128 ){
+            if (string_size >= 128){
                 printf("string size max\n");
                 goto error0;
             }
@@ -434,6 +433,7 @@ static int parse_content(int token)
                 string_size );
             metadata[meta_index].content_size = string_size;
             metadata[meta_index].initialized = TRUE;
+            printf("INITIALIZED\n");
             
             // Salva o index.
             metadata[meta_index].id = (int) meta_index;
@@ -1659,7 +1659,6 @@ expression_exit:
     return (unsigned long) Result;
 }
 
-
 void dump_output_file(void)
 {
 // Incluindo no arquivo de output os segmentos.
@@ -2402,6 +2401,8 @@ static int __parserInit(void)
     stack_index = 0;
 
     meta_index=0;
+    string_size=0;
+    meta_stage=0;
 
     for ( i=0; i<ID_MAX; i++ )       { id[i] = 0;          };
     for ( i=0; i<CONSTANT_MAX; i++ ) { constant[i] = 0;    };

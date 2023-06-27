@@ -14,7 +14,6 @@ int string_count=0;
 int separator_count=0; 
 int special_count=0;
 
-
 int maxtoken=0;      // Current length of token buffer.
 char *token_buffer;  // Pointer to token buffer.
 
