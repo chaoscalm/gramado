@@ -58,8 +58,8 @@ static unsigned int bg_color = COLOR_BLACK;
 static unsigned int fg_color = COLOR_WHITE;
 static unsigned int prompt_color = COLOR_GREEN;
 // cursor
-static int cursor_x = 0;
-static int cursor_y = 0;
+static int cursor_x=0;
+static int cursor_y=0;
 // Embedded shell
 // We are using the embedded shell.
 static int isUsingEmbeddedShell=TRUE;
@@ -2982,6 +2982,32 @@ static int __input_STDIN(int fd)
     return 0;
 }
 
+static void __initialize_basics(void);
+static void __initialize_basics(void)
+{
+
+// Windows
+    main_window=0;
+    terminal_window=0;
+
+// Cursor
+    cursor_x=0;
+    cursor_y=0;
+
+    __sequence_status=0;
+
+// CSI - Control Sequence Introducer.
+// see: term0.h
+    register int i=0;
+    for (i=0; i<CSI_BUFFER_SIZE; i++){
+        CSI_BUFFER[i] = 0;
+    };
+    __csi_buffer_tail=0;
+    __csi_buffer_head=0;
+
+// ...
+
+}
 
 //
 // Main
@@ -3001,9 +3027,12 @@ int main ( int argc, char *argv[] )
     unsigned long h=0;
 
     debug_print ("terminal: Initializing\n");
+    
+    __initialize_basics();
+
+// Terminal structure.
 
     Terminal.initialized = FALSE;
-
     Terminal.pid = getpid();
     Terminal.uid = getuid();
     Terminal.gid = getgid();
@@ -3013,14 +3042,8 @@ int main ( int argc, char *argv[] )
     w = gws_get_system_metrics(1);
     h = gws_get_system_metrics(2);
 
-// Cursor
-    cursor_x = 0;
-    cursor_y = 0;
-
     //setreuid(-1, -1);
     //setpgrp(0, getpid());
-
-    __sequence_status = 0;
 
 // socket
     // Terminal.client_fd = -1;

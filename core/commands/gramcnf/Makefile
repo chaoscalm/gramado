@@ -13,7 +13,6 @@ EXTRAVERSION =
 
 # usermode cross compiler flags.
 CFLAGS = -Wall
-#CFLAGS += -O3
 CFLAGS += -Wundef
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wno-uninitialized
@@ -43,7 +42,7 @@ CFLAGS += -fno-PIE
 CFLAGS += -fno-pie
 CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
-
+#CFLAGS += -O3
 
 LIBC    = ../../libs/rtl/include/
 LIBCOBJ = ../../libs/rtl/obj
