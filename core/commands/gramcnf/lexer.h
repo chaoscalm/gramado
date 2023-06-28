@@ -19,7 +19,10 @@ extern int current_special;
 // O lexer vai usar esse 
 // porque a rotina no ctype pode estar com problema. #todo 
 
-#define lexer_isalnum(char)  ((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9'))
+#define lexer_isalnum(char) \
+    ((char >= 'a' && char <= 'z') || \
+    (char >= 'A' && char <= 'Z')  || \
+    (char >= '0' && char <= '9'))
 
 // #define isdigit(char) (char >= '0' && char <= '9')
 
@@ -29,6 +32,7 @@ extern int current_special;
 
 // ------------------------------------------
 // Lexer codes
+// See: variable 'lexer_expression'.
 typedef enum {
     LEXERCODE_NULL,
     PLUS_EXPR,       //  1
@@ -47,27 +51,26 @@ typedef enum {
     GE_EXPR,         // 14
     NE_EXPR,         // 15
     EQ_EXPR          // 16
-}lexercode_t;
-
-
-extern int eofno;
+}lexerexpr_t;  //lexercode_t;
 
 //
-// Line support.
+// Line support
 //
 
-// Current line.
-extern int lineno;
-extern int lexer_number_of_lines;   // Total numbe rof lines.
+extern int lexer_currentline;  //lineno;  // Current line.
 extern int lexer_firstline;
 extern int lexer_lastline;
+extern int lexer_number_of_lines;   // Total numbe rof lines.
 
+// Expressions.
+extern int lexer_expression;  //lexer_code;
 
+// Token support.
 extern int lexer_token_count;
 extern int number_of_tokens;
-
-extern int lexer_code;
 extern int current_token;  // The class of the curent token.
+
+extern int eofno;
 
 // When some element was found.
 extern int directive_fould;
@@ -117,12 +120,9 @@ extern int brace_count;
 
 // Initialize
 int lexer_initialize(void);
-
 // Get stuff.
 int yylex(void);
-
 void error(char *msg);
-
 //int check_newline ();
 //Isso pega o código original, retira os espaços 
 //e separa em palavras usando o espaço como delimitador.

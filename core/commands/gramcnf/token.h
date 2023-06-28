@@ -49,6 +49,7 @@ typedef enum {
 typedef enum {
 
 // Token index.
+// Classes de tokens.
 
     TK_NULL,
     TK_EOF,

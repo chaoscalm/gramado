@@ -16,23 +16,21 @@ int current_string=0;
 int current_separator=0; 
 int current_special=0;
 
-int eofno=0;
-
 //
 // Line support
 //
 
-// Current line number.
-int lineno=0;
-int lexer_number_of_lines=0;  // Total number of lines.
+int lexer_currentline=0;  //lineno=0; // Current line number.
 int lexer_firstline=0;
 int lexer_lastline=0;
+int lexer_number_of_lines=0;  // Total number of lines.
 
+// Expressions.
+int lexer_expression=0;  //lexer_code=0;
 
+// Token support
 int lexer_token_count=0;
 int number_of_tokens=0;  // Total number of tokens.
-
-int lexer_code=0;
 int current_token=0;  // The class of the curent token.
 
 // When some element was found.
@@ -77,6 +75,7 @@ int brace_start=0;
 int brace_end=0;
 int brace_count=0;
 
+int eofno=0;
 
 //
 // -- Prototypes --------
@@ -101,7 +100,7 @@ int check_newline ()
     while (1)
     {
 	   //Entramos nessa função porque encontramos um '\n'.		
-        lineno++;
+        lexer_currentline++;
 		//printf(" [LF1] ");
 		
 		//pega mais um depois do '\n'
@@ -180,13 +179,10 @@ static int __skip_white_space(void)
 {
     register int c=0;
     register int inside=0;
-
 begin:
     c = getc (finput);
-
-// #debug
+    // #debug
     //printf("%c ",c); 
-
     for (;;)
     {
         switch (c)
@@ -205,7 +201,7 @@ begin:
 
             // ## new lines ##
             case '\n':
-                lineno++;
+                lexer_currentline++;
                 //próximo.
                 c = getc(finput);
                 break;
@@ -220,11 +216,11 @@ begin:
                 //#### inicia um comentário de uma linha ####
                 //Aqui encontramos a segunda barra de dias consecutivas.
                 //single line comments.
-                if ( c == '/' )
+                if (c == '/')
                 {
                     while (1)
                     {
-                        c = getc (finput);
+                        c = getc(finput);
 
                         //quando alinha acabar,
                         //apenas saímos do switch
@@ -250,8 +246,7 @@ begin:
 
                 if (c == '*')
                 {
-                    c = getc (finput);
-
+                    c = getc(finput);
                     inside = 1; 
 
                     while (inside)
@@ -284,7 +279,7 @@ begin:
                         }else if (c == '\n'){
 
 						    //precisamos contar.
-                            lineno++;
+                            lexer_currentline++;
 							//printf(" [LF2] ");
                             c = getc (finput);
 							  
@@ -295,18 +290,15 @@ begin:
 
                             eofno++;
                             printf ("__skip_white_space: Unterminated comment in line %d \n", 
-                                lineno );
+                                lexer_currentline );
                             exit(1);
 
 						//default
-                            
                         }else{
- 
 							//isso são letras do comentário.
 							//continuaremos dentro do while(inside)
 							//??#bugbug: mas até quando ??
                             //temos que contar ou confiar no EOF.
-                            
                             c = getc(finput);
                         };
                     };
@@ -314,13 +306,11 @@ begin:
 
 				// aqui depois da barra não emcontramos nem o '*' nem o '/'
                 // isso significa que estamos eliminando espaços dentro de uma expressão.
-				// então vamos retornar a barra para que a rotina continue tratando a 
-				// expressão.
-
-                ungetc ( c, finput );	
+				// então vamos retornar a barra para que a rotina continue 
+				// tratando a expressão.
+                ungetc ( c, finput );
 				//return (int) '/';
                 break;
-                
 
             //#test 
             // ## ignorando diretivas do preprocessdor '#' ##
@@ -335,23 +325,19 @@ begin:
 					if( c == '\n' ){
 						//não precisa contar, pois sairemos do switch e 
 						//entraremos no switch novamente agora com \n que será contado na hora apropriada.
-						//lineno++;
+						//lexer_currentline++;
 						//printf(" [LF3] ");
 					    break;
 					}
 				};
                 break;
             */
-				
 
             default:
                 return (int) c;
-
         };//switch
-
     }; // for
 }
-
 
 // -----------------------------------------
 // yylex:
@@ -359,29 +345,24 @@ begin:
 int yylex(void)
 {
     register int value=0;
-
     register int c=0;
-
     register char *p;
-
     register int c1=0;
     register int number_length=0;
 
 again:
-
 // Pega um char da stream de entrada.
     c = (int) __skip_white_space();
 
     switch (c)
     {
-
         // 0 or EOF. (-1).
         case EOF:
         case 0:
             //printf ("yylex: 0 or EOF\n");
             eofno++; 
             value = TK_EOF;
-            lexer_lastline = lineno;  // Last line?
+            lexer_lastline = lexer_currentline;  // Last line?
             lexer_number_of_lines = lexer_lastline;
             return (int) (value);
             break;
@@ -405,10 +386,8 @@ again:
 
             // Address
             p = token_buffer;
-            
             // clean
             memset( real_token_buffer, 0, MAXTOKEN );
-
             // #todo: 
             // Limite tamanho do buffer
             
@@ -644,7 +623,7 @@ again:
             // Address
             p = token_buffer;
 
-            if ( c == '0' ){
+            if (c == '0'){
                 // Coloca no buffer.
                 *p = c;
                 p++;
@@ -660,13 +639,13 @@ again:
 
                     while (1)
                     {
-                        c = getc (finput);
+                        c = getc(finput);
 
                         // Se o próximo não for um digito hexadecimal. 
-                        if ( isxdigit (c) == 0 )
+                        if ( isxdigit(c) == 0 )
                         {
                             *p = 0;
-                             ungetc ( c, finput );
+                             ungetc( c, finput );
                             //fim
                             value = TK_CONSTANT;
                             //constant_type_found = //#todo tem que contar. 
@@ -681,7 +660,7 @@ again:
                 }
 
                 printf ("yylex: FAIL expected x in constant in line %", 
-                    lineno );
+                    lexer_currentline );
                 exit (1);
 
             }else{
@@ -689,12 +668,12 @@ again:
                 //base = 10.
 
                 *p++ = c; 
-                
+
                 while (1)
                 {
-                     c = getc (finput);
+                     c = getc(finput);
 
-					//se não é digito.
+                    // se não é digito.
                     if ( isdigit( c ) == 0 )
                     {
 						//fim
@@ -705,8 +684,7 @@ again:
 						constant_base_found = CONSTANT_BASE_DEC;
                         goto constant_done;
                     }
-
-					//coloca o digito.
+                    // coloca o digito.
                     *p++ = c;
                 };
             };
@@ -732,7 +710,7 @@ again:
 	        
 			    //}else if (c == '\n')
 			    //      {
-		        //          lineno++;
+		        //          lexer_currentline++;
 	            //      }
 
 	            //if (p == token_buffer + maxtoken)
@@ -787,22 +765,22 @@ again:
             switch (c)
             {
                 // '+-*/'
-                case '+':  lexer_code = PLUS_EXPR;       break;
-                case '-':  lexer_code = MINUS_EXPR;      break;
-                case '*':  lexer_code = MULT_EXPR;       break;
-                case '/':  lexer_code = TRUNC_DIV_EXPR;  break;
+                case '+':  lexer_expression = PLUS_EXPR;       break;
+                case '-':  lexer_expression = MINUS_EXPR;      break;
+                case '*':  lexer_expression = MULT_EXPR;       break;
+                case '/':  lexer_expression = TRUNC_DIV_EXPR;  break;
 
-                case '&':  lexer_code = BIT_AND_EXPR;     break;
-                case '|':  lexer_code = BIT_IOR_EXPR;     break;
-                case '%':  lexer_code = TRUNC_MOD_EXPR;   break;
-                case '^':  lexer_code = BIT_XOR_EXPR;     break;
+                case '&':  lexer_expression = BIT_AND_EXPR;     break;
+                case '|':  lexer_expression = BIT_IOR_EXPR;     break;
+                case '%':  lexer_expression = TRUNC_MOD_EXPR;   break;
+                case '^':  lexer_expression = BIT_XOR_EXPR;     break;
 
                 // ?
-                case TK_LSHIFT:  lexer_code = LSHIFT_EXPR;  break;
-                case TK_RSHIFT:  lexer_code = RSHIFT_EXPR;  break;
+                case TK_LSHIFT:  lexer_expression = LSHIFT_EXPR;  break;
+                case TK_RSHIFT:  lexer_expression = RSHIFT_EXPR;  break;
 
-                case '<':  lexer_code = LT_EXPR;  break;
-                case '>':  lexer_code = GT_EXPR;  break;
+                case '<':  lexer_expression = LT_EXPR;  break;
+                case '>':  lexer_expression = GT_EXPR;  break;
             }
 
             c1 = getc (finput);
@@ -813,19 +791,19 @@ again:
                 {
                     case '<':
                         value = TK_ARITHCOMPARE;  //?
-                        lexer_code = LE_EXPR; 
+                        lexer_expression = LE_EXPR; 
                         goto done;
                     case '>':
                         value = TK_ARITHCOMPARE;  //?
-                        lexer_code = GE_EXPR; 
+                        lexer_expression = GE_EXPR; 
                         goto done;
                     case '!':
                         value = TK_EQCOMPARE;  //?
-                        lexer_code = NE_EXPR; 
+                        lexer_expression = NE_EXPR; 
                         goto done;
                     case '=':
                         value = TK_EQCOMPARE;  //?
-                        lexer_code = EQ_EXPR; 
+                        lexer_expression = EQ_EXPR; 
                         goto done;
                 };
 
@@ -875,21 +853,36 @@ done:
 static int __lexerInit(void)
 {
     register int i=0;
-    //number_of_tokens = 0;
-    //current_token = 0;
-    //next_index = 0;
 
 // Line support
-// Arquivos de texto começa com a linha 1.
-
+// Arquivo de texto começa com a linha 1.
+    lexer_currentline = 1;  // Current line.
     lexer_firstline=1;
     lexer_lastline=1;
     lexer_number_of_lines=1;
-    lineno = lexer_firstline;  // Current line.
+
+    lexer_expression = 0;
+
+    // Token support
+    lexer_token_count=0;
+    number_of_tokens=0;  // Total number of tokens.
+    current_token=0;  // The class of the curent token.
+    maxtoken = MAXTOKEN;
+
+    //()
+    parentheses_start=0;
+    parentheses_end=0;
+    parentheses_count=0;
+    //{}
+    brace_start=0;
+    brace_end=0;
+    brace_count=0;
 
     eofno = 0;  // eof++
-    lexer_code = 0;
-    maxtoken = MAXTOKEN;
+
+//
+// Toke buffer.
+//
 
 // Clear buffer
     for ( i=0; i<MAXTOKEN; i++ )
@@ -903,6 +896,7 @@ static int __lexerInit(void)
     //sprintf ( real_token_buffer, "uninitialized-token-string" );
 
     //...
+
     return 0;
 }
 

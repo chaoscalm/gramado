@@ -467,7 +467,7 @@ unsigned long tree_eval(void)
 
     // EOF was found
     if (c == TK_EOF){
-        printf ("tree_eval: #error EOF in line %d\n", lineno);
+        printf ("tree_eval: #error EOF in line %d\n", lexer_currentline);
         exit(1);
     }
 
