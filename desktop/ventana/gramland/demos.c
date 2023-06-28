@@ -131,11 +131,10 @@ static void __draw_cat(int eye_scale, int cat_z)
 // We can use this for 'screen saver'
 // and break the loop whe the user hit a key
 // or move the mouse.
-void demoCat (void)
+void demoCat(void)
 {
     register int i=0;
     int j=0;
-
     //int count = 8;
     static int count=4;
     int scale_max = 100;
@@ -181,38 +180,37 @@ void demoLine1(void)
 {
 // Draw lines.
 
-    if (current_mode != GRAMADO_JAIL)
-        return;
-
     //int width = getWidth();
     //int height = getHeight();
     int width  = 200/2;  //320/2;
     int height = 200/2;
-
     int x1 = 0, y1 = 0,
         x2 = 0, y2 = height;
-    
+
+// Valid mode.
+    if (current_mode != GRAMADO_JAIL){
+        return;
+    }
+
     while (y1 < height) {
         //g.drawLine(x1, y1, x2, y2);
         plotLine3d ( x1,y1,0, x2,y2,0, COLOR_WHITE); 
             y1+=8;                 //You should modify this if
             x2+=8;                 //it's not an equal square (like 250x250)
     };
-
     demoFlushSurface();  
 }
-
 
 void demoTriangle(void)
 {
     struct gr_triangle_d *triangle;
-
-    //printf("demoTriangle:\n");
+    register int i=0;
+    int T=0;
 
     triangle = (void *) malloc( sizeof( struct gr_triangle_d ) );
-
-    if ( (void*) triangle == NULL )
+    if ((void*) triangle == NULL ){
         return;
+    }
 
 // down
     triangle->p[0].x = 0; 
@@ -230,30 +228,21 @@ void demoTriangle(void)
     triangle->p[2].z =   0;
     triangle->p[2].color = COLOR_BLUE;
 
-    int i=0;
-    int T=0;
-
-    for(i=0; i<10; i++)
+    for (i=0; i<10; i++)
     {
-
-        // clear
+        // Clear
         demoClearSurface(COLOR_BLACK);
-
         // Draw
         xxxTriangleZ(triangle);
-        
-        // translation
+        // Translation
         triangle->p[0].x++;
         triangle->p[1].x++;
         triangle->p[2].x++;
-
-        // flush surface
+        // Flush surface
         demoFlushSurface();  
-        
         T++;
     };
 }
-
 
 // demo: polygon type polyline
 // asteroids space ship like.
@@ -270,29 +259,28 @@ void demoPolygon(void)
 
     // ...
 
-    int i=0;
+    register int i=0;
     int TranslationOffset=0;
     int j=0;
 
-    // structure
-
+// Structure
     p = (struct gr_polygon_d *) malloc( sizeof( struct gr_polygon_d ) );
-    if((void*)p==NULL){return;}
-    
-    // polygon type
-    
+    if ((void*)p == NULL){
+        return;
+    }
+
+// polygon type
     p->type = POLYGON_POLYLINE;
-    
-    // number of elements
-    
+
+// number of elements
     p->n = 6;
+
     p->list_address = (void*) vecList;
 
 
 // clear vecList.
 // This is a local list.
-
-    for(i=0; i<8; i++){
+    for (i=0; i<8; i++){
         vecList[i] = 0;
     };
 
@@ -329,7 +317,7 @@ void demoPolygon(void)
 
     int times=0;
 
-    while(1){
+    while (1){
 
     times++;
     if(times>8){break;}
@@ -389,7 +377,6 @@ void demoPolygon(void)
     };
     };   //while
 
-    
     gwssrv_debug_print("DONE\n");
     //printf ("DONE\n");
 }
@@ -407,35 +394,32 @@ void demoPolygon2(void)
 
     // ...
 
-    int i=0;
+    register int i=0;
     int TranslationOffset=0;
     int j=0;
 
-    // structure
-
+// Structure
     p = (struct gr_polygon_d *) malloc( sizeof( struct gr_polygon_d ) );
-    if((void*)p==NULL){return;}
-    
-    // polygon type
-    
+    if ((void*)p == NULL){
+        return;
+    }
+
+// Polygon type
     p->type = POLYGON_POLYPOINT;
     //p->type = POLYGON_POLYLINE;
-    
+
     // number of elements
-    
     p->n = 6;
+
     p->list_address = (void*) vecList;
 
-
-    // clear vecList.
-    // This is a local list.
-
-    for(i=0; i<8; i++){
+// clear vecList.
+// This is a local list.
+    for (i=0; i<8; i++){
         vecList[i] = 0;
     };
 
-
-    // Creating some points.
+// Creating some points.
 
     v0 = (struct gr_vec3D_d *) malloc( sizeof( struct gr_vec3D_d ) );
     if((void*)v0==NULL){return;}
@@ -468,7 +452,7 @@ void demoPolygon2(void)
 
     int times=0;
 
-    while(1){
+    while (1){
 
     times++;
     if(times>8){break;}
@@ -514,9 +498,7 @@ void demoPolygon2(void)
 
     gwssrv_debug_print("calling xxxPolygonZ\n");
 
-
-    // Draw
-
+// Draw
 
     //p->type = POLYGON_POLYPOINT;
     //xxxPolygonZ(p);
@@ -541,11 +523,10 @@ void demoPolygon2(void)
 // IN: ?
 static void __draw_demo_curve1(int position, int model_z)
 {
-
-    int yOffset = position + position;
-    
-    //int modelz = 0;
+    // ??
+    int yOffset = (position + position);
     int modelz = (int) model_z;
+    //int modelz = 0;
 
     // line
     //a variaçao de y2 me pareceu certa.
@@ -593,7 +574,6 @@ void demoCurve(void)
 {
     register int i=0;
     register int j=0;
-
     int count=8;
 
     gr_depth_range(
@@ -657,5 +637,4 @@ void demos_startup_animation(int i)
         break;
     };
 }
-
 

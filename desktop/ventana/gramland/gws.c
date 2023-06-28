@@ -46,14 +46,12 @@ void xxxThread(void)
     };
 }
 
-
 /*
  * ____test_threads:
  *     Cria um thread e executa.
  *     #bugbug ...ja funcionou uma vez, mas agora esta com problemas.
  *     @todo: na hora de criar a thread precisamos passar o PID desse processo.
  */
-
 void ____test_threads (void)
 {
     void *T;
@@ -661,7 +659,6 @@ int isdirty(void)
     return (int) dirty;
 }
 
-
 // invalidate all the background.
 // #bugbug: Use background_dirty ??
 void invalidate_background(void)
@@ -788,6 +785,6 @@ int serverInit(void)
 }
 
 //
-// End.
+// End
 //
 
