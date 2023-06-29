@@ -10,14 +10,9 @@
 #include <unistd.h>
 #include <rtl/gramado.h>
 
-
-extern int main ( int argc, char *argv[] );
-
-
 #define LSH_TOK_DELIM  " \t\r\n\a" 
 #define SPACE  " "
 #define TOKENLIST_MAX_DEFAULT  80
-
 
 //static const unsigned int something=1234;
 
@@ -63,6 +58,14 @@ const char *my_environ[] = {
     "USER=anon",  
     NULL 
 };
+
+
+// ==============================
+
+// Import from the ring3 application.
+extern int main ( int argc, char *argv[] );
+
+// ==============================
 
 
 // # importante

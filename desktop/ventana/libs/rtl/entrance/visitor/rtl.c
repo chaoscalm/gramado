@@ -1,9 +1,7 @@
-
 /*
  * File: rtl.c 
  * Created by Fred Nora.
  */
-
 
 #include <stdio.h>
 #include <types.h> 
@@ -16,7 +14,6 @@
 #include <rtl/gramado.h> 
 #include <sysdeps/gramado/syscall.h>
 #include <pthread.h>
-
 
 // global
 // rtl system events support.
@@ -206,7 +203,6 @@ void rtl_elegant_exit_on_fail(void)
     exit(0);
 }
 
-
 // =============================================================
 
 int rtl_get_input_mode(void)
@@ -214,12 +210,11 @@ int rtl_get_input_mode(void)
     return (int) gramado_system_call(911,0,0,0);
 }
 
-
 // #todo:
 // Explain it better.
 void rtl_set_input_mode(int mode)
 {
-    if( mode < 0 )
+    if (mode < 0)
         return;
 
     gramado_system_call(
@@ -229,12 +224,9 @@ void rtl_set_input_mode(int mode)
         mode );
 }
 
-
 //
 // sync
 //
-
-
 
 //=====================================
 
@@ -274,7 +266,6 @@ void rtl_set_file_sync(int fd, int request, int data)
     sc82 (10006,fd,request,data);
 }
 
-
 int rtl_get_file_sync(int fd, int request)
 {
     //if(fd<0)
@@ -306,7 +297,6 @@ unsigned long rtl_to_ulong (long ch)
     return (unsigned long) ch;
 }
 
-
 // #todo
 // Explain it better.
 // We need a better return value.
@@ -326,14 +316,13 @@ unsigned long rtl_get_system_message(unsigned long message_buffer)
     return 0;
 }
 
-
 unsigned long 
 rtl_get_system_message2(
     unsigned long message_buffer,
     int index,
     int restart)
 {
-    if ( message_buffer == 0 ){
+    if (message_buffer == 0){
         return 0;
     }
 
@@ -345,7 +334,6 @@ rtl_get_system_message2(
 
     return 0;
 }
-
 
 // #todo
 // Explain it better.
@@ -359,12 +347,12 @@ rtl_post_system_message(
     //unsigned long return_value=0;
     unsigned long tid=0;
 
-    if( dest_tid < 0 ){
+    if (dest_tid < 0){
         return 0;
     }
     tid = (unsigned long) (dest_tid & 0xFFFFFFFF);
 
-    if( message_buffer == 0 ){
+    if (message_buffer == 0){
         return 0;
     }
 
@@ -377,7 +365,6 @@ rtl_post_system_message(
 
     return 0;
 }
-
 
 //=====================================
 
@@ -393,7 +380,7 @@ int xxxScanApplicationQueue(void)
 {
     register int i=0;
 
-    for(i=0; i<32; i++){
+    for (i=0; i<32; i++){
         RTLEventBuffer[i] = 0;
     };
 
@@ -408,7 +395,7 @@ int xxxScanApplicationQueue(void)
 // Just clear.
     if (RTLEventBuffer[1] == 0)
     {
-        for(i=0; i<32; i++){
+        for (i=0; i<32; i++){
             RTLEventBuffer[i] = 0;
         };
         return FALSE;
@@ -435,8 +422,6 @@ int rtl_get_event(void)
     return (int) Status;
 }
 
-//===========
-
 //=====================================
 
 // Get an event from the thread's event queue.
@@ -451,7 +436,7 @@ int xxxScanApplicationQueue2(int index, int restart)
 {
     register int i=0;
 
-    for(i=0; i<32; i++){
+    for (i=0; i<32; i++){
         RTLEventBuffer[i] = 0;
     };
 
@@ -471,7 +456,7 @@ int xxxScanApplicationQueue2(int index, int restart)
     // Yield and clear.
     if ( RTLEventBuffer[1] == 0 )
     {
-        for(i=0; i<32; i++){
+        for (i=0; i<32; i++){
             RTLEventBuffer[i] = 0;
         };
         return FALSE;
@@ -481,12 +466,11 @@ int xxxScanApplicationQueue2(int index, int restart)
     return TRUE;
 }
 
-
 int rtl_get_event2(int index, int restart)
 {
     int Status = -1;
 
-    if(index<0){
+    if (index<0){
         return (int) -1;
     }
 
@@ -498,9 +482,6 @@ int rtl_get_event2(int index, int restart)
 
     return (int) Status;
 }
-
-
-//==========
 
 struct rtl_event_d *rtl_next_event (void)
 {
@@ -597,10 +578,10 @@ void rtl_exit_critical_section (void)
 
 void *rtl_create_process( const char *file_name )
 {
+    char pName[32];
+
     debug_print("rtl_create_process:\n #todo\n");
     //return NULL;
-
-    char pName[32];
     
     strncpy(pName,file_name,16);
     pName[17] = 0;
@@ -617,13 +598,11 @@ void *rtl_create_process( const char *file_name )
         0 );
 }
 
-
-int rtl_start_process( void *process )
+int rtl_start_process(void *process)
 {
     debug_print("rtl_start_process:\n #todo\n");
     return -1;
 }
-
 
 /*
 pid_t rtl_get_process_pid( void *process );
@@ -711,12 +690,10 @@ rtl_draw_text (
 {
     unsigned long msg[8];
 
-
     if ( (void*) string == NULL ){
         debug_print("rtl_draw_text: string\n");
         return -1;
     }
-
     if ( *string == 0 ){
         debug_print("rtl_draw_text: *string\n");
         return -1;
@@ -738,13 +715,11 @@ rtl_draw_text (
                     (unsigned long) &msg[0] );
 }
 
-
 /*
  * rtl_show_backbuffer:
  *     Refresh Screen.
  *     Passa o conteúdo do backbuffer para o lfb. 
  */
-
 void rtl_show_backbuffer (void)
 {
 
@@ -776,18 +751,15 @@ unsigned long rtl_get_system_metrics (int index)
                                (unsigned long) index );
 }
 
-
 pid_t rtl_current_process(void)
 {
     return (int) rtl_get_system_metrics(140);
 }
 
-
 int rtl_current_thread(void)
 {
     return (int) rtl_get_system_metrics(141);
 }
-
 
 // #todo: __pthread_self ?
 pthread_t pthread_self(void)
@@ -795,14 +767,12 @@ pthread_t pthread_self(void)
     return (pthread_t) rtl_current_thread();
 }
 
-
 // #bugbug: 118 is the current jiffie.
 unsigned long rtl_get_progress_time(void)
 {
     return (unsigned long) rtl_get_system_metrics (118);
     //return (unsigned long) rtl_get_system_metrics (?);
 }
-
 
 /*
 void XorSwap( int* x, int* y ); 
@@ -852,14 +822,11 @@ rtl_copy_text (
 {
     char *__src  = (char *) src;
     char *__dest = (char *) dest; 
-
 // text width and text height.
     int __width  = width;
     int __height = height;
-
     int x=0;
     int y=0; 
-
 
     if ( (void *) src == NULL || 
          (void *) dest == NULL )
@@ -873,7 +840,6 @@ rtl_copy_text (
         printf("rtl_copy_text: width height\n");
         return -1;
     }
-
 
     for ( y=0; y< __height; y++ ) 
     { 
@@ -900,8 +866,6 @@ char *johncarmack_strstr(const char *haystack, const char *needle)
 	// ...
 }
 */
-
-
 
 /*
 int rtl_file_length (FILE *f);
@@ -948,14 +912,13 @@ int rtl_reboot(void)
     debug_print ("rtl_reboot:\n");
 
     value = (int) gramado_system_call(110,0,0,0);
-    if(value<0)
+    if (value<0)
     {
         errno = (-value);
         return (int) -1;
     }
     return (int) value;
 }
-
 
 // check if a file is full or not.
 // whe can't read an empty file.
@@ -966,10 +929,8 @@ int rtl_sleep_if_socket_is_empty(int fd)
     if (fd<0){
         return -1;   //error
     }
-
     return (int) gramado_system_call(913,fd,fd,fd);
 }
-
 
 /*
 void rtl_set_line_buffering(void);
@@ -978,7 +939,6 @@ void rtl_set_line_buffering(void)
     setvbuf(stdout, NULL, _IOLBF, 0);
 }
 */
-
 
 /*
  credits: apple chameleon boot loader.
@@ -1776,19 +1736,17 @@ void rtl_test_pipe (void)
     printf ("rtl_test_pipe:\n");
 
     //0 if no error.
-
     res = pipe (pipefd);
-
     if (res<0){
         printf("pipe() fail\n");
         return;
     }
 
     printf("PIPES: %d %d\n",pipefd[0], pipefd[1]);
-    
+ 
     // write on pipe 1
     nwrite = write (pipefd[1], "hello", sizeof ("hello"));
-    if(nwrite<=0){
+    if (nwrite<=0){
         printf("write() fail\n");
         return;
     }
@@ -1925,8 +1883,7 @@ int rtl_spawn_process( const char *path )
         printf ("rtl_spawn_process: [FAIL] name\n");
         return -1;
     }
-
-    if ( *path == 0 ){
+    if (*path == 0){
         printf ("rtl_spawn_process: [FAIL] *name\n");
         return -1;
     }
@@ -1934,24 +1891,20 @@ int rtl_spawn_process( const char *path )
     return (int) rtl_clone_and_execute((char*)path);
 }
 
-
 // get current thread
 // set foreground thread.
 int rtl_focus_on_this_thread(void)
 {
     int tid = (int) pthread_self();
-
     sc82 (10011,tid,tid,tid);
 
     return (int) tid;
 }
 
-
 int rtl_focus_on_me(void)
 {
     return (int) rtl_focus_on_this_thread();
 }
-
 
 // Yield this thread.
 // Wait for the next round.
@@ -1976,7 +1929,6 @@ void rtl_sleep(unsigned long ms)
     rtl_sleep_until(ms);
 }
 
-
 // The whole screen is dirty.
 // It can be flushed into the framebuffer.
 void rtl_invalidate_screen(void)
@@ -1999,16 +1951,14 @@ void rtl_show_heap_info(void)
         HEAP_END );
 }
 
-
 // Use the kernel allocator for ring 3 shared memory.
-void *shAlloc( size_t size_in_bytes )
+void *shAlloc(size_t size_in_bytes)
 {
-    if(size_in_bytes==0){
+    if (size_in_bytes==0){
         size_in_bytes++;
     }
     return (void*) gramado_system_call (891,size_in_bytes,0,0); 
 }
-
 
 /* compare two ASCII strings ignoring case */
 // #todo: toupper support.
@@ -2022,7 +1972,6 @@ rtl_strcaseequal (
     const char *d, 
     const char *s )
 {
-
     char ch=0;
 
     while ((ch = toupper(*s++)) == toupper(*d++))
@@ -2106,12 +2055,10 @@ unsigned long rtl_jiffies(void)
     return (unsigned long) rtl_get_system_metrics (118);
 }
 
-
 unsigned long rtl_memory_size_in_kb(void)
 {
     return (unsigned long) rtl_get_system_metrics (33);
 }
-
 
 // #nottested
 // Send the command lint to stdin,
@@ -2124,18 +2071,17 @@ int rtl_execute_cmdline( char *cmdline )
     char *p;
     int ii=0;    
 
-    if( (void*) cmdline == NULL )
+    if ( (void*) cmdline == NULL )
         return -1;
 
-    if( *cmdline == 0 )
+    if (*cmdline == 0)
         return -1;
 
     p = cmdline;
 
-
 // copy cmdline
     int i=0;
-    for(i=0; i<512; i++)
+    for (i=0; i<512; i++)
     {
         cmd[i] = cmdline[i];
     };
@@ -2145,17 +2091,16 @@ int rtl_execute_cmdline( char *cmdline )
     rewind(stdin);
     write(fileno(stdin), cmd, 512);
 
-
 // Grab the first word.
-    while(1)
+    while (1)
     {
-        if(ii>=12){
+        if (ii>=12){
             filename_buffer[ii] = 0;  //finalize
             break;
         }
-        if( *p == 0 || 
-            *p == ' ' ||
-            *p == '\t' )
+        if ( *p == 0 || 
+             *p == ' ' ||
+             *p == '\t' )
         {
             filename_buffer[ii] = 0;  //finalize
             break;
@@ -2163,7 +2108,7 @@ int rtl_execute_cmdline( char *cmdline )
         
         // printable.
         // Put the char into the buffer.
-        if( *p >= 0x20 && *p <= 0x7F )
+        if ( *p >= 0x20 && *p <= 0x7F )
         {
             filename_buffer[ii] = (char) *p;
         }
@@ -2171,13 +2116,11 @@ int rtl_execute_cmdline( char *cmdline )
         ii++;   // next byte into the filename buffer.
     };
 
-
 // Clone and execute.
     rtl_clone_and_execute(filename_buffer);
 
     return 0;
 }
-
 
 /*
 int rtl_open_device(char *dev_number);
@@ -2243,7 +2186,6 @@ long rtl_round_up(long num_to_round, long multiple)
     }
     
     Remainder = (long) (abs(num_to_round) % multiple);
-    
     if (Remainder == 0){
         return (long) num_to_round;
     }
@@ -2256,8 +2198,4 @@ long rtl_round_up(long num_to_round, long multiple)
     
     return (long) Result;
 }
-
-
-
-
 

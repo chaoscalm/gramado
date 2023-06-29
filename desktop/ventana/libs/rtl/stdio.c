@@ -6089,7 +6089,7 @@ void stdioInitialize(void)
 // stdin
     debug_print ("stdioInitialize: [1] stdin\n");  
     stdin = (FILE *) malloc( sizeof(FILE) );
-    if( (void*) stdin == NULL )
+    if ((void*) stdin == NULL)
     {
         debug_print ("stdioInitialize: stdin fail\n");
         //printf      ("stdioInitialize: stdin fail\n");
@@ -6101,19 +6101,19 @@ void stdioInitialize(void)
 // stdout
     debug_print ("stdioInitialize: [2] stdout\n");  
     stdout = (FILE *) malloc( sizeof(FILE) );
-    if( (void*) stdout == NULL )
+    if ((void*) stdout == NULL)
     {
         debug_print ("stdioInitialize: stdout fail\n");
         //printf ("stdioInitialize: stdout fail\n");
         exit(1);
     }
     memset( stdout, 0, sizeof(struct _iobuf) );
-    
+
 // ===============
 // stderr
     debug_print ("stdioInitialize: [3] stderr\n");  
     stderr = (FILE *) malloc( sizeof(FILE) );
-    if( (void*) stderr == NULL )
+    if ((void*) stderr == NULL)
     {
         debug_print ("stdioInitialize: stderr fail\n");
         //printf ("stdioInitialize: stderr fail\n");
@@ -6134,7 +6134,7 @@ void stdioInitialize(void)
 // ========
 // stdin
     stdin->_base = (char *) malloc(BUFSIZ);
-    if( (void*) stdin->_base == NULL ){
+    if ( (void*) stdin->_base == NULL ){
         debug_print ("stdioInitialize: stdin->_base fail\n");
         //printf ("stdioInitialize: stdin->_base fail\n");
         exit(1);
@@ -6149,7 +6149,7 @@ void stdioInitialize(void)
 // ========
 // stdout
     stdout->_base = (char *) malloc(BUFSIZ);
-    if( (void*) stdout->_base == NULL ){
+    if ( (void*) stdout->_base == NULL ){
         debug_print ("stdioInitialize: stdout->_base fail\n");
         //printf ("stdioInitialize: stdout->_base fail\n");
         exit(1);
@@ -6164,7 +6164,7 @@ void stdioInitialize(void)
 // ========
 // stderr   
     stderr->_base = (char *) malloc(BUFSIZ);
-    if( (void*) stderr->_base == NULL ){
+    if ( (void*) stderr->_base == NULL ){
         debug_print ("stdioInitialize: stderr->_base fail\n");
         //printf ("stdioInitialize: stderr->_base fail\n");
         exit(1);
@@ -6175,7 +6175,6 @@ void stdioInitialize(void)
     stderr->_w = 0; 
     stderr->_r = 0;
     stderr->_file = 2;
-
 
 //
 // # libc mode #
@@ -6230,7 +6229,6 @@ void stdioInitialize(void)
     //debug_print ("stdioInitialize: done\n");
 }
 
-
 // #test
 /*
  *******************************
@@ -6251,15 +6249,18 @@ int unix_get (int ifile)
     //#todo
     //if (ifile<0){return -1;}    
     
-
-    if(--__unix_get_nread)
+    // #ugly
+    if (--__unix_get_nread)
     {
         return (*ibuf++);
     }
 
+    // #ugly
     if (__unix_get_nread = read (ifile, __unix_get_buf, 512) )
     {
-        if (__unix_get_nread < 0) { goto err; }
+        if (__unix_get_nread < 0){
+            goto err;
+        }
         
         ibuf = __unix_get_buf;
         
@@ -6276,7 +6277,6 @@ err:
     printf ("unix_get: [FAIL] read error\n");
     return (-1);
 }
-
 
 
 /*
@@ -6447,9 +6447,8 @@ void data_putc (int ch,FILE *_stream)
 }
 */
 
-
 //
-// End.
+// End
 //
 
 
