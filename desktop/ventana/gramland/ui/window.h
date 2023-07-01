@@ -635,7 +635,7 @@ struct gws_window_d
 // cliente que receberá o reply com informações sobre o evento.
     int client_fd;
 // pid do cliente.
-    int client_pid;
+    pid_t client_pid;
 // Client's pid and tid.
 // tid é usado para saber qual é a thread associada
 // com a janela que tem o foco de entrada.

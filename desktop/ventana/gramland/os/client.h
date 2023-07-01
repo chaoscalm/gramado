@@ -70,17 +70,17 @@ struct gws_client_d
 
     // host, display, screen
     struct gws_host_d     host;
-    struct gws_display_d  display;  
+    struct gws_display_d  display;
     struct gws_screen_d   screen;
 
     // Socket for this client.
     int fd;
 
-    // The PID of the client.
-    pid_t pid; 
+// Client's PID and GID.
+    pid_t pid;
     gid_t gid;
-    int tid;
 
+    int tid;
 
 // Spin
 // Lets count how many times this client

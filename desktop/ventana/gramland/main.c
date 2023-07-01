@@ -181,7 +181,6 @@ void set_input_status(int is_accepting)
 {
     if (is_accepting != TRUE && is_accepting != FALSE)
         return;
-
     IsAcceptingInput = (int) is_accepting;
 }
 
@@ -215,18 +214,17 @@ unsigned long gwssrv_get_system_metrics (int index)
 }
 
 
-
 // enter critical section
 // close the gate
 void gwssrv_enter_critical_section (void)
 {
     int S=0;
 
-    // Pega o valor do spinlock principal.
-    // Se deixou de ser 0 então posso entrar.
-    // Se ainda for 0, continuo no while.
-    // TRUE = OPEN.
-    // FALSE = CLOSED.
+// Pega o valor do spinlock principal.
+// Se deixou de ser 0 então posso entrar.
+// Se ainda for 0, continuo no while.
+// TRUE = OPEN.
+// FALSE = CLOSED.
 
     while (1){
         S = (int) gramado_system_call ( 226, 0, 0, 0 );
@@ -234,12 +232,11 @@ void gwssrv_enter_critical_section (void)
         if ( S == 1 ){ goto done; }
     };
 
-    // Close the gate. turn FALSE.
+// Close the gate. turn FALSE.
 done:
     gramado_system_call ( 227, 0, 0, 0 );
     return;
 }
-
 
 // exit critical section
 // open the gate.
@@ -249,12 +246,9 @@ void gwssrv_exit_critical_section (void)
 }
 
 
-
-
 //
 // =============================================================
 //
-
 
 //??
 // Quando um cliente tenta se desconectar.
@@ -288,7 +282,6 @@ int client_start(int fd)
     return -1;//todo
 }
 */
-
 
 
 /*
@@ -527,14 +520,15 @@ static int __send_response(int fd, int type)
     if (fd == ____saved_server_fd){
         printf("__send_response: fd == ____saved_server_fd\n");
         printf("The server can't write on your own socket\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // #test
 // For now, the only valid fd is 31.
     if (fd != 31){
         printf("__send_response: fd != 31\n");
-        while(1){
+        while (1){
         };
     }
 
@@ -574,15 +568,14 @@ static int __send_response(int fd, int type)
         //#debug
         gwssrv_debug_print ("__send_response: response fail\n");
         printf             ("__send_response: Couldn't send reply\n");
-        
         //close(fd);
-        Status=-1;
+        Status = -1;
         goto exit1;
     }
 
 // YES, We sent the response.
     if (n_writes > 0){
-        Status=0;
+        Status = 0;
         goto exit0;
     }
 
@@ -691,10 +684,11 @@ static void dispacher(int fd)
 
 // We can't read our own socket.
 
-    if ( fd == ____saved_server_fd ){
+    if (fd == ____saved_server_fd){
         printf("dispacher: fd == ____saved_server_fd\n");
         printf("The server can't read on your own socket\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // accept() always return 31 when
@@ -702,7 +696,8 @@ static void dispacher(int fd)
 
     if (fd != 31){
         printf("dispacher: fd != 31\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // Read
@@ -749,7 +744,7 @@ static void dispacher(int fd)
 // Como o serviço não pode ser prestado corretamente.
 // Então logo abaixo mandaremos uma resposta de erro
 // e não uma resposta normal.
-    if(Status < 0){
+    if (Status < 0){
         SendErrorResponse = TRUE;
     }
 
@@ -768,8 +763,7 @@ static void dispacher(int fd)
 // No momento todos os requests esperam por reposta?
 
     if (NoReply == TRUE){
-        rtl_set_file_sync( 
-            fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
+        rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
         goto exit0;
     }
 
@@ -875,7 +869,7 @@ gwsProcedure (
     // If we received the message GWS_Quit and
     // there is no more windows, so quit the application.
     case GWS_Quit:
-        if(windows_count == 0){
+        if (windows_count == 0){
             //#todo: Não pode ter janelas abertas.
             IsTimeToQuit=TRUE;
         }
@@ -911,7 +905,7 @@ gwsProcedure (
         //    NoReply = FALSE;
         //    break;
         //}
-        if ( (void*) gui->screen_window != NULL)
+        if ( (void*) gui->screen_window != NULL )
         {
             //if ( gui->screen->used == 1 && gui->screen->magic == 1234 ){
                 dtextDrawText ( 
@@ -922,7 +916,7 @@ gwsProcedure (
                 gws_show_backbuffer();
             //}
         }
-        NoReply = FALSE;   //The client-side library is waiting for response.
+        NoReply = FALSE;  // The client-side library is waiting for response.
         break;
 
     // Create Window
@@ -936,19 +930,19 @@ gwsProcedure (
         // Handle incoming inputs right after a huge service routine.
         //if ( is_accepting_input() == TRUE )
         //    wmInputReader();
-        NoReply = FALSE;   // We need to return the window id.
+        NoReply = FALSE;  // We need to return the window id.
         break; 
 
     // backbuffer putpixel
     case GWS_BackbufferPutPixel:
         servicepixelBackBufferPutpixel(); 
-        NoReply = FALSE;    //The client-side library is waiting for response.
+        NoReply = FALSE;  // The client-side library is waiting for response.
         break;
 
     // backbuffer draw horizontal line
     case GWS_DrawHorizontalLine:
         servicelineBackbufferDrawHorizontalLine();
-        NoReply = FALSE;  //  //The client-side library is waiting for response.
+        NoReply = FALSE;  // The client-side library is waiting for response.
         break;
 
     // Draw char
@@ -970,7 +964,7 @@ gwsProcedure (
         //gwssrv_debug_print ("gwssrv: [1005] serviceDrawText\n"); 
         serviceDrawText();
         //NoReply = FALSE;  // The client-side library is waiting for response.
-        NoReply = TRUE; 
+        NoReply = TRUE;
         break;
 
     // Refresh window
@@ -1083,15 +1077,15 @@ gwsProcedure (
         break;
 
     // See: grprim.c
-    case GWS_GrPlot0:  
+    case GWS_GrPlot0:
         //gwssrv_debug_print ("gwssrv: [2040] serviceGrPlot0\n");
-        serviceGrPlot0();  
+        serviceGrPlot0();
         NoReply = FALSE;
         break;
 
     //#deprecated
-    case GWS_GrCubeZ:  
-    case GWS_GrRectangle:  
+    case GWS_GrCubeZ:
+    case GWS_GrRectangle:
         NoReply = FALSE;
         break;
 
@@ -1105,12 +1099,9 @@ gwsProcedure (
         NoReply = TRUE;
         break;
 
-
     case GWS_PutClientMessage:
-        
         //#debug
         //gwssrv_debug_print ("gwssrv: GWS_PutClientMessage\n");
-        
         servicePutClientMessage();
         NoReply = TRUE;
         break;
@@ -1157,10 +1148,8 @@ gwsProcedure (
     // ...
 
     default:
-        
         //#debug
         //gwssrv_debug_print ("gwssrv: Default message number\n");
-        
         //printf ("msg=%d ",msg);
         // NoReply = TRUE; //#todo
         Status = -1;  // Not ok.
@@ -1201,8 +1190,8 @@ static void initBackground(void)
             0, //style
             1, //status 
             1, //view
-            "RootWindow",  
-            0, 0, w, h,   
+            "RootWindow", 
+            0, 0, w, h, 
             gui->screen_window, 0, 
             bg_color, bg_color );
 
@@ -1210,12 +1199,12 @@ static void initBackground(void)
     // asm ("int $3");
 
     if ( (void *) __root_window == NULL ){
-        gwssrv_debug_print ("initBackground: __root_window\n"); 
+        gwssrv_debug_print ("initBackground: __root_window\n");
         printf             ("initBackground: __root_window\n");
         exit(1);
     }
     if ( __root_window->used != TRUE || __root_window->magic != 1234 ){
-        gwssrv_debug_print ("initBackground: __root_window validation\n"); 
+        gwssrv_debug_print ("initBackground: __root_window validation\n");
         printf             ("initBackground: __root_window validation\n");
         exit(1);
     }
@@ -1235,9 +1224,7 @@ static void initBackground(void)
     //asm ("int $3");
 
 // Testing bmp.
-// 
 // See: gramado/themes
-
 /*
     if (current_mode == GRAMADO_JAIL){
         gwssrv_display_system_icon ( 1, 8, 8 );
@@ -1332,7 +1319,7 @@ static void initClientSupport(void)
     {
         connections[i] = 0;
     };
-  
+
 //
 // The current client
 //
@@ -1360,10 +1347,9 @@ static void initClientSupport(void)
 // The fd of the server.
 // Nothing for now.
     serverClient->fd = -1;
-// The pid of the server.
+// Server's PID and GID.
     serverClient->pid = (pid_t) getpid();
-// group.
-    serverClient->gid = getgid();
+    serverClient->gid = (gid_t) getgid();
 // The server is not visible ... 
     serverClient->is_visible = FALSE;
     //serverClient->window = ?;
@@ -1372,7 +1358,7 @@ static void initClientSupport(void)
     serverClient->magic = 1234;
 
 // The first client and the next.
-    first_client = (struct gws_client_d *) serverClient;    
+    first_client = (struct gws_client_d *) serverClient;
     first_client->next = NULL;
 // Save us in the list of connections.
     connections[SERVER_CLIENT_INDEX] = (unsigned long) serverClient;
@@ -1386,33 +1372,27 @@ static void initClientStruct(struct gws_client_d *c)
         gwssrv_debug_print("initClientStruct: [FAIL] c\n");
         return;
     }
-
 // ID
 // #todo
     c->id = -1;  //fail
-
-//geometry
+// Geometry
     c->l = 0;
     c->t = 0;
     c->w = 50;
     c->h = 50;
-
     c->is_connected = FALSE;
     c->fd  = -1;
-    c->pid = -1;
-    c->gid = -1;
-    
+// Client's PID and GID.
+    c->pid = (pid_t) -1;
+    c->gid = (gid_t) -1;
     c->is_visible = FALSE;
-
 // No tags yet.
     for (i=0; i<4; i++){
        c->tags[i] = FALSE;
     };
-
     c->used = TRUE;
     c->magic = 1234;
 }
-
 
 /*
  //Send the message in the buffer to all the clients.
@@ -1448,9 +1428,7 @@ int serviceNextEvent(void)
 // Get the window in the queue of a given window.
 // #old from Window with focus.
 
-
     unsigned long *message_address = (unsigned long *) &__buffer[0];
-
     struct gws_window_d *w;
     register int Head=0;
 
@@ -1458,12 +1436,10 @@ int serviceNextEvent(void)
     int wid = (int) ( message_address[0] & 0xFFFFFFFF );
     if (wid<0 || wid>=WINDOW_COUNT_MAX)
         goto fail;
-
     // Get the pointer
     //#old focus_w = (struct gws_window_d *) get_focus();    
     w = (void *) windowList[wid];
-
-    if ( (void*) w==NULL ){
+    if ((void*) w == NULL){
         goto fail;
     }
     if (w->magic != 1234){
@@ -1515,16 +1491,15 @@ int serviceNextEvent2(void)
     int Restart=0;
     register int Head=0;
 
-    focus_w = (struct gws_window_d *) get_focus();    
-    if( (void*) focus_w==NULL ){
+    focus_w = (struct gws_window_d *) get_focus();
+    if ((void*) focus_w == NULL){
         goto fail;
     }
-    if(focus_w->magic != 1234){
+    if (focus_w->magic != 1234){
         goto fail;
     }
     Index   = (int) message_address[2];  //long1
     Restart = (int) message_address[3];  //long2
-
 
 // ====================================
 // Building the next response.
@@ -1569,9 +1544,9 @@ int serviceNextEvent2(void)
 // Fail
 fail:
 // Restart
-    if (Restart==TRUE){
-        if ( (void*) focus_w != NULL){
-            if(focus_w->magic==1234){
+    if (Restart == TRUE){
+        if ((void*) focus_w != NULL){
+            if (focus_w->magic == 1234){
             focus_w->ev_head = 0;
             focus_w->ev_tail = 0;
             }
@@ -1671,7 +1646,6 @@ int servicePutClientMessage(void)
     debug_print("servicePutClientMessage: deprecated\n");
     return 0;
 }
-
 
 // #todo
 // Now we get messages only in the window structure's message queue.
@@ -1803,8 +1777,8 @@ int serviceAsyncCommand(void)
     // Setup if we will show or not the 'fps window'.
     case 6:
         gwssrv_debug_print ("serviceAsyncCommand: [6]\n");
-        if( subrequest_id == TRUE ){ show_fps_window = TRUE;  goto done; }
-        if( subrequest_id != TRUE ){ show_fps_window = FALSE; goto done; }
+        if (subrequest_id == TRUE){ show_fps_window = TRUE;  goto done; }
+        if (subrequest_id != TRUE){ show_fps_window = FALSE; goto done; }
         //show_fps_window = FALSE;
         goto done;
         break;
@@ -1837,18 +1811,19 @@ int serviceAsyncCommand(void)
     // Set focus.
     case 9:
         // gwssrv_debug_print ("serviceAsyncCommand: [9] \n");
-        if (data<0){ goto done; }
+        if (data<0){
+            goto done;
+        }
         set_focus_by_id( (int) data );
         goto done;
         break;
-
 
     // #test
     // drawing a rect using ring0 and ring3 routines.
     // TRUE = use kgws ; FALSE =  do not use kgws.
     case 10:
-        gwssrv_debug_print ("serviceAsyncCommand: [10] \n");
-                    printf ("serviceAsyncCommand: [10] \n");
+        gwssrv_debug_print ("serviceAsyncCommand: [10]\n");
+                    printf ("serviceAsyncCommand: [10]\n");
 
         rectBackbufferDrawRectangle0(
             10, 10, 40, 40,
@@ -1891,7 +1866,9 @@ int serviceAsyncCommand(void)
     // Set active window by id.
     case 15:
         // gwssrv_debug_print ("serviceAsyncCommand: [9] \n");
-        if (data<0){ goto done; }
+        if (data<0){
+            goto done;
+        }
         set_active_by_id( (int) data );
         goto done;
         break;
@@ -2127,7 +2104,6 @@ int serviceCreateWindow (int client_fd)
     //while(1){}
 //===================
 
-
 // --------------------------------
 
 //
@@ -2226,11 +2202,13 @@ int serviceCreateWindow (int client_fd)
 // #test
     register int name_len=0;
     name_len = (int) strlen(Window->name);
-    if(name_len > 32){ name_len=32; }
+    if (name_len > 32){
+        name_len = 32;
+    }
     char w_name[64];
     sprintf(w_name,":: ");
     strncat(w_name, Window->name, name_len);
-    w_name[63]=0;
+    w_name[63] = 0;
 
 // Coloca na fila
 // #test: notifica na barra de tarefas
@@ -2245,12 +2223,12 @@ int serviceCreateWindow (int client_fd)
         manage_status = wmManageWindow(Window);
         if (manage_status<0){
             printf("serviceCreateWindow: wmManageWindow fail\n");
-            while(1){}
+            while (1){
+            };
         }
         // Atualiza a barra de tarefas,
         // notificando a criaçao dessa janela.
         wm_Update_TaskBar((char *) w_name,TRUE);
-
         // #test
         // Activate
         //set_active_window(Window);
@@ -2258,8 +2236,8 @@ int serviceCreateWindow (int client_fd)
 
 // Save the tid of the client.
 // #test
-    Window->client_pid = ClientPID;
-    Window->client_tid = ClientTID;
+    Window->client_pid = (pid_t) ClientPID;
+    Window->client_tid = (int) ClientTID;
 
 // The client's fd.
 // #todo
@@ -2409,15 +2387,14 @@ int serviceChangeWindowPosition(void)
 // Get
     window_id = message_address[0];  //wid
     // msg
-    x         = message_address[2];  
-    y         = message_address[3];  
+    x         = message_address[2];
+    y         = message_address[3];
 
 // Window ID limits
     if ( window_id < 0 || window_id >= WINDOW_COUNT_MAX ){
         gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition window_id\n");
         return -1;
     }
-
 // Get the window structure given the id.
     window = (struct gws_window_d *) windowList[window_id];
     if ( (void *) window == NULL ){
@@ -2451,7 +2428,7 @@ int serviceResizeWindow(void)
     unsigned long h = 0;
 
     // #debug
-    //gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition\n");
+    //gwssrv_debug_print ("gwssrv: serviceResizeWindow\n");
 
     // #todo
     // Check all the header.
@@ -2466,19 +2443,19 @@ int serviceResizeWindow(void)
     if ( window_id < 0 || 
          window_id >= WINDOW_COUNT_MAX )
     {
-        gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition window_id\n");
+        gwssrv_debug_print ("gwssrv: serviceResizeWindow window_id\n");
         return -1;
     }
 
 // Get the window structure given the id.
     window = (struct gws_window_d *) windowList[window_id];
     if ( (void *) window == NULL ){
-        gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition window\n");
+        gwssrv_debug_print ("gwssrv: serviceResizeWindow window\n");
         return -1;
     }
     if ( window->used != TRUE || 
          window->magic != 1234 ){
-        gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition validation\n");
+        gwssrv_debug_print ("gwssrv: serviceResizeWindow validation\n");
         return -1;
     }
 
@@ -2720,8 +2697,8 @@ int serviceDrawText(void)
 // Device context
     unsigned long deviceLeft   = 0;
     unsigned long deviceTop    = 0;
-    unsigned long deviceWidth  = (__device_width  & 0xFFFF );
-    unsigned long deviceHeight = (__device_height & 0xFFFF );
+    unsigned long deviceWidth  = (__device_width  & 0xFFFF);
+    unsigned long deviceHeight = (__device_height & 0xFFFF);
 
     // #debug
     // gwssrv_debug_print ("gwssrv: serviceDrawText\n");
@@ -2785,11 +2762,11 @@ int serviceDrawText(void)
 // Se a janela alvo tem um índice fora dos limites
 
 // wid
-    if ( window_id < 0 ){ return -1; }
-    if ( window_id >= WINDOW_COUNT_MAX ){
+    if ( window_id < 0 || 
+         window_id >= WINDOW_COUNT_MAX )
+    {
         return -1;
     }
-
 // window structure.
     window = (struct gws_window_d *) windowList[window_id];
     if ( (void*) window == NULL ){ 
