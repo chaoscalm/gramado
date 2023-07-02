@@ -1,5 +1,5 @@
 
-	Teams:
+    Teams:
 
 ------------------
 Gramado Core
@@ -7,12 +7,5 @@ Gramado Core
 ------------------
 Gramado Desktop
     window server, gui apps and graphics engine.
-
-
-
-
-
-
-
 
 

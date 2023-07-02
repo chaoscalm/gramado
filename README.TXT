@@ -1,12 +1,10 @@
 --------------------------------------
 Product names:
-
     Gramado Kernel - core/
-    Gramado DE     - desktop/
-
+    Gramado DE     - userland/
 --------------------------------------
     core/    - Boot loader, kernel and commands. 
-    desktop/ - Gramado Window System. (Window server and clients). (DE).
+    userland/ - Gramado Window System. (Window server and clients). (DE).
 --------------------------------------
 Build:
     Type 'make'
@@ -17,13 +15,9 @@ Running:
 --------------------------------------
 Configuration file:
     include/config/superv/config.h
-
 --------------------------------------
 The boot loader starts at:
     core/os/boot/vd/fat/main.asm
 --------------------------------------
 The kernel starts at:
     core/os/kernel/ke/x86_64/startup/
-    
-
-
