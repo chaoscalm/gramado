@@ -2,13 +2,13 @@
 # Build Gramado OS.
 
 PHONY := step1-all
-step1-all: step2-desktop step3-core
+step1-all: step2-userland step3-core
 	@echo "Done"
 	@echo "Go to core/ and type ./run or ./runkvm"
 
-PHONY := step2-desktop
-step2-desktop:
-	make -C  desktop
+PHONY := step2-userland
+step2-userland:
+	make -C  userland
 
 PHONY := step3-core
 step3-core:
@@ -18,34 +18,34 @@ PHONY := clean
 clean: clean-all
 
 PHONY := clean-all
-clean-all: clean-desktop clean-core
+clean-all: clean-userland clean-core
 
-PHONY := clean-desktop
-clean-desktop:
-# In desktop/
-	-rm desktop/gramland/bin/*.BIN
-	-rm desktop/burgundy/bin/*.BIN
-	-rm desktop/blue/bin/*.BIN
-	-rm desktop/beige/bin/*.BIN
+PHONY := clean-userland
+clean-userland:
+# In userland/
+	-rm userland/gramland/bin/*.BIN
+	#-rm userland/burgundy/bin/*.BIN
+	#-rm userland/blue/bin/*.BIN
+	#-rm userland/beige/bin/*.BIN
 
 PHONY := clean-core
 clean-core:
 # In core/
 	-rm core/GRAMADO.VHD
 	-rm core/MBR0.BIN
-	-rm core/exposed/arctic/bin/*.BIN
-	-rm core/exposed/azure/bin/*.BIN
-	-rm core/exposed/indigo1/bin/*.BIN
-	-rm core/exposed/indigo2/bin/*.BIN
+	#-rm core/exposed/arctic/bin/*.BIN
+	#-rm core/exposed/azure/bin/*.BIN
+	#-rm core/exposed/indigo1/bin/*.BIN
+	#-rm core/exposed/indigo2/bin/*.BIN
 	-rm core/os/newm0/MOD0.BIN
 	-rm core/os/kernel/KERNEL.BIN
 # Clear the disk cache
-	-rm -rf core/os/disk/*.BIN 
-	-rm -rf core/os/disk/*.BMP
-	-rm -rf core/os/disk/EFI/BOOT/*.EFI 
-	-rm -rf core/os/disk/GRAMADO/*.BIN 
-	-rm -rf core/os/disk/PROGRAMS/*.BIN 
-	-rm -rf core/os/disk/USERS/*.BIN 
+	-rm -rf base/*.BIN 
+	-rm -rf base/*.BMP
+	-rm -rf base/EFI/BOOT/*.EFI 
+	-rm -rf base/GRAMADO/*.BIN 
+	-rm -rf base/PROGRAMS/*.BIN 
+	-rm -rf base/USERS/*.BIN 
 
 
 

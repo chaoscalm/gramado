@@ -54,7 +54,7 @@ clean
 # --------------------------------------
 # build: Developer comand 1.
 # install
-# Build the images and put them all into os/disk/ folder.
+# Build the images and put them all into ../base/ folder.
 PHONY := install
 install: do_install
 do_install: \
@@ -64,7 +64,7 @@ build-gramado-os
 # --------------------------------------
 # build: Developer comand 2.
 # image
-# Copy all the files from os/disk/ to the VHD.
+# Copy all the files from ../base/ to the VHD.
 PHONY := image
 image: do_image
 do_image: \
@@ -98,12 +98,12 @@ build-gramado-os:
 	$(Q)$(NASM) os/boot/vd/fat/stage1.asm \
 	-I os/boot/vd/fat/ \
 	-o MBR0.BIN
-	sudo cp MBR0.BIN  os/disk/
+	sudo cp MBR0.BIN  ../base/
 
 # ::Build BM.BIN. (legacy, no dialog)
 	$(Q)$(MAKE) -C os/boot/x86/bm/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BM.BIN  os/disk/
+	sudo cp os/boot/x86/bin/BM.BIN  ../base/
 
 # #BUGBUG 
 # Suspended!!!!
@@ -114,26 +114,26 @@ build-gramado-os:
 # ::Build BM2.BIN. (Interface with dialog)
 	$(Q)$(MAKE) -C os/boot/x86/bm2/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BM2.BIN  os/disk/
+	sudo cp os/boot/x86/bin/BM2.BIN  ../base/
 
 
 # ::Build BL.BIN.
 	$(Q)$(MAKE) -C os/boot/x86/bl/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BL.BIN  os/disk/
+	sudo cp os/boot/x86/bin/BL.BIN  ../base/
 
 # ::Build kernel image.
 	$(Q)$(MAKE) -C os/kernel/
 # Copy to the target folder.
-	sudo cp os/kernel/KERNEL.BIN  os/disk/GRAMADO
+	sudo cp os/kernel/KERNEL.BIN  ../base/GRAMADO
 
 # ::Build the ring0 module image.
 	$(Q)$(MAKE) -C os/newm0/
 # Copy the ring0 module image.
-	sudo cp os/newm0/MOD0.BIN  os/disk/
+	sudo cp os/newm0/MOD0.BIN  ../base/
 
 # Install BMPs
-	sudo cp os/data/themes/537/*.BMP  os/disk/
+	sudo cp ../meta/assets/themes/537/*.BMP  ../base/
 
 # ::Build libraries.
 	$(Q) $(MAKE) -C libs/
@@ -143,7 +143,7 @@ build-gramado-os:
 # Building init process.
 	$(Q) $(MAKE) -C init/
 # Copy to the target folder.
-	-sudo cp init/bin/INIT.BIN  os/disk/ 
+	-sudo cp init/bin/INIT.BIN  ../base/ 
 
 # :: Azure (Commands)
 # Building userland commands.
@@ -151,52 +151,51 @@ build-gramado-os:
 	@echo ":: Making userland."
 	$(Q) $(MAKE) -C commands/
 # Copy to the target folder.
-	-sudo cp commands/bin/SHUTDOWN.BIN  os/disk/
-	-sudo cp commands/bin/REBOOT.BIN    os/disk/
-	-sudo cp commands/bin/CAT.BIN       os/disk/
-	-sudo cp commands/bin/UNAME.BIN     os/disk/
+	-sudo cp commands/bin/SHUTDOWN.BIN  ../base/
+	-sudo cp commands/bin/REBOOT.BIN    ../base/
+	-sudo cp commands/bin/CAT.BIN       ../base/
+	-sudo cp commands/bin/UNAME.BIN     ../base/
 
-	-sudo cp commands/bin/VGA1.BIN      os/disk/PROGRAMS/
-	-sudo cp commands/bin/SHELL.BIN     os/disk/PROGRAMS/
-	-sudo cp commands/bin/TPRINTF.BIN   os/disk/PROGRAMS/
-	-sudo cp commands/bin/SHOWFUN.BIN   os/disk/PROGRAMS/
-	-sudo cp commands/bin/CMP.BIN       os/disk/PROGRAMS/
-	-sudo cp commands/bin/SUM.BIN       os/disk/PROGRAMS/
-	-sudo cp commands/bin/TASCII.BIN    os/disk/PROGRAMS/
-	-sudo cp commands/bin/FALSE.BIN     os/disk/PROGRAMS/
-	-sudo cp commands/bin/TRUE.BIN      os/disk/PROGRAMS/
-	-sudo cp commands/bin/GRAMCNF.BIN   os/disk/PROGRAMS/
+	-sudo cp commands/bin/VGA1.BIN      ../base/PROGRAMS/
+	-sudo cp commands/bin/SHELL.BIN     ../base/PROGRAMS/
+	-sudo cp commands/bin/TPRINTF.BIN   ../base/PROGRAMS/
+	-sudo cp commands/bin/SHOWFUN.BIN   ../base/PROGRAMS/
+	-sudo cp commands/bin/CMP.BIN       ../base/PROGRAMS/
+	-sudo cp commands/bin/SUM.BIN       ../base/PROGRAMS/
+	-sudo cp commands/bin/TASCII.BIN    ../base/PROGRAMS/
+	-sudo cp commands/bin/FALSE.BIN     ../base/PROGRAMS/
+	-sudo cp commands/bin/TRUE.BIN      ../base/PROGRAMS/
+	-sudo cp commands/bin/GRAMCNF.BIN   ../base/PROGRAMS/
 	#...
 
-	-sudo cp commands/bin/N9.BIN   os/disk/PROGRAMS/
-	-sudo cp commands/bin/N10.BIN  os/disk/PROGRAMS/
-	-sudo cp commands/bin/N11.BIN  os/disk/PROGRAMS/
-
+	-sudo cp commands/bin/N9.BIN   ../base/PROGRAMS/
+	-sudo cp commands/bin/N10.BIN  ../base/PROGRAMS/
+	-sudo cp commands/bin/N11.BIN  ../base/PROGRAMS/
 
 # :: Indigo 1 (net)
 	$(Q) $(MAKE) -C net/ 
 # Copy to the target folder.
-	-sudo cp net/bin/GNSSRV.BIN  os/disk/
-	-sudo cp net/bin/GNS.BIN     os/disk/
+	-sudo cp net/bin/GNSSRV.BIN  ../base/
+	-sudo cp net/bin/GNS.BIN     ../base/
 
 	@echo "~build-gramado-os end?"
 
 # --------------------------------------
 PHONY := copy-extras
 copy-extras:
-# Let's copy some images from desktop/
+# Let's copy some images from userland/
 
 	@echo "copy-extras"
 
-# :: desktop
-# Copying every image from desktop/.
+# :: userland
+# Copying every image from userland/.
 
 	@echo ":: Copying Window server and clients."
 
 # Graphics engine
-	-sudo cp ../desktop/demos/eng/bin/ENG.BIN   os/disk/
+	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
 # Window server
-	-sudo cp ../desktop/ventana/gramland/bin/GRAMLAND.BIN   os/disk/
+	-sudo cp ../userland/ventana/gramland/bin/GRAMLAND.BIN  ../base/
 
 #
 # Shell
@@ -205,17 +204,17 @@ copy-extras:
 # apps, apps and apps: (Students)
 
 # apps: Unit 3
-	-sudo cp ../desktop/ventana/apps/bin/GWS.BIN   os/disk/
-	-sudo cp ../desktop/ventana/apps/bin/GDM.BIN   os/disk/
-	-sudo cp ../desktop/ventana/apps/bin/GDM2.BIN  os/disk/
+	-sudo cp ../userland/ventana/apps/bin/GWS.BIN   ../base/
+	-sudo cp ../userland/ventana/apps/bin/GDM.BIN   ../base/
+	-sudo cp ../userland/ventana/apps/bin/GDM2.BIN  ../base/
 # apps: Unit 2
-	-sudo cp ../desktop/ventana/apps/bin/TERMINAL.BIN  os/disk/
+	-sudo cp ../userland/ventana/apps/bin/TERMINAL.BIN  ../base/
 # apps: Unit 1
-	-sudo cp ../desktop/ventana/apps/bin/EDITOR.BIN   os/disk/
-	-sudo cp ../desktop/ventana/apps/bin/FILEMAN.BIN  os/disk/
-	-sudo cp ../desktop/ventana/apps/bin/CMDLINE.BIN  os/disk/PROGRAMS/
-	-sudo cp ../desktop/ventana/apps/bin/BROWSER.BIN  os/disk/
-	-sudo cp ../desktop/ventana/apps/bin/DOCV.BIN     os/disk/PROGRAMS/
+	-sudo cp ../userland/ventana/apps/bin/EDITOR.BIN   ../base/
+	-sudo cp ../userland/ventana/apps/bin/FILEMAN.BIN  ../base/
+	-sudo cp ../userland/ventana/apps/bin/CMDLINE.BIN  ../base/PROGRAMS/
+	-sudo cp ../userland/ventana/apps/bin/BROWSER.BIN  ../base/
+	-sudo cp ../userland/ventana/apps/bin/DOCV.BIN     ../base/PROGRAMS/
 
 	@echo "~ copy-extras"
 
@@ -239,13 +238,13 @@ vhd-mount:
 # --------------------------------------
 #::4
 # ~ Step 4 vhd-copy-files - Copying files into the mounted VHD.
-# Copying the os/disk/ folder into the mounted VHD.
+# Copying the ../base/ folder into the mounted VHD.
 vhd-copy-files:
 	@echo "========================="
 	@echo "Build: Copying files into the mounted VHD ..."
-	# Copy os/disk/
+	# Copy ../base/
 	# sends everything from disk/ to root.
-	sudo cp -r os/disk/*  /mnt/gramadoxvhd
+	sudo cp -r ../base/*  /mnt/gramadoxvhd
 
 # --------------------------------------
 #:::5
@@ -292,12 +291,12 @@ clean-all: clean
 # Clear the ring0 module image
 	-rm -rf os/newm0/MOD0.BIN
 # Clear the disk cache
-	-rm -rf os/disk/*.BIN 
-	-rm -rf os/disk/*.BMP
-	-rm -rf os/disk/EFI/BOOT/*.EFI 
-	-rm -rf os/disk/GRAMADO/*.BIN 
-	-rm -rf os/disk/PROGRAMS/*.BIN 
-	-rm -rf os/disk/USERS/*.BIN 
+	-rm -rf ../base/*.BIN 
+	-rm -rf ../base/*.BMP
+	-rm -rf ../base/EFI/BOOT/*.EFI 
+	-rm -rf ../base/GRAMADO/*.BIN 
+	-rm -rf ../base/PROGRAMS/*.BIN 
+	-rm -rf ../base/USERS/*.BIN 
 
 # ==================
 # exposed tier.

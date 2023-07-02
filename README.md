@@ -40,7 +40,7 @@ The libraries are:
 
 You can find the source code on Github in the internet, 
 where you can clone the repository, contribute to the project or
-download the code. The address is https://github.com/frednora/gramado.
+download the code. The address is https://github.com/gramado/gramado.
 
 ## A description of the directories in the Gramado source code.
 
@@ -49,9 +49,11 @@ core/ is a place for the low level code and
 desktop/ is a place for the graphical user interface.
 
     Gramado Kernel - core/
-    Gramado DE     - desktop/
+    Gramado DE     - userland/
 
     The next few lines has a brief description of the subdirectories:
+
+ * `base/` - The root directory for the boot partition.
 
  * `core/` - Low level basic components of the system.  
    * `commands` - Unix-like commands and more.
@@ -60,10 +62,13 @@ desktop/ is a place for the graphical user interface.
    * `net` - Network stuff.
    * `os` - Main ring0 Components.
      * `boot` - The boot loader.
-     * `disk` - The root directory for the boot partition.
      * `kernel` - The Gramado OS kernel.
 
- * `desktop/` - Desktop Environment (DE).
+ * `docs/` - Documentation.
+
+ * `meta/` - metadata.
+
+ * `userland/` - Desktop Environment (DE).
    * `demos` - Demos.
      * `eng` - 3D demo.
    * `games/` - Games.
