@@ -84,7 +84,7 @@ Fred Nora is the creator and main maintainer of the project.
 
 ## How to Build?
 
-> See the [Gramado OS build instructions](https://github.com/frednora/gramado/blob/master/core/admin/docs/build.md)
+> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/docs/build.md)
 
 ## Building and running on vm
 
@@ -143,13 +143,13 @@ Please make some comments on Github or send messages to Fred Nora.
 ## Documentation
 
 The project has a folder for documentation and design notes. 
-The folder is core/admin/docs/.
+The folder is docs/.
 
-> See the [docs](https://github.com/frednora/gramado/tree/master/core/admin/docs).
+> See the [docs](https://github.com/gramado/gramado/tree/master/docs).
 
 The project is looking for some people to create a better documentation, for free, 
 as a contribuition to the open source community. To create this new documentation 
-we can use the documentation in core/admin/docs/ and the design notes 
+we can use the documentation in docs/ and the design notes 
 found all over the project.
 
 ## Author
@@ -160,7 +160,7 @@ found all over the project.
 ## Contributors
 
 * **Fred Nora** - [Fred Nora's Facebook account](https://facebook.com/frednora)
-* **Fred Nora** - [Fred Nora's Facebook account](https://facebook.com/frednora)
+* **Fred Nora 2** - [Fred Nora's Facebook account](https://facebook.com/frednora)
 
 ## License
 

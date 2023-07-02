@@ -4,12 +4,18 @@
 
 ```
     Host machine: Ubuntu 20.04.5 LTS
-    Linux 5.4.0-137-generic x86_64
+    Linux 5.4.0-146-generic x86_64
     gcc (Ubuntu) 9.4.0 
     GNU ld (GNU Binutils for Ubuntu) 2.34
     NASM version 2.14.02
 ```
-
+```
+    Host machine: Ubuntu 22.04.2 LTS
+    Linux 5.15.0-75-generic x86_64
+    gcc (Ubuntu) 11.3.0 
+    GNU ld (GNU Binutils for Ubuntu) 2.38
+    NASM version 2.15.05
+```
 
 ## Linux dependencies
 
