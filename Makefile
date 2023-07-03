@@ -33,12 +33,8 @@ clean-core:
 # In core/
 	-rm core/GRAMADO.VHD
 	-rm core/MBR0.BIN
-	#-rm core/exposed/arctic/bin/*.BIN
-	#-rm core/exposed/azure/bin/*.BIN
-	#-rm core/exposed/indigo1/bin/*.BIN
-	#-rm core/exposed/indigo2/bin/*.BIN
-	-rm core/os/newm0/MOD0.BIN
-	-rm core/os/kernel/KERNEL.BIN
+	-rm core/kernel/KERNEL.BIN
+	-rm core/newm0/MOD0.BIN
 # Clear the disk cache
 	-rm -rf base/*.BIN 
 	-rm -rf base/*.BMP
@@ -46,7 +42,5 @@ clean-core:
 	-rm -rf base/GRAMADO/*.BIN 
 	-rm -rf base/PROGRAMS/*.BIN 
 	-rm -rf base/USERS/*.BIN 
-
-
 
 

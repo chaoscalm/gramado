@@ -91,19 +91,19 @@ build-gramado-os:
 
 #----------------------------------
 # Create the virtual disk 0.
-	$(Q)$(NASM) os/boot/vd/fat/main.asm \
-	-I os/boot/vd/fat/ \
+	$(Q)$(NASM) boot/vd/fat/main.asm \
+	-I boot/vd/fat/ \
 	-o GRAMADO.VHD 
 # Create backup for MBR 0.
-	$(Q)$(NASM) os/boot/vd/fat/stage1.asm \
-	-I os/boot/vd/fat/ \
+	$(Q)$(NASM) boot/vd/fat/stage1.asm \
+	-I boot/vd/fat/ \
 	-o MBR0.BIN
 	sudo cp MBR0.BIN  ../base/
 
 # ::Build BM.BIN. (legacy, no dialog)
-	$(Q)$(MAKE) -C os/boot/x86/bm/ 
+	$(Q)$(MAKE) -C boot/x86/bm/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BM.BIN  ../base/
+	sudo cp boot/x86/bin/BM.BIN  ../base/
 
 # #BUGBUG 
 # Suspended!!!!
@@ -112,25 +112,24 @@ build-gramado-os:
 # the shell first. There are two routines 
 # to initialize the gui mode. Only one is good.
 # ::Build BM2.BIN. (Interface with dialog)
-	$(Q)$(MAKE) -C os/boot/x86/bm2/ 
+	$(Q)$(MAKE) -C boot/x86/bm2/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BM2.BIN  ../base/
-
+	sudo cp boot/x86/bin/BM2.BIN  ../base/
 
 # ::Build BL.BIN.
-	$(Q)$(MAKE) -C os/boot/x86/bl/ 
+	$(Q)$(MAKE) -C boot/x86/bl/ 
 # Copy to the target folder.
-	sudo cp os/boot/x86/bin/BL.BIN  ../base/
+	sudo cp boot/x86/bin/BL.BIN  ../base/
 
 # ::Build kernel image.
-	$(Q)$(MAKE) -C os/kernel/
+	$(Q)$(MAKE) -C kernel/
 # Copy to the target folder.
-	sudo cp os/kernel/KERNEL.BIN  ../base/GRAMADO
+	sudo cp kernel/KERNEL.BIN  ../base/GRAMADO
 
 # ::Build the ring0 module image.
-	$(Q)$(MAKE) -C os/newm0/
+	$(Q)$(MAKE) -C newm0/
 # Copy the ring0 module image.
-	sudo cp os/newm0/MOD0.BIN  ../base/
+	sudo cp newm0/MOD0.BIN  ../base/
 
 # Install BMPs
 	sudo cp ../meta/assets/themes/537/*.BMP  ../base/
@@ -285,11 +284,11 @@ clean-all: clean
 # os tier.
 
 # Clear boot images
-	-rm -rf os/boot/x86/bin/*.BIN
+	-rm -rf boot/x86/bin/*.BIN
 # Clear newos kernel image
-	-rm -rf os/kernel/KERNEL.BIN
+	-rm -rf kernel/KERNEL.BIN
 # Clear the ring0 module image
-	-rm -rf os/newm0/MOD0.BIN
+	-rm -rf newm0/MOD0.BIN
 # Clear the disk cache
 	-rm -rf ../base/*.BIN 
 	-rm -rf ../base/*.BMP
