@@ -26,16 +26,13 @@
 #define __VK_RETURN    0x1C
 #define __VK_TAB       0x0F
 
-
 static isTimeToQuit = FALSE;
-
 
 static const char *app1_name = "gramland.bin";
 //static const char *app1_name = "gwssrv.bin";
 static const char *app2_name = "gws.bin";
 static const char *app3_name = "gnssrv.bin";
 static const char *app4_name = "gns.bin";
-
 
 // Flags:
 // --dm - Launches the default Display Manager.
@@ -46,7 +43,6 @@ static const char *cmdline1 = "gramland -1 -2 -3";
 // ...
 
 // private functions: prototypes;
-
 
 // Loops
 static int __coolmenu_loop(void);
@@ -59,7 +55,6 @@ static void do_help(void);
 static void do_launch_de(void);
 static void do_launch_de2(void);
 static void do_launch_list(void);
-
 
 static void do_clear_console(void);
 
@@ -99,7 +94,6 @@ static void do_launch_de(void)
     char filename[16];
     size_t string_size=0;
     memset(filename,0,16);
-
 
     do_clear_console();
     printf ("Launching GUI\n");
@@ -157,8 +151,6 @@ static void do_launch_de2(void)
     isTimeToQuit = TRUE;
 }
 
-
-
 static void initPrompt(void)
 {
     register int i=0;
@@ -167,19 +159,16 @@ static void initPrompt(void)
     for ( i=0; i<PROMPT_MAX_DEFAULT; i++ ){
         prompt[i] = (char) '\0';
     };
-
     prompt[0] = (char) '\0';
     prompt_pos    = 0;
     prompt_status = 0;
-    prompt_max    = PROMPT_MAX_DEFAULT;  
-
+    prompt_max    = PROMPT_MAX_DEFAULT;
 // Prompt
     printf("\n");
     putc('$',stdout);
     putc(' ',stdout);
     fflush(stdout);
 }
-
 
 // Clear the background of the current virtual console.
 // #todo: 
@@ -231,7 +220,7 @@ static int __CompareString(void)
 
 // Primeira letra do prompt.
     c = prompt;
-    if ( *c == '\0' ){
+    if (*c == '\0'){
         goto exit_cmp;
     }
 
@@ -463,6 +452,8 @@ static int __coolmenu_loop(void)
 {
 // Get input from sdtin.
 
+    register int C=0;
+
 // Clear the console and set cursor position to 0,0.
     do_clear_console();
 
@@ -483,21 +474,19 @@ static int __coolmenu_loop(void)
 
     initPrompt();
 
-    register int C=0;
     static int yn_result = FALSE;
 
-    while(1)
+    while (1)
     {
-        if( isTimeToQuit == TRUE ){
+        if (isTimeToQuit == TRUE){
             break;
         }
+
         C = (int) fgetc(stdin);
-        
         // Quit the cool menu.
         if (C == 'q'){
             break;
         }
-
         // Reboot the system.
         if (C =='r')
         {
@@ -507,7 +496,6 @@ static int __coolmenu_loop(void)
                 rtl_clone_and_execute("reboot.bin");
             }
         }
-
         // Poweroff the system.
         if (C =='s')
         {
@@ -524,6 +512,8 @@ static int __stdin_loop(void)
 {
 // Get input from sdtin.
 
+    register int C=0;
+
 //================================
 
 // Clear the console and set cursor position to 0,0.
@@ -537,34 +527,28 @@ static int __stdin_loop(void)
     printf(":: Gramado OS ::\n");
     initPrompt();
 
-    register int C=0;
-
-    while(1)
+    while (1)
     {
-        if( isTimeToQuit == TRUE ){
+        if (isTimeToQuit == TRUE){
             break;
         }
         C = (int) fgetc(stdin);
-        if( C == __VK_RETURN )
-        {
+        if (C == __VK_RETURN){
             __CompareString();
         }
-        if( C >= 0x20 && C <= 0x7F )
+        if ( C >= 0x20 && C <= 0x7F )
         {
             printf("%c",C);
             fflush(stdout);
-
-            input(C);  // coloca no prompt.
+            input(C);  // Coloca no prompt.
         }
     };
 
     //#debug
     //printf("~Quit\n");
     //while(1){}
-
 //================================
 }
-
 
 int main( int argc, char **argv)
 {
@@ -586,7 +570,6 @@ int main( int argc, char **argv)
  
     // asm volatile ("int $199 \n");
 
-
 // interrupts
 // Unlock the taskswitching support.
 // Unlock the scheduler embedded into the base kernel.
@@ -596,8 +579,6 @@ int main( int argc, char **argv)
     //printf          ("gws.bin: Unlock taskswitching and scheduler \n");
     gramado_system_call (641,0,0,0);
     gramado_system_call (643,0,0,0);
-
-
 
 /*
 //================================

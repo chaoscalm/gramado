@@ -31,22 +31,16 @@ CFLAGS = -m64 \
 	-s \
 	-Werror=strict-prototypes    
 
-
 LIBC      = ../../libs/rtl/include/
 LIBCOBJ   = ../../libs/rtl/obj
 LIBGWS    = ../../libs/libgws/include/
 LIBGWSOBJ = ../../libs/libgws/obj
 
-#
 # Objects
-#
-
 myObjects = crt0.o main.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o \
 unistd.o termios.o ioctl.o socket.o \
 gws.o connect.o events.o rw.o    
-
-
 
 .PHONY: all all-c hello-link finalize clean
 

@@ -2,14 +2,17 @@
 
     Here your're gonna find:
 
+apps:
+    + Client-side GUI applications.
 demos:
     + 3D demos.
 games:
-    + games.
-ventana:
-    + The window server.
-    + Client-side GUI applications.
+    + Games.
+libs:
     + Libraries.
+services/ventana:
+    + The window server.
+
 
 
 

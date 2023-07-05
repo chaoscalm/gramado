@@ -23,7 +23,7 @@ clean-all: clean-userland clean-core
 PHONY := clean-userland
 clean-userland:
 # In userland/
-	-rm userland/gramland/bin/*.BIN
+	#-rm userland/gramland/bin/*.BIN
 	#-rm userland/burgundy/bin/*.BIN
 	#-rm userland/blue/bin/*.BIN
 	#-rm userland/beige/bin/*.BIN

@@ -1,13 +1,9 @@
 
-
 apps/
     Client applications.
-
-eng/
+demos/eng/
     Graphics engine.
-
-gramland/
+services/gramland/
     Window server.
-
 libs/
     Client-side libraries.

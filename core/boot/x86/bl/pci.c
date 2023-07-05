@@ -8,9 +8,7 @@
  *     2016 - Created by Fred Nora.
  */
 
-
 #include <bootloader.h> 
-
 
 /*
  * pciConfigReadWord:
@@ -46,7 +44,6 @@ pciConfigReadWord (
 
     out32 ( PCI_ADDRESS_PORT, address );
 
-
 // Read in the data port.
 // (offset & 2) * 8) = 0 
 // Will choose the first word of the 32 bits register.  
@@ -56,7 +53,6 @@ pciConfigReadWord (
     return (unsigned short) tmp; 
 }
  
-
 /*
  * pciCheckDevice:
  *     Check device, offset 2. 
@@ -79,10 +75,9 @@ pciCheckDevice (
 
     Vendor = pciConfigReadWord ( bus, slot, 0, 0 );    
 
-    if ( Vendor == PCI_INVALID_VENDORID ){
+    if (Vendor == PCI_INVALID_VENDORID){
         return (unsigned short) 0;
     }
-
 
 //Pega o device
 //PCI_OFFSET_DEVICEID

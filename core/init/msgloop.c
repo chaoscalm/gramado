@@ -135,7 +135,6 @@ __Procedure (
     return 0;
 }
 
-
 static int __idlethread_loop(void)
 {
 // Get input from idlethread.
@@ -168,7 +167,6 @@ static int __idlethread_loop(void)
     return 0;
 }
 
-
 // We're not using the unix-sockets
 // just like in a regular Gramado server. 
 // We're just getting messages in the threads message queue.
@@ -186,5 +184,4 @@ int run_server(void)
 
     return 0;
 }
-
 

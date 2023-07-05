@@ -451,7 +451,7 @@ Entry_386:
     //#debug
     //printf ("SetUpPaging: load_pml4_table\n");
     //refresh_screen();
-    
+
     unsigned long pml4_address = (unsigned long) &boot_pml4[0];
 
     load_pml4_table( (unsigned long) pml4_address );

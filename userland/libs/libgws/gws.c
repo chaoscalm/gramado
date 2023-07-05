@@ -231,10 +231,10 @@ void *gws_system_call (
 // Debug via serial port. (COM1)
 void gws_debug_print(char *string)
 {
-    if ( (void*) string == NULL ){
+    if ((void*) string == NULL){
         return;
     }
-    if ( *string == 0 ){
+    if (*string == 0){
         return;
     }
     gws_system_call ( 
@@ -271,15 +271,15 @@ int gws_initialize_library(void)
 
 void *gws_malloc(size_t size)
 {
-    if (size<=0){
-        size=1;
+    if (size <= 0){
+        size = 1;
     }
     return (void*) malloc(size);
 }
 
 void gws_free(void *ptr)
 {
-    if ( (void*) ptr == NULL ){
+    if ((void*) ptr == NULL){
         return;
     }
     free(ptr);
@@ -3812,7 +3812,7 @@ done:
 // #test
 // No response.
 // Sending the wm's pid to the ws.
-// Don't trust in method. There is no response.
+// Don't trust in this method. There is no response.
 // We can use this to broadcast.
 void gws_send_wm_magic( int fd, int pid )
 {
@@ -3820,7 +3820,6 @@ void gws_send_wm_magic( int fd, int pid )
     if(pid<0){ return; }
     gws_async_command(fd,7,0,pid);
 }
-
 
 // gws_open_display:
 // + (1) Create the display structure.
@@ -3861,7 +3860,7 @@ struct gws_display_d *gws_open_display(char *display_name)
     Display = 
         (struct gws_display_d *) gws_malloc( sizeof( struct gws_display_d ) );
 
-    if ( (void*) Display == NULL ){
+    if ((void*) Display == NULL){
         printf ("gws_open_display: Couldn't create display\n");
         return NULL;
     }
@@ -3874,7 +3873,8 @@ struct gws_display_d *gws_open_display(char *display_name)
        return NULL;
     }
 
-// #todo: Colocar isso no fim da rotina.
+// #todo: 
+// Colocar isso no fim da rotina.
     //Display->used = TRUE;
     //Display->magic = 1234;
 
@@ -3883,15 +3883,15 @@ struct gws_display_d *gws_open_display(char *display_name)
     Display->connected = FALSE;
     // ...
 
+// Display name.
 // #todo:
 // Use a default name if we do not have a given one.
 
-    if ( (void*) display_name == NULL ){
+    if ((void*) display_name == NULL){
         printf ("gws_open_display: [FAIL] display_name\n");
         return NULL;
     }
-
-    if ( *display_name == 0 ){
+    if (*display_name == 0){
         printf ("gws_open_display: [FAIL] *display_name\n");
         return NULL;
     }
@@ -3901,17 +3901,19 @@ struct gws_display_d *gws_open_display(char *display_name)
 
     while (TRUE){
         if (connect (client_fd, (void *) &addr_in, addrlen ) < 0){
-            gws_debug_print("gws_open_display: Connection Failed \n");
-            printf         ("gws_open_display: Connection Failed \n");
-        }else{ break; };
+            gws_debug_print("gws_open_display: Connection Failed\n");
+            printf         ("gws_open_display: Connection Failed\n");
+        }else{
+            // Connected!
+            break;
+        };
     };
 
-// Flag
+// Flags
     Display->connected = TRUE;
     Display->used = TRUE;
     Display->magic = 1234;
-
-// Current display.
+// Current display
     gws_set_current_display(Display);
 // Return the display structure pointer.
     return (struct gws_display_d *) Display;
@@ -3921,7 +3923,7 @@ void gws_close_display(struct gws_display_d *display)
 {
     // #todo
     
-    if ( (void*) display == NULL ){
+    if ((void*) display == NULL){
         gws_debug_print("gws_close_display: display\n");
         return;
     }
@@ -3935,7 +3937,7 @@ void gws_close_display(struct gws_display_d *display)
 // Change the current display for this library.
 int gws_set_current_display(struct gws_display_d *display)
 {
-    if ( (void*) display == NULL ){
+    if ((void*) display == NULL){
         return (int) -1;
     }
     if ( display->used != TRUE || display->magic != 1234 )
@@ -3953,7 +3955,7 @@ struct gws_display_d *gws_get_current_display(void)
 
 void gws_display_exit(struct gws_display_d *display)
 {
-    if ( (void*) display == NULL ){
+    if ((void*) display == NULL){
         return;
     }
     if (display->magic != 1234){
@@ -3961,7 +3963,6 @@ void gws_display_exit(struct gws_display_d *display)
     }
     display->running = FALSE;
 }
-
 
 /*
   // #todo
@@ -3991,7 +3992,7 @@ int application_start(void)
     Display = 
         (struct gws_display_d *) gws_open_display("display:name.0");
 
-    if ( (void*) Display == NULL )
+    if ((void*) Display == NULL)
     {
         debug_print ("application_start: Couldn't open display\n");
         printf      ("application_start: Couldn't open display\n");
@@ -3999,7 +4000,7 @@ int application_start(void)
         goto fail;
     }
 
-    if ( Display->fd <= 0 )
+    if (Display->fd <= 0)
     {
         debug_print ("application_start: bad Display->fd\n");
         printf      ("application_start: bad Display->fd\n");

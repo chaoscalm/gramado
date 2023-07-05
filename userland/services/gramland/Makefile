@@ -13,7 +13,7 @@ linkTarget = GRAMLAND.BIN
 # LDFLAGS := -m elf_x86_64 -static
 # LDFLAGS := -m elf_x86_64 -s -x -static  
 linkFlags  = -m elf_x86_64 \
--s -x -static -T ../link.ld
+-s -x -static -T ../../link.ld
 
 VERSION = 0
 PATCHLEVEL = 1
@@ -74,12 +74,12 @@ CFLAGS += -fno-optimize-sibling-calls
 
 #todo
 #path longo. vamos mudar  as libs de lugar para gramado/libs.
-LIBC        = ../libs/rtl/include/
-LIBCOBJ     = ../libs/rtl/obj
-LIBDISP     = ../libs/libdisp/include/
-LIBDISPOBJ  = ../libs/libdisp/obj
-LIBGR       = ../libs/libgr/include/
-LIBGROBJ    = ../libs/libgr/obj
+LIBC        = ../../libs/rtl/include/
+LIBCOBJ     = ../../libs/rtl/obj
+LIBDISP     = ../../libs/libdisp/include/
+LIBDISPOBJ  = ../../libs/libdisp/obj
+LIBGR       = ../../libs/libgr/include/
+LIBGROBJ    = ../../libs/libgr/obj
 
 CINCLUDES  = -I $(LIBC)  
 CINCLUDES += -I $(LIBDISP)

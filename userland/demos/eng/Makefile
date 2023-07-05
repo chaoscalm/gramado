@@ -77,14 +77,14 @@ user_ccflags += -fno-optimize-sibling-calls
 #todo
 # Path longo. vamos mudar  as libs de lugar para gramado/libs.
 
-LIBC       = ../../ventana/libs/rtl/include/
-LIBCOBJ    = ../../ventana/libs/rtl/obj
-LIBDISP    = ../../ventana/libs/libdisp/include/
-LIBDISPOBJ = ../../ventana/libs/libdisp/obj
-LIBGR      = ../../ventana/libs/libgr/include/
-LIBGROBJ   = ../../ventana/libs/libgr/obj
-LIBGR3D    = ../../ventana/libs/libgr3d/include/
-LIBGR3DOBJ = ../../ventana/libs/libgr3d/obj
+LIBC       = ../../libs/rtl/include/
+LIBCOBJ    = ../../libs/rtl/obj
+LIBDISP    = ../../libs/libdisp/include/
+LIBDISPOBJ = ../../libs/libdisp/obj
+LIBGR      = ../../libs/libgr/include/
+LIBGROBJ   = ../../libs/libgr/obj
+LIBGR3D    = ../../libs/libgr3d/include/
+LIBGR3DOBJ = ../../libs/libgr3d/obj
 
 CINCLUDES  = -I $(LIBC)  
 CINCLUDES += -I $(LIBDISP)

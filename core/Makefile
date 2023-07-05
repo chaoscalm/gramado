@@ -172,10 +172,10 @@ build-gramado-os:
 	-sudo cp commands/bin/N11.BIN  ../base/PROGRAMS/
 
 # :: Indigo 1 (net)
-	$(Q) $(MAKE) -C net/ 
+	$(Q) $(MAKE) -C netd/ 
 # Copy to the target folder.
-	-sudo cp net/bin/GNSSRV.BIN  ../base/
-	-sudo cp net/bin/GNS.BIN     ../base/
+	-sudo cp netd/bin/GNSSRV.BIN  ../base/
+	-sudo cp netd/bin/GNS.BIN     ../base/
 
 	@echo "~build-gramado-os end?"
 
@@ -194,7 +194,7 @@ copy-extras:
 # Graphics engine
 	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
 # Window server
-	-sudo cp ../userland/ventana/gramland/bin/GRAMLAND.BIN  ../base/
+	-sudo cp ../userland/services/gramland/bin/GRAMLAND.BIN  ../base/
 
 #
 # Shell
@@ -203,17 +203,17 @@ copy-extras:
 # apps, apps and apps: (Students)
 
 # apps: Unit 3
-	-sudo cp ../userland/ventana/apps/bin/GWS.BIN   ../base/
-	-sudo cp ../userland/ventana/apps/bin/GDM.BIN   ../base/
-	-sudo cp ../userland/ventana/apps/bin/GDM2.BIN  ../base/
+	-sudo cp ../userland/apps/bin/GWS.BIN   ../base/
+	-sudo cp ../userland/apps/bin/GDM.BIN   ../base/
+	-sudo cp ../userland/apps/bin/GDM2.BIN  ../base/
 # apps: Unit 2
-	-sudo cp ../userland/ventana/apps/bin/TERMINAL.BIN  ../base/
+	-sudo cp ../userland/apps/bin/TERMINAL.BIN  ../base/
 # apps: Unit 1
-	-sudo cp ../userland/ventana/apps/bin/EDITOR.BIN   ../base/
-	-sudo cp ../userland/ventana/apps/bin/FILEMAN.BIN  ../base/
-	-sudo cp ../userland/ventana/apps/bin/CMDLINE.BIN  ../base/PROGRAMS/
-	-sudo cp ../userland/ventana/apps/bin/BROWSER.BIN  ../base/
-	-sudo cp ../userland/ventana/apps/bin/DOCV.BIN     ../base/PROGRAMS/
+	-sudo cp ../userland/apps/bin/EDITOR.BIN   ../base/
+	-sudo cp ../userland/apps/bin/FILEMAN.BIN  ../base/
+	-sudo cp ../userland/apps/bin/CMDLINE.BIN  ../base/PROGRAMS/
+	-sudo cp ../userland/apps/bin/BROWSER.BIN  ../base/
+	-sudo cp ../userland/apps/bin/DOCV.BIN     ../base/PROGRAMS/
 
 	@echo "~ copy-extras"
 
