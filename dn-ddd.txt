@@ -7,7 +7,7 @@
     + userland/ (Desktop environment)
 
 -------------------------
-  * core/
+  + core/
     + Bootloader. 
       (core/boot)
     + Kernel.
@@ -15,6 +15,7 @@
     + Commands (CLI applications).
       (core/commands)
 -------------------------
+  + userland/
     + Window server.
       (userland/services/gramland)
     + Client-side GUI applications.
