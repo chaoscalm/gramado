@@ -56,26 +56,27 @@ desktop/ is a place for the graphical user interface.
  * `base/` - The root directory for the boot partition.
 
  * `core/` - Low level basic components of the system.  
+   * `boot` - The boot loader.
    * `commands` - Unix-like commands and more.
    * `init` - The init process.
+   * `kernel` - The Gramado OS kernel.
    * `libs` - Libraries.
-   * `net` - Network stuff.
-   * `os` - Main ring0 Components.
-     * `boot` - The boot loader.
-     * `kernel` - The Gramado OS kernel.
+   * `netd` - Network server and first client.
+   * `newm0` - Ring 0 loadable module.
+
 
  * `docs/` - Documentation.
 
  * `meta/` - metadata.
 
  * `userland/` - Desktop Environment (DE).
+   * `apps` - Client-side GUI applications.
    * `demos` - Demos.
      * `eng` - 3D demo.
    * `games/` - Games.
-   * `ventana/`
-     * `apps` - Client-side GUI applications.
+   * `libs/` - Libraries.
+   * `services/` - Servers.
      * `gramland` - Window server.
-     * `libs` - Libraries.
 
 ## Who are the developers?
 
