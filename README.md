@@ -73,9 +73,9 @@ desktop/ is a place for the graphical user interface.
    * `apps` - Client-side GUI applications.
    * `demos` - Demos.
      * `eng` - 3D demo.
-   * `games/` - Games.
-   * `libs/` - Libraries.
-   * `services/` - Servers.
+   * `games` - Games.
+   * `libs` - Libraries.
+   * `services` - Servers.
      * `gramland` - Window server.
 
 ## Who are the developers?
