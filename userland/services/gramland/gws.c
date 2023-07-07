@@ -357,13 +357,13 @@ int gwssrv_init_globals(void)
 }
 
 
-// gwsInit:
+// gwsInitGUI:
 // Initialize the server. 
-// Called by initGraphics() in main.c
+// Called by initGUI() in main.c
 
-int gwsInit(void)
+int gwsInitGUI(void)
 {
-    debug_print("gwsInit:\n");
+    debug_print("gwsInitGUI:\n");
 
     //paint_ready = FALSE;
 
@@ -380,8 +380,8 @@ int gwsInit(void)
 
     CurrentDisplay = (void *) malloc (sizeof(struct gws_display_d));
     if ( (void*) CurrentDisplay == NULL ){
-        debug_print("gwsInit: [FAIL] CurrentDisplay\n");
-        printf     ("gwsInit: [FAIL] CurrentDisplay\n");
+        debug_print("gwsInitGUI: [FAIL] CurrentDisplay\n");
+        printf     ("gwsInitGUI: [FAIL] CurrentDisplay\n");
         exit(1); 
     }
     memset( CurrentDisplay, 0, sizeof(struct gws_display_d) );
@@ -405,8 +405,8 @@ int gwsInit(void)
 
     DeviceScreen  = (void *) malloc (sizeof(struct gws_screen_d));
     if ( (void*) DeviceScreen == NULL ){
-        debug_print("gwsInit: [FAIL] DeviceScreen\n");
-        printf     ("gwsInit: [FAIL] DeviceScreen\n");
+        debug_print("gwsInitGUI: [FAIL] DeviceScreen\n");
+        printf     ("gwsInitGUI: [FAIL] DeviceScreen\n");
         exit(1);
     }
     memset( DeviceScreen, 0, sizeof(struct gws_screen_d) );
@@ -429,8 +429,8 @@ int gwsInit(void)
 // Checks
 
     if (DeviceScreen->pitch == 0){
-        debug_print("gwsInit: [FAIL] DeviceScreen->pitch \n");
-        printf     ("gwsInit: [FAIL] DeviceScreen->pitch \n");
+        debug_print("gwsInitGUI: [FAIL] DeviceScreen->pitch \n");
+        printf     ("gwsInitGUI: [FAIL] DeviceScreen->pitch \n");
         exit(1);
     }
 
@@ -486,7 +486,7 @@ int gwsInit(void)
         (struct dc_d *) malloc ( sizeof( struct dc_d ) );
 
     if ( (void*) gr_dc == NULL ){
-        printf ("gwsInit: Couldn't create default dc\n");
+        printf ("gwsInitGUI: Couldn't create default dc\n");
         exit(1);
     }
 
@@ -552,8 +552,8 @@ int gwsInit(void)
 
     gui = (void *) malloc( sizeof( struct gui_d) );
     if ( (void *) gui == NULL ){
-        debug_print("gwsInit: gui\n");
-        printf     ("gwsInit: gui\n");
+        debug_print("gwsInitGUI: gui\n");
+        printf     ("gwsInitGUI: gui\n");
         exit(1);
     }
     memset( gui, 0, sizeof(struct gui_d) );
@@ -571,21 +571,21 @@ int gwsInit(void)
 
     tmpRootWindow = (struct gws_window_d *) wmCreateRootWindow(rootwindow_color);
     if ( (void*) tmpRootWindow == NULL){
-        debug_print("gwsInit: tmpRootWindow\n");
-        printf     ("gwsInit: tmpRootWindow\n");
+        debug_print("gwsInitGUI: tmpRootWindow\n");
+        printf     ("gwsInitGUI: tmpRootWindow\n");
         exit(1);
     }
     if ( tmpRootWindow->used != TRUE || tmpRootWindow->magic != 1234 ){
-        debug_print("gwsInit: tmpRootWindow validation\n");
-        printf     ("gwsInit: tmpRootWindow validation\n");
+        debug_print("gwsInitGUI: tmpRootWindow validation\n");
+        printf     ("gwsInitGUI: tmpRootWindow validation\n");
         exit(1);
     }
 
 // Register
     wid_t root_wid = RegisterWindow(tmpRootWindow);
     if (root_wid<0 || root_wid >= WINDOW_COUNT_MAX){
-        debug_print ("gwsInit: Couldn't register tmpRootWindow\n");
-        printf      ("gwsInit: Couldn't register tmpRootWindow\n");
+        debug_print ("gwsInitGUI: Couldn't register tmpRootWindow\n");
+        printf      ("gwsInitGUI: Couldn't register tmpRootWindow\n");
         exit(1);
     }
 
@@ -610,8 +610,8 @@ int gwsInit(void)
 // gui structure.
 
     if ( (void*) gui == NULL ){
-        debug_print ("gwsInit: gui\n");
-        printf      ("gwsInit: gui\n");
+        debug_print ("gwsInitGUI: gui\n");
+        printf      ("gwsInitGUI: gui\n");
         exit(1);
     }
 
@@ -626,7 +626,7 @@ int gwsInit(void)
     if ( (void*) gui->screen_window != NULL ){
         dtextDrawText ( 
             (struct gws_window_d *) gui->screen_window,
-            8, 8, COLOR_RED, "gwsInit: Graphics ok" );
+            8, 8, COLOR_RED, "gwsInitGUI: gui ok" );
     }
 
 //#debug
@@ -766,23 +766,6 @@ copy_backbuffer (
         count );
 }
 */
-
-
-// =======================
-// serverInit
-
-int serverInit(void)
-{
-    int Status = -1;
-
-    printf ("serverInit: Initializing gws server...\n");
-    Status = (int) gwsInit();
-    if (Status<0){
-        printf ("serverInit: fail\n");
-    }
-
-    return (int) Status;
-}
 
 //
 // End

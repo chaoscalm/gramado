@@ -52,24 +52,28 @@ int clear_window_by_id(int wid, unsigned long flags)
     struct gws_window_d *w;
 
 // wid
-    if (wid<0 || wid>=WINDOW_COUNT_MAX)
+    if (wid<0 || wid>=WINDOW_COUNT_MAX){
         return -1;
-// structure validation
+    }
+// Structure validation
     w = (void*) windowList[wid];
-    if( (void*) w == NULL )
+    if ((void*) w == NULL){
         return -1;
-    if(w->magic!=1234)
+    }
+    if (w->magic != 1234){
         return -1;
+    }
 
+// #todo
+// Maybe we can clear more types of window.
     if (w->type != WT_SIMPLE)
+    {
         return -1;
+    }
 
     redraw_window(w,flags);
     return 0;
 }
-
-
-
 
 // pinta um retangulo no botao
 // indicando que o app esta rodando.
@@ -86,10 +90,10 @@ static void __draw_button_mark_by_wid( int wid, int button_number )
     }
 // Window
     w = (struct  gws_window_d *) windowList[wid];
-    if ( (void*) w == NULL ){
+    if ((void*) w == NULL){
         return;
     }
-    if (w->magic!=1234){
+    if (w->magic != 1234){
         return;
     }
 
@@ -132,10 +136,10 @@ __draw_button_borders(
     //debug_print("__draw_button_borders:\n");
 
 // This is the window for relative positions.
-    if ( (void*) w == NULL ){
+    if ((void*) w == NULL){
         return;
     }
-    if (w->magic!=1234){
+    if (w->magic != 1234){
         return;
     }
 
@@ -403,34 +407,35 @@ __draw_window_border(
     }
 }
 
-
 int redraw_controls(struct gws_window_d *window)
 {
     struct gws_window_d *tb_window;
+    register int wid = -1;
 
     tb_window = window;
-    if ( (void*) tb_window == NULL )
-        return -1;
-    if (tb_window->magic != 1234)
-        return -1;
-
-    int wid=-1;
-
+    if ((void*) tb_window == NULL){
+        goto fail;
+    }
+    if (tb_window->magic != 1234){
+        goto fail;
+    }
 
  //#todo
  // Esta funcionando ...
  // mas precisamos considar quando a janela muda de tamanho.
 
-    wid = tb_window->Controls.minimize_wid;
+    wid = (int) tb_window->Controls.minimize_wid;
     redraw_window_by_id(wid,FALSE);
 
-    wid = tb_window->Controls.maximize_wid;
+    wid = (int) tb_window->Controls.maximize_wid;
     redraw_window_by_id(wid,FALSE);
 
-    wid = tb_window->Controls.close_wid;
+    wid = (int) tb_window->Controls.close_wid;
     redraw_window_by_id(wid,FALSE);
 
     return 0;
+fail:
+    return (int) -1;
 }
 
 int redraw_titlebar_window(struct gws_window_d *window)
@@ -569,7 +574,7 @@ int redraw_titlebar_window(struct gws_window_d *window)
         grDrawString ( sL, sT, sColor, new_name );
         */
         
-        if ( (void*) tb_window->name != NULL ){
+        if ((void*) tb_window->name != NULL){
             grDrawString ( sL, sT, sColor, tb_window->name );
         }
     }
@@ -854,23 +859,27 @@ int redraw_window_by_id(int wid, unsigned long flags)
     struct gws_window_d *w;
 
 // wid
-    if (wid<0 || wid>=WINDOW_COUNT_MAX)
-        return -1;
+    if (wid < 0 || wid >= WINDOW_COUNT_MAX){
+        goto fail;
+    }
 // structure validation
     w = (void*) windowList[wid];
-    if( (void*) w == NULL )
-        return -1;
-    if(w->magic!=1234)
-        return -1;
-    
+    if ((void*) w == NULL){
+        goto fail;
+    }
+    if (w->magic != 1234){
+        goto fail;
+    }
     redraw_window(w,flags);
     return 0;
+fail:
+    return (int) (-1);
 }
 
 // validate
 void validate_window (struct gws_window_d *window)
 {
-    if ( (void*) window != NULL )
+    if ((void*) window != NULL)
     {
         if ( window->used == TRUE && window->magic == 1234 )
         {
@@ -879,7 +888,7 @@ void validate_window (struct gws_window_d *window)
     }
 }
 
-void invalidate_window_by_id( int wid )
+void invalidate_window_by_id(int wid)
 {
     struct gws_window_d *w;
 
@@ -887,26 +896,27 @@ void invalidate_window_by_id( int wid )
 // Chamar o metodo de validação de janela.
 
 // wid
-    if (wid<0)
-        return;
-    if (wid>=WINDOW_COUNT_MAX)
-        return;
-// Window structure
-    w = (struct gws_window_d *)windowList[wid];
-    if((void*)w==NULL){
+    if (wid < 0 || wid >= WINDOW_COUNT_MAX){
         return;
     }
-    if (w->used!=TRUE) { return; }
-    if (w->magic!=1234){ return; }
-
+// Window structure
+    w = (struct gws_window_d *) windowList[wid];
+    if ((void*) w == NULL){
+        return;
+    }
+    if (w->used != TRUE){
+        return;
+    }
+    if (w->magic != 1234){
+        return;
+    }
     invalidate_window(w);    
 }
-
 
 // Invalidate
 void invalidate_window (struct gws_window_d *window)
 {
-    if ( (void*) window != NULL )
+    if ((void*) window != NULL)
     {
         if ( window->used == TRUE && window->magic == 1234 )
         {
@@ -914,7 +924,6 @@ void invalidate_window (struct gws_window_d *window)
         }
     }
 }
-
 
 void invalidate_root_window(void)
 {
@@ -926,54 +935,49 @@ void invalidate_taskbar_window(void)
     invalidate_window ( (struct gws_window_d *) taskbar_window );
 }
 
-
 void wm_flush_rectangle(struct gws_rect_d *rect)
 {
-    if ( (void*) rect == NULL ){
+    if ((void*) rect == NULL){
         return;
     }
-    if (rect->magic!=1234){
+    if (rect->magic != 1234){
         return;
     }
     gwssrv_refresh_this_rect(rect);
 }
-
 
 void wm_flush_screen(void)
 {
     gwssrv_show_backbuffer();
 }
 
-
 void wm_flush_window(struct gws_window_d *window)
 {
-    if( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return;
     }
-    if(window->used != TRUE) { return; }
-    if(window->magic != 1234){ return; }
+    if (window->used != TRUE){
+        return;
+    }
+    if (window->magic != 1234){
+        return;
+    }
     gws_show_window_rect(window);
 }
 
-
 void begin_paint(struct gws_window_d *window)
 {
-    if( (void*) window == NULL )
+    if ((void*) window == NULL){
         return;
-
+    }
     validate_window(window);
 }
 
 void end_paint(struct gws_window_d *window)
 {
-    if( (void*) window == NULL )
+    if ((void*) window == NULL){
         return;
-
+    }
     invalidate_window(window);
 }
-
-
-
-
-
 

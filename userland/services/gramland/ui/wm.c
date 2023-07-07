@@ -2458,13 +2458,15 @@ wmCreateWindowFrame (
 // Change the root window color and reboot.
 void wm_reboot(void)
 {
-    unsigned int bg_color = get_color(csiDesktop);
+
+// Draw the root window using the desktop default color.
 
     if ( (void*) __root_window != NULL )
     {
         if (__root_window->magic==1234)
         {
-            __root_window->bg_color = bg_color;
+            __root_window->bg_color = 
+                (unsigned int) get_color(csiDesktop);
             redraw_window(__root_window,FALSE);
             // #todo
             // Print some message, draw some image, etc.
@@ -2474,10 +2476,10 @@ void wm_reboot(void)
             // Free resources
         }
     }
+
 // Hw reboot.
     rtl_reboot();
 }
-
 
 static void animate_window( struct gws_window_d *window )
 {

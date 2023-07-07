@@ -199,14 +199,10 @@ void gwssrv_exit_critical_section (void);
 char *gwssrv_get_version(void);
 
 // init
-int gwsInit(void);
+int gwsInitGUI(void);
 
 unsigned long gws_get_device_width(void);
 unsigned long gws_get_device_height(void);
-
-// Função padrão para todos os servidores ???
-// #todo: temos que criar isso.
-int serverInit (void);
 
 void gws_show_backbuffer(void);
 int gwssrv_init_globals(void);

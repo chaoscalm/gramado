@@ -3231,10 +3231,10 @@ static int initGUI(void)
 // It will create the root window.
 // See: gws.c
 
-    int __init_status = (int) gwsInit();
+    int __init_status = (int) gwsInitGUI();
     if (__init_status != 0){
-        debug_print ("initGUI: [PANIC] Couldn't initialize the graphics\n");
-        printf      ("initGUI: [PANIC] Couldn't initialize the graphics\n");
+        debug_print ("initGUI: [PANIC] Couldn't initialize the gui\n");
+        printf      ("initGUI: [PANIC] Couldn't initialize the gui\n");
         //goto fail;
         exit(1);
     }
