@@ -3279,16 +3279,18 @@ static int initGUI(void)
  *       for this desktop.
  *     + Create the server socket.
  *     + bind it.
- *     + Spawn a client process. (gwst.bin)
+ *     + Spawn a client process. (Or not).
  *     + Enter in the main loop, waiting for some types of event.
  *       The possible events are: Reading messages from the kernel,
- *       or Reading our socket.
- *       In this moment we can send a response. It depends on the
- *       message found in the sockeck we readed.
+ *       or Reading a socket. At this moment we can send a response. 
+ *       It depends on the type of message found in the socket we readed.
  */
-
+// IN:
+// dm = Launch the default Display Manager.
+// ...
 static int on_execute(int dm)
 {
+
 //==================
     struct sockaddr server_address;
     socklen_t addrlen;
@@ -3569,8 +3571,8 @@ static int on_execute(int dm)
     }
 */
 
-// Launches the default Display Manager
-    if(dm==TRUE){
+// Launch the default Display Manager
+    if (dm == TRUE){
         rtl_clone_and_execute("gdm.bin");
     }
 
@@ -3736,15 +3738,12 @@ void gwssrv_quit(void)
     IsTimeToQuit = TRUE;
 }
 
-/*
- // We can't do this in ring 3.
-static inline void __outb(uint16_t port, uint8_t val)
-{
-    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
-}
-*/
 
-// main: Entry point.
+// main: 
+// Entry point.
+// Called by crt0() in 
+// userland/libs/rtl/entrance/student/crt0.c.
+// This application was launched by init.bin.
 int main (int argc, char **argv)
 {
     int Status=-1;
@@ -3755,7 +3754,10 @@ int main (int argc, char **argv)
     int f2= FALSE;
     int f3= FALSE;
     int f4= FALSE;
-    int fDisplayManager=FALSE;
+
+    int fLaunchDM=FALSE;  // Launch the default display manager.
+    //int fLaunchTerminal=FALSE;  // Launch the default terminal.
+    //...
 
     char shutdown_string[64];
 
@@ -3775,8 +3777,14 @@ int main (int argc, char **argv)
                 f4=TRUE;
 
             // Launches the default Display Manager.
-            if ( strncmp( argv[i], "--dm", 4 ) == 0 )
-                fDisplayManager=TRUE;
+            if ( strncmp( argv[i], "--dm", 4 ) == 0 ){
+                fLaunchDM=TRUE;
+            }
+            // #todo
+            // Launches the default Terminal.
+            //if ( strncmp( argv[i], "--term", 4 ) == 0 ){
+            //    fLaunchTerminal=TRUE;
+            //}
         };
     }
 
@@ -3788,8 +3796,8 @@ int main (int argc, char **argv)
         printf("F3\n");
     if (f4 == TRUE)
         printf("F4\n");
-    if (fDisplayManager == TRUE)
-        printf("fDisplayManager\n");
+    if (fLaunchDM == TRUE)
+        printf("fLaunchDM\n");
 
     //exit(0);
 
@@ -3826,7 +3834,7 @@ int main (int argc, char **argv)
  */
 
 //0 = Time to quit.
-    Status = (int) on_execute(fDisplayManager);
+    Status = (int) on_execute(fLaunchDM);
 
     // Shutdown the server.
     if (Status == 0)

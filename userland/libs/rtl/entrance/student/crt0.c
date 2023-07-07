@@ -78,10 +78,8 @@ extern int main ( int argc, char *argv[] );
 // Explain this argument better.
 int crt0 (unsigned long rdi)
 {
-
     // #todo
     // We can get the command line from 'stdin'.
-
 
     int main_ret=0;
 
@@ -136,9 +134,6 @@ int crt0 (unsigned long rdi)
 #endif
 */
 
-
-
-
 /*
  #debug
 #ifdef TEDITOR_VERBOSE
@@ -162,11 +157,9 @@ int crt0 (unsigned long rdi)
 #endif
 */
 
-
 //
 // Initialize the library.
 //
-
 
     // Stage 1
     // #debug: put char
@@ -178,7 +171,6 @@ int crt0 (unsigned long rdi)
 // stdlib/stdlib.c
 
     int rt_status = -1;  //fail
-
     rt_status = (int) libcInitRT();
     if (rt_status != 0){
         // #debug: put char
@@ -201,7 +193,6 @@ int crt0 (unsigned long rdi)
 //See: sysdeps/x86/x86start.c
 
     //x86start ( ( token_count, tokenList, default_env );
-
 
 /*
 #ifdef TEDITOR_VERBOSE
@@ -243,12 +234,9 @@ int crt0 (unsigned long rdi)
     memcpy(buffer,shared_buffer,512);
     shared_buffer[511]=0;
 */
+
 // ===================================================
-
-//
 // Tokenizing.
-//
-
 // Criando o ambiente.
 // Transferindo os ponteiros do vetor para o ambiente.
 
@@ -259,7 +247,7 @@ int crt0 (unsigned long rdi)
     token = (char *) tokenList[0];
     index=0; 
 
-    while ( token != NULL )
+    while (token != NULL)
     {
         // Coloca na lista.
         // Salva a primeira palavra digitada.
@@ -268,7 +256,7 @@ int crt0 (unsigned long rdi)
         //#debug
         //printf("shellCompare: %s \n", tokenList[i] );
 
-        token = strtok ( NULL, LSH_TOK_DELIM );
+        token = strtok( NULL, LSH_TOK_DELIM );
 
         // Incrementa o índice da lista
         index++;
@@ -279,8 +267,6 @@ int crt0 (unsigned long rdi)
 
 // Finalizando a lista.
     tokenList[index] = NULL;
-
-
 // ===================================================
 
 // Changing  the interrupt flag and the iopl.
@@ -310,9 +296,12 @@ e o crt0 do driver, não ativa.
     lseek( fileno(stdin), 0, 1000);
     rewind(stdin);
 
+//
+// Call main().
+//
 
-    main_ret = (int) main(token_count,tokenList);
-
+    // IN: argc, argv.
+    main_ret = (int) main( token_count, tokenList );
     switch (main_ret){
     case 0:
         //printf ("crt0: main returned 0\n");
@@ -334,11 +323,9 @@ e o crt0 do driver, não ativa.
 //
 
     //printf ("libc03-crts-crt0: *fail\n");
-
     exit(-1);
 
     //printf ("libc03-crts-crt0: *hang\n");
-
     while (1) { 
         asm ("pause"); 
     };
