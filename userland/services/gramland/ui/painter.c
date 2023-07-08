@@ -935,6 +935,7 @@ void invalidate_taskbar_window(void)
     invalidate_window ( (struct gws_window_d *) taskbar_window );
 }
 
+// (Output port)
 void wm_flush_rectangle(struct gws_rect_d *rect)
 {
     if ((void*) rect == NULL){

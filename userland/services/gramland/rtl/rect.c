@@ -1,6 +1,8 @@
 
 // rect.c 
 // Rectangle support for gws.
+// #todo: 
+// Rectangle rotutines belongs to ui/?!
 
 #include "gwsint.h"
 
@@ -34,7 +36,7 @@ __drawrectangle0(
 // Calling kgws in ring0.
 // Using the kgws to refresh the rectangle.
 static void 
-__refresh_rectangle_via_kgws ( 
+__kgws_adapter_refresh_rectangle ( 
     unsigned long x, 
     unsigned long y, 
     unsigned long width, 
@@ -689,7 +691,7 @@ __refresh_rectangle0 (
 // Calling kgws in the kernel.
 // Using the kgws to refresh the rectangle.
 static void 
-__refresh_rectangle_via_kgws ( 
+__kgws_adapter_refresh_rectangle ( 
     unsigned long x, 
     unsigned long y, 
     unsigned long width, 
@@ -715,6 +717,7 @@ gws_refresh_rectangle (
     unsigned long width, 
     unsigned long height )
 {
+// Output port/adapter.
 
 //
 // flag
@@ -724,8 +727,8 @@ gws_refresh_rectangle (
 // Maybe we can include this flag into the
 // function's parameters.
 
-    //int RefreshRectangleUsingKGWS = FALSE;
-    int RefreshRectangleUsingKGWS = TRUE;
+    //int fRefreshUsingKGWSAdapter = FALSE;
+    int fRefreshUsingKGWSAdapter = TRUE;
 
 // #todo
 // Maybe we can include the 'source pointer' into the
@@ -760,9 +763,11 @@ gws_refresh_rectangle (
 
 // ==========================================================
 // Refresh in the kernel using the kgws.
-    if (RefreshRectangleUsingKGWS == TRUE){
+// (Output adapter).
+    if (fRefreshUsingKGWSAdapter == TRUE)
+    {
         //debug_print("gws_refresh_rectangle: Using R0\n");
-        __refresh_rectangle_via_kgws(X,Y,Width,Height);
+        __kgws_adapter_refresh_rectangle(X,Y,Width,Height);
         return;
     }
 

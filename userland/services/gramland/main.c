@@ -3668,12 +3668,15 @@ static int on_execute(int dm)
         if (IsTimeToQuit == TRUE){ break; };
 
         // Respecting the circular queue.
-        if (IsAcceptingInput == TRUE){
+        if (IsAcceptingInput == TRUE)
+        {
+            // (Input port)
             wmInputReader();
         }
 
         if (IsAcceptingConnections == TRUE)
         {
+            // (Input port)
             newconn = accept ( 
                 ____saved_server_fd,
                 (struct sockaddr *) &server_address, 
@@ -3701,6 +3704,7 @@ static int on_execute(int dm)
         // callback anymore.
         // This was the jog of the callback.
         // #todo: We need a timer.
+        // (Output port)
         compose();
 
         // Not accpeting

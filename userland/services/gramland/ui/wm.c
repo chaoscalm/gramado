@@ -4411,6 +4411,8 @@ inline int is_combination(int msg_code)
     return FALSE;
 }
 
+// wmInputReader:
+// (Input port)
 int wmInputReader(void)
 {
 // Get the messages in the queue,
