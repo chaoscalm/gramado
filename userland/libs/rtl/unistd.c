@@ -277,7 +277,7 @@ ssize_t write(int fd, const void *buf, size_t count)
         errno = EBADF;
         return (ssize_t) (-1);
     }
-    if ( (void*) buf == NULL ){
+    if ((void*) buf == NULL){
         errno = EINVAL;
         return (ssize_t) (-1);
     }
@@ -1350,6 +1350,7 @@ char __Hostname_buffer[64];
 
 char *__gethostname(void)
 {
+// Adapter. System dependent.
     gramado_system_call ( 
         801, 
        (unsigned long) &__Hostname_buffer[0],

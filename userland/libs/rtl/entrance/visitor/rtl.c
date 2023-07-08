@@ -30,6 +30,7 @@ void *gramado_system_call (
     unsigned long c, 
     unsigned long d )
 {
+// Adapter. System dependent.
     unsigned long __Ret=0;
 
     asm volatile ( " int %1 \n"
@@ -38,7 +39,6 @@ void *gramado_system_call (
 
     return (void *) __Ret; 
 }
-
 
 // System call.
 // Interrupt 0x80.
@@ -48,6 +48,7 @@ void *sc80 (
     unsigned long c, 
     unsigned long d )
 {
+// Adapter. System dependent.
     unsigned long __Ret=0;
 
     asm volatile ( " int %1 \n"
@@ -57,7 +58,6 @@ void *sc80 (
     return (void *) __Ret; 
 }
 
-
 // System call.
 // Interrupt 0x81.
 void *sc81 ( 
@@ -66,6 +66,7 @@ void *sc81 (
     unsigned long c, 
     unsigned long d )
 {
+// Adapter. System dependent.
     unsigned long __Ret=0;
 
     asm volatile ( " int %1 \n"
@@ -83,6 +84,7 @@ void *sc82 (
     unsigned long c, 
     unsigned long d )
 {
+// Adapter. System dependent.
     unsigned long __Ret=0;
 
     asm volatile ( " int %1 \n"
@@ -93,7 +95,6 @@ void *sc82 (
 }
 
 // =============================================================
-
 
 /*
 
@@ -152,11 +153,13 @@ int gramado_open_device(char *string)
 }
 */
 
+// Input port.
 int rtl_get_key_state(int vk)
 {
     unsigned long value=0;
     int virtual_key = (int) (vk & 0xFF);
 
+    // Input adapter. System dependent.
     value = 
         (unsigned long) sc80( 
                             138, 
@@ -303,11 +306,13 @@ unsigned long rtl_to_ulong (long ch)
 // Maybe a boolian 'int' for TRUE or FALSE.
 unsigned long rtl_get_system_message(unsigned long message_buffer)
 {
+// (Input port).
 // #todo: Handle the return value.
     //unsigned long res=0;
     if (message_buffer == 0){
         return 0;
     }
+// Input adapter. System dependent.
     gramado_system_call ( 
         111,
         (unsigned long) message_buffer,
@@ -322,10 +327,11 @@ rtl_get_system_message2(
     int index,
     int restart)
 {
+// (Input port).
     if (message_buffer == 0){
         return 0;
     }
-
+// (Input adapter). System dependent.
     gramado_system_call ( 
         120,
         (unsigned long) message_buffer,
