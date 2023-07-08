@@ -617,9 +617,11 @@ void Compositor_Thread(void)
 
 static void dispacher(int fd)
 {
+// Dispatch service.
+
     unsigned long *message_buffer = (unsigned long *) &__buffer[0];
-    ssize_t n_reads = 0;
-    int Status=-1;
+    ssize_t n_reads=0;
+    int Status = -1;
     int SendErrorResponse=FALSE;
 
     dispatch_counter++;
@@ -701,6 +703,7 @@ static void dispacher(int fd)
     }
 
 // Read
+// (Input port)
     n_reads = (ssize_t) read( fd, __buffer, sizeof(__buffer) );
     if (n_reads <= 0){
         gwssrv_debug_print ("dispacher: read fail\n");
@@ -3682,10 +3685,11 @@ static int on_execute(int dm)
                 (struct sockaddr *) &server_address, 
                 (socklen_t *) addrlen );
 
-             // sys_accept() pega na fila e coloca em fd=31.
-             if (newconn == 31){
-                 dispacher(newconn);
-             }
+            // sys_accept() pega na fila e coloca em fd=31.
+            // Dispatch service.
+            if (newconn == 31){
+                dispacher(newconn);
+            }
 
             //if (newconn <= 0){
                 //gwssrv_debug_print("gwssrv: accept returned FAIL\n");

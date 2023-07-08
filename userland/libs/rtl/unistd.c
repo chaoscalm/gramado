@@ -231,16 +231,17 @@ ssize_t write_VC (int fd, const void *buf, size_t count)
                          (unsigned long) count ); 
 }
 
-
 ssize_t read(int fd, const void *buf, size_t count)
 {
+// (Input port)
+
     ssize_t value = (-1);
 
     if (fd<0){
         errno = EBADF;
         return (ssize_t) (-1);
     }
-    if ( (void *) buf == NULL ){
+    if ((void *) buf == NULL){
         errno = EINVAL;
         return (ssize_t) (-1);
     }
@@ -250,6 +251,7 @@ ssize_t read(int fd, const void *buf, size_t count)
     }
 
 // Syscall 18.
+// (Input adapter. System dependent)
     value = 
         (ssize_t) sc82 ( 
             (unsigned long) 18, 
@@ -265,9 +267,10 @@ ssize_t read(int fd, const void *buf, size_t count)
     return (ssize_t) value;
 }
 
-
 ssize_t write(int fd, const void *buf, size_t count)
 {
+// (Output port)
+
     ssize_t value = (-1);
 
     if (fd<0){
@@ -284,6 +287,7 @@ ssize_t write(int fd, const void *buf, size_t count)
     }
 
 // Syscall 19.
+// (Output adapter. System dependent)
     value = 
         (ssize_t) sc82 ( 
             (unsigned long) 19, 

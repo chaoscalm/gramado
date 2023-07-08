@@ -308,6 +308,8 @@ gdmProcedure(
     unsigned long long1, 
     unsigned long long2 )
 {
+// Dispatch service.
+
     if (fd<0){
         return -1;
     }
@@ -715,12 +717,14 @@ int main( int argc, char *argv[] )
         //if ( Display->running != TRUE )
             //break;
 
+        // (Input port)
         e = 
         (struct gws_event_d *) gws_get_next_event(
                                    client_fd, 
                                    main_window,
                                    (struct gws_event_d *) &lEvent );
 
+        // (Dispath service)
         if ( (void *) e != NULL ){
             if ( e->used == TRUE && e->magic == 1234 ){
                 gdmProcedure(

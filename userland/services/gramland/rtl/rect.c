@@ -779,19 +779,16 @@ gws_refresh_rectangle (
 // Device info.
     unsigned long ScreenWidth  = (unsigned long) gws_get_device_width();
     unsigned long ScreenHeight = (unsigned long) gws_get_device_height();
-
     if (ScreenWidth == 0){
         debug_print("gws_refresh_rectangle: [ERROR] ScreenWidth\n");
         printf     ("gws_refresh_rectangle: [ERROR] ScreenWidth\n");  
         exit(1);
     }
-
     if (ScreenHeight == 0){
         debug_print("gws_refresh_rectangle: [ERROR] ScreenHeight\n");
         printf     ("gws_refresh_rectangle: [ERROR] ScreenHeight\n");  
         exit(1);
     }
-
     ScreenWidth  = (ScreenWidth  & 0xFFFF);
     ScreenHeight = (ScreenHeight & 0xFFFF);
 
@@ -986,7 +983,7 @@ __drawrectangle0(
     unsigned int Color   = color;
 
 // Invalid argument
-    if (back_or_front != 1 && back_or_front != 2 )
+    if (back_or_front != 1 && back_or_front != 2)
     {
          //panic("__drawrectangle0: back_or_front\n");
          gwssrv_debug_print("__drawrectangle0: back_or_front\n");
