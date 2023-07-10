@@ -362,7 +362,7 @@ static int parse_content(int token)
     int inside = 0;
 
     //debug
-    printf("[CONTENT]\n");
+    //printf("[CONTENT]\n");
 
 // Se entramos errado.
     if (token != TK_KEYWORD){
@@ -433,7 +433,7 @@ static int parse_content(int token)
                 string_size );
             metadata[meta_index].content_size = string_size;
             metadata[meta_index].initialized = TRUE;
-            printf("INITIALIZED\n");
+            //printf("INITIALIZED\n");
             
             // Salva o index.
             metadata[meta_index].id = (int) meta_index;
@@ -1837,6 +1837,8 @@ int parse(int dump_output)
                                 State = 1;
                                 break;
                             }
+                            // #bugbug
+                            // ')' found without entering with a '('.
                         }
 
                         // '}'
@@ -1851,14 +1853,17 @@ int parse(int dump_output)
                                 State = 1;
                                 break;
                             }
+                            // #bugbug
+                            // '}' found without entering with a '{'.
                         }
 
                         if ( strncmp( (char *) real_token_buffer, ";", 1 ) == 0  )
                         {
                             //printf(" ; separator found!\n");
                             State=1;
+                            // Break here?
+                            // break;
                         }
-
                         break;
 
                     //#bugbug
@@ -1879,12 +1884,12 @@ int parse(int dump_output)
                     default:
 
 					    //se estamos dentro do parênteses e não encontramos nenhum case acima.
-					    if ( parentheses_inside > 0 ){
+					    if (parentheses_inside > 0){
 						    State++;
 						    goto again;
-					    }	
+					    }
 					    //se estamos dentro de uma chave e não encontramos nenhum case acima.
-				        if ( braces_inside > 0 ){
+				        if (braces_inside > 0){
 						    State++;
 						    goto again;
 					    }
@@ -1892,7 +1897,7 @@ int parse(int dump_output)
 					    //dentro do corpo da função e brace que fecha o corpo da função;
 					    //temos que dar a função por encerrada e temos que ir
 					    //para um state que tenha definição de função ou terminar.
-					    if ( braces_inside == 0 ){
+					    if (braces_inside == 0){
 							goto debug_output;
 						}
                         // EOF 
@@ -2172,19 +2177,18 @@ int parse(int dump_output)
                         //parse_stmt ();
                         //State = 1;
                         //break;
-                        
 
-                        // STMT: return.
-                        if ( keyword_found == KWRETURN )
+                        //-------------------------
+                        // STMT: 'return'.
+                        if (keyword_found == KWRETURN)
                         {
                             // #debug.
                             // printf ("State3: TK_KEYWORD={%s} KWRETURN, line %d \n", 
                                 //real_token_buffer, lexer_currentline );
 
                             token = parse_return(TK_KEYWORD);
-                            // EXpected: ';'
-                            if (token != TK_SEPARATOR)
-                            {
+                            // Expected: ';'.
+                            if (token != TK_SEPARATOR){
                                 printf ("State3: TK_KEYWORD TK_SEPARATOR fail\n");
                                 exit (1);
                             }
@@ -2192,7 +2196,8 @@ int parse(int dump_output)
                             break;
                         }
 
-                        // STMT: goto.
+                        //-------------------------
+                        // STMT: 'goto'.
                         // #todo: 
                         // + Pegamos o pŕoximo token.
                         // + Emitimos um jmp e o symbol.
@@ -2204,7 +2209,8 @@ int parse(int dump_output)
                             break;
                         }
 
-                        // STMT: if
+                        //-------------------------
+                        // STMT: 'if'
                         if (keyword_found == KWIF)
                         {
                             //printf ("State3: TK_KEYWORD={%s} KWIF in line %d \n", 
@@ -2217,7 +2223,8 @@ int parse(int dump_output)
                             break;
                         }
 
-                        // STMT: while 
+                        //-------------------------
+                        // STMT: 'while' 
                         if (keyword_found == KWWHILE)
                         {
                             While_Result = (int) parse_while(TK_KEYWORD);
@@ -2250,7 +2257,6 @@ int parse(int dump_output)
                             break;
                         }
 
-
                         //...
 
                         break;
@@ -2261,7 +2267,7 @@ int parse(int dump_output)
                     // dentro dos parenteses
                     // ou dentro das chaves.
                     default:
-                        if ( parentheses_inside > 0 ){
+                        if (parentheses_inside > 0){
                             printf ("State3: Searching for keyword inside parentheses \n");
                             State=1;
                             exit(1);
@@ -2288,8 +2294,10 @@ int parse(int dump_output)
             case 4:
                 switch (token)
                 {
+                    // Separator.
                     case TK_SEPARATOR:
-                        // ';'
+                        
+                        // Expected: ';'
                         if ( strncmp( (char *) real_token_buffer, ";", 1 ) == 0  ){
                             //ok #todo
                         }else{
@@ -2298,24 +2306,30 @@ int parse(int dump_output)
                             exit(1);
                         };
                         break;
-                        
-                        default:
-                            printf("State4: [default] Expected ';' in line %d\n", 
-                                lexer_currentline );
-                            exit(1);
-                            break;
+
+                    // #todo
+                    // Maybe we can expect for other type of separator here.
+
+                    // Not a separator.
+                    default:
+                        printf("State4: [default] Expected ';' separator in line %d\n", 
+                            lexer_currentline );
+                        exit(1);
+                        break;
                 };
                 break;
 
-            // Default:
+            // Default state.
             default:
                 //printf("<default>State default: Error.\n");
 
                 if (parentheses_inside > 0){
-                    printf("default: expected ) in line %d \n", lexer_currentline);
+                    printf("default: expected ) in line %d\n", 
+                        lexer_currentline );
                 }
                 if (braces_inside > 0){
-                    printf("default: expected } in line %d \n", lexer_currentline);
+                    printf("default: expected } in line %d\n", 
+                        lexer_currentline );
                 }
                 if (braces_inside == 0){
                     //
@@ -2353,8 +2367,9 @@ debug_output:
 
 // --------------------------------
 // Dump output file?
-    if (dump_output)
+    if (dump_output){
         dump_output_file();
+    }
 
 /*
 // Incluindo no arquivo de output os segmentos.
@@ -2371,19 +2386,21 @@ debug_output:
     printf ("number of lines: %d \n", lexer_currentline );
 */
 
-    goto parse_exit;
+    // goto parse_exit;
 
+// OK, done!
+parse_exit:
+    printf ("parse: Done\n");
+    return 0;
+syntax:
+    printf ("parse: Systax error in line %d\n", 
+        lexer_currentline );
+    exit(1);
 hang:
     printf ("parse: *hang\n");   
     while (1){
         asm ("pause");
     };
-syntax:
-    printf ("parse: Systax error in line %d \n", lexer_currentline );
-    exit(1);
-parse_exit:
-    printf ("parse: Done\n");
-    return 0;
 }
 
 // parserInit:
