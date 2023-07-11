@@ -171,12 +171,6 @@ build-gramado-os:
 	-sudo cp commands/bin/N10.BIN  ../base/PROGRAMS/
 	-sudo cp commands/bin/N11.BIN  ../base/PROGRAMS/
 
-# :: Indigo 1 (net)
-	$(Q) $(MAKE) -C netd/ 
-# Copy to the target folder.
-	-sudo cp netd/bin/GNSSRV.BIN  ../base/
-	-sudo cp netd/bin/GNS.BIN     ../base/
-
 	@echo "~build-gramado-os end?"
 
 # --------------------------------------
@@ -195,6 +189,10 @@ copy-extras:
 	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
 # Window server
 	-sudo cp ../userland/services/gramland/bin/GRAMLAND.BIN  ../base/
+
+# netd
+	-sudo cp ../userland/netd/bin/GNSSRV.BIN  ../base/
+	-sudo cp ../userland/netd/bin/GNS.BIN     ../base/
 
 #
 # Shell

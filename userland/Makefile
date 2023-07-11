@@ -23,6 +23,11 @@ all:
 	make -C services/gramland/
 
 # ----------------
+# netd
+# :: Indigo 1 (net)
+	make -C netd/ 
+
+# ----------------
 # Shell
 
 # apps: Unit 3
@@ -56,4 +61,10 @@ clean-all:
 	-rm -f libs/rtl/obj/*.o
 	
 	-rm -f services/gramland/bin/*.BIN
-	
+
+	-rm -f netd/bin/*.BIN
+
+
+
+
+
