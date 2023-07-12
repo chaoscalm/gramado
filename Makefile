@@ -1,18 +1,23 @@
 
 # Build Gramado OS.
 
-PHONY := step1-all
-step1-all: step2-userland step3-core
+# This is the default target
+PHONY := all
+all: userland-domain core-domain
 	@echo "Done"
 	@echo "Go to core/ and type ./run or ./runkvm"
 
-PHONY := step2-userland
-step2-userland:
+# Step 1
+PHONY := userland-domain
+userland-domain:
 	make -C  userland
 
-PHONY := step3-core
-step3-core:
+# Step 2
+PHONY := core-domain
+core-domain:
 	make -C  core
+
+# ------------------------
 
 PHONY := clean
 clean: clean-all
