@@ -23,15 +23,14 @@ PHONY := clean
 clean: clean-all
 
 PHONY := clean-all
-clean-all: clean-userland clean-core
+clean-all: clean-userland clean-core clean-base
 
 PHONY := clean-userland
 clean-userland:
 # In userland/
-	#-rm userland/gramland/bin/*.BIN
-	#-rm userland/burgundy/bin/*.BIN
-	#-rm userland/blue/bin/*.BIN
-	#-rm userland/beige/bin/*.BIN
+	#-rm userland/apps/bin/*.BIN
+	#-rm userland/netd/bin/*.BIN
+	#-rm userland/services/gramland/bin/*.BIN
 
 PHONY := clean-core
 clean-core:
@@ -40,6 +39,9 @@ clean-core:
 	-rm core/MBR0.BIN
 	-rm core/kernel/KERNEL.BIN
 	-rm core/newm0/MOD0.BIN
+
+PHONY := clean-base
+clean-base:
 # Clear the disk cache
 	-rm -rf base/*.BIN 
 	-rm -rf base/*.BMP
@@ -47,5 +49,9 @@ clean-core:
 	-rm -rf base/GRAMADO/*.BIN 
 	-rm -rf base/PROGRAMS/*.BIN 
 	-rm -rf base/USERS/*.BIN 
+
+PHONY := help
+help:
+	@echo "Help stuff"
 
 
