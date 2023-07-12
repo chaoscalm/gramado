@@ -31,7 +31,7 @@ clean-userland:
 	#-rm userland/apps/bin/*.BIN
 	#-rm userland/netd/bin/*.BIN
 	#-rm userland/services/gramland/bin/*.BIN
-
+ 
 PHONY := clean-core
 clean-core:
 # In core/
