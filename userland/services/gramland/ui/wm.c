@@ -14,7 +14,6 @@ static int grab_is_active=FALSE;
 static int is_dragging = FALSE;
 static int grab_wid = -1;
 
-
 // Global main structure.
 // Not a pointer.
 // See: window.h
@@ -134,8 +133,8 @@ static void on_control_clicked(struct gws_window_d *window);
 
 static void on_mouse_pressed(void);
 static void on_mouse_released(void);
-static void on_mouse_leave( struct gws_window_d *window );
-static void on_mouse_hover( struct gws_window_d *window );
+static void on_mouse_leave(struct gws_window_d *window);
+static void on_mouse_hover(struct gws_window_d *window);
 
 static void on_update_window(int event_type);
 
@@ -143,16 +142,18 @@ void __probe_window_hover(unsigned long long1, unsigned long long2);
 
 int control_action(int msg, unsigned long long1);
 
-
+// Button
 void __button_pressed(int wid);
 void __button_released(int wid);
 
+// Menu
 void __create_start_menu(void);
-void __create_quick_launch_area(void);
-
-
 void on_menu_event(void);
 
+// Launch area
+void __create_quick_launch_area(void);
+
+// Key combination.
 inline int is_combination(int msg_code);
 int on_combination(int msg_code);
 
@@ -161,19 +162,18 @@ int on_combination(int msg_code);
 
 void __button_pressed(int wid)
 {
-    if (wid < 0 || wid >= WINDOW_COUNT_MAX )
+    if (wid < 0 || wid >= WINDOW_COUNT_MAX)
         return; 
     set_status_by_id( wid, BS_PRESSED );
     redraw_window_by_id(wid,TRUE);
 }
 void __button_released(int wid)
 {
-    if (wid < 0 || wid >= WINDOW_COUNT_MAX )
+    if (wid < 0 || wid >= WINDOW_COUNT_MAX)
         return; 
     set_status_by_id( wid, BS_RELEASED );
     redraw_window_by_id(wid,TRUE);
 }
-
 
 
 struct gws_window_d *get_parent(struct gws_window_d *w)
@@ -182,14 +182,16 @@ struct gws_window_d *get_parent(struct gws_window_d *w)
 
     if ( (void*) w == NULL )
         return NULL;
-    if (w->magic != 1234)
+    if (w->magic != 1234){
         return NULL;
+    }
 
     p = (struct gws_window_d *) w->parent;
     if ( (void*) p == NULL )
         return NULL;
-    if (p->magic != 1234)
+    if (p->magic != 1234){
         return NULL;
+    }
 
     return (struct gws_window_d *) p;
 }
@@ -464,12 +466,10 @@ on_mouse_event(
         // So, now we're dragging it.
         if (grab_is_active == TRUE){
             is_dragging = TRUE;
-        }else if (grab_is_active != TRUE){
+        } else if (grab_is_active != TRUE){
             is_dragging = FALSE;
         };
-
         set_refresh_pointer_status(TRUE);
- 
         // Update the global mouse position.
         // The compositor is doing its job,
         // painting the pointer in the right position.
@@ -477,7 +477,6 @@ on_mouse_event(
         comp_set_mouse_position(saved_x,saved_y);
         // Check the window we are inside of.
         __probe_window_hover(saved_x,saved_y);
-
         return;
     }
 
@@ -601,10 +600,9 @@ post_message:
 
         return;
     }
- 
+
     // #debug
     // printf("Outside mouse hover window\n");
-
 
 //fail
     w->single_event.has_event = FALSE;
@@ -638,7 +636,8 @@ static void on_mouse_pressed(void)
 
 //#test
 // Start menu button.
-    if (mouse_hover->id == StartMenu.wid){
+    if (mouse_hover->id == StartMenu.wid)
+    {
         __button_pressed(mouse_hover->id);
         return;
     }
@@ -697,8 +696,6 @@ static void on_mouse_pressed(void)
     }
 // ===================================
 
-
-
 // ===================================
 // >> menuitem
 // Lidando com menuitens
@@ -715,8 +712,6 @@ static void on_mouse_pressed(void)
         }
     }
 // ===================================
-
-
 
 //
 // Lidando com os botões da barra de tarefas.
@@ -783,14 +778,15 @@ static void on_mouse_pressed(void)
 static void on_control_clicked_by_wid(int wid)
 {
     struct gws_window_d *window;
-    
-    if(wid<0)
+
+    if (wid<0)
         return;
     window = (struct gws_window_d *) get_window_from_wid(wid);
     if ((void*) window == NULL)
         return;
-    if (window->magic != 1234)
+    if (window->magic != 1234){
         return;
+    }
 
     on_control_clicked(window);
 }
@@ -1583,22 +1579,19 @@ void do_create_controls(struct gws_window_d *window)
     //if(window->isTitleBar!=TRUE)
     //    return;
 
-
     window->Controls.minimize_wid = -1;
     window->Controls.maximize_wid = -1;
     window->Controls.close_wid    = -1;
     window->Controls.initialized = FALSE;
 
-
-// Buttons.
+// Buttons
     unsigned long ButtonWidth = 
         METRICS_TITLEBAR_CONTROLS_DEFAULT_WIDTH;
     unsigned long ButtonHeight = 
         METRICS_TITLEBAR_CONTROLS_DEFAULT_HEIGHT;
 
+    unsigned long LastLeft = 0;
 
-    unsigned long LastLeft = 0; 
-    
     unsigned long TopPadding=1; //2;  // Top margin
     unsigned long RightPadding=2;  // Right margin
     
@@ -1877,13 +1870,11 @@ struct gws_window_d *do_create_titlebar(
     {
         iL = (unsigned long) (tbWindow->absolute_x + METRICS_ICON_LEFTPAD);
         iT = (unsigned long) (tbWindow->absolute_y + METRICS_ICON_TOPPAD);
-
         bmp_decode_system_icon( 
             (int) icon_id, 
             (unsigned long) iL, 
             (unsigned long) iT,
             FALSE );
-
         parent->titlebarHasIcon = TRUE;
     }
 
@@ -1904,9 +1895,9 @@ struct gws_window_d *do_create_titlebar(
 
     unsigned int OrnamentColor1 = ornament_color;
     unsigned long OrnamentHeight = METRICS_TITLEBAR_ORNAMENT_SIZE;
-    if (IsMaximized == TRUE)
+    if (IsMaximized == TRUE){
         OrnamentHeight = 1;
-
+    }
     parent->frame.ornament_color1   = OrnamentColor1;
     parent->titlebar_ornament_color = OrnamentColor1;
 
@@ -1978,7 +1969,7 @@ struct gws_window_d *do_create_titlebar(
 
 //----------------------
     parent->titlebar = (struct gws_window_d *) tbWindow;  // Window pointer!
-  
+
     return (struct gws_window_d *) tbWindow;
 }
 
@@ -2460,10 +2451,9 @@ void wm_reboot(void)
 {
 
 // Draw the root window using the desktop default color.
-
     if ( (void*) __root_window != NULL )
     {
-        if (__root_window->magic==1234)
+        if (__root_window->magic == 1234)
         {
             __root_window->bg_color = 
                 (unsigned int) get_color(csiDesktop);
@@ -2481,7 +2471,7 @@ void wm_reboot(void)
     rtl_reboot();
 }
 
-static void animate_window( struct gws_window_d *window )
+static void animate_window(struct gws_window_d *window)
 {
     register int i=0;
 
@@ -2545,9 +2535,9 @@ static void wm_tile(void)
 // Get the size of the list.
     cnt=0;
     w = (struct gws_window_d *) first_window;
-    if((void*)w==NULL){
+    if ((void*)w == NULL){
         debug_print("wm_tile: w==NULL\n");
-        return; 
+        return;
     }
     while ((void*)w != NULL){
         w = (struct gws_window_d *) w->next;
@@ -2697,7 +2687,6 @@ int wmManageWindow(struct gws_window_d *w)
     struct gws_client_d *tmp;
     register int i=0;
 
-
     if ( (void*) w == NULL ){
         goto fail;
     }
@@ -2819,9 +2808,9 @@ void wm_update_desktop(int tile, int show)
         first_window = NULL;
         wm_Update_TaskBar("DESKTOP",FALSE);
         flush_window(__root_window);
-        return; 
+        return;
     }
-    if (w->magic!=1234)
+    if (w->magic != 1234)
     {
         first_window = NULL;
         wm_Update_TaskBar("DESKTOP",FALSE);
@@ -2869,14 +2858,14 @@ void wm_update_desktop(int tile, int show)
 // Invalidate the root window.
 // Shows the whole screen
     //invalidate_window(__root_window);
-    if(show){
+    if (show){
         flush_window(__root_window);
     }
 }
 
 void wm_update_active_window(void)
 {
-    int wid=-1;
+    int wid = -1;
     if ( (void*) active_window == NULL ){
         return;
     }
@@ -2918,7 +2907,6 @@ void wm_update_desktop3(struct gws_window_d *top_window)
     // Paint the childs of the window with focus.
     on_update_window(GWS_Paint);
 
-
     wm_Update_TaskBar("...",FALSE);
 
 // Flush the whole desktop.
@@ -2956,7 +2944,7 @@ void wm_update_window_by_id(int wid)
 
 // #test
 // Empilhando verticalmente.
-    if ( WindowManager.initialized != TRUE ){
+    if (WindowManager.initialized != TRUE){
         return;
     }
 
@@ -3007,9 +2995,6 @@ void wm_update_window_by_id(int wid)
 //#todo: string
     //wm_Update_TaskBar("Win",TRUE);
 }
-
-
-
 
 /*
 //#todo
@@ -3196,7 +3181,7 @@ void set_clientrect_bg_color_by_id( int wid, unsigned int color )
     }
 // Window structure
     w = (struct gws_window_d *) windowList[wid];
-    if ((void*)w==NULL){
+    if ((void*)w == NULL){
         return;
     }
     if (w->used != TRUE) { return; }
@@ -3228,7 +3213,6 @@ void set_focus_by_id(int wid)
 
     set_focus(w);
 }
-
 
 void set_active_by_id(int wid)
 {
@@ -3269,8 +3253,9 @@ void set_last_window(struct gws_window_d *window)
     if ( (void*) window == NULL ){
          return;
     }
-    if (window->magic!=1234){ return; }
-
+    if (window->magic != 1234){
+        return;
+    }
     wm_add_window_into_the_list(window);
 }
 

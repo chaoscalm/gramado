@@ -193,7 +193,6 @@ fail:
 }
 
 
-
 void set_refresh_pointer_status(int value)
 {
     if (value != FALSE && value != TRUE)
@@ -262,9 +261,9 @@ static void draw_mouse_pointer(void)
 // + Pinta o novo cursor diretamente no lfb.
 void __display_mouse_cursor(void)
 {
-    if ( (void*) window_server == NULL )
+    if ((void*) window_server == NULL)
         return;
-    if (window_server->initialized != TRUE )
+    if (window_server->initialized != TRUE)
         return;
 
 // #todo Limits
@@ -319,7 +318,7 @@ void compose(void)
     if (Dirty == TRUE)
     {
         gws_show_backbuffer();
-        validate_background();  
+        validate_background();
         return;
     }
 
@@ -378,14 +377,14 @@ void refresh_subwidnows( struct gws_window_d *w )
 // global
 void comp_initialize_mouse(void)
 {
+    int hotspotx=0;
+    int hotspoty=0;
     unsigned long w = gws_get_device_width();
     unsigned long h = gws_get_device_height();
 
-    int hotspotx=0;
-    int hotspoty=0;
-    if(w>=0 && w<=800)
+    if (w>=0 && w<=800)
         hotspotx = (w >> 1);
-    if(h>=0 && h<=800)
+    if (h>=0 && h<=800)
         hotspoty = (h >> 1);
 
     __old_mouse_x = hotspotx;
@@ -406,12 +405,12 @@ void comp_set_mouse_position(long x, long y)
 {
     unsigned long w = gws_get_device_width();
     unsigned long h = gws_get_device_height();
-    if( x<0 ){ x=0; }
-    if( y<0 ){ y=0; }
-    if( x>w ){
+    if ( x<0 ){ x=0; }
+    if ( y<0 ){ y=0; }
+    if ( x>w ){
          x=w;
     }
-    if( y>h){
+    if ( y>h ){
         y=h;
     }
     __new_mouse_x = (long) x;
