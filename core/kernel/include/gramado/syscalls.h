@@ -26,7 +26,8 @@
 #define SYS_BUFFER_DRAWCHAR      7
 #define SYS_BUFFER_DRAWLINE      8
 #define SYS_BUFFER_DRAWRECT      9
-#define SYS_BUFFER_CREATEWINDOW  10 
+// 10 =  Refresh rectangle.
+//#define SYS_BUFFER_CREATEWINDOW  10 // (#deprecated)
 #define SYS_REFRESHSCREEN        11
 
 // Network
@@ -35,21 +36,20 @@
 #define SYS_REDE_R3    14
 #define SYS_REDE_R4    15
 
-// unix
+// Unix
 #define SYS_OPEN     16  // open()
 #define SYS_CLOSE    17  // close()
 #define SYS_READ     18  // read()
 #define SYS_WRITE    19  // write()
 
-// kgws - Refresh.
-// Copy to the lfb. 
+// Buffers support: 20~23
 #define SYS_REFRESH_BUFFER1  20
 #define SYS_REFRESH_BUFFER2  21
 #define SYS_REFRESH_BUFFER3  22
 #define SYS_REFRESHSCREEN2   23
 
-// Window support.
-#define SYS_24  24    // Show window.
+// Surface support: 24~28
+#define SYS_24  24
 #define SYS_25  25
 #define SYS_26  26
 #define SYS_27  27
@@ -67,18 +67,19 @@
 #define SYS_33  33
 
 // Cursor
+// Setup cursor position for the current virtual console.
 #define SYS_VIDEO_SETCURSOR  34
 
 // Not in use.
 #define SYS_35  35
 
-// ?? #deprecated
+// #deprecated
 // O teclado envia essa mensagem para o procedimento ativo.
-#define SYS_KSENDMESSAGE  36  
+// #define SYS_KSENDMESSAGE  36  
 
-// ?? #deprecated
+// #deprecated
 // Chama o procedimento padrao do sistema.
-#define SYS_CALLSYSTEMPROCEDURE  37  
+// #define SYS_CALLSYSTEMPROCEDURE  37  
 
 // Hostname
 #define SYS_GETHOSTNAME  38
@@ -87,23 +88,23 @@
 #define SYS_GETUSERNAME  40
 #define SYS_SETUSERNAME  41
 
-// #deprecated?
+// #deprecated
 // Load bitmap image, size=16x16.
-#define SYS_LOADBMP16X16  42
+// #define SYS_LOADBMP16X16  42
 
-// Create an ampt file
+// Create an empty file
 // see: sci0() in sci.c
 #define SYS_43  43
-
 // 44 - Create an empty directory.
-//#define SYS_44       44
+#define SYS_44  44
 
 // 45 - livre
-// usar para manipulação de arquivo ou diretório.
+// #todo: Usar para manipulação de arquivo ou diretório.
 #define SYS_45  45
 
-// 46 ~ 48 (usar para cpu support)
+// 46 - livre
 // 47 - Show cpu info.
+// 48 - livre
 // 49 - Show system info.
 
 
@@ -135,6 +136,7 @@
 // Process support.
 #define SYS_CURRENTPROCESSINFO  80  // Informações sobre o processo atual.
 #define SYS_GETPPID             81  // get parent process id.
+
 // 82 - Show process information.
 
 // Wait 4 PID.
@@ -146,11 +148,11 @@
 // Not in use.
 #define SYS_84  84
 
-#define SYS_GETPID  85  // GET CURRENT PROCESS ID.
+// GET CURRENT PROCESS ID.
+#define SYS_GETPID  85
 
 // Not in use.
 #define SYS_86  86
-
 // Not in use.
 #define SYS_87  87
 
@@ -161,7 +163,7 @@
 #define SYS_89  89
 
 // ------------------
-// 90~98 Reservado para thread support
+// 90~99 Reservado para thread support
 #define SYS_DEADTHREADCOLLECTOR  90
 #define SYS_ALERTTHREAD  91
 #define SYS_92  92
@@ -399,8 +401,6 @@
 #define  SYS_GET_WM_PID  514
 #define  SYS_SET_WM_PID  515
 
-
-
 // Ingo for ws and wm.
 #define	SYS_SHOW_X_SERVER_INFO  516  // show x server info	
 #define	SYS_SHOW_WM_INFO        517  // show wm info	
@@ -410,19 +410,21 @@
 // == prototypes ====
 //
 
+/* zero/visitor/sci.c */
 void *sci0 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 
     unsigned long arg4 );
 
+/* zero/visitor/sci.c */
 void *sci1 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 
     unsigned long arg4 );
 
-
+/* zero/visitor/sci.c */
 void *sci2 ( 
     unsigned long number, 
     unsigned long arg2, 
@@ -431,9 +433,10 @@ void *sci2 (
 
 // --------------------------------
 
-
+/* zero/sys/sys.c */
 unsigned long sys_get_system_metrics(int n);
 
+/* zero/sys/sys.c */
 void *sys_create_process ( 
     struct room_d     *room,
     struct desktop_d  *desktop,
@@ -443,6 +446,7 @@ void *sys_create_process (
     char *name,
     unsigned long iopl );
 
+/* zero/sys/sys.c */
 void *sys_create_thread ( 
     struct room_d     *room,
     struct desktop_d  *desktop,
@@ -451,6 +455,7 @@ void *sys_create_thread (
     int ppid, 
     char *name );
 
+/* zero/sys/sys.c */
 int sys_exit_thread (tid_t tid);
 int sys_fork(void);
 pid_t sys_getpid(void);
@@ -461,6 +466,7 @@ void sys_show_system_info ( int n );
 int sys_uname (struct utsname *ubuf);
 void sys_vsync(void);
 
+/* zero/sys/sys.c */
 int sys_reboot(unsigned long flags);
 void sys_shutdown(unsigned long flags);
 

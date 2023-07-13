@@ -1278,7 +1278,7 @@ void *sci0 (
             break;
 
         // Reserved.
-        //rede: 12,13,14,15
+        // Netword: 12,13,14,15
 
         // 16 - open()
         // In ring3, see: fcntl.c
@@ -1294,7 +1294,6 @@ void *sci0 (
                                 (int)          arg3, 
                                 (mode_t)       arg4 ); 
             break;
-
 
         // 17 - close()
         // See: sys.c
@@ -1326,9 +1325,11 @@ void *sci0 (
                                 (int)          arg4 );  
             break;
 
-        // Reserved
-        // Buffers support: 20~23 
-        // Surface support: 24~28
+        // Reserved:
+        // 20~23 - Buffers support 
+        // 24~28 - Surface support 
+        // 29 - String stuff
+        // 30,31,32 - Putpixel?
         // 33 - free number.
 
         // 34
@@ -1341,13 +1342,13 @@ void *sci0 (
             break;
 
         // 35 - free number.
-        // ...
+        // 36 - #deprecated
+        // 37 - #deprecated
 
         // 38 - get host name  
         case SYS_GETHOSTNAME:
             return (void *) __gethostname ( (char *) arg2 );
             break;
-
         // 39 - set host name 
         // #todo: This operation needs permition?
         case SYS_SETHOSTNAME:
@@ -1358,22 +1359,19 @@ void *sci0 (
         case SYS_GETUSERNAME:
             return (void *) __getusername ( (char *) arg2 );
             break;
-
         // 41 - Set user name 
         // #todo: This operation needs permition?
         case SYS_SETUSERNAME:
             return (void *) __setusername ( (const char *) arg2 ); 
             break;
 
-        // 42 - livre
-        // #todo: Usar para manipulação de arquivo.
+        // 42 - #deprecated
 
         // 43 - Create an empty file.
         // See: fs.c
         case 43:
             return (void *) sys_create_empty_file( (char *) arg2 );
             break;
-
         // 44 - Create an empty directory.
         // See: fs.c
         case 44:
@@ -1382,7 +1380,8 @@ void *sci0 (
 
         // 45 - livre
         // #todo: Usar para manipulação de arquivo ou diretório.
-        // 46 ~ 48 (usar para cpu support)
+
+        // 46 - livre
 
         // 47 - livre
         // Show cpu info.
@@ -1436,6 +1435,7 @@ void *sci0 (
             return NULL;
             break;
    
+        // 71 - fork?
 
         // 72
         // See: ke/sys.c
@@ -1487,6 +1487,8 @@ void *sci0 (
                                 RING3 );          // iopl 
             break;
 
+        // 74,75,76,77,78,79.
+
         // 80 - Show current process info.
         // #todo: Mostrar em uma janela própria.
         // #todo: Devemos chamar uma função que 
@@ -1534,7 +1536,7 @@ void *sci0 (
             return (void *) get_current_pid();
             break;
 
-        // 86 - livre.
+        // 86,87 - livre.
 
         // Testa se o processo é válido
         // se for valido retorna 1234
@@ -1542,6 +1544,8 @@ void *sci0 (
         case SYS_88:
             return (void *) processTesting (arg2);
             break;
+
+        // 89 - livre
 
         // ------------------
         // 90~99 Reservado para thread support
@@ -2178,7 +2182,7 @@ void *sci2 (
 // IN: file name, parent pid, clone flags.
 // OUT: Child's PID.
 
-    if ( number == 900 )
+    if (number == 900)
     {
         debug_print("sci2: [900] clone and execute\n");
         // #debug
