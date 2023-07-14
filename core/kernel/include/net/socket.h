@@ -572,8 +572,19 @@ unsigned short getSocketPort(struct socket_d *socket);
 struct socket_d *get_socket_from_fd(int fd);
 void show_socket_for_a_process(pid_t pid);
 
+//
+// sys_socket() support.
+//
+
 int 
 socket_gramado ( 
+    struct socket_d *sock, 
+    int family, 
+    int type, 
+    int protocol );
+
+int 
+socket_unix ( 
     struct socket_d *sock, 
     int family, 
     int type, 
@@ -586,6 +597,9 @@ socket_inet (
     int type, 
     int protocol );
 
+int sys_socket ( int family, int type, int protocol );
+
+
 int socket_init (void);
 int socket_ioctl ( int fd, unsigned long request, unsigned long arg );
 int socket_read ( unsigned int fd, char *buf, int count );
@@ -594,12 +608,7 @@ int socket_write ( unsigned int fd, char *buf, int count );
 pid_t socket_get_gramado_port (int port);
 int socket_set_gramado_port (int port, pid_t pid);
 
-int 
-socket_unix ( 
-    struct socket_d *sock, 
-    int family, 
-    int type, 
-    int protocol );
+
 
 int 
 sys_accept (
@@ -633,8 +642,6 @@ update_socket (
     struct socket_d *socket, 
     unsigned int ip_ipv4, 
     unsigned short port );
-
-int sys_socket ( int family, int type, int protocol );
 
 int
 sock_socketpair ( 
