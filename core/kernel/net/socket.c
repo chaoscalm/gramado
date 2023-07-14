@@ -1512,6 +1512,8 @@ sys_bind (
         goto fail;
     }
 
+// Process
+
     if (current_process < 0 || current_process >= PROCESS_COUNT_MAX){
         printf("sys_bind: current_process\n");
         goto fail;
@@ -1532,16 +1534,17 @@ sys_bind (
 // The objects type is 'socket'.
 
     f = (file *) p->Objects[sockfd];
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         debug_print ("sys_bind: f\n");
         printf      ("sys_bind: f\n");
         goto fail;
     }
-    if (f->magic!=1234){
+    if (f->magic != 1234){
        printf("sys_bind: f validation\n");
        goto fail; 
     }
 
+// Is it a socket file?
     if ( is_socket(f) != TRUE ){
         debug_print ("sys_bind: f is not a socket\n");
         printf      ("sys_bind: f is not a socket\n");
@@ -1551,7 +1554,7 @@ sys_bind (
 // socket structure:
 // A socket object has a socket structure associates with the file.
     s = (struct socket_d *) f->socket;
-    if ( (void *) s == NULL ){
+    if ((void *) s == NULL){
         debug_print ("sys_bind: s\n");
         printf      ("sys_bind: s\n");
         goto fail; 
@@ -1608,8 +1611,8 @@ sys_bind (
         printf      ("sys_bind: AF_INET not supported yet\n");
         // Copy.
         //for (i=0; i<14; i++){ s->addr.sa_data[i] = addr->sa_data[i]; }; 
-        return -1;    
-    } 
+        return -1;
+    }
 //--
 
 // #fail
@@ -1623,7 +1626,7 @@ fail:
     printf      ("sys_bind: [FAIL] Something is wrong!\n");
     //refresh_screen();
     return (int) (-1);
-}   
+}
 
 /*
  * sys_connect:
@@ -1705,7 +1708,7 @@ sys_connect (
 
     pid_t current_process = (pid_t) get_current_process();
 
-    if (Verbose==TRUE){
+    if (Verbose == TRUE){
         printf ("sys_connect: Client's pid {%d}\n", current_process );
         printf ("sys_connect: Client's socket id {%d}\n", sockfd );
     }
@@ -1964,9 +1967,10 @@ sys_connect (
         goto fail;
     }
 
+// Client process.
 // sender's process structure.
     cProcess = (struct process_d *) processList[current_process];
-    if ( (void *) cProcess == NULL ){
+    if ((void *) cProcess == NULL){
         debug_print ("sys_connect: cProcess fail\n");
         printf      ("sys_connect: cProcess fail\n");
         goto fail;
@@ -1992,15 +1996,15 @@ sys_connect (
 // E também não devemos permitir que isso aconteça na conexão local.
 
     f = (file *) cProcess->Objects[client_socket_fd];
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         printf ("sys_connect: [FAIL] f. The client's socket\n");
         goto fail;
     }
 
-// Is it a socket??
+// Is it a socket?
 
     int __is = -1;
-    __is = is_socket((file *)f);
+    __is = is_socket( (file *) f );
     if (__is != TRUE){
         printf ("sys_connect: [FAIL] f is not a socket\n");
         goto fail;
@@ -2020,7 +2024,7 @@ sys_connect (
 // Pega a estrutura de socket associada ao arquivo.
 
     client_socket = (struct socket_d *) f->socket;
-    if ( (void *) client_socket == NULL ){
+    if ((void *) client_socket == NULL){
         printf ("sys_connect: [FAIL] client_socket\n");
         goto fail;
     }
@@ -2052,7 +2056,8 @@ sys_connect (
 // O pid do processo servidor.
 // Pegamos o target_pid logo acima na porta solicitada.
 
-    if (target_pid<0 || target_pid >= PROCESS_COUNT_MAX){
+    if (target_pid<0 || target_pid >= PROCESS_COUNT_MAX)
+    {
         debug_print ("sys_connect: target_pid\n");
         printf      ("sys_connect: target_pid\n");
         goto fail;
@@ -2192,7 +2197,8 @@ __OK_new_slot:
     int BacklogTail = 0;
 
     server_socket->backlog_tail++;
-    if ( server_socket->backlog_tail >= server_socket->backlog_max ){
+    if (server_socket->backlog_tail >= server_socket->backlog_max)
+    {
         server_socket->backlog_tail = 0;
     }
     BacklogTail = server_socket->backlog_tail;
@@ -2222,10 +2228,12 @@ __OK_new_slot:
 
     // #debug 
     // #breakpoint
-    if (Verbose==TRUE)
+    if (Verbose == TRUE)
     {
         printf("sys_connect: Breakpoint :)\n");
-        while(1){}
+        refresh_screen();
+        while (1){
+        };
     }
 //ok.
     return 0;
@@ -2358,7 +2366,8 @@ int sys_listen (int sockfd, int backlog)
         //sockfd, backlog);
 
 // The fd of the server's socket.
-    if ( sockfd < 0 || sockfd >= OPEN_MAX ){
+    if ( sockfd < 0 || sockfd >= OPEN_MAX )
+    {
         debug_print ("sys_listen: sockfd\n");
         printf      ("sys_listen: sockfd\n");
         return (int) (-EINVAL);
@@ -2387,7 +2396,8 @@ int sys_listen (int sockfd, int backlog)
 
 // ==============================================
 
-    if (current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
+    if (current_process < 0 || current_process >= PROCESS_COUNT_MAX )
+    {
         printf ("sys_listen: current_process\n");
         goto fail;
     }
@@ -2412,7 +2422,7 @@ int sys_listen (int sockfd, int backlog)
 
 // Is it a socket object?
     int IsSocket = -1;
-    IsSocket = (int) is_socket((file *)f);
+    IsSocket = (int) is_socket( (file *) f );
     if (IsSocket != TRUE){
         debug_print ("sys_listen: f is not a socket\n");
         printf      ("sys_listen: f is not a socket\n");
@@ -2467,8 +2477,8 @@ int sys_socket_shutdown (int socket, int how)
 {
 
     // #todo
-    // desconectar dois sockets.
-    // mas nao destruir o socket ...
+    // Desconectar dois sockets,
+    // mas nao destruir o socket?
 
 // The current process.
     struct process_d *p;
@@ -2515,7 +2525,7 @@ int sys_socket_shutdown (int socket, int how)
     }
 
 // Is this file a socket object?
-    IsSocketObject = is_socket((file *)f);
+    IsSocketObject = is_socket( (file *) f );
     if (IsSocketObject != 1){
         debug_print ("sys_socket_shutdown: f is not a socket\n");
         printf      ("sys_socket_shutdown: f is not a socket\n");
@@ -2527,13 +2537,13 @@ int sys_socket_shutdown (int socket, int how)
 // Let's get the socket structure associated with the file.
 // Let's simply change the flag for this socket.
     s = (struct socket_d *) f->socket;
-    if ( (void *) s == NULL ){
+    if ((void *) s == NULL){
         debug_print ("sys_socket_shutdown: s fail\n");
         printf      ("sys_socket_shutdown: s fail\n");
         goto fail;
     // permanece conectado, mas usaremos outro da fila.
-    }else{
-        s->state = 216; 
+    } else {
+        s->state = 216;  // ?
         return 0;
     };
 
@@ -2551,14 +2561,15 @@ update_socket (
     unsigned int ip_ipv4, 
     unsigned short port )
 {
-    if ( (void *) socket ==  NULL ){
+// Update ipv4 and port info.
+
+    if ((void *) socket ==  NULL){
         return (int) -1;
     }
-    socket->ip_ipv4 = (unsigned int)  ip_ipv4;
+    socket->ip_ipv4 = (unsigned int) ip_ipv4;
     socket->port = (unsigned short) port;
     return 0;
 }
-
 
 // Os dois são arquivos no mesmo processo. O processo atual.
 int
@@ -2616,25 +2627,25 @@ socket_dialog (
         return 0;
     }
 
-// número do serviço.
+// Número do serviço.
 
     switch (number)
     {
-		//socket(...)	
-		//family, type, protocol
-		//vai retornar o descritor de uma stream.	
+        // socket(...)
+        // family, type, protocol
+        // vai retornar o descritor de uma stream.
         case 7000:
             debug_print ("socket_dialog: 7000. sys_socket\n");
             return (unsigned long) sys_socket ( (int) arg2, 
                                        (int) arg3, (int) arg4 );
             break;
 
-		//send
-		//case 7001:
-		//	return (unsigned long) 1; 
-		//	break;
+        // send
+        // case 7001:
+        //     return (unsigned long) 1;
+        //     break;
 
-		//...
+        // ...
 
         default:
             debug_print ("socket_dialog: default\n");
@@ -2643,7 +2654,7 @@ socket_dialog (
             break;
     };
 
-    // Fail.
+    // Fail
     return 0;
 }
 
