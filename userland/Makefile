@@ -17,6 +17,11 @@ all:
 	make -C libs/libdisp/
 	make -C libs/libgr/
 	make -C libs/libgr3d/
+	make -C libs/libio01/
+
+# ----------------
+# Ring 3 posix-like commands.
+	make -C commands/
 
 # ----------------
 # Gramland window server.
@@ -29,7 +34,6 @@ all:
 
 # ----------------
 # Shell
-
 # apps: Unit 3
 	make -C apps/client
 	make -C apps/gdm
@@ -44,27 +48,18 @@ all:
 
 # ----------------
 # demos/
-
 # Graphics engine. (3D demos)
 	make -C demos/eng/
 
 clean-all:
-
 	-rm -f apps/bin/*.BIN
-
+	-rm -f commands/bin/*.BIN
 	-rm -f demos/eng/bin/*.BIN
-
 	-rm -f libs/libgws/obj/*.o
 	-rm -f libs/libgr/obj/*.o
 	-rm -f libs/libgr3d/obj/*.o
 	-rm -f libs/libdisp/obj/*.o
+	-rm -f libs/libio01/obj/*.o
 	-rm -f libs/rtl/obj/*.o
-	
 	-rm -f services/gramland/bin/*.BIN
-
 	-rm -f netd/bin/*.BIN
-
-
-
-
-

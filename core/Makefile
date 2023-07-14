@@ -144,33 +144,6 @@ build-gramado-os:
 # Copy to the target folder.
 	-sudo cp init/bin/INIT.BIN  ../base/ 
 
-# :: Azure (Commands)
-# Building userland commands.
-# userland
-	@echo ":: Making userland."
-	$(Q) $(MAKE) -C commands/
-# Copy to the target folder.
-	-sudo cp commands/bin/SHUTDOWN.BIN  ../base/
-	-sudo cp commands/bin/REBOOT.BIN    ../base/
-	-sudo cp commands/bin/CAT.BIN       ../base/
-	-sudo cp commands/bin/UNAME.BIN     ../base/
-
-	-sudo cp commands/bin/VGA1.BIN      ../base/PROGRAMS/
-	-sudo cp commands/bin/SHELL.BIN     ../base/PROGRAMS/
-	-sudo cp commands/bin/TPRINTF.BIN   ../base/PROGRAMS/
-	-sudo cp commands/bin/SHOWFUN.BIN   ../base/PROGRAMS/
-	-sudo cp commands/bin/CMP.BIN       ../base/PROGRAMS/
-	-sudo cp commands/bin/SUM.BIN       ../base/PROGRAMS/
-	-sudo cp commands/bin/TASCII.BIN    ../base/PROGRAMS/
-	-sudo cp commands/bin/FALSE.BIN     ../base/PROGRAMS/
-	-sudo cp commands/bin/TRUE.BIN      ../base/PROGRAMS/
-	-sudo cp commands/bin/GRAMCNF.BIN   ../base/PROGRAMS/
-	#...
-
-	-sudo cp commands/bin/N9.BIN   ../base/PROGRAMS/
-	-sudo cp commands/bin/N10.BIN  ../base/PROGRAMS/
-	-sudo cp commands/bin/N11.BIN  ../base/PROGRAMS/
-
 	@echo "~build-gramado-os end?"
 
 # --------------------------------------
@@ -184,6 +157,28 @@ copy-extras:
 # Copying every image from userland/.
 
 	@echo ":: Copying Window server and clients."
+
+# Copy to the target folder.
+	-sudo cp ../userland/commands/bin/SHUTDOWN.BIN  ../base/
+	-sudo cp ../userland/commands/bin/REBOOT.BIN    ../base/
+	-sudo cp ../userland/commands/bin/CAT.BIN       ../base/
+	-sudo cp ../userland/commands/bin/UNAME.BIN     ../base/
+
+	-sudo cp ../userland/commands/bin/VGA1.BIN      ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/SHELL.BIN     ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/TPRINTF.BIN   ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/SHOWFUN.BIN   ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/CMP.BIN       ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/SUM.BIN       ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/TASCII.BIN    ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/FALSE.BIN     ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/TRUE.BIN      ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/GRAMCNF.BIN   ../base/PROGRAMS/
+	#...
+
+	-sudo cp ../userland/commands/bin/N9.BIN   ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/N10.BIN  ../base/PROGRAMS/
+	-sudo cp ../userland/commands/bin/N11.BIN  ../base/PROGRAMS/
 
 # Graphics engine
 	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
@@ -300,7 +295,6 @@ clean-all: clean
 
 	-rm init/bin/*.BIN
 	-rm init/init/*.o
-	-rm commands/bin/*.BIN
 	-rm indigo/bin/*.BIN
 	-rm libs/fonts/bin/*.FON
 	-rm libs/libgns/obj/*.o

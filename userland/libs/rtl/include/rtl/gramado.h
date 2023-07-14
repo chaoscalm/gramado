@@ -230,6 +230,8 @@ rtl_post_system_message(
 unsigned long rtl_get_system_message2(unsigned long message_buffer,int index,int restart);
 
 unsigned long rtl_get_system_metrics (int index);
+int rtl_is_qemu(void);
+
 
 unsigned long rtl_jiffies(void);
 unsigned long rtl_memory_size_in_kb(void);
