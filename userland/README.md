@@ -3,15 +3,17 @@
     Here your're gonna find:
 
 ```
- * apps:
+ * apps/:
     * Client-side GUI applications.
+ * commands/:
+    * Posix commands.
  * demos:
     * 3D demos.
- * games:
+ * games/:
    * Games.
- * libs:
+ * libs/:
    * Libraries.
- * services:
+ * services/:
    * Ring 3 servers.
 ```
 
