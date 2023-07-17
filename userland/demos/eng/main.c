@@ -3699,7 +3699,7 @@ static int on_execute(void)
     //demoTriangle();
     //while(1){}
 
-    // see: demo.c
+    // see: demos.c
     if (ShowDemo){
         demoFlyingCubeSetup();
     }
@@ -3747,7 +3747,8 @@ static int on_execute(void)
             //close(newconn);
         //}
 
-        // see: demo.c
+        // Build, paint and display the frame.
+        // see: demos.c
         // IN: Draw desktop.
         if (ShowDemo){
             //demoFlyingCube(TRUE,COLOR_BLACK);
@@ -3811,6 +3812,10 @@ int main(int argc, char **argv)
 {
     int Status=-1;
 
+
+// #todo
+// Parse the parameters and select the flags.
+
 // Callback support.
 // We can't use callback here in this project,
 // because the callback are not saving and restoring
@@ -3824,7 +3829,7 @@ int main(int argc, char **argv)
 
 //0 = Time to quit.
     Status = (int) on_execute();
-    if(Status == 0)
+    if (Status == 0)
     {
         //gwssrv_debug_print ("GWSSRV.BIN: exit(0)\n");
         //printf             ("GWSSRV.BIN: exit(0)\n");
@@ -3840,11 +3845,10 @@ int main(int argc, char **argv)
 // Page fault when exiting ... 
 // #fixme
 
-    gwssrv_debug_print ("GWSSRV2.BIN: Hang on exit\n");
-    printf             ("GWSSRV2.BIN: Hang on exit\n");
+    gwssrv_debug_print ("ENG.BIN: Hang on exit\n");
+    printf             ("ENG.BIN: Hang on exit\n");
 
-    while(1)
-    {
+    while (1){
     };
 
     return 0;
@@ -3860,7 +3864,6 @@ void gramado_terminate(void)
     //wm_Update_TaskBar("Exit",TRUE);
     //demoCat();
 }
-
 
 //
 // End

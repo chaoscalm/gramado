@@ -1837,7 +1837,10 @@ plotTriangleF(
     // fov scale factor = 1/( tan(a/2) )
     // x=afx and y=fy
     float scale_factor = (float) 0.5f;   //default
- 
+
+    // #bugbug
+    // #todo: Return if not initialized?
+
     if (CurrentProjectionF.initialized == TRUE)
     {
         // ----------------

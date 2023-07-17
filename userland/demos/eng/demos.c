@@ -4,6 +4,24 @@
 
 #include "gram3d.h"
 
+
+/*
+// Cube fake object file.
+// 12 triangles for a cube.
+// #bugbug
+// Maybe this initialization is gonna fail.
+float arrayFakeFile[] = { 
+    -0.2f, -0.2f, 0.2f, 
+     0.2f, -0.2f, 0.2f,
+    -0.2f,  0.2f, 0.2f,
+     0.2f,  0.2f, 0.2f,        
+    -0.2f,  0.2f, -0.2f,
+     0.2f,  0.2f, -0.2f,
+    -0.2f, -0.2f, -0.2f,
+     0.2f, -0.2f, -0.2f 
+};
+*/
+
 struct gws_window_d *__demo_window;
 
 int gUseDemos = TRUE;
@@ -395,7 +413,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
 
 // ---------
 
-    if( (void*) cube == NULL ){
+    if ((void*) cube == NULL){
         return;
     }
 
@@ -471,7 +489,6 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
 // draw a rectangle
    //drawRectangle0((float) 0.08f);
 
-
 // - Loop --------------------------------
 // Draw a list of triangles.
 // A cube has 6 faces and 12 triangles.
@@ -484,6 +501,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
         // Jumping three offsets each time.
         off = (int) ((i-1)*3);
         
+        // Build the vector 0.
         v = (int) sequence[off+0];  // Get the vertice index.
         tri.p[0].x = (float) cube->vecs[v].x;
         tri.p[0].y = (float) cube->vecs[v].y;
@@ -492,12 +510,15 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
         if(i >= 1 && i <= 12){
             tri.p[0].color = cube->colors[i-1];  // rectangle color
         }
+
+        // Build the vector 1.
         v = (int) sequence[off+1];  // Get the vertice index.
         tri.p[1].x = (float) cube->vecs[v].x;
         tri.p[1].y = (float) cube->vecs[v].y;
         tri.p[1].z = (float) cube->vecs[v].z;
         tri.p[1].color = COLOR_WHITE;  // not used
 
+        // Build the vector 2.
         v = (int) sequence[off+2];  // Get the vertice index.
         tri.p[2].x = (float) cube->vecs[v].x;
         tri.p[2].y = (float) cube->vecs[v].y;
@@ -506,7 +527,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
 
         // Now we have a triangle. A face.
 
-        //-----------------------------    
+        //-----------------------------
         // Rotate in X-Axis
         gr_MultiplyMatrixVector(
             (struct gr_vecF3D_d *) &tri.p[0], 
@@ -521,7 +542,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
             (struct gr_vecF3D_d *) &triRotatedX.p[2], 
             (struct gr_mat4x4_d *) &matRotX);
 
-        //-----------------------------    
+        //-----------------------------
         // Rotate in Y-Axis
         gr_MultiplyMatrixVector(
             (struct gr_vecF3D_d *) &triRotatedX.p[0], 
@@ -536,7 +557,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
             (struct gr_vecF3D_d *) &triRotatedXY.p[2], 
             (struct gr_mat4x4_d *) &matRotY);
 
-        //-----------------------------    
+        //-----------------------------
         // Rotate in Z-Axis
         gr_MultiplyMatrixVector(
             (struct gr_vecF3D_d *) &triRotatedXY.p[0], 
@@ -616,7 +637,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
         // From the center, not from the top/left corner.
         // Because our 3D int engine assumes that.
 
-        if ((void*)terrain != NULL)
+        if ( (void*)terrain != NULL )
         {
             triRotatedXYZ.p[0].x = 
                 (float) (triRotatedXYZ.p[0].x + terrain->hposition + cube->hposition); 
@@ -632,7 +653,7 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
         // From the center, not from the top/left corner.
         // Because our 3D int engine assumes that.
 
-        if ((void*)terrain != NULL)
+        if ( (void*)terrain != NULL )
         {
             triRotatedXYZ.p[0].y = 
                 (float) (triRotatedXYZ.p[0].y + terrain->vposition + cube->vposition); 
@@ -649,8 +670,8 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
 
         //----------------------------------------------------
         // Use Cross-Product to get surface normal.
-        struct gr_vecF3D_d normal; 
-        struct gr_vecF3D_d line1; 
+        struct gr_vecF3D_d normal;
+        struct gr_vecF3D_d line1;
         struct gr_vecF3D_d line2;
 
         // Vector 1 - Vector 0.
@@ -713,10 +734,10 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
         
         // Same direction or perpendicular.
         // Do not paint.
-        if( (float) tmp >= 0.0f){ cull=TRUE;  }
+        if ( (float) tmp >= 0.0f ){ cull=TRUE;  }
         // Opposite direction.
         // Paint. (Não abate). Muuuuu.
-        if( (float) tmp < 0.0f){ cull=FALSE; }
+        if ( (float) tmp < 0.0f ){ cull=FALSE; }
 
         //----------------------------------------------------
 
@@ -754,7 +775,8 @@ static void drawFlyingCube(struct cube_model_d *cube, float vel)
                     0 );
             }
         }
-    };
+
+    };  // loop: Number of triangles.
 }
 
 struct gws_window_d *__create_demo_window (
@@ -1336,7 +1358,7 @@ void demoFlyingCubeSetup(void)
     for (count=0; count<CUBE_MAX; count++)
     {
         cube = (void*) malloc( sizeof( struct cube_model_d ) );
-        if( (void*) cube == NULL ){
+        if ((void*) cube == NULL){
             printf("cube\n");
             exit(1);
         }
@@ -1357,7 +1379,9 @@ void demoFlyingCubeSetup(void)
         };
 
         // The model for a regular cube.
-        // #todo: Load this from a file.
+        // #todo: >> Load this from a file.
+        // #todo: Maybe import these values from an array.
+        // see: arrayFakeFile[]
 
         cube->vecs[1].x = (float) -0.2f;  cube->vecs[1].y = (float) -0.2f;  cube->vecs[1].z = (float) 0.2f;
         cube->vecs[2].x = (float)  0.2f;  cube->vecs[2].y = (float) -0.2f;  cube->vecs[2].z = (float) 0.2f;
@@ -1477,11 +1501,12 @@ void demoFlyingCubeSetup(void)
     game_update_taskbar = FALSE;
 }
 
+// Build, paint and display the frame.
 // Called by the engine in main.c.
 void demoFlyingCube(int draw_desktop, unsigned int bg_color)
 {
 // + Clear the surface 
-// + Draw the frame. 
+// + Draw the frame.
 //   background.
 //   (terrain + 7 cubes).
 //   It means 12*8 triangles.
