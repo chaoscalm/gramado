@@ -131,6 +131,13 @@ build-gramado-os:
 # Copy the ring0 module image.
 	sudo cp newm0/MOD0.BIN  ../base/
 
+#todo
+# ::Build the ring0 module image.
+#	$(Q)$(MAKE) -C newm1/
+# Copy the ring0 module image.
+#	sudo cp newm1/MOD1.BIN  ../base/
+
+
 # Install BMPs
 	sudo cp ../meta/assets/themes/537/*.BMP  ../base/
 
