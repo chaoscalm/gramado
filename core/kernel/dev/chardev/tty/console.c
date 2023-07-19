@@ -1835,12 +1835,11 @@ int consoleCompareStrings(void)
     }
 
 // see: mod.c
-    if ( strncmp(prompt,"mod0",4) == 0 )
-    {
+// Vamos testar um modulo que ja foi carregado previamente?
+    if ( strncmp(prompt,"mod0",4) == 0 ){
         test_mod0();
         goto exit_cmp;
     }
-
 
 // dir:
 // List the files in a given directory.

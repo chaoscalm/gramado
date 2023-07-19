@@ -1,5 +1,7 @@
 
 // mod.c
+// see: gramado/mod.h
+// see: kernel.h
 
 #include <kernel.h>
 
@@ -57,9 +59,10 @@ caller1(
 
 // mod0: Call the entrypoint of the module.
 // mod0.bin entry point.
-// When this module was loaded?
+// When this module was loaded? <<<
 // see: I_x64CreateKernelProcess in x64init.c
-// see: control/newmod0/
+// see: control/newm0/
+// Vamos testar um modulo que ja foi carregado previamente?
 
 void test_mod0(void)
 {

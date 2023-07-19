@@ -1,5 +1,6 @@
 
 // mod.h
+// see: mod.c
 
 #ifndef __GRAMADO_MOD_H
 #define __GRAMADO_MOD_H    1
