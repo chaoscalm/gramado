@@ -1780,6 +1780,11 @@ int parse(int dump_output)
                     // >>> peekSymbol=symbol  significa declaração de variável ou função.
                     case TK_TYPE:
                         id[ID_TYPE] = type_found;
+                        if (type_found == TBOX)
+                        {
+                            printf ("box: Line %d\n",lexer_currentline);
+                            waiting_identifier_after_type = TRUE;
+                        }
                         if (type_found == TMETA)
                         {
                             printf ("meta: Line %d\n",lexer_currentline);
@@ -1824,6 +1829,28 @@ int parse(int dump_output)
                             // mas se estivermos com o corpo da função aberto ele avançará para o próximo state.
                             State = 1;
                             break;
+                        }
+
+                        // ']'
+                        // fechando um box.
+                        // por enquanto so temos um box,
+                        // entao fechamos o programa.
+                        if ( strncmp( (char *) real_token_buffer, "]", 1 ) == 0  )
+                        {
+                            if ( square_brackets_inside > 0)
+                            {
+                                printf("box terminate: in line %d\n", lexer_currentline);
+                                square_brackets_inside--;
+                                State = 1;
+                                if (square_brackets_inside == 0)
+                                {
+                                    running=0; 
+                                    break;
+                                }
+                                break;
+                            }
+                            // #bugbug
+                            // ')' found without entering with a '('.
                         }
 
                         // ')'
@@ -1947,21 +1974,30 @@ int parse(int dump_output)
                         if (waiting_identifier_after_type == TRUE)
                         {
                             waiting_identifier_after_type = FALSE;
-                            memset(metadata[meta_index].meta_tag, 0,64);
-                            string_size = (size_t) strlen(real_token_buffer);
-                            if (string_size <= 0){
-                                printf("ERROR: tag size min\n");
-                                exit(1);
+                            
+                            if (type_found == TMETA)
+                            {
+                                memset(metadata[meta_index].meta_tag, 0,64);
+                                string_size = (size_t) strlen(real_token_buffer);
+                                if (string_size <= 0){
+                                    printf("ERROR: tag size min\n");
+                                    exit(1);
+                                }
+                                if (string_size >= 64){
+                                    printf("ERROR: tag size max\n");
+                                    exit(1);
+                                }
+                                strncpy(
+                                    metadata[meta_index].meta_tag,
+                                    real_token_buffer,
+                                    string_size );
+                                metadata[meta_index].tag_size = (size_t) string_size;
                             }
-                            if (string_size >= 64){
-                                printf("ERROR: tag size max\n");
-                                exit(1);
+                            if (type_found == TBOX)
+                            {
+                                // #todo
+                                // Save the box symbol in some place.
                             }
-                            strncpy(
-                                metadata[meta_index].meta_tag,
-                                real_token_buffer,
-                                string_size );
-                            metadata[meta_index].tag_size = (size_t) string_size;
                         }
                         //----------------------------------------------------
                         
@@ -1981,6 +2017,8 @@ int parse(int dump_output)
                         //printf("[token]\n");
 
                         // O que vem depois do symbol?
+                        // apos meta symbol vem (.
+                        // apos box symbol vem [.
                         token = yylex();
 
                        // printf("test={%s} line %d\n", real_token_buffer, lexer_currentline ); 
@@ -2006,6 +2044,17 @@ int parse(int dump_output)
                                 break;
                             }
 
+                            // '[' O separador indica que entramos no box.
+                            if ( strncmp( (char *) real_token_buffer, "[", 1 ) == 0  )
+                            {
+                                printf ("box start:\n");
+                                //while(1){}
+                                square_brackets_inside++;
+                                //emit_function();
+                                State=1;
+                                break;
+                            }
+
                             // '(' O separador indica que iniciamos a pilha de parâmetro.
                             // incrementamos
                             // pois podemos estar no primeiro, no segundo etc ...
@@ -2016,7 +2065,6 @@ int parse(int dump_output)
                                 State=1;
                                 break;
                             }
-
                             // ) Se encontramos um separador ')' 
                             // entao esperaremos um separador '{'.
                             if ( strncmp( (char *) real_token_buffer, ")", 1 ) == 0  )
@@ -2070,6 +2118,7 @@ int parse(int dump_output)
                                 }
                                 break;
                             }
+                            
 
                             // ; = O identificador é uma variável.
                             // Ou finalizamos uma chamada de função.

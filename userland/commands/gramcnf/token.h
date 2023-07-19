@@ -12,6 +12,7 @@ typedef enum {
 // types
     KWVOID,
     KWCHAR, KWSHORT, KWINT, KWLONG,
+    KWBOX,
     KWMETA,
     KWDEF,
     KWVAR,
@@ -82,6 +83,7 @@ typedef enum {
     TNULL,
     TVOID,
     TCHAR, TSHORT, TINT, TLONG,
+    TBOX,
     TMETA,
     TDEF,
     TVAR,

@@ -498,6 +498,12 @@ again:
                 value         = TK_TYPE;
                 type_found    = TLONG;
             }
+            if ( strncmp( real_token_buffer, "box", 3 ) == 0 )
+            {
+                keyword_found = KWBOX;
+                value         = TK_TYPE;
+                type_found    = TBOX;
+            }
             if ( strncmp( real_token_buffer, "meta", 4 ) == 0 )
             {
                 keyword_found = KWMETA;
