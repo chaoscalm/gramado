@@ -1,9 +1,15 @@
 
-	user/ folder:
+	user/
+	User and security support.
 
-	This is the bridge for sharing info with the app
-	at the initialization and beyond.
+security/
+    Virtual environments for security support.
+    It's not the same 'Desctop' concept as found in the window server.
 
-	The information at your finger tips.
+session/
+    Low level support for login and logoff.
+    The Display Manager application in userland/ can call some 
+    low level routines found here.
+    
 
 
