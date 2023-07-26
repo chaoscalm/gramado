@@ -5,7 +5,7 @@
  *     2020 -  Created by Fred Nora.
  */
 
-typedef int  __wid_t;
+typedef int __wid_t;
 typedef int wid_t;
 
 
@@ -16,7 +16,8 @@ typedef int wid_t;
 #define __PORTS_FS  4042
 // ...
 
-#define __IP(a, b, c, d) (a << 24 | b << 16 | c << 8 | d)
+#define __IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
 
 #include "protocol.h"
 
@@ -44,15 +45,13 @@ typedef int wid_t;
 #include "host/display.h"
 #include "host/host.h"
 
-
 #include "ports.h"
 
-// menu
+// Menu
 #include "window/menu.h"
 
 // Events
 #include "io/events.h"
-
 
 // Connecting with the ws.
 //#include "connect.h"
@@ -81,8 +80,6 @@ struct libgws_version_d
     // ...
 };
 // Version struct.
-//struct libgws_version_d libgwsVersion;
-
 // See: gws.c
 extern struct libgws_version_d libgwsVersion;
 
@@ -102,10 +99,11 @@ void *gws_system_call (
     unsigned long c, 
     unsigned long d );
 
-void gws_debug_print (char *string);
+// Debug via serial port. (COM1)
+void gws_debug_print(char *string);
 
 // Initialize the library.
-int gws_initialize_library (void);
+int gws_initialize_library(void);
 
 void *gws_malloc(size_t size);
 void gws_free(void *ptr);
@@ -120,7 +118,7 @@ void *gws_services (
     unsigned long arg3,
     unsigned long arg4 );
 
-// Send message to a process.                     
+// Send system message to a process.                     
 int
 gws_send_message_to_process ( 
     int pid, 
@@ -129,7 +127,7 @@ gws_send_message_to_process (
     unsigned long long1,
     unsigned long long2 );
 
-// Send message to a thread.
+// Send system message to a thread.
 int 
 gws_send_message_to_thread ( 
     int tid, 
@@ -151,6 +149,10 @@ gws_draw_char (
     unsigned long y,
     unsigned int color,
     unsigned int ch );
+
+//
+// Text support
+//
 
 // Draw a text.
 int 
@@ -180,6 +182,9 @@ gws_get_text (
     unsigned int color,
     char *string );
 
+//
+// Window support
+//
 
 // Redraw a window.
 int 
@@ -200,23 +205,8 @@ struct gws_window_info_d *gws_get_window_info(
     int wid,
     struct gws_window_info_d *window_info );
 
-// The server will return an event from the its client's event queue.
-struct gws_event_d *
-gws_get_next_event(
-    int fd, 
-    int wid,
-    struct gws_event_d *event );
-
 // Refresh a window.
-int gws_refresh_window (int fd, wid_t wid );
-
-int
-gws_refresh_retangle ( 
-    int fd,
-    unsigned long left, 
-    unsigned long top, 
-    unsigned long width, 
-    unsigned long height );
+int gws_refresh_window (int fd, wid_t wid);
 
 // Change window position.
 int 
@@ -234,6 +224,49 @@ gws_resize_window (
     unsigned long w, 
     unsigned long h );
 
+//
+// Event support
+//
+
+// The server will return an event 
+// from the its client's event queue.
+struct gws_event_d *gws_get_next_event(
+    int fd, 
+    int wid,
+    struct gws_event_d *event );
+
+// get next event.
+// the window server return the next event
+// from the queue of a client.
+struct gws_event_d *gws_next_event(int fd);
+
+// Send event.
+// It is gonna be used by the window manager to send 
+// events to the window server.
+// Remember: The window manager gets the system messages
+// end sends window events to the window server.
+void 
+gws_send_event ( 
+    int fd, 
+    int window, 
+    struct gws_event_d *event );
+
+//
+// Rectangle support
+//
+
+int
+gws_refresh_retangle ( 
+    int fd,
+    unsigned long left, 
+    unsigned long top, 
+    unsigned long width, 
+    unsigned long height );
+
+//
+// Surface support
+//
+
 // Atualiza o retângulo da surface da thread.
 void 
 setup_surface_retangle ( 
@@ -246,6 +279,10 @@ setup_surface_retangle (
 // change to gws_invalidate_surface_rectangle,
 // or gws_invalidate-surface.
 void invalidate_surface_retangle (void);
+
+//
+// Window support
+//
 
 void gws_invalidate_window(int fd,int wid);
 
@@ -266,17 +303,19 @@ gws_create_window (
     unsigned int clientcolor,  //11, Cor da área de cliente
     unsigned int color );      //12, Color (bg) (para janela simples).
 
+//
+// System stuff
+//
+
 void gws_reboot(int fd);
 void gws_shutdown(int fd);
+
+// #todo: Explain it better.
 void gws_update_desktop(int fd);
-// #test 
-// Load a file given a path.
-// We are testing the path support.
-int 
-gws_load_path ( 
-    char *path, 
-    unsigned long buffer, 
-    unsigned long buffer_len );
+
+//
+// Thread support
+//
 
 // Yield the current thread.
 void gws_yield(void);
@@ -294,7 +333,11 @@ void *gws_create_thread (
 
 void gws_start_thread (void *thread);
 
-int gws_clone_and_execute ( char *name );
+//
+// Child process support.
+//
+
+int gws_clone_and_execute(char *name);
 
 //#todo: change arguments.
 int 
@@ -306,15 +349,40 @@ gws_clone_and_execute2 (
     unsigned long arg4,
     char *string );
 
+//
+// System support.
+//
+
 unsigned long gws_get_system_metrics (int index);
+
+//
+// Critical section support
+//
 
 void gws_enter_critical_section(void);
 void gws_exit_critical_section(void);
 
-int gws_create_empty_file ( char *file_name );
-int gws_create_empty_directory ( char *dir_name );
+//
+// File support
+//
 
-// menu
+// #test 
+// Load a file given a path.
+// We are testing the path support.
+int 
+gws_load_path ( 
+    char *path, 
+    unsigned long buffer, 
+    unsigned long buffer_len );
+
+int gws_create_empty_file(char *file_name);
+int gws_create_empty_directory(char *dir_name);
+
+//
+// Menu support.
+//
+
+// Menu
 struct gws_menu_d *gws_create_menu (
     int fd,
     int parent,
@@ -326,30 +394,19 @@ struct gws_menu_d *gws_create_menu (
     unsigned long height,
     unsigned int color );
 
-//menu item
+// Menu item
 struct gws_menu_item_d *gws_create_menu_item (
     int fd,
     char *label,
     int id,
     struct gws_menu_d *menu);
 
-// get next event.
-// the window server return the next event
-// from the queue of a client.
-struct gws_event_d *gws_next_event (int fd);
+// Explode byte.
+unsigned int gws_explode_byte_32(unsigned char data);
 
-// Send event.
-// It is gonna be used by the window manager to send 
-// events to the window server.
-// Remember: The window manager gets the system messages
-// end sends window events to the window server.
-void 
-gws_send_event ( 
-    int fd, 
-    int window, 
-    struct gws_event_d *event );
-
-unsigned int gws_explode_byte_32 (unsigned char data);
+//
+// Async request support.
+//
 
 void
 gws_async_command ( 
@@ -368,23 +425,32 @@ gws_async_command2 (
     unsigned long data3,
     unsigned long data4 );
 
+//
+// Window support
+//
 
 void gws_destroy_window(int fd, wid_t wid);
 void gws_set_active(int fd, wid_t wid);
 void gws_set_focus(int fd, wid_t wid);
 void gws_clear_window(int fd, wid_t wid);
 
+// wm initialization
 void gws_send_wm_magic( int fd, int pid );
 
 // ==========================
 
+// 
 // Application
+//
+
 int application_start(void);
 void application_end(void);
 // ==========================
 
+// Input support.
 int gws_enable_input_method(int method);
 
+// Dialog.
 int 
 gws_default_procedure ( 
     int fd,

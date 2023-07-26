@@ -38,21 +38,10 @@
 #include "include/connect.h"
 #include "include/gws.h"
 
-
-// globals
-// version support.
-
-/*
-struct libgws_version_d
-{
-    unsigned long majorVersion;
-    unsigned long minorVersion;
-    // ...
-};
-*/
-
-// Version
+// Library version support.
+// See: gws.h
 struct libgws_version_d  libgwsVersion;
+
 // Display
 struct gws_display_d *libgwsCurrentDisplay;
 // Event
@@ -204,9 +193,7 @@ __gws_clone_and_execute_request (
     char *string );
 static int __gws_clone_and_execute_response(int fd);
 
-
 // == ... ==========================
-
 
 //
 // == Functions ====================
@@ -354,7 +341,7 @@ static struct gws_window_info_d *__gws_get_window_info_response(
     int sig1=0;
     int sig2=0;
 
-    if ( (void*) window_info == NULL ){
+    if ((void*) window_info == NULL){
         return NULL;
     }
 
@@ -471,8 +458,7 @@ process_response:
         return (struct gws_window_info_d *) window_info;
     }
 
-// fall to fail field
-
+// fall to fail field.
 fail:
     return NULL;
 }
@@ -493,14 +479,14 @@ static int __gws_get_next_event_request(int fd,int wid)
     //gws_debug_print ("__gws_get_next_event_request: wr\n");
 
 // window id.
-    message_buffer[0] = (unsigned long) ( wid & 0xFFFFFFFF); 
+    message_buffer[0] = (unsigned long) (wid & 0xFFFFFFFF); 
 // Message code
     message_buffer[1] = GWS_GetNextEvent;
     message_buffer[2] = 0;
     message_buffer[3] = 0;
     //...
 
-    if(fd<0){
+    if (fd<0){
         return (int) -1;
     }
 
@@ -513,7 +499,7 @@ static int __gws_get_next_event_request(int fd,int wid)
                   sizeof(__gws_message_buffer), 
                   0 );
 
-    if (n_writes<=0){
+    if (n_writes <= 0){
         return (int) -1;
     }
 
@@ -541,10 +527,9 @@ static struct gws_event_d *__gws_get_next_event_response (
     //gws_debug_print ("__gws_get_next_event_response: rd\n"); 
 
 // crazy fail
-    if ( (void*) event == NULL ){
+    if ((void*) event == NULL){
         return NULL;
     }
-
     if (fd<0){
         return NULL;
     }
@@ -1559,6 +1544,7 @@ __gws_settext_request (
         (unsigned long *) &__gws_message_buffer[0];
     //unsigned long *string_buffer = (unsigned long *) &__gws_message_buffer[128];
     int n_writes = 0;
+    register int i=0;
 
     //gws_debug_print ("gws_drawtext_request: wr\n");
 
@@ -1579,8 +1565,6 @@ __gws_settext_request (
 
 // String support
 // Fill the string buffer
-
-    register int i=0;
     int string_off=8;
     char *p = (char *) &message_buffer[string_off];
 
@@ -2074,6 +2058,7 @@ __gws_createwindow_request (
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes=0;
+    register int i=0;
     char *Name;
     int client_pid = (int) rtl_current_process();
     int client_tid = (int) rtl_current_thread();
@@ -2124,7 +2109,6 @@ __gws_createwindow_request (
 
 // String support
 // Set up the string starting in the offset '14'.
-    register int i=0;
     int max=250;
     int string_off=14;
     char *p = (char *) &message_buffer[string_off];
@@ -2645,6 +2629,7 @@ void gws_shutdown(int fd)
     gws_async_command(fd,22,0,0);
 }
 
+// #todo: Explain it better.
 void gws_update_desktop(int fd)
 {
     if (fd<0){
@@ -2723,7 +2708,7 @@ gws_change_window_position (
 // Request
     req_status = 
         (int) __gws_change_window_position_request(fd,window,x,y);
-    if (req_status<=0){
+    if (req_status <= 0){
         return (int) -1;
     }
     rtl_set_file_sync ( 
@@ -2760,7 +2745,7 @@ gws_resize_window(
 
 // request
     req_status = (int) __gws_resize_window_request(fd,window,w,h);
-    if (req_status<=0){
+    if (req_status <= 0){
         return (int) -1;
     }
     rtl_set_file_sync ( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
@@ -2796,7 +2781,7 @@ gws_redraw_window (
 
 // Request
     req_status = (int) __gws_redraw_window_request (fd,window,flags);
-    if (req_status<=0){
+    if (req_status <= 0){
         return (int) -1;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
@@ -2832,11 +2817,17 @@ struct gws_event_d *gws_get_next_event(
         return NULL;
     }
 
-// #todo: Check event pointer validation.
+// #todo: 
+// Check event pointer validation.
+    /*
+    if (wid<0){
+        return NULL;
+    }
+    */
 
 // Request
     req_status = (int) __gws_get_next_event_request(fd,wid);
-    if(req_status<=0){
+    if (req_status <= 0){
         return NULL;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
@@ -2846,34 +2837,27 @@ struct gws_event_d *gws_get_next_event(
     while (TRUE){
         Value = (unsigned long) rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR )
-        {
+        if (Value == ACTION_REPLY){ break; }
+        if (Value == ACTION_ERROR){
             return NULL; 
         }
     };
 
     e = (struct gws_event_d *) __gws_get_next_event_response (fd,event);
-    if ( (void*) e == NULL ){
+    if ((void*) e == NULL){
         debug_print("gws_get_next_event: fail\n");
+        // #todo: goto fail;
     }
+// #ok
     return (struct gws_event_d *) e;
+/*
+// #todo:
+fail:
+    return NULL;
+*/
 }
 
-// The server will return the info about one given window.
-struct gws_window_info_d *gws_query_window(
-    int fd,
-    int wid,
-    struct gws_window_info_d *window_info )
-{
-    if(fd<0) { return NULL; }
-    if(wid<0){ return NULL; }
-    if( (void*) window_info == NULL ){
-        return NULL;
-    }
-    return (struct gws_window_info_d *) gws_get_window_info(fd,wid,window_info);
-} 
-
+// gws_get_window_info:
 // The server will return the info about one given window.
 struct gws_window_info_d *gws_get_window_info(
     int fd,
@@ -2885,16 +2869,17 @@ struct gws_window_info_d *gws_get_window_info(
     int req_status = -1;
 
     if (fd<0){
-        debug_print("gws_get_window_info: fd\n");
-        return NULL;
+        //debug_print("gws_get_window_info: fd\n");
+        goto fail;
     }
-
-// #todo: Check wid validation.
+    if (wid<0){
+        goto fail;
+    }
 
 // Request
     req_status = (int) __gws_get_window_info_request(fd,wid);
-    if (req_status<=0){
-        return NULL;
+    if (req_status <= 0){
+        goto fail;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -2903,10 +2888,9 @@ struct gws_window_info_d *gws_get_window_info(
     while (TRUE){
         Value = (unsigned long) rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR )
-        {
-            return NULL; 
+        if (Value == ACTION_REPLY){ break; }
+        if (Value == ACTION_ERROR){
+            goto fail;
         }
     };
 
@@ -2915,12 +2899,38 @@ struct gws_window_info_d *gws_get_window_info(
                                          fd, 
                                          window_info );
 
-    if ( (void*) wi == NULL ){
+    if ((void*) wi == NULL){
         debug_print("gws_get_window_info: fail\n");
+        goto fail;
     }
 
+// ok
     return (struct gws_window_info_d *) wi;
+fail:
+    return NULL;
 }
+
+// gws_query_window:
+// The server will return the info about one given window.
+struct gws_window_info_d *gws_query_window(
+    int fd,
+    int wid,
+    struct gws_window_info_d *window_info )
+{
+    if (fd<0){
+        goto fail;
+    }
+    if (wid<0){
+        goto fail;
+    }
+    if ((void*) window_info == NULL){
+        goto fail;
+    }
+// ok?
+    return (struct gws_window_info_d *) gws_get_window_info(fd,wid,window_info);
+fail:
+    return NULL;
+} 
 
 // gws_refresh_window:
 // Refresh window.
@@ -2955,7 +2965,6 @@ int gws_refresh_window (int fd, wid_t wid )
     return (int) __gws_refresh_window_reponse(fd);
 }
 
-
 int
 gws_refresh_retangle ( 
     int fd,
@@ -2969,7 +2978,7 @@ gws_refresh_retangle (
     int req_status=-1;
 
     if (fd<0){
-        return (int) -1;
+        goto fail;
     }
 
 // Request
@@ -2981,8 +2990,8 @@ gws_refresh_retangle (
                   (unsigned long) width, 
                   (unsigned long) height );
 
-    if (req_status<=0){
-        return (int) -1;
+    if (req_status <= 0){
+        goto fail;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -2992,14 +3001,17 @@ gws_refresh_retangle (
     while (1){
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_REPLY) { break; }
+        if (Value == ACTION_ERROR) { goto fail; }
+        if (Value == ACTION_NULL)  { goto fail; }  //no reponse. (syncronous)
     };
 
 // A sincronização nos diz que já temos um reply.
     Response = (int) __gws_refresh_rectangle_response (fd);  
     return (int) Response;
+
+fail:
+    return (int) -1;
 }
 
 // Atualiza o retângulo da surface da thread.
@@ -3069,7 +3081,7 @@ gws_create_window (
     //gws_debug_print("gws_create_window:\n");
 
     if (fd<0){
-        return (wid_t) -1;
+        goto fail;
     }
 
 //#bugbug: parentwindow?
@@ -3086,7 +3098,7 @@ gws_create_window (
 // Local pointer
 
     Name = windowname;
-    if ( (void*) Name == NULL ){
+    if ((void*) Name == NULL){
         Name = title_when_no_title;
     }
 
@@ -3095,8 +3107,8 @@ gws_create_window (
         (int) __gws_createwindow_request ( 
                   fd, x, y, width, height, 
                   color, type, style, parentwindow, Name );
-    if (req_status<=0){
-        return (wid_t) -1;
+    if (req_status <= 0){
+        goto fail;
     }
 
     //ok set the sync
@@ -3119,15 +3131,19 @@ gws_create_window (
                       SYNC_REQUEST_GET_ACTION );
 
         //if (value == ACTION_REQUEST){}
-        if (value == ACTION_REPLY ) { break; }
-        if (value == ACTION_ERROR ) { return (wid_t) -1; }
-        //if (value == ACTION_NULL )  { return -1; }  // no reply
+        if (value == ACTION_REPLY){ break; }
+        if (value == ACTION_ERROR){
+            goto fail;
+        }
+        //if (value == ACTION_NULL){ goto fail; }  // no reply
     };
 
 // A sincronização nos diz que já temos um reply.
 // Simply read the file.
     wid = (wid_t) __gws_createwindow_response(fd); 
     return (wid_t) wid;
+fail:
+    return (wid_t) -1;
 }
 
 // Yield current thread.
@@ -3185,24 +3201,21 @@ void *gws_create_thread (
     //#define	SYSTEMCALL_CREATETHREAD     72
     debug_print ("gws_create_thread:\n");
 
-    if ( init_eip == 0 ){
-        debug_print ("gws_create_thread: init_eip\n");
-        return NULL;
+    if (init_eip == 0){
+        debug_print ("init_eip\n");
+        goto fail;
     }
-        
-    if ( init_stack == 0 ){
-        debug_print ("gws_create_thread: init_stack\n");
-        return NULL;
+    if (init_stack == 0){
+        debug_print ("init_stack\n");
+        goto fail;
     }
-
-    if ( (void*) name == NULL ){
-        debug_print ("gws_create_thread: name\n");
-        return NULL;
+    if ((void*) name == NULL){
+        debug_print ("name\n");
+        goto fail;
     }
-
     if (*name == 0){
-        debug_print ("gws_create_thread: *name\n");
-        return NULL;
+        debug_print ("*name\n");
+        goto fail;
     }
 
 // OUT:
@@ -3214,8 +3227,10 @@ void *gws_create_thread (
                         init_eip, 
                         init_stack, 
                         (unsigned long) name );
+fail:
+    // Message?
+    return NULL;
 }
-
 
 /*
  * gws_start_thread:
@@ -3232,8 +3247,8 @@ void gws_start_thread (void *thread)
 
     // Is it a pointer to the ring0 thread structure?
 
-    if ( (void*) thread == NULL ){
-        debug_print ("gws_start_thread: thread\n");
+    if ((void*) thread == NULL){
+        debug_print ("thread\n");
         return;
     }
 
@@ -3543,8 +3558,7 @@ int gws_create_empty_file (char *file_name)
 
     unsigned long Value=0;
 
-
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         debug_print("gws_create_empty_file: [FAIL] file_name\n");
         return (int) -1;
     }
@@ -3578,7 +3592,7 @@ int gws_create_empty_directory (char *dir_name)
 
     unsigned long Value=0;
 
-    if ( (void*) dir_name == NULL ){
+    if ((void*) dir_name == NULL){
         debug_print("gws_create_empty_directory: [FAIL] dir_name\n");
         return (int)(-1);
     }
@@ -3605,7 +3619,6 @@ int gws_create_empty_directory (char *dir_name)
     return (int) (Value & 0xF);
 }
 
-
 // Overlapped only
 void gws_destroy_window(int fd, wid_t wid)
 {
@@ -3614,8 +3627,6 @@ void gws_destroy_window(int fd, wid_t wid)
 // IN: fd, request, sub-request, data.
     gws_async_command( fd, 90, 0, wid );
 }
-
-
 
 void gws_set_active(int fd, wid_t wid)
 {
@@ -3635,7 +3646,6 @@ void gws_set_focus(int fd, wid_t wid)
     gws_async_command( fd, 9, 0, wid );
 }
 
-
 // Clear the window
 // Repaint it using the default background color.
 // Only valid for WT_SIMPLE.
@@ -3647,7 +3657,6 @@ void gws_clear_window(int fd, wid_t wid)
 // IN: fd, request, sub-request, data.
     gws_async_command( fd, 14, 0, wid );
 }
-
 
 // Send async request.
 // No response.
@@ -3846,13 +3855,11 @@ struct gws_display_d *gws_open_display(char *display_name)
     int addrlen=0;
     addrlen = sizeof(addr_in);
 
-
 // #todo
 // Open the display device
 // and set the fd for the device for future 
 // display configurations.
     // Display->_device_fd = ?
-
 
 // (1)
 // Create the display structure.
@@ -3862,7 +3869,7 @@ struct gws_display_d *gws_open_display(char *display_name)
 
     if ((void*) Display == NULL){
         printf ("gws_open_display: Couldn't create display\n");
-        return NULL;
+        goto fail;
     }
 
 // (2)
@@ -3870,7 +3877,7 @@ struct gws_display_d *gws_open_display(char *display_name)
     client_fd = socket( AF_INET, SOCK_STREAM, 0 );
     if (client_fd<0){
        printf ("gws_open_display: Couldn't create socket\n");
-       return NULL;
+       goto fail;
     }
 
 // #todo: 
@@ -3889,11 +3896,11 @@ struct gws_display_d *gws_open_display(char *display_name)
 
     if ((void*) display_name == NULL){
         printf ("gws_open_display: [FAIL] display_name\n");
-        return NULL;
+        goto fail;
     }
     if (*display_name == 0){
         printf ("gws_open_display: [FAIL] *display_name\n");
-        return NULL;
+        goto fail;
     }
 
 // (3)
@@ -3915,8 +3922,13 @@ struct gws_display_d *gws_open_display(char *display_name)
     Display->magic = 1234;
 // Current display
     gws_set_current_display(Display);
+
+// Done
 // Return the display structure pointer.
     return (struct gws_display_d *) Display;
+
+fail:
+    return NULL;
 }
 
 void gws_close_display(struct gws_display_d *display)
@@ -3938,14 +3950,18 @@ void gws_close_display(struct gws_display_d *display)
 int gws_set_current_display(struct gws_display_d *display)
 {
     if ((void*) display == NULL){
-        return (int) -1;
+        goto fail;
     }
     if ( display->used != TRUE || display->magic != 1234 )
     {
-        return (int) -1;
+        goto fail;
     }
+// ok
     libgwsCurrentDisplay = (struct gws_display_d *) display;
+// Done
     return 0;
+fail:
+    return (int) -1;
 }
 
 struct gws_display_d *gws_get_current_display(void)
@@ -4031,7 +4047,6 @@ void application_end(void)
     // Close the current display.
     exit(0);
 }
-
 
 int gws_enable_input_method(int method)
 {
