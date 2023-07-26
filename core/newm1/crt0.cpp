@@ -1,8 +1,7 @@
 
 #include "crt0.hpp"
 
-
-#define NULL  ( (void*) 0 )
+#define NULL  ((void*) 0)
 
 // crt0 file for a ring0 kernel module.
 

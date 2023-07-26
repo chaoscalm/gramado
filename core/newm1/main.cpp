@@ -42,9 +42,9 @@ kinguio_i2hex(
     char *dest, 
     int len );
     
-static int newm0_1001(void);
-static int newm0_initialize(void);
-static void newm0_print_string (char *s);
+static int newm1_1001(void);
+static int newm1_initialize(void);
+static void newm1_print_string (char *s);
 
 // printf support.
 void kinguio_puts(const char* str);
@@ -410,7 +410,7 @@ caller1(
     asm ("call *%0" : : "r"(function_address));
 }
 
-static void newm0_print_string (char *s)
+static void newm1_print_string (char *s)
 {
     register int i=0;
     int size=0;
@@ -425,7 +425,7 @@ static void newm0_print_string (char *s)
     };
 }
 
-static int newm0_initialize(void)
+static int newm1_initialize(void)
 {
 
 // The kernel static entry point.
@@ -471,7 +471,7 @@ static int newm0_initialize(void)
     if (Found==1)
     {
         ModuleInitialization.initialized = TRUE;
-        newm0_print_string("newm0_initialize: Initialized\n");
+        newm1_print_string("newm1_initialize: Initialized\n");
         return 0;
     }
 
@@ -481,12 +481,12 @@ fail:
 }
 
 
-static int newm0_1001(void)
+static int newm1_1001(void)
 {
     if (ModuleInitialization.initialized != TRUE){
         return -1;
     }
-    newm0_print_string("newm0_1001: reason 1001\n");
+    newm1_print_string("newm1_1001: reason 1001\n");
 
     //for (i=0; i<100; i++)
     //    caller0( (unsigned long) kfunctions[PUTCHARK] );
@@ -499,7 +499,7 @@ static int newm0_1001(void)
 
 // #testing printf
     int value=1234;
-    printf("mod0.bin: {%d} Testing printf :)\n",value);
+    printf("mod1.bin: {%d} Testing printf :)\n",value);
 
 // Done
     return 0;
@@ -515,10 +515,10 @@ int main( int arc, char *argv[], int reason )
 
     switch (reason){
         case 1000:
-            return (int) newm0_initialize();
+            return (int) newm1_initialize();
             break;
         case 1001:
-            return (int) newm0_1001();
+            return (int) newm1_1001();
             break;
         default:
             return -1;
@@ -527,4 +527,22 @@ int main( int arc, char *argv[], int reason )
 
     return -1;
 }
+
+// #test
+namespace NewM1 {
+
+void MyFirstClass::do_something(void)
+{
+   // ok.
+}
+void MyFirstClass::do_something(int value)
+{
+   // ok.
+   value=0;
+}
+
+}
+
+
+
 

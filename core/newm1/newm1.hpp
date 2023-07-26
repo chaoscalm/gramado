@@ -17,6 +17,17 @@ struct module_initialization_d
 };
 extern struct module_initialization_d  ModuleInitialization;
 
+namespace NewM1 {
+
+class MyFirstClass {
+public:
+    void do_something(void);
+    void do_something(int value);
+private:
+    int nothing1=0;
+};
+}
+
 #endif  
 
 

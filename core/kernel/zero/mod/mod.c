@@ -67,8 +67,7 @@ caller1(
 void test_mod0(void)
 {
     printf ("test_mod0:\n");
-
-    if ( (void*) kernel_mod0 != NULL )
+    if ((void*) kernel_mod0 != NULL)
     {
         if (kernel_mod0->magic == 1234)
         {

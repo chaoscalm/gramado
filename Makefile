@@ -41,6 +41,7 @@ clean-core:
 	-rm core/MBR0.BIN
 	-rm core/kernel/KERNEL.BIN
 	-rm core/newm0/MOD0.BIN
+	-rm core/newm1/MOD1.BIN
 
 PHONY := clean-base
 clean-base:

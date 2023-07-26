@@ -693,7 +693,12 @@ static int I_x64CreateKernelProcess(void)
     // KERNEL.BIN loaded by the boot loader and
     // MOD0.BIN loaded by the kernel base.
 
-    char *ImageName = "MOD0    BIN";
+// see:
+// newm0/ and newm1/
+
+    char *ImageName = "MOD0    BIN";   // Original (.c)
+    //char *ImageName = "MOD1    BIN";  // #test (.cpp)
+    // ...
 
     // This is the virtual address for the base of the image.
     // We are using the kernel pagetables for that.
@@ -712,6 +717,8 @@ static int I_x64CreateKernelProcess(void)
 
     unsigned long BasePriority = PRIORITY_MAX;
     unsigned long Priority     = PRIORITY_MAX;
+
+    register int i=0;
 
 //
 // Module 0 image.
@@ -820,8 +827,6 @@ static int I_x64CreateKernelProcess(void)
 
 // ====================
 // Initialize the kernel module list.
-
-    int i=0;
     for (i=0; i<KMODULE_MAX; i++){
         kmList[i] = 0;
     };
@@ -834,7 +839,7 @@ static int I_x64CreateKernelProcess(void)
     struct kernel_module_d *m;
     
     m = (struct kernel_module_d *) kmalloc( sizeof(struct kernel_module_d) );
-    if( (void*) m == NULL ){
+    if ((void*) m == NULL){
         printf ("I_x64CreateKernelProcess: m\n");
         return FALSE;
     }
@@ -875,7 +880,8 @@ static int I_x64CreateKernelProcess(void)
     m->used  = TRUE;
     m->magic = 1234;
 
-// See: kernel.h
+// See: 
+// kernel.h, mod.c
     kernel_mod0 = (struct kernel_module_d *) m; 
 
     return TRUE;
