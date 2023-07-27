@@ -14,7 +14,6 @@ typedef int  wid_t;
 
 // ===============================================================
 
-
 // Icons
 // see: icon_cache in the Gramado OS kernel.
 #define ICON_ID_APP  1
@@ -25,19 +24,16 @@ typedef int  wid_t;
 // ...
 #define ICON_ID_DEFAULT  ICON_ID_APP
 
-
-
+// Start menu
 struct start_menu_d
 {
     int initialized;
     int wid;
-
     int is_created;
-    int is_selected;   // focus.
+    int is_selected;   // Focus
     int is_visible;  // Pressed
 };
 extern struct start_menu_d StartMenu;
-
 
 // Quick launch area
 // default left position.
@@ -82,7 +78,6 @@ struct gws_container_d
     unsigned long height;
 };
 
-
 // The window manager global structure.
 struct gws_windowmanager_d
 {
@@ -98,35 +93,24 @@ struct gws_windowmanager_d
 // 1=vertical 0=horizontal
     int vertical;
 
-// The 'Working Area'.
-// The screen size, less the task bar.
-    struct gws_container_d wa;
-
 // #todo
 // Maybe we can create more containers,
 // and shrink the body container 'wa'.
     //struct gws_container_d icon_area;
 
-
     unsigned long frame_counter;
     //unsigned long jiffies;
     int fps;
 
-// Default background color.
+// Background
     unsigned int default_background_color;
-
-// Custom backgrounc color.
     unsigned int custom_background_color;
-
     int has_custom_background_color;
 
 // Wallpaper
+// #todo: Create a wallpaper structure?
     int has_wallpaper;
-// Theme support
-// TRUE = Using a loadable theme.
-// FALSE = We are not using any theme at all.
-    int has_theme;
-    // ...
+
 // Window stack
 // Quando uma janela foi invalidada, significa que ela foi pintada e que
 // precisa receber o refesh, mas também pode significar
@@ -137,19 +121,28 @@ struct gws_windowmanager_d
 
 // Windows
 
-// root
     struct gws_window_d *root;
-// taskbar
     struct gws_window_d *taskbar;
-// ...
+    struct gws_window_d *fullscreen_window;
+    // ...
 
-// #test
-// z-order for all the layers.
-// linked list
-    //struct gws_window_d *layer1_list;
-    //struct gws_window_d *layer2_list;
-    //struct gws_window_d *layer3_list;
-    //struct gws_window_d *layer4_list;
+// A area de cliente de uma janela sera mostrada
+// na tela toda e essa flag sera acionada.
+// Com essa flag acionada a barra de tarefas nao sera exibida.
+// fullscreen_window sera a janela usada.
+// #todo: Create a structure for fullscreen support?
+    int is_fullscreen;
+
+// The 'Working Area'.
+// The screen size, less the taskbar.
+    struct gws_container_d wa;
+
+// Theme support
+// TRUE = Using a loadable theme.
+// FALSE = We are not using any theme at all.
+// #todo: Create a theme structure?
+    int has_theme;
+    // ...
 
 // #todo
 // All the application windows
@@ -157,28 +150,24 @@ struct gws_windowmanager_d
 // and then the compositor is gonna
 // copy them all into the backbuffer.
     struct desktop_composition_d comp;
-
-// A are de cliente de uma janela sera mostrada
-// na tela toda e essa flag sera acionada.
-// Com essa flag acionada a barra de tarefas nao sera exibida.
-    int is_fullscreen;
-    struct gws_window_d *fullscreen_window;
 };
 
 // Global main structure.
 // Not a pointer.
 extern struct gws_windowmanager_d  WindowManager;
 
-// layouts examples
+// Layouts examples
 // tiled, monocle and floating layouts
+// Used in WindowManager.mode
 
 #define WM_MODE_TILED       1
 #define WM_MODE_OVERLAPPED  2
 #define WM_MODE_MONO        3
+// ...
 
 // ======
-
 // wm prototypes
+
 void __set_default_background_color(unsigned int color);
 unsigned int __get_default_background_color(void);
 
@@ -188,10 +177,9 @@ unsigned int __get_custom_background_color(void);
 int __has_custom_background_color(void);
 int __has_wallpaper(void);
 
-
 void wmInitializeStructure(void);
 
-//apresentação.
+// Apresentação ??
 #define VIEW_NULL      0
 #define VIEW_FULL      1000
 #define VIEW_MAXIMIZED 1001
@@ -199,15 +187,7 @@ void wmInitializeStructure(void);
 #define VIEW_NORMAL    1003 //Normal (restaurada)
 //...
 
-// button
-// #todo: Check these numbers.
-#define BN_CLICKED  200
-#define BN_DOWN     1
-#define BN_UP       2
-#define BN_SELECTED 3
-// ...
-
-// button state
+// Button state
 #define BS_NULL      0 
 #define BS_DEFAULT   1
 #define BS_RELEASED  1

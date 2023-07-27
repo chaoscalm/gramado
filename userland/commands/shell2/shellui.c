@@ -1,6 +1,5 @@
 /*
  * File shellui.c 
- *
  * Shell User Interface.
  *     Suporte às rotinas gráficas do aplicativo shell.
  *     #importante: A intenção é usar esse módulo do aplicativo shell 
@@ -8,10 +7,8 @@
  *                  Aqui é um campo de testes. 
  * @frednora
  */
- 
- 
+  
 #include "shell.h"
-
 
 extern int ShellFlag;
 
@@ -207,25 +204,12 @@ shellTopbarProcedure ( struct window_d *window,
 				    // Test.
 				    MessageBox( 1, "Shell test Topbar","Testing MSG_COMMAND.CMD_ABOUT.");
 				    break;
-				
-				//clicaram no botão
-				case BN_CLICKED:
-				    //if(window == i1Window){
-					     //@todo: abre o menu de aplicativos
-					//}
-				   // if(window == i2Window){
-					   //@todo: abre o interpretador de comandos.
-					//}
-					//#debug
-					printf("  Topbar ** BN_CLICKED  **  \n");
-				break;
-				//...
-				
+
 				//default:
 				//break;
 			}
-		    break; 		
-		
+		    break;
+
 		//Essa mensagem pode ser acionada clidando um botão.
 		case MSG_CLOSE:
 		    //??

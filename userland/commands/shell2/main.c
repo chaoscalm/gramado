@@ -5,10 +5,6 @@
  *  Retirar o suporte a janelas desse shell e transforma-lo 
  * em um shell para rodar no terminal.
  * 
- * 
- * 
- * 
- * 
  * File: main.c - gdeshell - bash 1.05 clone. (baseado no bash)
  * #todo Para esse aplicativo vou usar o prompt: [username@hostname] $
  * #todo: precisamos deletar a parte referente ao terminal e outros... deve ficar apenas 
@@ -898,25 +894,12 @@ shellProcedure( struct window_d *window,
 				    // Test.
 				    MessageBox( 1, "Shell test", "Testing MSG_COMMAND.CMD_ABOUT." );
 				    break;
-				
-				//clicaram no bot�o
-				case BN_CLICKED:
-				    //if(window == i1Window){
-					     //@todo: abre o menu de aplicativos
-					//}
-				    //if(window == i2Window){
-					   //@todo: abre o interpretador de comandos.
-					//}
-					//#debug
-					printf(" * BN_CLICKED * \n");
-				break;
-				//...
-				
+
 				//default:
 				//break;
 			}
-		    break; 		
-		
+		    break;
+
 		//Essa mensagem pode ser acionada clidando um bot�o.
 		case MSG_CLOSE:
 		    //??
@@ -925,7 +908,7 @@ shellProcedure( struct window_d *window,
 			//??
 		    printf("SHELL.BIN: MSG_CLOSE\n");
 			
-			//@todo: Criar essa fun��o na api.
+			//@todo: Criar essa funçao na api.
 			//apiExitProcess(0);
 			break;
 		

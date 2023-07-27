@@ -1539,35 +1539,25 @@
 #define VIEW_FULL      1000
 #define VIEW_MAXIMIZED 1001
 #define VIEW_MINIMIZED 1002
-//...
-
-//botões
-#define BN_CLICKED  200
-#define BN_DOWN     1
-#define BN_UP       2
-#define BN_SELECTED 3
-//...
-
+// ...
 
 //
-// Application support.
+// Application support
 //
-
 
 /*
  * ApplicationInfo_d:
  *     Informações básicas sobre uma applicação.
  *     Talvez o nome poderia ser ApplicationHook. 
  */
-typedef struct ApplicationInfo_d ApplicationInfo_t;
 struct ApplicationInfo_d
 {
-    int pid;	   //Process Id.
-    char *name;    //Name.
-    //...
+    int pid;     // Process ID
+    char *name;  // Name
+    // ...
 };
+typedef struct ApplicationInfo_d  ApplicationInfo_t;
 ApplicationInfo_t *ApplicationInfo;
-// 
 
 
 /*

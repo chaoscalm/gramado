@@ -171,17 +171,9 @@ void __init_wm_structure(void);
 #define VIEW_MAXIMIZED 1001
 #define VIEW_MINIMIZED 1002
 #define VIEW_NORMAL    1003 //Normal (restaurada)
-//...
-
-// button
-// #todo: Check these numbers.
-#define BN_CLICKED  200
-#define BN_DOWN     1
-#define BN_UP       2
-#define BN_SELECTED 3
 // ...
 
-// button state
+// Button state
 #define BS_NULL      0 
 #define BS_DEFAULT   1
 #define BS_RELEASED  1
@@ -195,7 +187,6 @@ void __init_wm_structure(void);
 
 #define WINDOW_LOCKED    1
 #define WINDOW_UNLOCKED  0
-
 
 // window style
 // #bugbug
