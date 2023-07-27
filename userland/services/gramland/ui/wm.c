@@ -2671,34 +2671,31 @@ static void wm_tile(void)
     };
 }
 
-
-
 // Vamos gerenciar a janela de cliente
 // recentemente criada.
-// Precisamos associar essa estrutura de janela
-// com uma estrutura de cliente. 
 // Somente janelas overlapped serao consideradas clientes
 // por essa rotina.
 // Isso sera chamado de dentro do serviço que cria janelas.
-
+// OUT: 0 = ok | -1 = Fail
 int wmManageWindow(struct gws_window_d *w)
 {
+// Associa a estrutura de janela
+// com uma estrutura de cliente. 
+
     struct gws_client_d *c;
     struct gws_client_d *tmp;
     register int i=0;
 
-    if ( (void*) w == NULL ){
+    if ((void*) w == NULL){
         goto fail;
     }
     if (w->magic != 1234){
         goto fail;
     }
-
     if (w->type != WT_OVERLAPPED){
         goto fail;
     }
-
-    if ( (void*) first_client == NULL ){
+    if ((void*) first_client == NULL){
         goto fail;
     }
 
@@ -2723,7 +2720,7 @@ int wmManageWindow(struct gws_window_d *w)
 // Insert it into the list.
 
     tmp = (struct gws_client_d *) first_client;
-    if ( (void*) tmp == NULL ){
+    if ((void*) tmp == NULL){
         goto fail;
     }
     if (tmp->magic != 1234){
@@ -2732,25 +2729,24 @@ int wmManageWindow(struct gws_window_d *w)
 
     while (1){
         // Found
-        if ( (void*) tmp->next == NULL ){
+        if ((void*) tmp->next == NULL){
             break;
         }
         // Next
         tmp = (struct gws_client_d *) tmp->next; 
     };
 
-    if ( tmp->magic != 1234 ){
+    if (tmp->magic != 1234){
         goto fail;
     }
 
     tmp->next = (struct gws_client_d *) c;
-
     return 0;
 
 fail:
     yellow_status("wmManageWindow");
     printf("wmManageWindow: fail\n");
-    return -1;
+    return (int) (-1);
 }
 
 // Repinta todas as janelas seguindo a ordem da lista

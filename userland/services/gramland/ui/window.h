@@ -165,20 +165,6 @@ extern struct gws_windowmanager_d  WindowManager;
 #define WM_MODE_MONO        3
 // ...
 
-// ======
-// wm prototypes
-
-void __set_default_background_color(unsigned int color);
-unsigned int __get_default_background_color(void);
-
-void __set_custom_background_color(unsigned int color);
-unsigned int __get_custom_background_color(void);
-
-int __has_custom_background_color(void);
-int __has_wallpaper(void);
-
-void wmInitializeStructure(void);
-
 // Apresentação ??
 #define VIEW_NULL      0
 #define VIEW_FULL      1000
@@ -308,7 +294,7 @@ struct gws_button_d
     unsigned long color;
 //More?
 //...
-    struct gws_button_d *Next;  
+    struct gws_button_d *next;  
 };
 
 
@@ -443,7 +429,7 @@ struct windowcontrols_d
 };
 
 //
-// frame control
+// Frame control
 //
 
 #define FRAME_MIN_X    (24 + 24 + 24)
@@ -459,7 +445,6 @@ struct windowcontrols_d
 #define FRAME_FLAGS_STATUSBAR  4
 #define FRAME_FLAGS_SCROLLBAR  8
 #define FRAME_FLAGS_BORDER     16
-
 
 // Not a pointer.
 struct windowframe_d
@@ -540,7 +525,6 @@ struct gws_window_d
     unsigned long top;
     unsigned long width;
     unsigned long height;
-
 
 // Controls
     struct windowcontrols_d  Controls;
@@ -634,7 +618,6 @@ struct gws_window_d
 //
 // Margins and dimensions.
 //
-
 
 // Margins and dimensions when this window is in fullscreen mode.
 // #todo: Maybe we can use a sctructure for that.
@@ -1105,74 +1088,68 @@ struct gws_window_d
 //
 
 extern struct gws_window_d  *__root_window; 
-
-extern struct gws_window_d  *active_window; 
-
+extern struct gws_window_d  *active_window;
 // If the window server has a taskbar.
 // maybe we don't need that.
 extern struct gws_window_d  *taskbar_window; 
 extern struct gws_window_d  *taskbar_startmenu_button_window; 
 //char startmenu_string[32];
-
 // z-order ?
 // But we can use multiple layers.
 // ex-wayland: background, bottom, top, overlay.
 extern struct gws_window_d *first_window;
 extern struct gws_window_d *last_window;
-
 extern struct gws_window_d *keyboard_owner;
 extern struct gws_window_d *mouse_owner;
 
-
-//
-// == Window list =============================
-//
-
+// Window list.
 // This is gonna be used to register the windows.
 // These indexes will be returned to the caller.
-
 #define WINDOW_COUNT_MAX  1024
-
 extern unsigned long windowList[WINDOW_COUNT_MAX];
 
-
-//
-// == z order list =============================
-//
-
+// z-order support.
 #define ZORDER_MAX 1024
 #define ZORDER_TOP (ZORDER_MAX-1)
 #define ZORDER_BOTTOM 0
-//...
-
-#define TOP_WINDOW    ZORDER_TOP
+// ...
+#define TOP_WINDOW  ZORDER_TOP
 #define BOTTOM_WINDOW 0
 // ...
-
 unsigned long zList[ZORDER_MAX];
 
 //
 // ================================================================
 //
 
-
 //
 // == prototypes ===========================
 //
 
+//
+// WM suppport
+//
+
+void __set_default_background_color(unsigned int color);
+unsigned int __get_default_background_color(void);
+
+void __set_custom_background_color(unsigned int color);
+unsigned int __get_custom_background_color(void);
+
+int __has_custom_background_color(void);
+int __has_wallpaper(void);
+
+void wmInitializeStructure(void);
+
+// Window status
 void set_status_by_id( int wid, int status );
+
+// Window background
 
 void set_bg_color_by_id( int wid, unsigned int color );
 void set_clientrect_bg_color_by_id( int wid, unsigned int color );
 
-//
-// Focus
-//
-
-void set_focus(struct gws_window_d *window);
-struct gws_window_d *get_focus(void);
-void __switch_focus(void);
-void set_focus_by_id(int wid);
+void wm_change_bg_color(unsigned int color, int tile, int fullscreen);
 
 //
 // Mouse hover
@@ -1181,12 +1158,9 @@ void set_focus_by_id(int wid);
 void set_mouseover(struct gws_window_d *window);
 struct gws_window_d *get_mousehover(void);
 
-
-// transparence
+// Transparence
 void gws_enable_transparence(void);
 void gws_disable_transparence(void);
-
-void wm_reboot(void);
 
 void 
 wm_draw_char_into_the_window(
@@ -1219,12 +1193,9 @@ wmPostMessage(
     unsigned long long1,
     unsigned long long2 );
 
-
-
+// Update window.
 void wm_update_window_by_id(int wid);
 void wm_update_active_window(void);
-
-void wm_change_bg_color(unsigned int color, int tile, int fullscreen);
 
 // Fullscreen mode.
 void wm_enter_fullscreen_mode(void);
@@ -1233,7 +1204,11 @@ void wm_exit_fullscreen_mode(int tile);
 struct gws_client_d *wintoclient(int window); //#todo: not teste yet
 void show_client_list(int tag); //#todo: notworking
 void show_client( struct gws_client_d *c, int tag );
-int wmManageWindow( struct gws_window_d *w );
+
+// Associa a estrutura de janela
+// com uma estrutura de cliente. 
+// see: wm.c
+int wmManageWindow(struct gws_window_d *w);
 
 void wm_update_desktop(int tile, int show);
 void 
@@ -1251,21 +1226,21 @@ void activate_last_window(void);
 
 struct gws_window_d *get_parent(struct gws_window_d *w);
 
-
-
 // list support
 // not tested yet
-void wm_add_window_into_the_list( struct gws_window_d *window );
+void wm_add_window_into_the_list(struct gws_window_d *window);
 void wm_rebuild_list(void);
 
-void wm_remove_window_from_list_and_kill( struct gws_window_d *window );
+void wm_remove_window_from_list_and_kill(struct gws_window_d *window);
 
-unsigned long wmGetLastInputJiffie(int update);
-
-int wmSTDINInputReader(void);
+//
+// Input support
+//
 
 int wmInputReader(void);
 int wmInputReader2(void);
+int wmSTDINInputReader(void);
+unsigned long wmGetLastInputJiffie(int update);
 
 void wm_Update_TaskBar( char *string, int flush );
 
@@ -1277,6 +1252,10 @@ wmProcedure(
     int msg,
     unsigned long long1,
     unsigned long long2 );
+
+//
+// Yellow status bar.
+//
 
 void yellowstatus0(char *string,int refresh);
 void yellow_status(char *string);
@@ -1310,14 +1289,18 @@ void *gws_draw_button (
     unsigned long height, 
     unsigned long color );
 
-int rect_validate_size( struct gws_rect_d *rect );
-int rect_validate_size2( struct gws_rect_d *rect );
+//
+// Rectangle support
+//
+
+int rect_validate_size(struct gws_rect_d *rect);
+int rect_validate_size2(struct gws_rect_d *rect);
 
 int 
 rect_contains_vertically ( 
     struct gws_rect_d *rect,  
     unsigned long y );
-    
+
 int 
 rect_contains_horizontally ( 
     struct gws_rect_d *rect,
@@ -1343,15 +1326,19 @@ rect_set_bottom (
     struct gws_rect_d *rect, 
     unsigned long value );
 
-int is_rect_null( struct gws_rect_d *rect );
-int is_rect_empty( struct gws_rect_d *rect );
-int is_rect_dirty( struct gws_rect_d *rect );
+int is_rect_null(struct gws_rect_d *rect);
+int is_rect_empty(struct gws_rect_d *rect);
+int is_rect_dirty(struct gws_rect_d *rect);
 
-int gwssrv_refresh_this_rect( struct gws_rect_d *rect );
+int gwssrv_refresh_this_rect(struct gws_rect_d *rect);
 int flush_rectangle(struct gws_rect_d *rect);
 
 struct gws_rect_d *clientrect_from_window(struct gws_window_d *window);
 struct gws_rect_d *rect_from_window(struct gws_window_d *window);
+
+//
+// Backbuffer support
+//
 
 void 
 backbuffer_draw_rectangle( 
@@ -1362,6 +1349,10 @@ backbuffer_draw_rectangle(
     unsigned int color,
     unsigned long rop_flags );
 
+//
+// Frontbuffer support
+//
+
 void 
 frontbuffer_draw_rectangle( 
     unsigned long x, 
@@ -1370,16 +1361,6 @@ frontbuffer_draw_rectangle(
     unsigned long height, 
     unsigned int color,
     unsigned long rop_flags );
-
-// atualiza o retângulo da surface da thread.
-void 
-setup_surface_rectangle ( 
-    unsigned long left, 
-    unsigned long top, 
-    unsigned long width, 
-    unsigned long height );
-
-void invalidate_surface_retangle (void);
 
 void 
 gws_refresh_rectangle ( 
@@ -1446,11 +1427,37 @@ copy_offset_rect (
     unsigned long cx, 
     unsigned long cy ); 
 
+//
+// Surface support
+//
+
+// Atualiza o retângulo da surface da thread.
+void 
+setup_surface_rectangle ( 
+    unsigned long left, 
+    unsigned long top, 
+    unsigned long width, 
+    unsigned long height );
+
+void invalidate_surface_retangle (void);
+
+//
+// Taskbar
+//
 
 void create_taskbar (unsigned long tb_height, int show);
+
+//
+// Root window
+//
+
 struct gws_window_d *wmCreateRootWindow(unsigned int bg_color);
 
-void do_create_controls( struct gws_window_d *window);
+//
+// Controls
+//
+
+void do_create_controls(struct gws_window_d *window);
 
 // Create titlebar and controls.
 struct gws_window_d *do_create_titlebar(
@@ -1480,7 +1487,12 @@ wmCreateWindowFrame (
     unsigned int ornament_color2,
     int frame_style );
 
+//
+// Create window. (Worker)
+//
+
 // Low level
+// Called by CreateWindow().
 void *doCreateWindow ( 
     unsigned long type, 
     unsigned long style,
@@ -1496,6 +1508,10 @@ void *doCreateWindow (
     unsigned int frame_color, 
     unsigned int client_color,
     unsigned long rop_flags );
+
+//
+// Create window.
+//
 
 // Essa será a função que atenderá a interrupção
 // esse é o serviço de criação da janela.
@@ -1526,6 +1542,10 @@ struct gws_window_d *get_active_window (void);
 void set_active_window (struct gws_window_d *window);
 void set_active_by_id(int wid);
 
+//
+// Text/String support.
+//
+
 //---
 void 
 grDrawString ( 
@@ -1552,12 +1572,23 @@ dtextDrawText2 (
     int flush );
 //---
 
-
 int dock_active_window(int position);
 int dock_window( struct gws_window_d *window, int position );
 
+//
+// Focus
+//
+
+void set_focus(struct gws_window_d *window);
+struct gws_window_d *get_focus(void);
+void __switch_focus(void);
+void set_focus_by_id(int wid);
 struct gws_window_d *get_window_with_focus(void);
 void set_window_with_focus(struct gws_window_d * window);
+
+//
+// Top window
+//
 
 struct gws_window_d *get_top_window (void);
 void set_top_window (struct gws_window_d *window);
@@ -1576,15 +1607,16 @@ gwssrv_change_window_position (
     unsigned long x, 
     unsigned long y );
 
-void gwsWindowLock (struct gws_window_d *window);
-void gwsWindowUnlock (struct gws_window_d *window);
-int gwsDefineInitialRootWindow ( struct gws_window_d *window );
+void gwsWindowLock(struct gws_window_d *window);
+void gwsWindowUnlock(struct gws_window_d *window);
+int gwsDefineInitialRootWindow(struct gws_window_d *window);
 int gwssrv_init_windows(void);
+
+void wm_reboot(void);
 
 #endif    
 
-
 //
-// End.
+// End
 //
 
