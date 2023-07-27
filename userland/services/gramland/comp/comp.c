@@ -1,5 +1,7 @@
 
 // comp.c
+// The purpose of these routines is compose the final frame
+// into the backbuffer and display it into the frontbuffer.
 
 #include "gwsint.h"
 
@@ -56,21 +58,24 @@ int flush_window_by_id(int wid)
     struct gws_window_d *w;
 
 // wid
-    if (wid<0 || wid>=WINDOW_COUNT_MAX)
-        return -1;
+    if (wid<0 || wid >= WINDOW_COUNT_MAX){
+        goto fail;
+    }
 // Structure validation
     w = (void*) windowList[wid];
-    if ( (void*) w == NULL )
-        return -1;
-
+    if ((void*) w == NULL){
+        goto fail;
+    }
 // Flush
     flush_window(w);
     return 0;
+    //return (int) flush_window(w);
+fail:
+    return (int) (-1);
 }
 
-// #bugbug
-// This name is wrong.
-// A frame can be only a window inside a client application.
+// Flush the whole backbuffer.
+// see: painter.c
 void flush_frame(void)
 {
     wm_flush_screen();
@@ -107,7 +112,7 @@ void wmRefreshDirtyRectangles(void)
 
     for (i=0; i<WINDOW_COUNT_MAX; ++i){
         tmp = (struct gws_window_d *) windowList[i];
-        if ( (void*) tmp != NULL )
+        if ((void*) tmp != NULL)
         {
             if ( tmp->used == TRUE && tmp->magic == 1234 )
             {
@@ -115,15 +120,13 @@ void wmRefreshDirtyRectangles(void)
                 if (tmp->dirty == TRUE)
                 {
                     gws_refresh_rectangle ( 
-                        tmp->absolute_x, tmp->absolute_y, tmp->width, tmp->height ); 
-                    
+                        tmp->absolute_x, tmp->absolute_y, tmp->width, tmp->height );
                     validate_window(tmp);
                 }
             }
         }
     };
 }
-
 
 /*
  * gws_show_window_rect:
@@ -139,7 +142,7 @@ void wmRefreshDirtyRectangles(void)
 // E se validarmos alguma janela que não está pronta?
 // #test: validando
 
-int gws_show_window_rect (struct gws_window_d *window)
+int gws_show_window_rect(struct gws_window_d *window)
 {
     //struct gws_window_d  *p;
 
@@ -147,11 +150,15 @@ int gws_show_window_rect (struct gws_window_d *window)
     //debug_print("gws_show_window_rect:\n");
 
 // Structure validation
-    if ( (void *) window == NULL ){
-        return -1;
+    if ((void *) window == NULL){
+        goto fail;
     }
-    if (window->used != TRUE) { return -1; }
-    if (window->magic != 1234){ return -1; }
+    if (window->used != TRUE){
+        goto fail;
+    }
+    if (window->magic != 1234){
+        goto fail;
+    }
 
 //#shadow 
 // ?? E se a janela tiver uma sombra, 
@@ -188,18 +195,20 @@ int gws_show_window_rect (struct gws_window_d *window)
     return 0;
 
 fail:
-    debug_print("gws_show_window_rect: fail\n");
+    // #slow
+    //debug_print("gws_show_window_rect: fail\n");
     return (int) -1;
 }
 
-
 void set_refresh_pointer_status(int value)
 {
-    if (value != FALSE && value != TRUE)
+    if ( value != FALSE && 
+         value != TRUE )
+    {
         return;
+    }
     refresh_pointer_status = value;
 }
-
 
 // Onde esta o mouse? em que janela?
 // simple implementation.
@@ -207,12 +216,12 @@ void set_refresh_pointer_status(int value)
 
 void mouse_at(void)
 {
-    register int i=0;
     struct gws_window_d *w;
+    register int i=0;
     for (i=0; i<WINDOW_COUNT_MAX; i++)
     {
         w = (void*) windowList[i];
-        if ( (void*) w != NULL )
+        if ((void*) w != NULL)
         {
             if (w->magic == 1234)
             {
@@ -344,8 +353,6 @@ void compose(void)
     validate();
 // fps
     //__update_fps();
-
-    // return;
 }
 
 // Called by the main routine for now.
