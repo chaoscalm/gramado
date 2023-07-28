@@ -36,7 +36,13 @@ int clear_window_by_id(int wid, unsigned long flags);
 void invalidate_root_window(void);
 void invalidate_taskbar_window(void);
 void invalidate_window (struct gws_window_d *window);
-void invalidate_window_by_id( int wid );
+void invalidate_window_by_id(int wid);
+
+void invalidate_titlebar(struct gws_window_d *pwindow);
+void invalidate_menubar(struct gws_window_d *pwindow);
+void invalidate_toolbar(struct gws_window_d *pwindow);
+void invalidate_scrollbar(struct gws_window_d *pwindow);
+void invalidate_statusbar(struct gws_window_d *pwindow);
 
 int redraw_controls(struct gws_window_d *window);
 int redraw_titlebar_window(struct gws_window_d *window);

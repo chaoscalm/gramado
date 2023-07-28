@@ -925,6 +925,77 @@ void invalidate_window (struct gws_window_d *window)
     }
 }
 
+// Invalidate the titlebar window of a given pwindow.
+void invalidate_titlebar(struct gws_window_d *pwindow)
+{
+    if ((void*) pwindow == NULL)
+        return;
+    if (pwindow->used != TRUE)
+        return;
+    if (pwindow->magic != 1234)
+        return;
+    if (pwindow->type != WT_OVERLAPPED)
+        return;
+    invalidate_window(pwindow->titlebar);
+}
+
+// Invalidate the menubar window of a given pwindow.
+void invalidate_menubar(struct gws_window_d *pwindow)
+{
+    if ((void*) pwindow == NULL)
+        return;
+    if (pwindow->used != TRUE)
+        return;
+    if (pwindow->magic != 1234)
+        return;
+    if (pwindow->type != WT_OVERLAPPED)
+        return;
+    invalidate_window(pwindow->menubar);
+}
+
+// Invalidate the toolbar window of a given pwindow.
+void invalidate_toolbar(struct gws_window_d *pwindow)
+{
+    if ((void*) pwindow == NULL)
+        return;
+    if (pwindow->used != TRUE)
+        return;
+    if (pwindow->magic != 1234)
+        return;
+    if (pwindow->type != WT_OVERLAPPED)
+        return;
+    invalidate_window(pwindow->toolbar);
+}
+
+// Invalidate the scrollbar window of a given pwindow.
+void invalidate_scrollbar(struct gws_window_d *pwindow)
+{
+    if ((void*) pwindow == NULL)
+        return;
+    if (pwindow->used != TRUE)
+        return;
+    if (pwindow->magic != 1234)
+        return;
+    if (pwindow->type != WT_OVERLAPPED)
+        return;
+    invalidate_window(pwindow->scrollbar);
+}
+
+// Invalidate the statusbar window of a given pwindow.
+void invalidate_statusbar(struct gws_window_d *pwindow)
+{
+    if ((void*) pwindow == NULL)
+        return;
+    if (pwindow->used != TRUE)
+        return;
+    if (pwindow->magic != 1234)
+        return;
+    if (pwindow->type != WT_OVERLAPPED)
+        return;
+    invalidate_window(pwindow->statusbar);
+}
+
+
 void invalidate_root_window(void)
 {
     invalidate_window ( (struct gws_window_d *) __root_window );
