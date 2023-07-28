@@ -1,11 +1,9 @@
-# ventana - Window server and client-side GUI application.
+# Services - The servers.
 
-apps:
-    Client-side GUI applications.
-gramland:
-    The window server.
-libs:
-    Libraries.
-
-
+```
+ * ftpd/ - FTP server.
+ * gramland - The window server.
+ * telnetd/ - Telnet server.
+ * webd/ - The Web server.
+```
 
