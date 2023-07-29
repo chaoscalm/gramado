@@ -49,6 +49,9 @@ clean
 # Giving permitions to run.
 	chmod 755 ./run
 	chmod 755 ./runkvm
+# tests
+	chmod 755 ./run2
+	chmod 755 ./runkvm2
 	@echo "Done?"
 
 # --------------------------------------
