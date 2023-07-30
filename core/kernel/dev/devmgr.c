@@ -3,9 +3,7 @@
 
 #include <kernel.h>  
 
-
 unsigned long deviceList[DEVICE_LIST_MAX];
-
 
 // Lista de placas de rede.
 // #todo:
@@ -31,7 +29,7 @@ file *devmgr_search_in_dev_list(char *path)
     struct device_d *tmp_dev;
     void *p;
 
-    if ( (void*) path == NULL ){
+    if ((void*) path == NULL){
         return NULL;
     }
 
@@ -43,16 +41,16 @@ file *devmgr_search_in_dev_list(char *path)
     for (i=0; i<DEVICE_LIST_MAX; i++)
     {
         tmp_dev = (struct device_d *) deviceList[i];
-    
+
         // Is it a valid pointer?
-        if ( (void*) tmp_dev != NULL )
+        if ((void*) tmp_dev != NULL)
         {
             // Is it a valid structure?
-            if ( tmp_dev->magic == 1234 )
+            if (tmp_dev->magic == 1234)
             {
                 // Is this a valid mount point?
                 p = (void*) tmp_dev->mount_point;
-                if ( (void*) p != NULL )
+                if ((void*) p != NULL)
                 {
                     if ( strncmp( p, path, PathSize ) == 0 )
                     {
@@ -100,12 +98,12 @@ void devmgr_show_device_list(int object_type)
     for (i=0; i<DEVICE_LIST_MAX; ++i)
     {
         d = ( struct device_d *) deviceList[i];
-        if ( (void *) d != NULL )
+        if ((void *) d != NULL)
         {
-            if ( d->used  == TRUE && d->magic == 1234 )
+            if ( d->used == TRUE && d->magic == 1234 )
             {
                 fp = (file *) d->_fp;
-                if ( (void*) fp != NULL )
+                if ((void*) fp != NULL)
                 {
                     if (fp->____object == object_type)
                     {
@@ -131,7 +129,7 @@ void devmgr_show_device_list(int object_type)
     };
 // Done. 
 // Show all the strings.
-    printf ("Done\n");
+    printf("Done\n");
     refresh_screen();
 }
 
@@ -149,7 +147,7 @@ void init_device_manager (void)
 // OUT: 
 // A pointer to a void mounted device.
 // Retorna um ponteiro de estrutura do tipo dispositivo.
-struct device_d *devmgr_device_object (void)
+struct device_d *devmgr_device_object(void)
 {
     struct device_d  *d;
     register int i=0;
@@ -161,33 +159,34 @@ struct device_d *devmgr_device_object (void)
     for (i=0; i<DEVICE_LIST_MAX; i++)
     {
          // List of pointers.
-         __tmp = (unsigned long) deviceList[i];
-         if (__tmp == 0) 
-         {
-             // Device structure.
-             // #bugbug
-             // Maybe it will spend a lot of memory.
-             d = (struct device_d *) kmalloc ( sizeof (struct device_d) );
-             // #fatal
-             if ( (void *) d == NULL ){
-                 panic ("devmgr_device_object: [ERROR] d\n"); 
-             }
-             memset( d, 0, sizeof(struct device_d) );
-             d->used = TRUE;
-             d->magic = 1234;
-             d->index = i;
-             //#todo
-             //d->name 
-             d->name[0] = 'x';
-             d->name[1] = 0;
-             // ...
-             // Save and return.
-             deviceList[i] = (unsigned long) d;
-             return (struct device_d *) d;
-         }
+        __tmp = (unsigned long) deviceList[i];
+        if (__tmp == 0) 
+        {
+            // Device structure.
+            // #bugbug
+            // Maybe it will spend a lot of memory.
+            d = (struct device_d *) kmalloc ( sizeof (struct device_d) );
+            if ((void *) d == NULL)
+            {
+                // #fatal
+                panic ("devmgr_device_object: [ERROR] d\n"); 
+            }
+            memset( d, 0, sizeof(struct device_d) );
+            d->used = TRUE;
+            d->magic = 1234;
+            d->index = i;
+            //#todo
+            //d->name 
+            d->name[0] = 'x';
+            d->name[1] = 0;
+            // ...
+            // Save and return.
+            deviceList[i] = (unsigned long) d;
+            return (struct device_d *) d;
+        }
     };
 // fail
-    panic ("devmgr_device_object: [FAIL] Overflow!\n");
+    panic("devmgr_device_object: [FAIL] Overflow!\n");
     return NULL;
 }
 
@@ -222,6 +221,7 @@ devmgr_register_device (
     struct device_d *d;
     int id= -1;
 // mount point
+    size_t NameSize=0;
     int PathSize = 64;  // Pathname size.
     char buf[PathSize];
     char *new_mount_point;
@@ -229,26 +229,26 @@ devmgr_register_device (
     debug_print ("devmgr_register_device:\n");
 
     new_mount_point = (char *) kmalloc(PathSize);
-    if ( (void*) new_mount_point == NULL ){
+    if ((void*) new_mount_point == NULL){
         panic ("devmgr_register_device: new_mount_point\n");
     }
 
 // =======================
 // FILE. Device object.
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         panic ("devmgr_register_device: f\n");
     }
     if ( f->used != TRUE || f->magic != 1234 ){
         panic("devmgr_register_device: f validation\n");
     }
-    if ( f->isDevice != TRUE ){
+    if (f->isDevice != TRUE){
         panic ("devmgr_register_device: This file is NOT a device\n");
     }
 // =======================
 // Device structure. 
 // (It is NOT the pci device struct)
     d = (struct device_d *) devmgr_device_object();        
-    if ( (void *) d == NULL ){
+    if ((void *) d == NULL){
         panic ("devmgr_register_device: d\n");
     }
     if ( d->used != TRUE || d->magic != 1234 ){
@@ -280,26 +280,24 @@ devmgr_register_device (
 
 // name
 
-    // clear buffer
+// Clear buffer
     memset( buf, 0, PathSize );
 
-    // Se um nome não foi indicado.
-    if ( (void*) name == NULL )
+// Se um nome não foi indicado.
+    if ((void*) name == NULL)
     {
         sprintf ( buf, "/DEV%d", id );
         strcpy( new_mount_point, buf );
     }
-
-    size_t NameSize=0;
- 
-    // Se um nome foi indicado.
-    if ( (void*) name != NULL )
+// Se um nome foi indicado.
+    if ((void*) name != NULL)
     {
         NameSize = (size_t) strlen(name);
         if (NameSize >= PathSize){
             panic("devmgr_register_device: NameSize");
         }
-        sprintf ( buf, name );
+        sprintf( buf, name );
+        // #todo: Copy n bytes using strncpy.
         strcpy( new_mount_point, buf );
     }
 

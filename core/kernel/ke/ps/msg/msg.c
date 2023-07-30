@@ -277,7 +277,7 @@ post_message_to_ws (
     unsigned long long1, 
     unsigned long long2 )
 {
-//  Post msg to the window server.
+//  Post msg to the window server's tid.
 
     tid_t src_tid = 0;   // sender tid #todo
     tid_t dst_tid = -1;  // receiver tid
