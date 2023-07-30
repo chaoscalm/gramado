@@ -4267,9 +4267,75 @@ void on_menu_event(void)
 
 int on_combination(int msg_code)
 {
-    if (msg_code<0)
-        return -1;
+// Handle combination code.
 
+    if (msg_code<0){
+        goto fail;
+    }
+
+// Control + c
+    if (msg_code == GWS_Copy){
+        printf("ws: copy\n");
+        return 0;
+    }
+
+// Control + v
+    if (msg_code == GWS_Paste){
+        printf("ws: paste\n");
+        return 0;
+    }
+
+// Control + x
+    if (msg_code == GWS_Cut)
+    {
+        printf("ws: cut\n"); 
+        // #test
+        // gwssrv_quit();
+        //demoCat();
+        return 0;
+    }
+
+// Undo
+    if (msg_code == GWS_Undo){
+        printf("ws: undo\n");
+        return 0;
+    }
+
+// [control + a]
+// Select all.
+
+    if (msg_code == GWS_SelectAll)
+    {
+        printf("ws: select all\n");
+        // #test (ok)
+        // Post message to all the overlapped windows.
+        window_post_message_broadcast( 
+            0,
+            GWS_Close,   //MSG_CLOSE
+            1234,
+            5678 );
+        return 0;
+    }
+
+// [control+f]
+// Find
+    if (msg_code == GWS_Find)
+    {
+        printf("ws: find\n");
+        //printf("root: %s\n", WindowManager.root->name );
+        //printf("taskbar: %s\n", WindowManager.taskbar->name );
+        return 0;
+    }
+
+// #test
+// Creates a menu for the root window.
+// Only refresh if it is already created.
+    if (msg_code == GWS_Save){
+        on_menu_event();
+        return 0;
+    }
+
+// Control + Arrow keys.
     if (msg_code == GWS_ControlArrowUp){
         dock_active_window(1);
         return 0;
@@ -4284,60 +4350,6 @@ int on_combination(int msg_code)
     }
     if (msg_code == GWS_ControlArrowLeft){
         dock_active_window(4); 
-        return 0;
-    }
-
-    // control+x
-    if (msg_code == GWS_Cut)
-    {
-        printf("ws: cut\n"); 
-        // #test
-        // gwssrv_quit();
-        //demoCat();
-        return 0;
-    }
-
-    if (msg_code == GWS_Copy)
-    {printf("ws: copy\n"); return 0;}
-
-    if (msg_code == GWS_Paste)
-    {printf("ws: paste\n"); return 0;}
-
-    if (msg_code == GWS_Undo)
-    {printf("ws: undo\n"); return 0;}
-
-// [control + a]
-    if (msg_code == GWS_SelectAll)
-    {
-        printf("ws: select all\n");
-
-        // #test
-        // Post message to all the overlapped windows.
-        window_post_message_broadcast( 
-            0,
-            GWS_Close,   //MSG_CLOSE
-            1234,
-            5678 );
-
-        return 0;
-    }
-
-
-// [control+f]
-    if (msg_code == GWS_Find)
-    {
-        printf("ws: find\n");
-        //printf("root: %s\n", WindowManager.root->name );
-        //printf("taskbar: %s\n", WindowManager.taskbar->name );
-        return 0;
-    }
-
-
-// #test
-// Creates a menu for the root window.
-// Only refresh if it is already created.
-    if (msg_code == GWS_Save){
-        on_menu_event();
         return 0;
     }
 
@@ -4358,10 +4370,9 @@ int on_combination(int msg_code)
         return 0;
     }
 
-//OK
-    return -1;
+fail:
+    return (int) (-1);
 }
-
 
 inline int is_combination(int msg_code)
 {
@@ -4428,6 +4439,7 @@ new_event:
     long2 = (unsigned long) RTLEventBuffer[3];
 
 
+// -----------------------
 // MOUSE events
     if ( msg == GWS_MouseMove || 
          msg == GWS_MousePressed ||
@@ -4440,6 +4452,8 @@ new_event:
         return 0;
     }
 
+// -----------------------
+// Some keyboard events.
 // Print char into the keyboard owner window.
     if ( msg == GWS_KeyDown ||
          msg == GWS_SysKeyDown ||
@@ -4450,12 +4464,26 @@ new_event:
         return 0;
     }
 
+// ---------------------------------
+// Combination
 // Is it a combination?
+// The keyboard driver process the combination
+// and send us the combination index.
     IsCombination = (int) is_combination(msg);
-    if (IsCombination){
-        on_combination(msg);
+    int ComStatus = -1;
+    if (IsCombination)
+    {
+        ComStatus = (int) on_combination(msg);
+        // #todo
+        // Can we return right here?
+        // #test
+        if (ComStatus == 0){
+            return 0;
+        }
+        goto fail;
     }
 
+// ??
 // Hotkeys
     if (msg == GWS_HotKey)
     {
@@ -4483,10 +4511,9 @@ new_event:
 // Muidas estruturas aindapossuem valores que estão condizentes
 // com a resolução antiga e precisa ser atualizados.
 
-
     if (msg == 800300)
     {
-        printf("800300 w=%d h=%d\n", long1, long2);
+        printf("[800300] w=%d h=%d\n", long1, long2);
         
         /*
         //globals
@@ -4504,19 +4531,20 @@ new_event:
         // Update working area.
         WindowManager.wa.height = (long2 - 40);
         */
+        return 0;
     }
 
     //if (msg == GWS_Close)
     //    gwssrv_quit();
+
     //if (msg == GWS_UpdateDesktop)
     //    wm_update_desktop(TRUE,TRUE);
 
 //Unknown:
     return 0;
 fail:
-    return -1;
+    return (int) (-1);
 }
-
 
 // ------------------------------------------------
 // This is basically the low level input support 
