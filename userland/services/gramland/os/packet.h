@@ -1,7 +1,6 @@
 
 // packet.h
 
-
 #ifndef GWS_PACKET_H
 #define GWS_PACKET_H    1
 
@@ -39,6 +38,3 @@
 
 #endif    
 
-
-
- 

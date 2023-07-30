@@ -3,11 +3,9 @@
 
 #include "gwsint.h"
 
-
 struct gws_surface_d  *rootSurface;
 
 // ===========================================
-
 
 // Start surface
 void demoClearSurface(unsigned int color)
@@ -15,11 +13,13 @@ void demoClearSurface(unsigned int color)
     // #todo
     // We can do this for more resolutions. 
 
-    if ( (void*) gr_dc != NULL )
+    unsigned int fail_color = COLOR_RED;
+
+    if ((void*) gr_dc != NULL)
     {
         if (gr_dc->magic == 1234)
         {
-            if( gr_dc->initialized == TRUE )
+            if (gr_dc->initialized == TRUE)
             {
                 rectBackbufferDrawRectangle ( 
                     gr_dc->absolute_x, 
@@ -27,20 +27,17 @@ void demoClearSurface(unsigned int color)
                     gr_dc->width, 
                     gr_dc->height,
                     color, 1, 0 );
-                
+
                 return;
             }
         }
     }
-
-    unsigned int fail_color = COLOR_RED;
 
 // Limpa em mostra na resolução 320x200
     rectBackbufferDrawRectangle ( 
            0, 0, 320, 200, 
            fail_color, 1, 0 );
 }
-
 
 // #todo
 // We can do this for more resolutions. 
@@ -51,11 +48,11 @@ void demoFlushSurface(void)
     
 // default dc
 
-    if ( (void*) gr_dc != NULL )
+    if ((void*) gr_dc != NULL)
     {
         if (gr_dc->magic == 1234)
         {
-            if( gr_dc->initialized == TRUE )
+            if (gr_dc->initialized == TRUE)
             {
                 gws_refresh_rectangle(
                     gr_dc->absolute_x, 
@@ -71,7 +68,6 @@ void demoFlushSurface(void)
     gws_refresh_rectangle(
         0, 0, 320, 200 );
 }
-
 
 /*
  * xxxCreateSurfaceWindow: 
@@ -120,7 +116,7 @@ void *xxxCreateSurfaceWindow(
 // mais argumentos. 
 // #importante: Isso está funcionado, Vamos fazer assim e 
 // não do jeito antigo.
-	unsigned long message_buffer[12];
+    unsigned long message_buffer[12];
 
     gwssrv_debug_print ("xxxCreateSurfaceWindow: \n");
 
@@ -175,7 +171,7 @@ struct gws_surface_d *xxxCreateSurface(
     surface = 
         (struct gws_surface_d *) malloc ( sizeof( struct gws_surface_d ) );
 
-    if ( (void*) surface == NULL ){
+    if ((void*) surface == NULL){
         //todo: message
         return NULL;
     }
@@ -189,7 +185,7 @@ struct gws_surface_d *xxxCreateSurface(
                      left, top, width, height, 
                      0, 0, COLOR_BLACK, COLOR_BLACK );  
 
-    if ( (void*) surfaceWindowObject == NULL ){
+    if ((void*) surfaceWindowObject == NULL){
         //todo: message
         return NULL;
     }
@@ -214,13 +210,4 @@ struct gws_surface_d *xxxCreateSurface(
 
     return (struct gws_surface_d *) surface;
 }
-
-
-
-
-
-
-
-
-
 

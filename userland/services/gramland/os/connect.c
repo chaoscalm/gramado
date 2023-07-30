@@ -40,18 +40,14 @@ int register_ws(void)
 // Getting the current desktop structure pointer.
 
     __ws_desktop = (void *) gramado_system_call (519,0,0,0);
-
-    if ( (void *) __ws_desktop == NULL )
+    if ((void *) __ws_desktop == NULL)
     {
         gwssrv_debug_print ("register_ws: [FAIL] __ws_desktop fail\n");
-        
         // #debug
         printf ("register_ws: [FAIL] __ws_desktop fail\n");
         exit(1);
-        
         return (int) (-1);
     }
-
 
 // =====================
 // register
@@ -59,17 +55,14 @@ int register_ws(void)
 // PID
 // Get the PID of the server.
     __ws_pid = (int) getpid();
-    if ( __ws_pid < 0 )
+    if (__ws_pid < 0)
     {
         gwssrv_debug_print ("register_ws: [FAIL] __ws_pid fail \n");
-
         // #debug
         printf ("register_ws: [FAIL] __ws_pid fail \n");
         exit(1);
-
         return (int) (-1);
     }
-
 
 // Register this PID of the current window server.
 // #todo
@@ -85,10 +78,9 @@ int register_ws(void)
 
     // flag.
     __ws_registered = TRUE;
-
     Initialization.register_ws_checkpoint = TRUE;
 
-    // O = OK.
+// 0 = OK.
     return 0;
 }
 

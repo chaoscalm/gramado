@@ -5,8 +5,7 @@
 #ifndef __DC_H
 #define __DC_H    1
 
-
-#define PALETTE_COUNT_MAX    16
+#define PALETTE_COUNT_MAX  16
 
 // ===========================
 
@@ -17,7 +16,6 @@
 #define DCF_CLIPPING        4   // Clipping to a given window.
 #define DCF_DONT_DRAW       8
 // ...
-
 
 // Information about the drawing attributes of a device.
 // See:
