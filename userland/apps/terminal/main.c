@@ -200,6 +200,8 @@ unsigned long __barheight=0;
 // == Private functions: Prototypes ==============
 //
 
+static void __initialize_basics(void);
+
 static void terminalTerminal(void);
 static void terminalInitWindowPosition(void);
 static void terminalInitWindowSizes(void);
@@ -2815,16 +2817,17 @@ static int __input_STDOUT(int fd)
 // #importante:
 // Esse event loop pega dados de um arquivo.
 
-    int C=0;
+    FILE *new_stdin;
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
+    int C=0;
 
-    FILE *new_stdin;
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
     new_stdin = stdout;
 
     printf ("__input_STDOUT: #todo\n");
-    while(1){}
+    while (1){
+    };
 
     if( (void*) new_stdin == NULL ){
         printf ("__input_STDOUT: new_stdin\n");
@@ -2872,9 +2875,9 @@ static int __input_STDERR(int fd)
 // Esse event loop pega dados de um arquivo.
 
     FILE *new_stdin;
-    int C=0;
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
+    int C=0;
 
     printf ("__input_STDERR: #todo\n");
 
@@ -2927,17 +2930,17 @@ static int __input_STDIN(int fd)
 // #importante:
 // Esse event loop pega dados de um arquivo.
 
-    int C=0;
+    FILE *new_stdin;
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
+    int C=0;
 
-    FILE *new_stdin;
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
     new_stdin = stdin;
 
-    if( (void*) new_stdin == NULL ){
+    if ((void*) new_stdin == NULL){
         printf ("__input_STDIN: new_stdin\n");
-        return -1;
+        goto fail;
     }
 
 // O kernel seleciona qual será 
@@ -2947,7 +2950,6 @@ static int __input_STDIN(int fd)
         fileno(new_stdin),
         0,
         0 );
-
 
 // Poisiona no início do arquivo.
 // #bugbug: Se fizermos isso, 
@@ -2979,11 +2981,13 @@ static int __input_STDIN(int fd)
 
     printf ("__input_STDIN: Stop listening stdin\n");
     return 0;
+fail:
+    return (int) -1;
 }
 
-static void __initialize_basics(void);
 static void __initialize_basics(void)
 {
+    register int i=0;
 
 // Windows
     main_window=0;
@@ -2997,7 +3001,6 @@ static void __initialize_basics(void)
 
 // CSI - Control Sequence Introducer.
 // see: term0.h
-    register int i=0;
     for (i=0; i<CSI_BUFFER_SIZE; i++){
         CSI_BUFFER[i] = 0;
     };
@@ -3012,15 +3015,16 @@ static void __initialize_basics(void)
 // Main
 //
 
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
-    int client_fd = -1;
-
+// Socket address.
     struct sockaddr_in addr_in;
     addr_in.sin_family = AF_INET;
     addr_in.sin_port = PORTS_WS;
     addr_in.sin_addr.s_addr = IP(127,0,0,1);    //ok
     //addr_in.sin_addr.s_addr = IP(127,0,0,9);  //fail
+
+    int client_fd = -1;
 
     unsigned long w=0;
     unsigned long h=0;
@@ -3085,7 +3089,6 @@ int main ( int argc, char *argv[] )
             // Vamos esperar para sempre?
             if (con_status == ECONNREFUSED){
             }
-
         }else{
             break; 
         };
@@ -3150,7 +3153,8 @@ int main ( int argc, char *argv[] )
 
     if (main_window<0){
         printf("terminal: fail on main_window\n");
-        while(1){}
+        while (1){
+        };
     }
     Terminal.main_window_id = main_window;
 
@@ -3165,9 +3169,10 @@ int main ( int argc, char *argv[] )
     //struct gws_window_info_d *wi;
     
     wi = (void*) malloc( sizeof(struct gws_window_info_d) );
-    if ( (void*) wi == NULL ){
+    if ((void*) wi == NULL){
         printf("terminal: wi\n");
-        while(1){}
+        while (1){
+        };
     }
     //IN: fd, wid, window info structure.
     gws_get_window_info(
@@ -3177,11 +3182,13 @@ int main ( int argc, char *argv[] )
 
     if (wi->used != TRUE){
         printf("terminal: wi->used\n");
-        while(1){}
+        while (1){
+        };
     }
     if (wi->magic != 1234){
         printf("terminal: wi->magic\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // Setting new values for the client window.
@@ -3189,25 +3196,29 @@ int main ( int argc, char *argv[] )
 // Não pode ser maior que o dispositivo.
     if (wi->cr_left >= w){
         printf("terminal: wi->cr_left\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // Não pode ser maior que o dispositivo.
     if (wi->cr_top >= h){
         printf("terminal: wi->cr_top\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // Não pode ser maior que o dispositivo.
     if (wi->cr_width == 0 || wi->cr_width > w){
         printf("terminal: wi->cr_width\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // Não pode ser maior que o dispositivo.
     if (wi->cr_height == 0 || wi->cr_height > h){
         printf("terminal: wi->height\n");
-        while(1){}
+        while (1){
+        };
     }
 
 // #danger
