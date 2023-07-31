@@ -81,7 +81,6 @@ int __csi_buffer_head=0;
 
 // ---------------------------------------
 // see: term0.h
-static Term  term;
 //static CSIEscape  csiescseq;
 //static STREscape  strescseq;
 
@@ -1926,7 +1925,7 @@ tputc (
 
 /*
     //string normal
-    //if(term.esc & ESC_STR) 
+    //if(Terminal.esc & ESC_STR) 
     if (__sequence_status == 0)
     {
         switch (ascii){
@@ -1936,7 +1935,7 @@ tputc (
         // Logo abaixo esse char será tratado novamente.
         case '\033':
             printf("FOUND {033}. Start of sequence\n");
-            term.esc = ESC_START;
+            Terminal.esc = ESC_START;
             __sequence_status = 1;
             break;
 
@@ -2001,7 +2000,7 @@ tputc (
             case '\x1b':
                 //printf("FOUND {033}. Start of sequence\n");
                 __sequence_status = 1;
-                term.esc = ESC_START;
+                Terminal.esc = ESC_START;
                 //terminal_write_char ( fd, window, (int) '$');  //debug
                 //printf (" {ESCAPE} ");  //debug
                 return;
@@ -2040,14 +2039,14 @@ tputc (
 // Um 1b já foi encontrado.
 // Um \033 foi encontrado.
 
-    } else if (term.esc & ESC_START){
+    } else if (Terminal.esc & ESC_START){
 
         // Depois de encontrarmos o '[', entramos no ESC_CSI.
         // Vamos analisar a sequencia depois de '['
         // A sequencia vai terminar com um 'm'
         // #todo parse csi
         // CSI - Control Sequence Introducer
-        if(term.esc & ESC_CSI){
+        if(Terminal.esc & ESC_CSI){
 
             switch (ascii)
             {
@@ -2059,7 +2058,7 @@ tputc (
                     // agora o buffer esta vazio.
                     // #todo: usarloop para de fato esvaziar o buffer.
                     __csi_buffer_tail = 0;
-                    term.esc = 0;  //??
+                    Terminal.esc = 0;  //??
                     //terminal_write_char (fd, window, (int) '$'); //debug
                     //printf (" {m} "); //debug
                     return;
@@ -2209,11 +2208,11 @@ tputc (
             };
 
 
-        } else if (term.esc & ESC_STR_END){ 
+        } else if (Terminal.esc & ESC_STR_END){ 
  
             // ...
 
-        } else if (term.esc & ESC_ALTCHARSET){
+        } else if (Terminal.esc & ESC_ALTCHARSET){
 
             switch (ascii)
             {
@@ -2226,7 +2225,7 @@ tputc (
             };
 
 
-        } else if (term.esc & ESC_TEST) {
+        } else if (Terminal.esc & ESC_TEST) {
 
             // ...
  
@@ -2243,14 +2242,14 @@ tputc (
             //case TERMINAL_INTRODUCER:
             case '[':
                 //printf ("FOUND {[}\n"); //debug
-                term.esc |= ESC_CSI;
+                Terminal.esc |= ESC_CSI;
                 //terminal_write_char ( fd, window, (int) '['); //debug
                 return;
                 break; 
    
             case '#':
                  //printf ("FOUND {#}\n"); //debug
-                 term.esc |= ESC_TEST;
+                 Terminal.esc |= ESC_TEST;
                  break;
 
             //  ESC P - DCS   Device control string (ended by ESC \)
@@ -2260,12 +2259,12 @@ tputc (
             case '^':  /* PM -- Privacy Message */
             case ']':  /* OSC -- Operating System Command */
             case 'k':  /* old title set compatibility */
-                term.esc |= ESC_STR;
+                Terminal.esc |= ESC_STR;
                 break; 
 
             /* Set primary charset G0 */ 
             case '(': 
-                term.esc |= ESC_ALTCHARSET;
+                Terminal.esc |= ESC_ALTCHARSET;
                 break;    
 
             // ESC ( - Start sequence defining G0 character set
@@ -2273,14 +2272,14 @@ tputc (
             case ')':  /* set secondary charset G1 (IGNORED) */
             case '*':  /* set tertiary charset G2 (IGNORED) */
             case '+':  /* set quaternary charset G3 (IGNORED) */
-                term.esc = 0;
+                Terminal.esc = 0;
                 __sequence_status = 0;
                 break;  
 
             // ESC D - IND      Linefeed.
             /* IND -- Linefeed */
             case 'D': 
-                term.esc = 0;
+                Terminal.esc = 0;
                 terminal_write_char ( fd, window, (int) '$');  //debug
                 //printf (" {IND} ");  //debug
                 break;
@@ -2288,7 +2287,7 @@ tputc (
             // ESC E - NEL  Newline.
             /* NEL -- Next line */ 
             case 'E': 
-                term.esc = 0;
+                Terminal.esc = 0;
                 terminal_write_char ( fd, window, (int) '$'); //debug
                 //printf (" {NEL} "); //debug
                 break;
@@ -2296,7 +2295,7 @@ tputc (
             // ESC H - HTS Set tab stop at current column.
             /* HTS -- Horizontal tab stop */
             case 'H':   
-                term.esc = 0;
+                Terminal.esc = 0;
                 terminal_write_char ( fd, window, (int) '$'); //debug
                  //printf (" {HTS} "); //debug
                 break;
@@ -2304,7 +2303,7 @@ tputc (
             // ESC M - RI Reverse linefeed.
             /* RI -- Reverse index */
             case 'M':     
-                term.esc = 0;
+                Terminal.esc = 0;
                 terminal_write_char ( fd, window, (int) '$'); //debug
                 //printf (" {RI} "); //debug
                 break;
@@ -2314,7 +2313,7 @@ tputc (
             // claiming that it is a VT102.
             /* DECID -- Identify Terminal */
             case 'Z':  
-                 term.esc = 0;
+                 Terminal.esc = 0;
                  terminal_write_char (fd, window, (int) '$'); //debug
                  //printf (" {DECID} "); //debug
                  break;
@@ -2322,7 +2321,7 @@ tputc (
             // ESC c - RIS  Reset.
             /* RIS -- Reset to inital state */
             case 'c': 
-                 term.esc = 0;
+                 Terminal.esc = 0;
                  terminal_write_char ( fd, window, (int) '$'); //debug
                  //printf (" {reset?} "); //debug
                  break; 
@@ -2330,7 +2329,7 @@ tputc (
             // ESC = - DECPAM   Set application keypad mode
             /* DECPAM -- Application keypad */
             case '=': 
-                 term.esc = 0;
+                 Terminal.esc = 0;
                  terminal_write_char ( fd, window, (int) '$'); //debug
                  //printf (" {=} "); //debug
                  break;
@@ -2338,7 +2337,7 @@ tputc (
             // ESC > - DECPNM   Set numeric keypad mode
             /* DECPNM -- Normal keypad */
             case '>': 
-                term.esc = 0;
+                Terminal.esc = 0;
                 terminal_write_char (fd, window, (int) '$'); //debug
                 //printf (" {>} "); //debug
                 break;
@@ -2347,20 +2346,20 @@ tputc (
             //         attributes, character sets pointed at by G0, G1).
             /* DECSC -- Save Cursor */ 
             //case '7':
-               //  term.esc = 0;
+               //  Terminal.esc = 0;
                //  break;
 
             // ESC 8 - DECRC    Restore state most recently saved by ESC 7.
             /* DECRC -- Restore Cursor */ 
             //case '8': 
-               //  term.esc = 0;
+               //  Terminal.esc = 0;
                //  break;
 
             /* ST -- Stop */
             // ESC \  ST    String terminator
             //0x9C ST String Terminator ???
             //case '\\':   
-                 //term.esc = 0;
+                 //Terminal.esc = 0;
                  //break;
   
             //erro    
@@ -3036,6 +3035,8 @@ int main ( int argc, char *argv[] )
     Terminal.pid = getpid();
     Terminal.uid = getuid();
     Terminal.gid = getgid();
+    
+    Terminal.esc = 0;
 
 // Device info
 // #todo: Check for 'zero'.

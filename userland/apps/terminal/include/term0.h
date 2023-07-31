@@ -54,26 +54,6 @@ enum escape_state {
 	ESC_TEST       = 32,  /* Enter in test mode */
 };
 
-// #importante
-// Colocaremos aqui dentro elementos que apontem para
-//variáveis que já usavamos antes de criarmos essa estrutura.
-/* Internal representation of the screen */
-typedef struct {
-	//int row;       /* nb row */
-	//int col;       /* nb col */
-	//Line *line;    /* screen */
-	//Line *alt;     /* alternate screen */
-	//bool *dirty;   /* dirtyness of lines */
-	//TCursor c;     /* cursor */
-	//int top;       /* top    scroll limit */
-	//int bot;       /* bottom scroll limit */
-	int mode;        /* terminal mode flags */
-	int esc;         /* escape state flags */
-	//bool numlock;  /* lock numbers in keyboard */
-	//bool *tabs;
-} Term;
-
-
 #define ESC_BUF_SIZ  32  //(128*UTF_SIZ)
 #define ESC_ARG_SIZ  16
 #define STR_BUF_SIZ  ESC_BUF_SIZ
@@ -375,6 +355,8 @@ struct terminal_d
     unsigned long width_in_chars;
     unsigned long height_in_chars;
     // ...
+
+    int esc;
 };
 
 // The man structure.
