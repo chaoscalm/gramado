@@ -170,19 +170,16 @@ irq0_TIMER (void)
 // o spawn, mas precisamos avisar a rotina de spawn
 // que precisamos realizar o EOI pois estamos num handler de pit.
 
-
-// The spawn routine need to make a eoi for pit interrupt.
-// Tell the spawn routine that we need a eoi.
+// The spawn routine need to make an eoi for pit interrupt.
+// Tell the spawn routine that we need an eoi.
 // In the case of spawning a new thread.
     spawn_set_eoi_state();
-
 
 // See: ps/disp/ts.c
     psTaskSwitch();
 
-
 // The spawn routine do not need to make a eoi.
-// Tell the spawn routine that we do not need a eoi anymore.
+// Tell the spawn routine that we do not need eoi anymore.
 // The assembly routine will do that for us.
     spawn_reset_eoi_state();
 }
@@ -196,6 +193,7 @@ void DeviceInterface_PIT(void)
 // Increment tick counter.
     jiffies++;
 // The master timer.
+// see: grinput.c
     wmTimerEvent(1234);
 }
 

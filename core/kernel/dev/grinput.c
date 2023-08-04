@@ -908,6 +908,10 @@ int wmTimerEvent(int signature)
     }
 */
 
+// #todo
+// Post timer message in the master timer's thread message queue.
+    // master_timer->tid ?
+
     return 0;
 }
 

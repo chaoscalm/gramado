@@ -450,12 +450,11 @@ ZeroGravity:
         goto go_ahead;
     }
 
-
 // Pick a thread and break the round?
-// We can do this if a thread was selected as
-// 'timeout_thread'.
+// We can do this if a thread was selected as 'timeout_thread'.
+// It means that the thread need to run now, in the next tick.
 
-    if ( (void*) timeout_thread != NULL )
+    if ((void*) timeout_thread != NULL)
     {
         if (timeout_thread->magic == 1234)
         {
@@ -468,8 +467,6 @@ ZeroGravity:
             }
         }
     }
-
-
 
 //
 // End of round ?
@@ -496,7 +493,7 @@ ZeroGravity:
 // se o round for composto por muitas threads.
 
 // End of round. Rebuild the round.
-    if ( (void *) Conductor->next == NULL ){
+    if ((void *) Conductor->next == NULL){
         current_thread = (tid_t) psScheduler();
         goto go_ahead;
     }
@@ -508,7 +505,7 @@ ZeroGravity:
 // #BUGBUG: ISSO PODE SER UM >>> ELSE <<< DO IF ACIMA.
 
 // Get the next thread in the linked list.
-    if ( (void *) Conductor->next != NULL ){
+    if ((void *) Conductor->next != NULL){
         Conductor = (void *) Conductor->next;
         goto go_ahead;
     }
@@ -545,7 +542,7 @@ go_ahead:
 // ou quando pegamos a próxima na lista.
 
     TargetThread = (void *) Conductor;
-    if ( (void *) TargetThread == NULL ){
+    if ((void *) TargetThread == NULL){
         debug_print ("ts: Struct ");
         current_thread = (tid_t) psScheduler();
         goto ZeroGravity;
@@ -591,7 +588,7 @@ dispatch_current:
 
 // structure
     TargetThread = (void *) threadList[current_thread];
-    if ( (void *) TargetThread == NULL ){
+    if ((void *) TargetThread == NULL){
         panic ("ts-dispatch_current: TargetThread\n");
     }
     if ( TargetThread->used != TRUE || TargetThread->magic != 1234 ){
@@ -661,7 +658,7 @@ dispatch_current:
 
 // Target process 
     TargetProcess = (void *) processList[targetthread_OwnerPID];
-    if ( (void *) TargetProcess == NULL ){
+    if ((void *) TargetProcess == NULL){
         printf ("ts: TargetProcess %s struct fail\n", TargetProcess->name );
         die();
     }
@@ -729,6 +726,8 @@ fail:
 
 void psTaskSwitch(void)
 {
+    pid_t current_process_pid = -1;
+    pid_t ws_pid = -1;
 
 // Filters.
 
@@ -738,27 +737,32 @@ void psTaskSwitch(void)
 // Durante essa rotina de handler de timer
 // pode ser que chamaremos um callout dentro do
 // window server, mas esse callout não sera interrompido
-// por outra interrupçao de timer, pois ainda
-// não chamamos EOI.
+// por outra interrupçao de timer, pois ainda não chamamos EOI.
 
-    pid_t current_process = (pid_t) get_current_process();
-    if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
-        printf ("psTaskSwitch: current_process %d", current_process);
+    current_process_pid = (pid_t) get_current_process();
+    if ( current_process_pid < 0 || 
+         current_process_pid >= PROCESS_COUNT_MAX )
+    {
+        printf ("psTaskSwitch: current_process_pid %d", 
+            current_process_pid);
         die();
     }
 
+// Current thread.
+// Global variable.
 // First check!
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
+    if ( current_thread < 0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    {
         printf ("psTaskSwitch: current_thread %d", current_thread); 
         die();
     }
 
 // Permitindo que o assembly chame o callback.
 // Somente quando o processo interrompido for o init.
-    pid_t ws_pid=-1;
     ws_pid = (pid_t) socket_get_gramado_port(GRAMADO_WS_PORT);
 // Se estamos na thread do window server.
-    if (current_process == ws_pid)
+    if (current_process_pid == ws_pid)
     {
         // Se o callback ja foi inicializado 
         // por uma chamada do window server.
@@ -828,26 +832,4 @@ void tsCallExtraRoutines(void)
     // #todo: 
     // Talvez possamos incluir mais atividades extras.
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
