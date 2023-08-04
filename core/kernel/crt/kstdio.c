@@ -927,10 +927,9 @@ int k_ungetc ( int c, file *f )
     return (int) c;
 }
 
-
 long k_ftell(file *f)
 {
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return EOF;
     }
     return (long) (f->_p - f->_base);
@@ -939,18 +938,17 @@ long k_ftell(file *f)
 // Return the fd.
 int k_fileno(file *f)
 {
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return EOF;
     }
     return (int) f->_file;  
 }
 
-
 int k_fgetc(file *f)
 {
     int ch=0;
 
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         printf ("k_fgetc: f\n");
         goto fail;
     }
@@ -1013,16 +1011,16 @@ int k_feof ( file *f )
 {
     int ch=0;
  
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return (int) (-1);
     } else {
 
         ch = k_fgetc(f);
 
-        if ( ch == EOF ){
-             return (int) 1;
+        if (ch == EOF){
+            return (int) 1;
         }else{
-             return 0;
+            return 0;
         };
     };
 
@@ -1032,16 +1030,13 @@ int k_feof ( file *f )
     return 0;
 }
 
-
 int k_ferror(file *f)
 {
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return EOF;
     }
-
-    return (int) ( ( f->_flags & _IOERR ) );
+    return (int) ((f->_flags & _IOERR));
 }
-
 
 // k_fseek:
 // offset argument is the position that you want to seek to,
@@ -1056,7 +1051,7 @@ int k_fseek ( file *f, long offset, int whence )
     register int i=0;
     char *p;
 
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         debug_print ("k_fseek: f\n");
         goto fail;
     }
@@ -1234,7 +1229,7 @@ int k_fputc( int ch, file *f )
 {
 
 // Pointer validation
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         debug_print ("k_fputc: f\n");
         panic       ("k_fputc: f\n");
         return EOF;
@@ -1319,23 +1314,19 @@ int vfprintf(file *stream, const char *format, va_list ap)
 }
 */
 
-
 void k_rewind(file *f)
 {
     //fseek (f, 0L, SEEK_SET);
-
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return;
     }
-
     f->_p = f->_base;
 }
-
 
 // Change f->magic to 4321.
 int k_fclose (file *f)
 {
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return EOF;
     }
     if (f->used != TRUE){
@@ -1350,25 +1341,33 @@ int k_fclose (file *f)
     return 0;
 }
 
-int k_fputs ( const char *str, file *f )
+int k_fputs(const char *str, file *f)
 {
-    int Size=0;
+    size_t StringSize=0;
 
-    if ( (void *) f == NULL ){
-        return (int) (-1);
+    if ((void*) str == NULL){
+        goto fail;
+    }
+    if ((void *) f == NULL){
+        goto fail;
     } 
 
-    Size = (int) strlen (str);
-    if ( Size > f->_cnt ){
-        return (int) (-1);
+// Get string size.
+    StringSize = (size_t) strlen(str);
+    if (StringSize > f->_cnt){
+        goto fail;
     }
-    f->_cnt = (int) (f->_cnt - Size);
-    sprintf ( f->_p, str );
-    f->_p = (f->_p + Size);
-
+// Update _cnt.
+    f->_cnt = (int) (f->_cnt - StringSize);
+// Put
+    sprintf( f->_p, str );
+// Update _p.
+    f->_p = (f->_p + StringSize);
+// OK
     return 0;
+fail:
+    return (int) (-1);
 }
-
 
 // k_setbuf:
 // see: 
@@ -1474,11 +1473,9 @@ k_setvbuf (
     int mode, 
     size_t size )
 {
-
     if ( (void *) f == NULL ){
         // MSG ?
         return -1;
-
     }else{
 
         //#todo
@@ -1502,15 +1499,12 @@ k_setvbuf (
         //...
     };
 
-
     return 0;
 }
-
 
 // Maybe we can do some operations 
 // in a regular file using ioctl.
 // EINVAL request or argp is not valid.
-
 int 
 regularfile_ioctl ( 
     int fd, 
@@ -1528,7 +1522,6 @@ regularfile_ioctl (
 
     return -1;
 }
-
 
 static void __initialize_stdin(void)
 {
@@ -1746,7 +1739,7 @@ static void __initialize_stderr(void)
 static void __clear_prompt_buffers(void)
 {
     register int i=0;
-    for ( i=0; i<PROMPT_SIZE; i++ )
+    for (i=0; i<PROMPT_SIZE; i++)
     {
         prompt[i]     = (char) '\0';
         //prompt_in[i] = (char) '\0';  //#todo
