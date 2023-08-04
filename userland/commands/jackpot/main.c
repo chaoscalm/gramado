@@ -17,6 +17,7 @@
 // #for syscalls.
 //#include <rtl/gramado.h>
 
+static int IsTimeToQuit = 0;
 int  i, j, life, maxrand;
 int c;
 
@@ -25,24 +26,24 @@ char number[16];
 
 
 //-----------------
-void GetResults(void);
-void Start(void);
-int jackpot_main(void);
+static void GetResults(void);
+static void Start(void);
+static int on_execute(void);
 //int jackpot_atoi (char * s);
 //-----------------
 
-
-void Start(void)
+static void Start(void)
 {
+    time_t MyTime;
+
+// Globals
     i = 0;
     j = 0;
     life = 0;
     maxrand = 6;
-	
-	time_t *time1;
 
-	// The user has to select a difficutly level.
-	
+// The user has to select a difficutly level.
+
     printf ("Start: \n");
     printf ("Select difficulty mode:\n"); 
     printf ("1 : Easy (0-15)\n");
@@ -50,86 +51,91 @@ void Start(void)
     printf ("3 : Difficult (0-50)\n");
     printf ("or type q to quit.\n\n");
     
-	c = 30;
-	
-	
-	// #importante
-	// O input funcionou chamando com execve através do gdeshell.
-    // pois execve prepara o input para o novo programa que vai rodar.	
+    c = 30;
 
-	// read the user's choice.
-	
-	while (1)
-	{
-        c = (int) getchar ();
-        
-		if (c == -1){
-			
-			//printf("EOF reached! ?? \n");
-		    //asm ("pause");				
-		};
-			
-	    if ( c != -1 )
-		{	
-	        printf ("%c", c);	        
-			goto selected;
-		};
-	};	
-	
-	
-//Um grau de dificuldade foi selecionado.	
-	
+// #importante
+// O input funcionou chamando com execve através do gdeshell.
+// pois execve prepara o input para o novo programa que vai rodar.	
+
+// Read the user's choice.
+    while (1)
+    {
+        c = (int) getchar();
+        if (c == -1)
+        {
+            printf("EOF?\n");
+            //printf("EOF reached! ?? \n");
+            //asm ("pause");
+        }
+        if (c != -1)
+        {
+            //printf ("Selected: %c", c);
+            goto selected;
+        }
+    };
+
+//Um grau de dificuldade foi selecionado.
 selected:
 
-	// The random number will be between 0 and maxrand.
-		
+    printf ("Selected: %c", c);
+
+    // The random number will be between 0 and maxrand.
     switch (c){
-		
         case '1' : 
-		    maxrand = 15;  
+            maxrand = 15;  
             break;
-        
-		case '2' : 
-		    maxrand = 30;
+        case '2' : 
+            maxrand = 30;
             break;
-        
-		case '3' : 
-		    maxrand = 50;
-            break;
-            
+        case '3' : 
+            maxrand = 50;
+            break;    
         case 'Q':    
         case 'q':
             //exit(0);
-            while(1){}
+            printf ("~Quit\n");
+            IsTimeToQuit = 1;
+            return;
+            //goto done;
+            //while (1){
+            //};
             break;
-
-		default : 
-		    maxrand = 15;
-		    //exit(0);
+        default: 
+            printf("Using default option\n");
+            maxrand = 15;
+            //exit(0);
             break;
     };
 
-	// Number of lifes of the player.
+// Number of lifes of the player.
     life = 5;         
-    
-	
-	// init Rand() function.
-	srand ( (unsigned int) time (time1) );
-	
-	// j get a random value between 0 and maxrand.
-	j = rand() % maxrand;  
-	
-    GetResults ();
+
+// Init Rand() function.
+    printf("Setup timer\n");
+    srand( (unsigned int) time(&MyTime) );
+
+// j get a random value between 0 and maxrand.
+    j = (rand() % maxrand);  
+
+    GetResults();
+
+done:
+    return;
 }
 
-void GetResults(void)
+static void GetResults(void)
 {
+
+    //#debug
+    printf("GetResults\n");
 
 // if player has no more life then he lose
     if ( life <= 0 )
-    {	
+    {
         printf ("You lose !\n\n");
-        Start ();
+        Start();
+        if (IsTimeToQuit == 1)
+            return;
     }
 
 	// #  Pedimos para digitar um número ... #
@@ -140,9 +146,8 @@ void GetResults(void)
 	gets (number);
 	
 	//i = jackpot_atoi ( number );
-	i = atoi ( number );
-	
-	
+	i = atoi( number );
+
 checkNumber:
 
     //printf("checkNumber={%d}\n",i);
@@ -153,7 +158,7 @@ checkNumber:
 		//?? check
         printf("Error : Number not between 0 and %d \n", maxrand );
         GetResults();
-    };
+    }
 
     if (i == j)
     {
@@ -164,9 +169,10 @@ checkNumber:
 	      puts("################ YOU WIN ! #####################\n");
 	    printf("################################################\n");
 		printf("\n");
-		
-        Start ();
-		
+
+        Start();
+        if (IsTimeToQuit == 1)
+            return;
 		//#todo:
         //Podemos criar uma solução mais elegante para finalizar.
     
@@ -180,8 +186,8 @@ checkNumber:
 		//#check.
 		printf("Number of remaining life:  %d \n\n", life);
 		
-        GetResults ();
-		
+        GetResults();
+
      }else if (i<j){
 		 
         printf("Too SMALL\n");;
@@ -193,7 +199,7 @@ checkNumber:
         
 		GetResults ();
       };
-	
+
 	//Nothing.  
 }
 
@@ -241,7 +247,7 @@ int jackpot_atoi (char * s){
  * jackpot_main:
  *     Initialize the game.
  */
-int jackpot_main(void)
+static int on_execute(void)
 {
 
 // stdlib
@@ -257,10 +263,9 @@ int jackpot_main(void)
     printf ("The goal of this game is to guess a number. You will be ask to type\n");
     printf ("a number (you have 5 guess)\n");
     printf ("Jackpot will then tell you if this number is too big of too small compared to the secret number to find\n\n");
-    
-	Start ();
-	
-	return 0;
+
+    Start();
+    return 0;
 }
 
 
@@ -276,30 +281,33 @@ int main ( int argc, char *argv[] )
 {
     int code = 0;
 
-	printf ("\n");
-	printf ("####################################################\n");
-	  puts ("################## JackPot #########################\n");
-	printf ("####################################################\n");
-	printf ("\n");
+// Header
+    printf("\n");
+    printf("####################################################\n");
+      puts("################## JackPot #########################\n");
+    printf("####################################################\n");
+    printf("\n");
 
-	code = (int) jackpot_main();
+    IsTimeToQuit = 0;
 
-	switch (code) 
-	{
-	    
-        case 0:
-            //exit(0);
-            break;	
+    code = (int) on_execute();
+    switch (code){
+    case 0:
+        //exit(0);
+        printf("Exit with 0\n");
+        break;
+    default:
+        //exit(code);
+        break;
+    };
 
-		default:	
-		    //exit(code);
-			break;	
-	};
+    //printf("* hang\n");
+    //while (1){
+    //};
+    //return (int) -1;
 
-
-    while(1){}
-
-	return -1;
+// ok
+    return 0;
 }
 
 

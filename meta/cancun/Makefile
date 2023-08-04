@@ -9,10 +9,10 @@ all:
 	gcc ../../userland/commands/unknown/main.c -o unknown
 	
 clean:
-	rm cat
-	rm c4
-	rm cmp
-	rm jackpot
-	rm showfun
-	rm unknown
+	-rm cat
+	-rm c4
+	-rm cmp
+	-rm jackpot
+	-rm showfun
+	-rm unknown
 	
