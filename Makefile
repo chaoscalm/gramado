@@ -23,7 +23,7 @@ PHONY := clean
 clean: clean-all
 
 PHONY := clean-all
-clean-all: clean-userland clean-core clean-base
+clean-all: clean-userland clean-core clean-base clean-cancun
 
 PHONY := clean-userland
 clean-userland:
@@ -52,6 +52,10 @@ clean-base:
 	-rm -rf base/GRAMADO/*.BIN 
 	-rm -rf base/PROGRAMS/*.BIN 
 	-rm -rf base/USERS/*.BIN 
+
+PHONY := clean-cancun 
+clean-cancun:
+#todo
 
 PHONY := help
 help:
