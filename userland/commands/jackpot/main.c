@@ -15,7 +15,7 @@
 #include <time.h>
 
 // #for syscalls.
-#include <rtl/gramado.h>
+//#include <rtl/gramado.h>
 
 int  i, j, life, maxrand;
 int c;

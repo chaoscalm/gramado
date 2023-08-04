@@ -1,8 +1,9 @@
 // 'cat' command for Gramado.
 // 2022 - Fred Nora.
 
-#include <rtl/gramado.h>
-#include <types.h>
+//#include <rtl/gramado.h>
+//#include <types.h>
+#include <sys/types.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
     FILE *fp;
     int bufsize = (4*1024);  //4KB

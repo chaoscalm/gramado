@@ -6,10 +6,8 @@
 // rtl
 #include <stdio.h>
 
-
 char buf[512];
 int nread = 1;
-
 
 int get(int ifile) 
 {

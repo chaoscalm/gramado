@@ -3,6 +3,7 @@
 // 2022 - Fred Nora.
 
 #include <types.h>
+#include <stdlib.h>
 //#include <stddef.h>
 #include <stdio.h>
 #include <sys/utsname.h>

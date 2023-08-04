@@ -3,7 +3,8 @@
  * defined in C Source File
  */
 
-#include <types.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +36,8 @@ int main (int argc, char **argv)
        printf("File Opened to display function names:\n");
     };
 
-    while (TRUE){
+    //while (TRUE){
+    while (1){
 
         //if ((fgets(ch, 40, fp)) != NULL)
         if ((fgets(ch, 100, fp)) != NULL)
