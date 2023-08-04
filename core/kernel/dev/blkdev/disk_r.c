@@ -3,24 +3,19 @@
 
 #include <kernel.h>
 
-
 /*
  * __load_sequential_sectors:
  *    Carrega uma qunatidade de setores, sequencialmente.
  */
-
 // Podemos usar isso para carregarmos o diretório raiz
 // a fat, metafiles ou banco de dados.
 // #bugbug
 // Aqui estamos falando de uma sequência de setores.
 // Isso serve para carregar o diretório raiz em fat16.
 // Mas nao server para carregar subdiretorios.
-
 // #todo
 // Create __read_sequential_sectors and 
 // __write_sequential_sectors
-
-
 // global worker.
 // #todo
 // Change the return value:
@@ -48,7 +43,6 @@ __load_sequential_sectors (
     return 0;
 }
 
-
 /*
  * fatClustToSect:
  *     Calcula qual é o setor inicial de um dado cluster.
@@ -65,15 +59,11 @@ fatClustToSect (
     unsigned long first_data_sector )
 {
     unsigned long C = (unsigned long) cluster;
-
     C -= 2;
-
-	// #todo: 
-	// Check limits.
-
+// #todo: 
+// Check limits.
     return (unsigned long) (C * spc) + first_data_sector;
 }
-
 
 /*
  * read_lba:
@@ -97,11 +87,10 @@ read_lba (
     unsigned long address, 
     unsigned long lba )
 {
-    // #todo
-    // Fazer algum filtro de argumentos ??
+// #todo
+// Fazer algum filtro de argumentos?
 
     // if ( address == 0 ){}
-
 
 // See: volume.h
 
@@ -132,7 +121,6 @@ read_lba (
     };
 }
 
-
 /*
  * fatLoadCluster:
  *     Carrega um cluster.
@@ -149,13 +137,11 @@ fatLoadCluster (
     unsigned long address, 
     unsigned long spc )
 {
-
     unsigned long i=0;
     unsigned long SectorSize = 512;  //#todo: via argument.
-
     for ( i=0; i<spc; i++ )
     {
-        read_lba ( address, sector + i );
+        read_lba( address, sector + i );
         address = (address + SectorSize); 
     };
 }
@@ -167,10 +153,9 @@ fs_load_metafile (
     unsigned long first_lba, 
     unsigned long size )
 {
+    unsigned long SizeInSectors = (size & 0xFFFFFFFF);
 
     debug_print ("fs_load_metafile:\n");
-
-    unsigned long SizeInSectors = (size & 0xFFFFFFFF);
 
     if (buffer == 0){
         debug_print ("fs_load_metafile: [ERROR] buffer\n");
@@ -187,10 +172,8 @@ fs_load_metafile (
         SizeInSectors );
 }
 
-
 void fs_load_mbr(unsigned long mbr_address)
 {
-
     unsigned long MBR_Address=0;
     unsigned long MBR_Lba=0;
     size_t        MBR_Size=0;  // In sectors.
@@ -207,9 +190,6 @@ void fs_load_mbr(unsigned long mbr_address)
         MBR_Size );
 }
 
-
-
-
 /*
  * fs_load_fat:
  *    Carrega a fat na memória.
@@ -222,7 +202,6 @@ void fs_load_mbr(unsigned long mbr_address)
  * + Se o status da fat para o vulume atual indicar que 
  * ela já está carregada, então não precisamos carregar novamente.
  */
-
 // #todo
 // Precisamos de uma estrutura com as informações sobre
 // a FAT atual.
@@ -233,7 +212,6 @@ fs_load_fat(
     unsigned long fat_lba, 
     size_t fat_size )
 {
-
     unsigned long __fatAddress=0;
     unsigned long __fatLBA=0;
     size_t        __fatSizeInSectors=0;
@@ -244,9 +222,9 @@ fs_load_fat(
 
     debug_print ("fs_load_fat:\n");
 
-    //
-    // Check cache state.
-    //
+//
+// Check cache state.
+//
     
     // Se ja está na memória, então não precisamos carregar novamente.
     if (fat_cache_loaded==FAT_CACHE_LOADED){
@@ -268,10 +246,8 @@ fs_load_fat(
     fat_cache_loaded = FAT_CACHE_LOADED;
 }
 
-
 /*
  * fs_load_rootdir:
- * 
  */
 // Carrega o diretório raiz.
 // address, lba, number of sectors.
@@ -287,7 +263,6 @@ fs_load_rootdir(
     unsigned long root_lba, 
     size_t root_size )  // in sectors.
 {
-
     unsigned long RootAddress=0;
     unsigned long RootLBA=0;
     size_t        RootSize=0;
@@ -304,11 +279,7 @@ fs_load_rootdir(
         RootSize );
 }
 
-
-
-
-
 //
-// End.
+// End
 //
 

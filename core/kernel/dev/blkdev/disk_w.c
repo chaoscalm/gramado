@@ -1,9 +1,7 @@
 
 // disk_w.c
 
-
 #include <kernel.h>
-
 
 static int 
 __do_save_sequence ( 
@@ -11,8 +9,7 @@ __do_save_sequence (
     unsigned long buffer_va, 
     unsigned long lba, 
     size_t number_of_clusters );
-
-    
+  
 // ----------------------------
 
 static int 
@@ -32,14 +29,17 @@ __do_save_sequence (
     size_t Total = (size_t) (number_of_clusters & 0xFFFFFFFF);
     //size_t Max=0; 
 
+    //if (p<0)
+    //    return -1;
+
 // #todo:
 // #bugbug:
 // How much is the max number of cluster we can save 
 // into this disk.
 
 // Esperando antes do próximo.
-        
-    for ( i=0; i<Total; i++ )
+
+    for (i=0; i<Total; i++)
     {
         // Waiting before the next.
         // #bugbug: 
@@ -70,7 +70,6 @@ __do_save_sequence (
     return 0;
 }
 
-
 /*
  * write_lba:
  *     Grava um setor no disco dado o endereço do buffer e o lba. 
@@ -78,8 +77,7 @@ __do_save_sequence (
 // #bugbug
 // Essa rotina e' independente do sistema de arquivos.
 // #todo: use 'int' return.
-
-void write_lba ( unsigned long address, unsigned long lba )
+void write_lba( unsigned long address, unsigned long lba )
 {
 
 // #todo: 
@@ -122,17 +120,14 @@ fail:
     return;
 }
 
-
 /*
  * fatWriteCluster:
  *     Salva um cluster no disco.
- *
  * Argumentos:
  *   setor   ~ Primeiro setor do cluster.
  *   address ~ Endereço do primeiro setor do cluster.
  *   spc     ~ Número de setores por cluster.
  */
-
 // #todo
 // Return 'int'.
 // #bugbug: it is not only for fat... it is hw worker.
@@ -153,9 +148,9 @@ fatWriteCluster (
         return;
     }
 
-    for ( i=0; i < spc; i++ )
+    for (i=0; i < spc; i++)
     {
-        write_lba ( address, (sector + i) );
+        write_lba( address, (sector + i) );
         address = (address +512); 
     };
 
@@ -163,7 +158,6 @@ fatWriteCluster (
 
     //return 0;  //#todo
 }
-
 
 // Save fat into the disk.
 // Low level. It doesn't check the status of the fat cache.
@@ -211,20 +205,17 @@ fs_save_fat (
     return 0;
 }
 
-
 /*
  * fs_save_rootdir:
  *     Salva o diretório raiz no disco.
  *     @todo: Identificar parâmetros do sistema de arquivos atual. 
  */
-
 int 
 fs_save_rootdir ( 
     unsigned long root_address, 
     unsigned long root_lba, 
     size_t root_size )
 {
-
 
 // #bugbug: 
 // Debug
@@ -264,9 +255,7 @@ fs_save_rootdir (
     return 0;
 }
 
-
 //
 // End
 //
-
 
