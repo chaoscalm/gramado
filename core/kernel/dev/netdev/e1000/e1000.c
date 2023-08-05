@@ -1161,6 +1161,11 @@ static void __e1000_on_transmit(void)
 
 // Worker:
 // Called by DeviceInterface_e1000().
+// Frame size?
+// + The standard Ethernet (IEEE 802.3) frame size is 1,518 bytes.
+// + Ethernet header (14 bytes).
+// + The payload (IP packet, usually 1,500 bytes).
+// + Frame Check Sequence (FCS) field (4 bytes).
 static void __e1000_on_receive(void)
 {
 
@@ -1202,7 +1207,7 @@ static void __e1000_on_receive(void)
         if ( (void*) frame == NULL ){
             panic ("__e1000_on_receive: frame\n");
         }
-        if (frame_lenght>E1000_DEFAULT_BUFFER_SIZE){
+        if (frame_lenght > E1000_DEFAULT_BUFFER_SIZE){
              panic ("__e1000_on_receive: frame_lenght\n");
         }
 

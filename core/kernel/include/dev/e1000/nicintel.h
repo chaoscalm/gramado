@@ -73,6 +73,13 @@
 // #define E1000_NUM_TX_DESC 8
 // #define E1000_NUM_RX_DESC 32
 
+//  Frame size?
+// ( 14 + 1500 + 4 ) = 1518.
+// + The standard Ethernet (IEEE 802.3) frame size is 1,518 bytes.
+// + Ethernet header (14 bytes).
+// + The payload (IP packet, usually 1,500 bytes).
+// + Frame Check Sequence (FCS) field (4 bytes).
+
 
 // #todo
 // The buffer size limit depends on the configuration

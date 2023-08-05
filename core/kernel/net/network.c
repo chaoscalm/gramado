@@ -161,6 +161,7 @@ void network_test_NIC(void)
 // IN:
 // + frame base address
 // + frame total size
+// Called by __e1000_on_receive() in e1000.c.
 int 
 network_on_receiving ( 
     const unsigned char *frame, 
@@ -180,14 +181,14 @@ network_on_receiving (
         return -1;
     }
 
-    if ( (void*) frame == NULL ){
+    if ((void*) frame == NULL){
         //printf("network_on_receiving: frame\n");
         goto fail;
     }
 
     // 1~8192
     if ( frame_size <= 0 || 
-          frame_size > E1000_DEFAULT_BUFFER_SIZE )
+         frame_size > E1000_DEFAULT_BUFFER_SIZE )
     {
         //printf("network_on_receiving: frame_size\n");
         goto fail;
@@ -217,7 +218,8 @@ network_on_receiving (
     //printf("\n");
     //printf("Ethernet Header\n");
 
-    if ( (void*) eth == NULL ){
+// Ethernet header
+    if ((void*) eth == NULL){
         goto fail;
     }
 
@@ -247,13 +249,13 @@ network_on_receiving (
         Show=TRUE;
         network_handle_ipv4( 
             (frame + ETHERNET_HEADER_LENGHT), 
-            (frame_size - ETHERNET_HEADER_LENGHT)  );
+            (frame_size - ETHERNET_HEADER_LENGHT) );
         break;
     case ETHERTYPE_ARP:
         Show=TRUE;
         network_handle_arp( 
             (frame + ETHERNET_HEADER_LENGHT), 
-            (frame_size - ETHERNET_HEADER_LENGHT)  );
+            (frame_size - ETHERNET_HEADER_LENGHT) );
         break;
     // ...
     //case ETHERTYPE_IPv6:
@@ -263,6 +265,7 @@ network_on_receiving (
         break;
     };
 
+    // #debug
     //if (Show){
     //    refresh_screen();
     //}
