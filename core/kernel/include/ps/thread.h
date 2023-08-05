@@ -768,9 +768,9 @@ void *FindReadyThread (void);
 int GetThreadState (struct thread_d *thread);
 int GetThreadType (struct thread_d *thread);
 
-int GetCurrentTID(void);
+tid_t GetCurrentTID(void);
 
-void *GetThreadByTID (int tid);
+void *GetThreadByTID(tid_t tid);
 void *GetCurrentThread(void);
 void *GetForegroundThread(void);
 void *GetWSThread(void);
@@ -823,7 +823,7 @@ struct thread_d *create_thread (
 // Exit
 //
 
-void exit_thread(int tid);
+void exit_thread(tid_t tid);
 void exit_current_thread(void);
 
 // ===

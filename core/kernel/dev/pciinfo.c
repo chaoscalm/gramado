@@ -54,10 +54,10 @@ int pciInfo(void)
 
     printf ("pciInfo:\n");
 
-    for ( i=0; i<Max; i++ )
+    for (i=0; i<Max; i++)
     {
         D = (void *) pcideviceList[i];
-        if ( (void *) D != NULL )
+        if ((void *) D != NULL)
         {
             if ( D->used == TRUE && D->magic == 1234 )
             {
@@ -81,7 +81,6 @@ int pciInfo(void)
  *     Mostra informações sobre um dispositivo PCI da lista.
  *     Apenas um dispositivo.
  */
-
 int pciShowDeviceInfo(int number)
 {
     struct pci_device_d *D;
@@ -97,13 +96,10 @@ int pciShowDeviceInfo(int number)
 
 // Get the number.
     D = (void *) pcideviceList[number];
-
-    if ( (void *) D == NULL )
+    if ((void *) D == NULL)
         goto fail;
-
     if (D->used != TRUE)
         goto fail;
-
     if (D->magic != 1234)
         goto fail;
 
@@ -113,18 +109,11 @@ int pciShowDeviceInfo(int number)
 
 // done
     return 0;
-
 fail:
     return -1;
 }
 
-
 //
-// End.
+// End
 //
-
-
-
-
-
 

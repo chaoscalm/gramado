@@ -53,9 +53,6 @@ const char *pci_classes[] = {
 };
 */
 
-
-
-
 //========================================
 // pci_classes2:
 //    Estrutura com string para classes de dispositivos pci.
@@ -132,7 +129,6 @@ static const char* bridge_subclass_strings[] = {
     "PCI/CardBus bridge",        //7
     0 
 };
-
 
 
 // pciConfigReadByte:
@@ -451,12 +447,10 @@ pciGetInterruptLine (
                                PCI_OFFSET_INTERRUPTLINE );
 }
 
-
 /*
  * pciGetInterruptPin:
  *     Get interrupt pin offser 3d (Read only).
  */
-
 unsigned char 
 pciGetInterruptPin ( 
     unsigned char bus, 
@@ -467,12 +461,10 @@ pciGetInterruptPin (
                                PCI_OFFSET_INTERRUPTPIN );
 }
 
-
 /*
  * pciGetSubClass:
  *     Get subclass code. Offset 0x0A.
  */
-
 // #todo: 
 // Nesse momento não há nenhume busca por fuction.
 
@@ -485,13 +477,11 @@ pciGetSubClass (
                                bus, slot, 0, PCI_OFFSET_SUBCLASS );
 }
 
-
 // pciCheckDevice:
 // Check device, offset 2. 
 // #todo: 
 // Nesse momento não há nenhume busca por fuction. 
 // Device.
-
 unsigned short 
 pciCheckDevice (
     unsigned char bus, 
@@ -501,13 +491,11 @@ pciCheckDevice (
                                 bus, slot, 0, PCI_OFFSET_DEVICEID ); 
 }
 
-
 // pciCheckVendor:
 // Check vendor, offset 0. 
 // #todo: 
 // Nesse momento não há nenhume busca por fuction.
 // Vendor.
-
 unsigned short 
 pciCheckVendor (
     unsigned char bus, 
@@ -516,7 +504,6 @@ pciCheckVendor (
     return (unsigned short) pciConfigReadWord ( 
                                 bus, slot, 0, PCI_OFFSET_VENDORID );
 }
-
 
 static void __is_pci_supported(void)
 {
@@ -583,7 +570,7 @@ int init_pci(void)
 // Initialise PCI device list.
 // Initialise the offset.
 
-    for ( i=0; i<Max; ++i ){
+    for (i=0; i<Max; ++i){
         pcideviceList[i] = (unsigned long) 0;
     };
     pciListOffset = 0;
@@ -606,8 +593,6 @@ int init_pci(void)
     return (int) Status; 
 }
 
-
-
 __VOID_IRQ 
 irq_SHARED0 (void)
 {
@@ -627,7 +612,6 @@ __VOID_IRQ
 irq_SHARED3 (void)
 {
 }
-
 
 /*
  * pciHandleDevice
@@ -674,7 +658,7 @@ pciHandleDevice (
 // Structure for pci device.
 
     D = (void *) kmalloc( sizeof(struct pci_device_d) );
-    if ( (void *) D == NULL ){
+    if ((void *) D == NULL){
         panic("pciHandleDevice: D\n");
     }
     memset( D, 0, sizeof(struct pci_device_d) );

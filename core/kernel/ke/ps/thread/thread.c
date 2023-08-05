@@ -43,7 +43,8 @@ unsigned long threadList[THREAD_COUNT_MAX];
 //
 
 // worker for create_thread.
-static void __ps_initialize_thread_common_elements( struct thread_d *t );
+static void 
+__ps_initialize_thread_common_elements(struct thread_d *t);
 
 // worker for create_thread.
 static void 
@@ -99,8 +100,8 @@ __ps_initialize_thread_common_elements(struct thread_d *t)
 // for the messages.
     for ( i=0; i<MSG_QUEUE_MAX; ++i )
     {
-        tmp = (struct msg_d *) kmalloc( sizeof( struct msg_d ) );
-        if ( (void*) tmp == NULL ){
+        tmp = (struct msg_d *) kmalloc( sizeof(struct msg_d) );
+        if ((void*) tmp == NULL){
             panic("__ps_initialize_thread_common_elements: tmp");
         }
 
@@ -125,7 +126,6 @@ __ps_initialize_thread_common_elements(struct thread_d *t)
     t->signal = 0;
     t->umask = 0;
     t->exit_code = 0;
-    //return;
 }
 
 // =======================================
@@ -247,7 +247,7 @@ unsigned long GetThreadStats( int tid, int index )
     }
 // structure
     t = (void *) threadList[tid];
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         return 0; 
     }
     if (t->magic != 1234){
@@ -370,7 +370,6 @@ unsigned long GetThreadStats( int tid, int index )
     return 0;
 }
 
-
 // Get thread name.
 int getthreadname ( int tid, char *buffer )
 {
@@ -378,7 +377,7 @@ int getthreadname ( int tid, char *buffer )
     char *name_buffer = (char *) buffer;
 
 // Buffer
-    if ( (void*) buffer == NULL ){
+    if ((void*) buffer == NULL){
         goto fail;
     }
 
@@ -389,7 +388,7 @@ int getthreadname ( int tid, char *buffer )
 
 // Structure
     t = (struct thread_d *) threadList[tid]; 
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         goto fail;
     }
     if ( t->used != TRUE || t->magic != 1234 ){
@@ -424,9 +423,9 @@ void *FindReadyThread(void)
     for ( i=0; i<THREAD_COUNT_MAX; ++i )
     {
         t = (void *) threadList[i];
-        if ( (void *) t != NULL )
+        if ((void *) t != NULL)
         {
-            if ( t->used  == TRUE && 
+            if ( t->used == TRUE && 
                  t->magic == 1234 && 
                  t->state == READY )
             {
@@ -442,7 +441,7 @@ void *FindReadyThread(void)
 // (Zero e' tipo NULL?).
 int GetThreadState (struct thread_d *thread)
 {
-    if ( (void *) thread == NULL ){
+    if ((void *) thread == NULL){
         // Message
         return 0;   //#bugbug: This is a valid state.
     }
@@ -534,24 +533,21 @@ int init_threads(void)
     return 0;
 }
 
-
 // GetCurrentTID
 //      Pega o id da thread atual.
-// #todo: use tid_t type.
-int GetCurrentTID(void)
+tid_t GetCurrentTID(void)
 {
-    return (int) current_thread;
+    return (tid_t) current_thread;
 }
 
-void *GetThreadByTID (int tid)
+void *GetThreadByTID(tid_t tid)
 {
     struct thread_d *t;
-
     if (tid < 0 || tid >= THREAD_COUNT_MAX){
         return NULL;
     }
-
     t = (void *) threadList[tid];
+
     return (void *) t;
 }
 
@@ -569,12 +565,12 @@ void *GetForegroundThread(void)
 
 void *GetWSThread(void)
 {
-    int tid = -1;
+    tid_t ws_tid = -1;
     if (WindowServerInfo.initialized != TRUE){
         return NULL;
     }
-    tid = (int) WindowServerInfo.tid;
-    return (void*) GetThreadByTID(tid);
+    ws_tid = (tid_t) WindowServerInfo.tid;
+    return (void*) GetThreadByTID(ws_tid);
 }
 
 /*
@@ -594,7 +590,7 @@ void *GetWSThread(void)
 
 void SelectForExecution(struct thread_d *Thread)
 {
-    if ( (void *) Thread == NULL){
+    if ((void *) Thread == NULL){
         debug_print ("SelectForExecution: Thread fail\n");
         return;
     }
@@ -644,8 +640,7 @@ void thread_show_profiler_info (void)
     for (i=0; i<THREAD_COUNT_MAX; i++)
     {
         thread = (struct thread_d *) threadList[i];
-
-        if ( (void *) thread != NULL )
+        if ((void *) thread != NULL)
         {
             if (thread->used == TRUE && thread->magic == 1234)
             {
@@ -683,7 +678,7 @@ void show_thread_information (void)
 // =================================
 // Idle thread
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void *) Idle != NULL )
+    if ((void *) Idle != NULL)
     {
         if (Idle->magic == 1234){
             printf ("Idle->tid = %d\n", Idle->tid );
@@ -693,7 +688,7 @@ void show_thread_information (void)
 // =================================
 // Current thread
     Current = (void *) GetCurrentThread();
-    if ( (void *) Current != NULL )
+    if ((void *) Current != NULL)
     {
         if (Current->magic == 1234){
             printf ("Current->tid   = %d\n", Current->tid );
@@ -727,7 +722,7 @@ int thread_profiler(int service)
     }
 
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void *) Idle == NULL ){
+    if ((void *) Idle == NULL){
         panic("thread_profiler: Idle\n");
     }
     if (Idle->magic != 1234){
@@ -736,7 +731,7 @@ int thread_profiler(int service)
 
 // Current thread
     __current = (struct thread_d *) GetCurrentThread();
-    if ( (void *) __current == NULL ){
+    if ((void *) __current == NULL){
         panic ("thread_profiler: __current\n");
     }
     if (__current->magic != 1234){
@@ -871,10 +866,10 @@ struct thread_d *create_thread (
 //======================================
 // check parameters.
 
-    if ( (void*) room == NULL ){
+    if ((void*) room == NULL){
         debug_print ("create_thread: room parameter\n");
     }
-    if ( (void*) desktop == NULL ){
+    if ((void*) desktop == NULL){
         debug_print ("create_thread: desktop parameter\n");
     }
 
@@ -895,12 +890,12 @@ struct thread_d *create_thread (
     //}
 
 // PID
-    if( pid < 0 ){
+    if (pid < 0){
         panic ("create_thread: [ERROR] pid\n");
     }
 
 // name
-    if ( (void*) name == NULL ){
+    if ((void*) name == NULL){
         panic ("create_thread: [ERROR] name\n");
     }
     if ( *name == 0 ){
@@ -918,7 +913,8 @@ struct thread_d *create_thread (
 // Pois a thread atual não importa.
 // @todo: deletar isso. 
 
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
+    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX )
+    {
         debug_print ("create_thread: current_thread fail\n");
         printf      ("create_thread: current_thread fail\n");
         return NULL;
@@ -930,10 +926,11 @@ struct thread_d *create_thread (
 // Não sabemos a condição do processo atual para 
 // permitirmos que ele seja o dono da thread.
 
-    ProcessID = (int) pid;
-    if ( ProcessID < 0 || ProcessID >= PROCESS_COUNT_MAX ){
+    ProcessID = (pid_t) pid;
+    if ( ProcessID < 0 || ProcessID >= PROCESS_COUNT_MAX )
+    {
         //#bugbug: Isso pode ser um problemão.
-        panic("create_thread: pid");
+        panic("create_thread: ProcessID");
         //ProcessID = current_process;
     }
 
@@ -941,10 +938,10 @@ struct thread_d *create_thread (
 // Process
 //
 
-// Ja temos um PID para o processo que � dono da thread.
+// Ja temos um PID para o processo que eh dono da thread.
 
     Process = (void *) processList[ProcessID]; 
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         panic ("create_thread: Process\n");
     }
     if (Process->used != TRUE){
@@ -1007,7 +1004,7 @@ struct thread_d *create_thread (
 // Surface rectangle.
 
     r = (struct rect_d *) kmalloc ( sizeof(struct rect_d) );
-    if ( (void*) r == NULL ){
+    if ((void*) r == NULL){
         panic("create_thread: r\n");
     }
     r->left = 0;
@@ -1024,10 +1021,7 @@ struct thread_d *create_thread (
 // Initializing the common basic elements.
     __ps_initialize_thread_common_elements( (struct thread_d *) Thread );
 
-//
 // Input model
-//
-
     Thread->input_mode = IM_MESSAGE_INPUT;
 
 // ??
@@ -1069,7 +1063,7 @@ try_next_slot:
 
     Empty = (void *) threadList[i];
 
-    if ( (void *) Empty != NULL )
+    if ((void *) Empty != NULL)
     {
         // Recomeça o loop na base para id de usuarios.
         i++;
@@ -1085,7 +1079,7 @@ try_next_slot:
 // ======================================
 // Index Ok.
 // Now we have an index number.
-    Thread->tid = (int) i;
+    Thread->tid = (tid_t) i;
 
 //
 // == Time support ============
@@ -1279,7 +1273,7 @@ try_next_slot:
  *     Outra rotina destruirá as informações de uma estrutura de thread zombie.
  */
  
-void exit_thread (int tid)
+void exit_thread (tid_t tid)
 {
     struct thread_d *Idle;
     struct thread_d *Thread;
@@ -1292,7 +1286,7 @@ void exit_thread (int tid)
 // Init thread.
 // We can't exit the idle thread.
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void *) Idle == NULL ){
+    if ((void *) Idle == NULL){
         panic ("exit_thread: Idle\n");
     }
     if (Idle->magic != 1234){
@@ -1306,7 +1300,7 @@ void exit_thread (int tid)
 // Get thread structure.
 
     Thread = (void *) threadList[tid];
-    if ( (void *) Thread == NULL ){
+    if ((void *) Thread == NULL){
         printf ("exit_thread: Thread doesn't exist\n");
         goto fail;
     }

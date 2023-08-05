@@ -17,7 +17,7 @@ void show_slot(int tid)
     }
 // structure
     t = (void *) threadList[tid];
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         printf ("show_slot: t\n");
         goto fail;
     }
@@ -81,7 +81,7 @@ void show_slots(void)
     {
         t = (void *) threadList[i];
         if ( (void *) t != NULL && 
-             t->used  == 1 && 
+             t->used == TRUE && 
              t->magic == 1234 )
         {
             show_slot(t->tid);
@@ -90,7 +90,6 @@ void show_slots(void)
 
     refresh_screen();
 }
-
 
 /*
  * show_reg:
@@ -112,7 +111,7 @@ void show_reg(int tid)
     }
 // structure
     t = (void *) threadList[tid];
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         printf ("show_reg: fail\n");
         return;
     } 
@@ -158,19 +157,28 @@ set_thread_priority (
     }
 
 // Thread validation
-    if ( (void *) t == NULL )                 { return; }
-    if ( t->used != TRUE || t->magic != 1234 ){ return; }
+    if ((void *) t == NULL){
+        return;
+    }
+    if ( t->used != TRUE || t->magic != 1234 )
+    {
+        return;
+    }
 
 // Save old values.
     OldPriority  = t->priority;
     BasePriority = t->base_priority;
 
 // Se aprioridade solicitada for igual da prioridade atual.
-    if (priority == OldPriority){ return; }
+    if (priority == OldPriority){
+        return;
+    }
 
 // Se a prioridade solicitada for menor que a prioridade basica.
 // #todo: Então poderiamos usar a prioridade basica.
-    if (priority < BasePriority){ return; }
+    if (priority < BasePriority){
+        return;
+    }
 
 // Se a prioridade basica pertencer a classe de tempo real
 // nao podemos mudar a prioridade.
@@ -211,8 +219,11 @@ void threadi_power(
 {
 
 // structure
-    if ( (void *) t == NULL ){ return; }
-    if ( t->used != TRUE || t->magic != 1234 ){
+    if ((void *) t == NULL){
+        return;
+    }
+    if ( t->used != TRUE || t->magic != 1234 )
+    {
         return;
     }
 
@@ -255,7 +266,7 @@ SetThread_PML4PA (
     struct thread_d *thread, 
     unsigned long pa )
 {
-    if ( (void *) thread == NULL )
+    if ((void *) thread == NULL)
     {
         //
         return;
@@ -316,7 +327,7 @@ void dead_thread_collector(void)
 // Check idle
 
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void *) Idle == NULL ){
+    if ((void *) Idle == NULL){
         panic("dead_thread_collector: Idle\n");
     }
     if (Idle->magic != 1234){
@@ -330,7 +341,7 @@ void dead_thread_collector(void)
     {
         Target = (void *) threadList[i];
 
-        if ( (void *) Target != NULL )
+        if ((void *) Target != NULL)
         {
             if ( Target->state == ZOMBIE  && 
                  Target->used  == TRUE    && 
@@ -400,8 +411,9 @@ void kill_thread(tid_t tid)
 // Thread validation
 
     t = (struct thread_d *) threadList[tid];
-    if ( (void*) t == NULL )
+    if ((void*) t == NULL){
         return;
+    }
     if (t->used != TRUE)
         return;
     if (t->magic != 1234)
@@ -436,20 +448,19 @@ void kill_zombie_threads(void)
     register int i=0;
     for (i=0; i<THREAD_COUNT_MAX; i++)
     {
-         t = (struct thread_d *) threadList[i];
-         if (t->used == TRUE)
-         {
-             if (t->magic == 1234)
-             {
-                 if (t->state == ZOMBIE){
-                     kill_thread(t->tid);
-                 }
-             }
-         }    
+        t = (struct thread_d *) threadList[i];
+        if ((void*) t != NULL)
+        {
+            if (t->used == TRUE)
+            {
+                if (t->magic == 1234)
+                {
+                    if (t->state == ZOMBIE){
+                        kill_thread(t->tid);
+                    }
+                }
+            }
+        }
     };
 }
-
-
-
-
 
