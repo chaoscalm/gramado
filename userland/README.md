@@ -15,6 +15,8 @@
    * Libraries.
  * services/:
    * Ring 3 servers.
+ * shell/:
+   * The shell command.
 ```
 
 
