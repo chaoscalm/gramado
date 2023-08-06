@@ -7,7 +7,6 @@
 
 #include "gwsint.h"
 
-
 // Clicked over a window.
 static int grab_is_active=FALSE;
 // Move the mouse without release the button.
@@ -270,8 +269,12 @@ on_keyboard_event(
 //================================
     if (msg == GWS_SysKeyDown)
     {
+        // Se pressionamos alguma tecla de funçao.
+        // Cada tecla de funçao aciona um botao da barra de tarefas.
+
+        // We have 4 buttons in the taskbar.
         if (long1 == VK_F1){
-            __button_pressed(  QuickLaunch.buttons[0] );
+            __button_pressed(QuickLaunch.buttons[0]);
             return 0;
         }
         if (long1 == VK_F2){
@@ -287,6 +290,9 @@ on_keyboard_event(
             return 0;
         }
 
+        // F9=minimize button
+        // F10=maximize button
+        // F11=close button
         // #todo: Explain it better.
         if (long1 == VK_F9 || 
             long1 == VK_F10 || 
@@ -296,16 +302,18 @@ on_keyboard_event(
             return 0;
         }
 
-        //printf("wmProcedure: [?] GWS_SysKeyDown\n");
+        // printf("wmProcedure: [?] GWS_SysKeyDown\n");
+        
         // Enfileirar a mensagem na fila de mensagens
         // da janela com foco de entrada.
         // O cliente vai querer ler isso.
         // We need the keyboard_owner.
         window = (struct gws_window_d *) get_focus();
-        if ((void*) window == NULL )
+        if ((void*) window == NULL)
             return 0;
         if (window->magic!=1234)
             return 0;
+        // Post.
         wmPostMessage(
             (struct gws_window_d *) window,
             (int)msg,
@@ -319,6 +327,10 @@ on_keyboard_event(
 //================================
     if (msg == GWS_SysKeyUp)
     {
+        // Se liberamos alguma das 4 teclas de funçao.
+        // Cada tecla lança um processo filho diferente,
+        // todos pre-definidos aqui.
+
         if (long1 == VK_F1){
             __button_released(QuickLaunch.buttons[0]);
             memset(name_buffer,0,64-1);
@@ -359,7 +371,10 @@ on_keyboard_event(
             return 0;
         }
 
-        // update desktop
+        // F5 = Update desktop.
+        // Muda o status dos botoes da quick launch area,
+        // atualiza a disposiçao das janelas na tela e
+        // mostra a tela.
         if (long1 == VK_F5)
         {
             set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
@@ -375,8 +390,9 @@ on_keyboard_event(
             return 0;
         }
 
-        //=====
-        if (long1==VK_F6){
+        // F6 = Entra ou sai do modo fullscreen.
+        if (long1 == VK_F6)
+        {
             // Enter fullscreen mode.
             if (WindowManager.is_fullscreen != TRUE)
             {
@@ -395,8 +411,10 @@ on_keyboard_event(
             }
             return 0;
         }
-        
-        // #todo: Explai it better.
+
+        // Liberamos as teclas de funçao relativas aos controles
+        // de janelas.
+        // #todo: Explain it better.
         if (long1 == VK_F9 || 
             long1 == VK_F10 || 
             long1 == VK_F11)
@@ -420,7 +438,6 @@ on_keyboard_event(
 // Os aplicativos estao recebendo
 // os eventos enviados para as janelas.
 // Mas os aplicativos pegam eventos apenas da 'main window'.
-
 static void 
 on_mouse_event(
     int event_type, 
@@ -429,7 +446,7 @@ on_mouse_event(
 {
 
 // Quando movemos o mouse, então atualizamos o ponteiro que indica
-// a janela mouse_hover. Esse ponteiro será usado para os eventos
+// a janela mouse_hover. Esse ponteiro será usado pelos eventos
 // de botão de mouse.
 
 // Window with focus.
@@ -440,8 +457,9 @@ on_mouse_event(
     unsigned long in_y=0;
     register int Tail=0;
 
-    if (gUseMouse != TRUE)
+    if (gUseMouse != TRUE){
         return;
+    }
 
 // Error. Nothing to do.
     //if (event_type<0){
@@ -464,11 +482,15 @@ on_mouse_event(
         // If we already clicked the window
         // and now we're moving it.
         // So, now we're dragging it.
+        
+        // O botao esta pressionado.
         if (grab_is_active == TRUE){
             is_dragging = TRUE;
+        // O botao nao esta pressionado.
         } else if (grab_is_active != TRUE){
             is_dragging = FALSE;
         };
+        //?
         set_refresh_pointer_status(TRUE);
         // Update the global mouse position.
         // The compositor is doing its job,
@@ -482,14 +504,17 @@ on_mouse_event(
 
 // Pressed:
 // Process but do not send message for now.
-    if (event_type == GWS_MousePressed){
+    if (event_type == GWS_MousePressed)
+    {
         on_mouse_pressed();
+        //goto post_message;
         return;
     }
 
 // Release:
 // Process and send message.
-    if (event_type == GWS_MouseReleased){
+    if (event_type == GWS_MouseReleased)
+    {
         on_mouse_released();
         //...
         // #test
@@ -502,14 +527,16 @@ not_valid:
     return;
 
 // Post message to the window.
-post_message:
-
 // Enviamos o evento para a janela mouse_hover.
 // O aplicativo vai ler, caso ela seja a janela com 
 // foco de entrada.
 // #bugbug:
 // Na verdade o aplicativo precisa ler o evento que chega pra ele
 // e o evento conterá o id da janela em questão.
+// #bugbug
+// Na verdade o aplicativo esta pegando eventos apenas em uma janela,
+// a main window.
+post_message:
 
     // #debug
     // printf("send_message:\n");
@@ -518,24 +545,23 @@ post_message:
 
     //w = (struct gws_window_d *) mouse_hover;
     w = (struct gws_window_d *) get_mousehover();
-    if ( (void*) w==NULL ){
+    if ((void*) w==NULL){
         printf("on_mouse_event: w\n");
         return;
     }
-    if (w->magic!=1234){
+    if (w->magic != 1234){
         printf("on_mouse_event: w magic\n");
         return;
     }
 
 //
-// manda a mensagem para a hover
+// Manda a mensagem para a hover window.
 //
 
 // Pega os valores que foram configurados 
 // no último evento mouse move.
     saved_x = comp_get_mouse_x_position();
     saved_y = comp_get_mouse_y_position();
-
 
 // Check if we are inside the mouse hover.
     if ( saved_x >= w->absolute_x &&
@@ -568,7 +594,7 @@ post_message:
                 
                 // Se essa editbox não é a keyboard owner,
                 // então ela passa a ser.
-                if ( w != keyboard_owner )
+                if (w != keyboard_owner)
                 {
                     // #todo:
                     // Nessa função podemos mudar algumas características da janela
@@ -607,7 +633,6 @@ post_message:
 //fail
     w->single_event.has_event = FALSE;
 }
-
 
 static void on_mouse_pressed(void)
 {
@@ -773,7 +798,6 @@ static void on_mouse_pressed(void)
     */
 }
 
-
 // When clicked or 'pressed' via keyboard.
 static void on_control_clicked_by_wid(int wid)
 {
@@ -791,13 +815,16 @@ static void on_control_clicked_by_wid(int wid)
     on_control_clicked(window);
 }
 
+// Let's check what control button was clicked.
+// The control is a window that belongs to the titlebar
+// of an overlapped window.
 // When clicked or 'pressed' via keyboard.
 static void on_control_clicked(struct gws_window_d *window)
 {
 // Called when a control button was release.
-// ( Clicked by the mouse or some other input event)
-// + The button belongs to a title bar
-// + The title bar belongs to an overlapped.
+// (Clicked by the mouse or some other input event)
+// + The button belongs to a title bar.
+// + The titlebar belongs to an overlapped.
 // #tests:
 // + Post message to close the overlapped
 //   if the button is a close control.
@@ -809,7 +836,7 @@ static void on_control_clicked(struct gws_window_d *window)
 // + Post message to close the overlapped
 //   if the button is a close control.
 
-    if ( (void*) window == NULL )
+    if ((void*) window == NULL)
         return;
     if (window->magic != 1234)
         return;
@@ -823,14 +850,70 @@ static void on_control_clicked(struct gws_window_d *window)
 // Minimize control
     if (window->isMinimizeControl == TRUE)
     {
-        return;
+        // Title bar?
+        w1 = (void*) window->parent;
+        if ((void*) w1 != NULL)
+        {
+            if (w1->magic == 1234)
+            {
+                // Overlapped?
+                w2 = (void*) w1->parent;
+                if ((void*) w2 != NULL)
+                {
+                    if (w2->magic == 1234)
+                    {
+                        // Check if it is an overlapped window and 
+                        // Post a message to the main window
+                        // of the client app.
+                        if (w2->type == WT_OVERLAPPED)
+                        {
+                            printf("Minimize\n");
+                            //window_post_message ( 
+                            //    w2->id,
+                            //    GWS_Minimize
+                            //    0,
+                            //    0 );
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 // ------------
 // Maximize control
     if (window->isMaximizeControl == TRUE)
     {
-        return;
+        // Title bar?
+        w1 = (void*) window->parent;
+        if ((void*) w1 != NULL)
+        {
+            if (w1->magic == 1234)
+            {
+                // Overlapped?
+                w2 = (void*) w1->parent;
+                if ((void*) w2 != NULL)
+                {
+                    if (w2->magic == 1234)
+                    {
+                        // Check if it is an overlapped window and 
+                        // Post a message to the main window
+                        // of the client app.
+                        if (w2->type == WT_OVERLAPPED)
+                        {
+                            printf("Maximize\n");
+                            //window_post_message ( 
+                            //    w2->id,
+                            //    GWS_Maximize,
+                            //    0,
+                            //    0 );
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 // ------------
@@ -838,28 +921,29 @@ static void on_control_clicked(struct gws_window_d *window)
 // A close control was cliked.
     if (window->isCloseControl == TRUE)
     {
-        // title bar?
+        // Title bar?
         w1 = (void*) window->parent;
-        if ( (void*) w1 != NULL )
+        if ((void*) w1 != NULL)
         {
             if (w1->magic == 1234)
             {
-                // overlapped
+                // Overlapped?
                 w2 = (void*) w1->parent;
-                if ( (void*) w2 != NULL )
+                if ((void*) w2 != NULL)
                 {
                     if (w2->magic == 1234)
                     {
-                        // check
+                        // Check if it is an overlapped window and 
+                        // Post a message to the main window
+                        // of the client app.
                         if (w2->type == WT_OVERLAPPED)
                         {
-                            // Post message to the main window
-                            // of the client app.
                             window_post_message ( 
                                 w2->id,
                                 GWS_Close,
                                 0,
                                 0 );
+                            return;
                         }
                     }
                 }
@@ -899,21 +983,20 @@ static void on_mouse_released(void)
     // safety first.
     // mouse_hover validation
 
-    if ( (void*) mouse_hover == NULL )
+    if ((void*) mouse_hover == NULL)
         return;
-    if (mouse_hover->magic!=1234)
+    if (mouse_hover->magic != 1234)
         return;
 
-
-//#test
-// Start menu button.
-    if (mouse_hover->id == StartMenu.wid){
+// -------------------
+// #test
+// Start menu button was released.
+    if (mouse_hover->id == StartMenu.wid)
+    {
         __button_released(mouse_hover->id);
         on_menu_event();
         return;
     }
-
-
 
     // If we already clicked on a window
     // and are already dragging it.
@@ -1018,6 +1101,7 @@ static void on_mouse_released(void)
             // Redraw the button
             __button_released(mouse_hover->id);
             //printf("Release on min control\n");
+            on_control_clicked(mouse_hover);
             return;
         }
     }
@@ -1032,6 +1116,7 @@ static void on_mouse_released(void)
             // Redraw the button
             __button_released(mouse_hover->id);
             //printf("Release on max control\n");
+            on_control_clicked(mouse_hover);
             return;
         }
     }
@@ -1174,6 +1259,9 @@ static void on_update_window(int event_type)
 }
 
 
+// Um evento afeta os controles de janela.
+// Vamos pressionar ou liberar um dos botoes de controle
+// que estao na barra de titulos.
 int control_action(int msg, unsigned long long1)
 {
 // #todo
@@ -1187,42 +1275,58 @@ int control_action(int msg, unsigned long long1)
     int close_wid=-1;
 
     if (msg<0){
-        return -1;
+        goto fail;
     }
 
-// -----------------------
-// Overlapped window
+//
+// Get the active window.
+//
+
+
     aw = (void*) get_active_window();
-    if ( (void*) aw == NULL ){
-        return -1;
+    if ((void*) aw == NULL){
+        goto fail;
     }
-    if (aw->magic!=1234){
-        return -1;
+    if (aw->magic != 1234){
+        goto fail;
     }
+    // Overlapped window?
+    // #todo: A janela ativa pode ser de mais de um tipo.
     //if (aw->type != WT_OVERLAPPED)
-        //return -1;
+        //goto fail;
 
 // -----------------------
 // titlebar
+// #bugbug: 
+// Nem todos tipos de janela possuem uma titlebar.
+// Precisa ser overlapped?
+
     w = (void*) aw->titlebar;
-    if ( (void*) w == NULL ){
-        return -1;
+    if ((void*) w == NULL){
+        goto fail;
     }
-    if (w->magic!=1234){
-        return -1;
+    if (w->magic != 1234){
+        goto fail;
     }
 
+// Is the control support already initialized for this window?
     if (w->Controls.initialized != TRUE){
-        return -1;
+        goto fail;
     }
 
-// Get WIDs.
+// Get WIDs for the controls.
     minimize_wid = (int) w->Controls.minimize_wid;
     maximize_wid = (int) w->Controls.maximize_wid;
     close_wid    = (int) w->Controls.close_wid;
-    
+
+//
+// The message.
+//
+
     switch (msg){
 
+    // Quando a tecla foi pressionada,
+    // mudaremos o status, repintamos e mostramos o botao.
     case GWS_SysKeyDown:
         if (long1==VK_F9){
             __button_pressed(minimize_wid);
@@ -1239,19 +1343,22 @@ int control_action(int msg, unsigned long long1)
         return 0;
         break;
 
+    // Quando a tecla for liberada,
+    // mudaremos o status, repintamos e mostramos o botao.
+    // ?
     case GWS_SysKeyUp:
-        if (long1==VK_F9){
+        if (long1 == VK_F9){
             __button_released(minimize_wid);
             on_control_clicked_by_wid(minimize_wid);
             return 0;
         }
-        if (long1==VK_F10){
+        if (long1 == VK_F10){
             __button_released(maximize_wid);
             on_control_clicked_by_wid(maximize_wid);
             return 0;
         }
         // The close control was released.
-        if (long1==VK_F11){
+        if (long1 == VK_F11){
             __button_released(close_wid);
             on_control_clicked_by_wid(close_wid);
             return 0;
@@ -1262,7 +1369,8 @@ int control_action(int msg, unsigned long long1)
         break;
     };
 
-    return -1;
+fail:
+    return (int) -1;
 }
 
 void show_client( struct gws_client_d *c, int tag )

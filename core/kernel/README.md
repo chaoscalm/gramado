@@ -18,7 +18,7 @@ The kernel program starts at the function _kernel_begin in head_64.asm. See: ke/
 
 All the support for processes and threads are in the ke/ps/ folder.
 
-## Where is the memmory support?
+## Where is the memory support?
 
 All the memory suppport is found in mm/ folder.
 

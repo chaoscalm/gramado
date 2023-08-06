@@ -891,7 +891,7 @@ int main( int argc, char *argv[] )
                                    main_window,
                                    (struct gws_event_d *) &lEvent );
 
-        if ( (void *) e != NULL )
+        if ((void *) e != NULL)
         {
             if (e->magic == 1234){
                 editorProcedure(

@@ -268,7 +268,7 @@ static int do_event_loop(int fd)
                 __main_window,
                 (struct gws_event_d *) &lEvent );
 
-        if ( (void *) e != NULL )
+        if ((void *) e != NULL)
         {
             //if( e->used == TRUE && e->magic == 1234 )
             if (e->magic == 1234){
