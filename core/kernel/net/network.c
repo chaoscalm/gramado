@@ -172,8 +172,10 @@ network_on_receiving (
 
     struct ether_header *eth = (struct ether_header *) frame;
     uint16_t Type=0;
+    int Show=FALSE;
 
 // Drop it!
+// Set this flag using the command "net-on" on terminal.bin.
     if (network_status != TRUE)
     {
         //#debug
@@ -241,7 +243,6 @@ network_on_receiving (
         (unsigned short) eth->type);
 */
 
-    int Show=FALSE;
     Type = (uint16_t) FromNetByteOrder16(eth->type);
 
     switch (Type){
@@ -281,9 +282,11 @@ network_on_sending (
     const unsigned char *frame, 
     ssize_t frame_size )
 {
-    if (network_status != TRUE)
+    if (network_status != TRUE){
         return -1;
+    }
 
+//fail:
     return -1;
 }
 
