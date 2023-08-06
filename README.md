@@ -64,19 +64,20 @@ desktop/ is a place for the graphical user interface.
    * `netd` - Network server and first client.
    * `newm0` - Ring 0 loadable module.
 
-
  * `docs/` - Documentation.
 
  * `meta/` - metadata.
 
  * `userland/` - Desktop Environment (DE).
    * `apps` - Client-side GUI applications.
+   * `commands` - The posix commands.
    * `demos` - Demos.
      * `eng` - 3D demo.
    * `games` - Games.
    * `libs` - Libraries.
    * `services` - Servers.
      * `gramland` - Window server.
+   * `shell` - The shell command.
 
 ## Who are the developers?
 

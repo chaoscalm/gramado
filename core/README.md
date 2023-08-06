@@ -1,14 +1,27 @@
 # core - The Gramado kernel
 
-This repository has the source code for:
-
-* Gramado boot loader
-* Gramado kernel
-* Commands
-
 ## What is Gramado?
 
     Gramado (c) is a 64bit multithreaded operating system.
+
+
+## This repository has the source code for:
+
+* Gramado boot loader
+* Gramado kernel
+
+## Where is the boot loader?
+
+All the boot support can be found in boot/ folder.
+
+## Where is the core kernel program.
+
+The kernel core program is called KERNEL.BIN. It is found in the kernel/ folder.
+
+## Where are the kernel modules?
+
+The kernel has only one ring0 loadable module. It uses a static address and the symbols are resolved at runtime. See: newm0 or newm1.
+
 
 ## Kernel features.
 

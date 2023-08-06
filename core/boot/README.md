@@ -1,4 +1,20 @@
-# Memory map for the Gramado OS initialization.
+# boot - Boot loader.
+
+Main parts of the boot loader. (MBR | Boot manager | Boot loader)
+
+## Where is the MBR code?
+
+The code for the x86 16bit MBR is found in vd/fat/main.asm.
+
+## Where is the boot manager?
+
+The boot manager is a 16/32 bit Assembly program the run right after the MBR. It is found in x86/bm/ and x86/bm2/.
+
+## Where is the boot loader?
+
+The boot laoder program is 32bit C program the load the kernel. It is found in the x86/bl/ folder.
+
+## Memory map for the Gramado OS initialization.
 
 --------------------------------------------------
 Memory map for the stage 1:
