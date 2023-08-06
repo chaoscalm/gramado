@@ -11,55 +11,49 @@ VERSION_BUILD = ?
 
 all:
 
+# ----------------
 # libs
-	make -C libs/rtl/
-	make -C libs/libgws/
-	make -C libs/libdisp/
-	make -C libs/libgr/
-	make -C libs/libgr3d/
-	make -C libs/libio01/
+# First of all :)
+	make -C libs/
+
+# ----------------
+# Client-side GUI applications.
+	make -C apps/
 
 # ----------------
 # Ring 3 posix-like commands.
 	make -C commands/
 
 # ----------------
-# Gramland window server.
-	make -C services/gramland/
+# demos/
+# Graphics engine. (3D demos)
+	make -C demos/
+
+# ----------------
+# games
 
 # ----------------
 # netd
-# :: Indigo 1 (net)
 	make -C netd/ 
 
 # ----------------
-# Shell
-# apps: Unit 3
-	make -C apps/client
-	make -C apps/gdm
-	make -C apps/setup
-# apps: Unit 2
-	make -C apps/terminal  
-# apps: Unit 1
-	make -C apps/cmdline
-	make -C apps/editor
-	make -C apps/browser
-	make -C apps/docv
+# Services
+	make -C services/
 
 # ----------------
-# demos/
-# Graphics engine. (3D demos)
-	make -C demos/eng/
+# The shell command.
+	make -C shell/
 
 clean-all:
 	-rm -f apps/bin/*.BIN
 	-rm -f commands/bin/*.BIN
 	-rm -f demos/eng/bin/*.BIN
-	-rm -f libs/libgws/obj/*.o
+	-rm -f libs/libdisp/obj/*.o
 	-rm -f libs/libgr/obj/*.o
 	-rm -f libs/libgr3d/obj/*.o
-	-rm -f libs/libdisp/obj/*.o
+	-rm -f libs/libgws/obj/*.o
 	-rm -f libs/libio01/obj/*.o
 	-rm -f libs/rtl/obj/*.o
-	-rm -f services/gramland/bin/*.BIN
 	-rm -f netd/bin/*.BIN
+	-rm -f services/gramland/bin/*.BIN
+	

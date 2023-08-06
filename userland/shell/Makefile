@@ -96,10 +96,10 @@ CFLAGS := \
 	-mno-mmx -mno-sse -mno-sse2   
 	
 
-LIBC     = ../../libs/rtl/include/
-LIBCOBJ  = ../../libs/rtl/obj
-LIBIO    = ../../libs/libio01/include/
-LIBIOOBJ = ../../libs/libio01/obj
+LIBC     = ../libs/rtl/include/
+LIBCOBJ  = ../libs/rtl/obj
+LIBIO    = ../libs/libio01/include/
+LIBIOOBJ = ../libs/libio01/obj
 
 # Objects
 myObjects = crt0.o main.o \
@@ -130,9 +130,9 @@ all-c:
 	cp $(LIBIOOBJ)/libio.o  .
 	
 cat-link:
-	ld -m elf_x86_64 -T ../../link.ld -o SHELL.BIN $(myObjects)    
+	ld -m elf_x86_64 -T ../link.ld -o SHELL.BIN $(myObjects)    
 finalize:
-	cp SHELL.BIN  ../bin
+	cp SHELL.BIN  ../commands/bin/
 clean:
 	-rm *.o
 	-rm SHELL.BIN 
