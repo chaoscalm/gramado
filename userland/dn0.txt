@@ -1,9 +1,0 @@
-
-apps/
-    Client applications.
-demos/eng/
-    Graphics engine.
-services/gramland/
-    Window server.
-libs/
-    Client-side libraries.
