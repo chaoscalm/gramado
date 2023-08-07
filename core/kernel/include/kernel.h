@@ -373,15 +373,15 @@ extern unsigned long gSavedBPP;
 // user/
 //
 
-// VEM - Virtual Environment Manager.
+// SM - Security Manager.
 // Autentication, security.
-#include "user/vem/usession.h"
-#include "user/vem/room.h"
-#include "user/vem/desktop.h"
+#include "user/security/usession.h"
+#include "user/security/room.h"       // (window station)
+#include "user/security/desktop.h"
 
 // SM - Session Manager.
-#include "user/sm/logon.h"
-#include "user/sm/logoff.h"
+#include "user/session/logon.h"
+#include "user/session/logoff.h"
 
 // User
 #include "user/user.h"

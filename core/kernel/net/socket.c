@@ -1768,15 +1768,16 @@ sys_connect (
 
         // ws: Window server
         if ( addr->sa_data[0] == 'w' && addr->sa_data[1] == 's' ){
-            target_pid = (pid_t) gramado_ports[GRAMADO_WS_PORT]; 
+            target_pid = (pid_t) gramado_ports[GRAMADO_PORT_WS]; 
         }
+        // wm: ...
         // ns: Network server
         if ( addr->sa_data[0] == 'n' && addr->sa_data[1] == 's' ){ 
-            target_pid = (pid_t) gramado_ports[GRAMADO_NS_PORT]; 
+            target_pid = (pid_t) gramado_ports[GRAMADO_PORT_NS]; 
         }
         // fs: File system server
         if ( addr->sa_data[0] == 'f' && addr->sa_data[1] == 's' ){
-            target_pid = (pid_t) gramado_ports[GRAMADO_FS_PORT]; 
+            target_pid = (pid_t) gramado_ports[GRAMADO_PORT_FS]; 
         }
         // xx: ...
         if ( target_pid<0 || target_pid >= PROCESS_COUNT_MAX ){
@@ -1854,44 +1855,6 @@ sys_connect (
         // Check the port.
         // This way we know what is the server's pid.
 
-        // WS - 4040
-        // Se a porta for , então usaremos o pid do WS.
-        if (addr_in->sin_port == PORTS_WS)
-        {
-            target_pid = (pid_t) gramado_ports[GRAMADO_WS_PORT];
-            if (Verbose==TRUE)
-            {
-                printf("sys_connect: [AF_INET] Connecting to the Window Server\n");
-                printf("sys_connect: IP {%x}\n", 
-                    addr_in->sin_addr.s_addr );
-                printf("sys_connect: PORT {%d}\n", 
-                    addr_in->sin_port);
-                //#debug
-                //while(1){}
-            }
-            break;
-        }
-
-        // NS - 4041
-        // Se a porta for , então usaremos o pid do NS.
-        if (addr_in->sin_port == PORTS_NS)
-        {
-            target_pid = (pid_t) gramado_ports[GRAMADO_NS_PORT]; 
-            if (Verbose==TRUE)
-            {
-                printf("sys_connect: [AF_INET] Connecting to the Network Server\n");
-                printf("sys_connect: IP {%x}\n", 
-                    addr_in->sin_addr.s_addr );
-                printf("sys_connect: PORT {%d}\n", 
-                    addr_in->sin_port);
-                //#debug
-                //while(1){}
-            }
-            break;
-        }
-
-        // PORTS_FS #todo
-
         // 21 - FTP
         if (addr_in->sin_port == 21){
             printf("sys_connect: [21] FTP #todo\n");
@@ -1921,6 +1884,44 @@ sys_connect (
             printf("sys_connect: [443] HTTPS #todo\n");
             goto fail;
         }
+
+        // 4040 - WS
+        // Se a porta for , então usaremos o pid do WS.
+        if (addr_in->sin_port == PORTS_WS)
+        {
+            target_pid = (pid_t) gramado_ports[GRAMADO_PORT_WS];
+            if (Verbose==TRUE)
+            {
+                printf("sys_connect: [AF_INET] Connecting to the Window Server\n");
+                printf("sys_connect: IP {%x}\n", 
+                    addr_in->sin_addr.s_addr );
+                printf("sys_connect: PORT {%d}\n", 
+                    addr_in->sin_port);
+                //#debug
+                //while(1){}
+            }
+            break;
+        }
+
+        // 4041 - NS
+        // Se a porta for , então usaremos o pid do NS.
+        if (addr_in->sin_port == PORTS_NS)
+        {
+            target_pid = (pid_t) gramado_ports[GRAMADO_PORT_NS]; 
+            if (Verbose==TRUE)
+            {
+                printf("sys_connect: [AF_INET] Connecting to the Network Server\n");
+                printf("sys_connect: IP {%x}\n", 
+                    addr_in->sin_addr.s_addr );
+                printf("sys_connect: PORT {%d}\n", 
+                    addr_in->sin_port);
+                //#debug
+                //while(1){}
+            }
+            break;
+        }
+
+        // 4042 - PORTS_FS #todo
 
         // #debug
         printf("sys_connect: [FAIL] Port not valid {%d}\n",

@@ -760,7 +760,7 @@ void psTaskSwitch(void)
 
 // Permitindo que o assembly chame o callback.
 // Somente quando o processo interrompido for o init.
-    ws_pid = (pid_t) socket_get_gramado_port(GRAMADO_WS_PORT);
+    ws_pid = (pid_t) socket_get_gramado_port(GRAMADO_PORT_WS);
 // Se estamos na thread do window server.
     if (current_process_pid == ws_pid)
     {

@@ -517,7 +517,7 @@ static void *__extra_services (
                 __desktop->ws = (pid_t) current_process;
                 
                 socket_set_gramado_port(
-                    GRAMADO_WS_PORT,
+                    GRAMADO_PORT_WS,
                     (pid_t) current_process );
 
                 __initialize_ws_info(current_process);
@@ -602,7 +602,7 @@ static void *__extra_services (
                  __desktop->wm = (pid_t) arg3;
 
                 socket_set_gramado_port(
-                    GRAMADO_WM_PORT,
+                    GRAMADO_PORT_WM,
                     (pid_t) current_process );
 
                 return (void *) TRUE;  //ok 
@@ -635,7 +635,7 @@ static void *__extra_services (
                 __desktop->ns = (int) arg3;
                 
                 socket_set_gramado_port(
-                    GRAMADO_NS_PORT,
+                    GRAMADO_PORT_NS,
                     (pid_t) current_process );
 
                 return (void *) TRUE;  //ok 
@@ -2448,7 +2448,7 @@ void *sci2 (
     if (number == 44000)
     {
         // Somente o window server pode chamar esse serviço.
-        ws_pid = (pid_t) socket_get_gramado_port(GRAMADO_WS_PORT);
+        ws_pid = (pid_t) socket_get_gramado_port(GRAMADO_PORT_WS);
         // Checando se caller foi o window server.
         if (current_process != ws_pid){
             panic("sci2: [44000] current_process!=ws_pid\n");
