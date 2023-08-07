@@ -4411,17 +4411,12 @@ int on_combination(int msg_code)
 
 // [control + a]
 // Select all.
-
+// #test (ok)
+// Post message to all the overlapped windows.
     if (msg_code == GWS_SelectAll)
     {
         printf("ws: select all\n");
-        // #test (ok)
-        // Post message to all the overlapped windows.
-        window_post_message_broadcast( 
-            0,
-            GWS_Close,   //MSG_CLOSE
-            1234,
-            5678 );
+        gwssrv_broadcast_close();
         return 0;
     }
 

@@ -207,6 +207,7 @@ unsigned long gws_get_device_height(void);
 void gws_show_backbuffer(void);
 int gwssrv_init_globals(void);
 void gwssrv_quit(void);
+void gwssrv_broadcast_close(void);
 
 int is_accepting_input(void);
 void set_input_status(int is_accepting);

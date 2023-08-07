@@ -513,6 +513,15 @@ menuProcedure(
     int _i2 = (int) (mainmenu_buttons[2] & 0xFFFF);
     int _i3 = (int) (mainmenu_buttons[3] & 0xFFFF);
 
+// Reboot case
+    int times=0;
+    if (item == _i2){
+        gwssrv_broadcast_close();
+        for (times=0; times<8; times++){ rtl_yield(); }
+    }
+
+// ------------------------
+
     if (item == _i0){
         sprintf(filename,mn_app0);
         string_size = strlen(mn_app0);
@@ -527,6 +536,7 @@ menuProcedure(
         rtl_clone_and_execute(filename);
         return 0;
     }
+    // Reboot
     if (item == _i2){
         sprintf(filename,mn_app2);
         string_size = strlen(mn_app2);
@@ -534,6 +544,8 @@ menuProcedure(
         rtl_clone_and_execute(filename);
         return 0;
     }
+    // Shutdown. 
+    // see: main.c
     if (item == _i3){
         //sprintf(filename,mn_app3);
         //string_size = strlen(mn_app3);

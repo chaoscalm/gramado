@@ -767,6 +767,16 @@ copy_backbuffer (
 }
 */
 
+void gwssrv_broadcast_close(void)
+{
+    // Post message to all the overlapped windows.
+    window_post_message_broadcast( 
+        0,
+        GWS_Close,   //MSG_CLOSE
+        1234,
+        5678 );
+}
+
 //
 // End
 //

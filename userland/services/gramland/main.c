@@ -3841,6 +3841,8 @@ int main (int argc, char **argv)
     };
  */
 
+   int times=0;
+
 //0 = Time to quit.
     Status = (int) on_execute(fLaunchDM);
 
@@ -3865,6 +3867,11 @@ int main (int argc, char **argv)
                 shutdown_string );
             wm_flush_window(__root_window);
             close( ____saved_server_fd );
+            //-------
+            // Mande mensagens para fecharem os programas clientes.
+            gwssrv_broadcast_close();
+            for (times=0; times<8; times++){ rtl_yield(); }
+            // Lance o programa que desliga a maquina.
             rtl_clone_and_execute("shutdown.bin");
             exit(0);
         }

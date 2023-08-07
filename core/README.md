@@ -55,7 +55,7 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 
 ## How to Build?
 
-> See the [Gramado OS build instructions](https://github.com/frednora/gramado/blob/master/core/admin/docs/build.md)
+> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/docs/build.md)
 
 ## Testing
 
@@ -73,7 +73,7 @@ Please, give us some feedback.
 
 ## Documentation
 
-> See the [docs](https://github.com/frednora/gramado/tree/master/core/admin/docs).
+> See the [docs](https://github.com/gramado/gramado/tree/master/docs).
 
 ## Author
 

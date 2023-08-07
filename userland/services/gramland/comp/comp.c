@@ -27,8 +27,9 @@ static int __mouse_initialized = FALSE;
 
 static int refresh_pointer_status= FALSE;
 
-static void draw_mouse_pointer(void);
+// --------------------------
 
+static void draw_mouse_pointer(void);
 
 // --------------------------
 
@@ -41,15 +42,18 @@ static void draw_mouse_pointer(void);
 // trocar o nome dessa systemcall.
 // refresh screen será associado à refresh all windows.
 
+
+// ??
+// Using the kernel to show the backbuffer.
 void gwssrv_show_backbuffer(void)
 {
-    // #todo: Just invalidate root window.
     gramado_system_call(11,0,0,0);
 }
 
-
-int flush_window (struct gws_window_d *window)
+int flush_window(struct gws_window_d *window)
 {
+    //if ((void*) window == NULL)
+        //return -1;
     return (int) gws_show_window_rect(window);
 }
 
@@ -120,7 +124,10 @@ void wmRefreshDirtyRectangles(void)
                 if (tmp->dirty == TRUE)
                 {
                     gws_refresh_rectangle ( 
-                        tmp->absolute_x, tmp->absolute_y, tmp->width, tmp->height );
+                        tmp->absolute_x, 
+                        tmp->absolute_y, 
+                        tmp->width, 
+                        tmp->height );
                     validate_window(tmp);
                 }
             }
@@ -253,6 +260,26 @@ long comp_get_mouse_y_position(void)
 
 static void draw_mouse_pointer(void)
 {
+    unsigned long rectWidth = 8;
+    unsigned long rectHeight = 8;
+    unsigned int rectColor = COLOR_RED;
+    unsigned long rectROP = 0;
+
+    //int UseBMPImage= TRUE;
+
+//
+// BMP Image
+//
+
+    //if (UseBMPImage == TRUE)
+    //{
+        // #todo
+        // Paint the paointer using a BMP Imange.
+    //}
+
+//
+// Rectangle
+//
 
 // #todo: 
 // print directly into the lfb.
@@ -260,10 +287,10 @@ static void draw_mouse_pointer(void)
     frontbuffer_draw_rectangle( 
         (unsigned long) __new_mouse_x, 
         (unsigned long) __new_mouse_y, 
-        (unsigned long) 8, 
-        (unsigned long) 8, 
-        COLOR_RED, 
-        0 );
+        (unsigned long) rectWidth, 
+        (unsigned long) rectHeight, 
+        (unsigned int) rectColor, 
+        (unsigned long) rectROP );
 }
 
 // + Apaga o cursor antigo, copiando o conteudo do backbuffer

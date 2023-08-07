@@ -1,7 +1,6 @@
 
 	How to create posix commands, client-side GUI applications and servers.
 
-
 	How to create posix-like commands to run in the terminal?
 	Create a new commands in userland/commands and use the library libs/rtl.
 
