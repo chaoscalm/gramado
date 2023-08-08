@@ -242,8 +242,11 @@ int main ( int argc, char *argv[] )
 // flags.
 // Comparando os argumentos para acionar as flags.
 
-    for ( i=0; i < argc; i++ )
+    for (i=0; i<argc; i++)
     {
+        // #todo
+        // Create symmetric symbols for these flags. 
+
         if ( strncmp( argv[i], "-a", 2) == 0 ){
         }
         if ( strncmp( argv[i], "-b", 2) == 0 ){
@@ -251,9 +254,11 @@ int main ( int argc, char *argv[] )
         if ( strncmp( argv[i], "-s", 2) == 0 ){
             asm_flag = 1;
         }
+        // Show stats
         if ( strncmp( argv[i], "--stats", 7) == 0 ){
             fShowStats = TRUE;
         }
+        // Dump (Show) output file.
         if ( strncmp( argv[i], "--dumpo", 7) == 0 ){
             fDumpOutput = TRUE;
         }

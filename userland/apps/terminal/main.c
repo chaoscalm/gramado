@@ -58,6 +58,33 @@ int main(int argc, char *argv[])
     if (argc<1){
     }
 
+// flags.
+// Comparando os argumentos para acionar as flags.
+
+/*
+    for (i=0; i<argc; i++)
+    {
+        // #todo
+        // Create useful flags for this application.
+
+        if ( strncmp( argv[i], "-a", 2) == 0 ){
+        }
+        if ( strncmp( argv[i], "-b", 2) == 0 ){
+        }
+        if ( strncmp( argv[i], "-s", 2) == 0 ){
+            asm_flag = 1;
+        }
+        if ( strncmp( argv[i], "--stats", 7) == 0 ){
+            fShowStats = TRUE;
+        }
+        if ( strncmp( argv[i], "--dumpo", 7) == 0 ){
+            fDumpOutput = TRUE;
+        }
+        //...
+    };
+*/
+
+
 // Initializing the structure.
     Terminal.initialized = FALSE;
     Terminal.pid = getpid();
