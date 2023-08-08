@@ -323,8 +323,6 @@ editorSetCursor(
     }
 }
 
-
-// local
 static int 
 editorProcedure(
     int fd, 
@@ -394,6 +392,7 @@ editorProcedure(
 
     case MSG_CLOSE:
         printf ("editor.bin: MSG_CLOSE\n");
+        gws_destroy_window(fd,savebutton_window);
         gws_destroy_window(fd,main_window);
         exit(0);
         break;

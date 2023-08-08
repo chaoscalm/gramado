@@ -1535,6 +1535,7 @@ void *CreateWindow (
 int RegisterWindow(struct gws_window_d *window);
 
 int DestroyWindow(int wid);
+void DestroyAllWindows(void);
 
 struct gws_window_d *get_window_from_wid(int wid);
 

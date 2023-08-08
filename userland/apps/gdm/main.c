@@ -126,6 +126,7 @@ gdmProcedure(
     unsigned long long2 );
 
 static void update_clients(int fd);
+static void destroy_windows(int fd);
 
 // ========
 
@@ -300,6 +301,19 @@ void editorSetCursor( int x, int y )
     }
 }
 
+static void destroy_windows(int fd)
+{
+    if (fd<0)
+        return;
+    gws_destroy_window(fd,button1_window);
+    gws_destroy_window(fd,button2_window);
+    // #todo: 
+    // The window server need to destroy all the child windows
+    // when we close the application window.
+    gws_destroy_window(fd,main_window);
+    //gws_destroy_window(fd,main_window);
+}
+
 static int 
 gdmProcedure(
     int fd, 
@@ -374,7 +388,7 @@ gdmProcedure(
 
     case MSG_CLOSE:
         printf ("gdm.bin: MSG_CLOSE\n");
-        gws_destroy_window(fd,main_window);
+        destroy_windows(fd);
         exit(0);
         break;
 

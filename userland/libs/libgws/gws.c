@@ -3619,11 +3619,16 @@ int gws_create_empty_directory (char *dir_name)
     return (int) (Value & 0xF);
 }
 
-// Overlapped only
+// Destroy overlapped window.
+// (Application window).
 void gws_destroy_window(int fd, wid_t wid)
 {
-    if (fd<0) { return; }
-    if (wid<0){ return; }
+    if (fd<0){
+        return;
+    }
+    if (wid<0){
+        return;
+    }
 // IN: fd, request, sub-request, data.
     gws_async_command( fd, 90, 0, wid );
 }

@@ -2558,8 +2558,11 @@ wmCreateWindowFrame (
 void wm_reboot(void)
 {
 
+// #todo
+// Create wm_shutdown()?
+
 // Draw the root window using the desktop default color.
-    if ( (void*) __root_window != NULL )
+    if ((void*) __root_window != NULL)
     {
         if (__root_window->magic == 1234)
         {
@@ -2568,6 +2571,7 @@ void wm_reboot(void)
             redraw_window(__root_window,FALSE);
             // #todo
             // Print some message, draw some image, etc.
+            printf("wm_reboot:\n");
             wm_flush_window(__root_window);
             
             // #todo
@@ -2575,8 +2579,11 @@ void wm_reboot(void)
         }
     }
 
+// Destroy all the windows.
+    DestroyAllWindows();
 // Hw reboot.
     rtl_reboot();
+    exit(0);  //paranoia
 }
 
 static void animate_window(struct gws_window_d *window)

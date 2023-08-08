@@ -2714,6 +2714,7 @@ terminalProcedure (
 
     case MSG_CLOSE:
         printf ("terminal.bin: MSG_CLOSE\n");
+        gws_destroy_window(fd,terminal_window);
         gws_destroy_window(fd,main_window);
         exit(0);
         break;

@@ -1639,6 +1639,7 @@ void serviceExitGWS(void)
     // Deallocate resources used by the server.
     // Close the server.
     printf ("[TODO] Close all the clients\n");
+    DestroyAllWindows();
     exit(0);
 }
 
@@ -1913,13 +1914,12 @@ int serviceAsyncCommand(void)
         goto done;
         break;
 
-    // Destroy overlapped window.
+    // Destroy window.
     case 90:
         wid = (int) (data & 0xFFFFFFFF);
-        printf("90: Destroy overlapped window %d\n",wid);
+        // #DEBUG
+        printf("90: Destroy window %d\n",wid);
         DestroyWindow(wid);
-        wm_rebuild_list();
-        wm_update_desktop(TRUE,TRUE);
         break;
 
     //#todo: Destroy window.
@@ -3746,7 +3746,6 @@ void gwssrv_quit(void)
     IsTimeToQuit = TRUE;
 }
 
-
 // main: 
 // Entry point.
 // Called by crt0() in 
@@ -3873,6 +3872,7 @@ int main (int argc, char **argv)
             for (times=0; times<8; times++){ rtl_yield(); }
             // Lance o programa que desliga a maquina.
             rtl_clone_and_execute("shutdown.bin");
+            DestroyAllWindows();
             exit(0);
         }
         exit(0);

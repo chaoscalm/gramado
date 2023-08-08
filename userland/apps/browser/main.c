@@ -221,6 +221,7 @@ browserProcedure(
 
     case MSG_CLOSE:
         printf ("browser.bin: MSG_CLOSE\n");
+        gws_destroy_window(fd,__button_window);
         gws_destroy_window(fd,__main_window);
         exit(0);
         break;

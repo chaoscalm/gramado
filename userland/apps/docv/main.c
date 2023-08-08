@@ -69,7 +69,7 @@ static void debugShowStat(void);
 //
 
 static int 
-browserProcedure(
+docvProcedure(
     int fd, 
     int event_window, 
     int event_type, 
@@ -358,9 +358,8 @@ static void usage(char **argv)
         __VERSION__ );
 }
 
-
 static int 
-browserProcedure(
+docvProcedure(
     int fd, 
     int event_window, 
     int event_type, 
@@ -368,13 +367,13 @@ browserProcedure(
     unsigned long long2 )
 {
 
-    if(fd<0){
+    if (fd<0){
         return -1;
     }
-    if(event_window<0){
+    if (event_window<0){
         return -1;
     }
-    if(event_type<0){
+    if (event_type<0){
         return -1;
     }
 
@@ -395,7 +394,7 @@ browserProcedure(
         
          // #test
          // We are in the browser.
-        if ( event_window == __client_window )
+        if (event_window == __client_window)
         {
             // Refresh?
             gws_draw_char (
@@ -423,6 +422,7 @@ browserProcedure(
 
     case MSG_CLOSE:
         printf ("docv.bin: MSG_CLOSE\n");
+        gws_destroy_window(fd,__button_window);
         gws_destroy_window(fd,__main_window);
         exit(0);
         break;
@@ -434,6 +434,7 @@ browserProcedure(
         break;
     };
 
+//fail:
     return -1;
 }
 
@@ -474,7 +475,7 @@ static int do_event_loop(int fd)
         {
             //if( e->used == TRUE && e->magic == 1234 )
             if (e->magic == 1234){
-                browserProcedure( 
+                docvProcedure( 
                     fd, e->window, e->type, e->long1, e->long2 );
             }
         }

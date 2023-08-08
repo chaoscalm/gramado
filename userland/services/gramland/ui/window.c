@@ -2067,6 +2067,8 @@ int DestroyWindow(int wid)
 // Only overlapped.
     struct gws_window_d *window;
     struct gws_window_d *tmpw;
+    int fRebuildList = FALSE;
+    int fUpdateDesktop = FALSE;
 
     if (wid<0){
         return -1;
@@ -2077,8 +2079,29 @@ int DestroyWindow(int wid)
     if (window->magic != 1234)
         return -1;
 
+//
+// Not an overlapped window.
+//
+
     if (window->type != WT_OVERLAPPED)
-        return -1;
+    {
+        if ( window->isMinimizeControl == TRUE ||
+             window->isMaximizeControl == TRUE ||
+             window->isCloseControl == TRUE )
+        {
+            return 0;
+        }
+        window->magic = 0;
+        window->used = FALSE;
+        window = NULL;
+        return 0;
+    }
+    
+    if (window->type == WT_OVERLAPPED)
+    {
+        fRebuildList = TRUE;
+        fUpdateDesktop = TRUE;
+    }
 
 
 // ---------------
@@ -2144,11 +2167,44 @@ int DestroyWindow(int wid)
 // #todo
 // + Destroy the child list.
 // +...
+
+    // #todo
+    // We got to remove the pointer from the windowList[?].
+    // windowList[wid] = 0;
+
     window->magic = 0;
     window->used = FALSE;
     window = NULL;
 
+    if (fRebuildList == TRUE){
+        wm_rebuild_list();
+    }
+    if (fUpdateDesktop == TRUE){
+        wm_update_desktop(TRUE,TRUE);
+    }
+
     return 0;
+}
+
+
+void DestroyAllWindows(void)
+{
+    register int i=0;
+    struct gws_window_d *tmp;
+    for (i=0; i<WINDOW_COUNT_MAX; i++)
+    {
+        tmp = (void*) windowList[i];
+        if (tmp != NULL)
+        {
+            if (tmp->used == TRUE)
+            {
+                if (tmp->magic == 1234)
+                {
+                    DestroyWindow(tmp->id);
+                }
+            }
+        }
+    };
 }
 
 
