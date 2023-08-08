@@ -28,3 +28,12 @@
 // Client-side library.
 #include <gws.h>
 
+int terminal_init(void);
+
+
+
+
+
+
+
+
