@@ -26,12 +26,13 @@ __VOID_IRQ
 irq12_MOUSE (void)
 {
 // If ps2 mouse isn't initialized yet.
-    if ( PS2.mouse_initialized != TRUE ){
+    if (PS2.mouse_initialized != TRUE){
         in8(0x60);
         return;
     }
     PS2Mouse.irq_is_working = TRUE;
-    PS2Mouse.last_jiffy = jiffies;
+    PS2Mouse.last_jiffy = 
+        (unsigned long) get_systime_totalticks();
 
 // Disable keyboard port.
 // Call the main routine.

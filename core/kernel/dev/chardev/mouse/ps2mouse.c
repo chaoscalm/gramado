@@ -240,9 +240,10 @@ quit:
 }
 
 // local worker
-// This routine is gonna parse the packet and give us
-// an updated x and y values.
-// #todo: We need to review the number given to the buttons,
+// This routine is gonna parse the packet and 
+// give us an updated x and y values.
+// #todo: 
+// We need to review the number given to the buttons,
 // 1,2,3 or 0,1,2. What is the right standard?
 
 static void __ps2mouse_parse_data_packet(void)
@@ -265,6 +266,10 @@ static void __ps2mouse_parse_data_packet(void)
     int button1_changed=FALSE;
     int button2_changed=FALSE;
     int Status=-1;
+
+// ------------------------------------
+// Step1:
+// Dealing with position.
 
 // Save the old values of x and y.
     saved_mouse_x = mouse_x;
@@ -309,47 +314,52 @@ static void __ps2mouse_parse_data_packet(void)
     mouse_x = (long) (mouse_x & 0x000003FF );
     mouse_y = (long) (mouse_y & 0x000003FF );
 
-//
-// Buttons
-//
+// ------------------------------------
+// Step2:
+// Dealing with buttons.
 
 // Left button.
-    if ( ( Flags & MOUSE_LEFT_BUTTON ) == 0 ){
+    if ( (Flags & MOUSE_LEFT_BUTTON) == 0 ){
         mbuttons_current_state[0] = FALSE;
-    }else if( ( Flags & MOUSE_LEFT_BUTTON ) != 0 ){
+    }else if( (Flags & MOUSE_LEFT_BUTTON) != 0 ){
         mbuttons_current_state[0] = TRUE;
     };
 
 // Right button.
-    if ( ( Flags & MOUSE_RIGHT_BUTTON ) == 0 ){
+    if ( (Flags & MOUSE_RIGHT_BUTTON) == 0 ){
         mbuttons_current_state[1] = FALSE;
-    }else if( ( Flags & MOUSE_RIGHT_BUTTON ) != 0 ){
+    }else if( (Flags & MOUSE_RIGHT_BUTTON) != 0 ){
         mbuttons_current_state[1] = TRUE;
     };
 
 // Middle button.
-    if ( ( Flags & MOUSE_MIDDLE_BUTTON ) == 0 ){
+    if ( (Flags & MOUSE_MIDDLE_BUTTON) == 0 ){
         mbuttons_current_state[2] = FALSE;
-    }else if( ( Flags & MOUSE_MIDDLE_BUTTON ) != 0 ){
+    }else if( (Flags & MOUSE_MIDDLE_BUTTON) != 0 ){
         mbuttons_current_state[2] = TRUE;
     };
 
 // Buttons state:
 // Compare the current state with the old state.
 
-    button0_changed = FALSE;
-    button1_changed = FALSE;
-    button2_changed = FALSE;
-
 // button 0 changed
-    if( mbuttons_current_state[0] != mbuttons_old_state[0] )
-        button0_changed=TRUE;
+    button0_changed = FALSE;
+    if (mbuttons_current_state[0] != mbuttons_old_state[0])
+    {
+        button0_changed = TRUE;
+    }
 // button 1 changed
-    if( mbuttons_current_state[1] != mbuttons_old_state[1] )
-        button1_changed=TRUE;
+    button1_changed = FALSE;
+    if (mbuttons_current_state[1] != mbuttons_old_state[1])
+    {
+        button1_changed = TRUE;
+    }
 // button 2 changed
-    if( mbuttons_current_state[2] != mbuttons_old_state[2] )
-        button2_changed=TRUE;
+    button2_changed = FALSE;
+    if (mbuttons_current_state[2] != mbuttons_old_state[2])
+    {
+        button2_changed = TRUE;
+    }
 
 // Save the current states.
     mbuttons_old_state[0] = mbuttons_current_state[0];
@@ -365,11 +375,11 @@ static void __ps2mouse_parse_data_packet(void)
     if (button0_changed == TRUE)
     {
         // Presssed
-        if( mbuttons_current_state[0] == TRUE ){
+        if (mbuttons_current_state[0] == TRUE){
             wmMouseEvent( MSG_MOUSEPRESSED, 1, 1 );
         }
         // Released
-        if( mbuttons_current_state[0] == FALSE ){
+        if (mbuttons_current_state[0] == FALSE){
             wmMouseEvent( MSG_MOUSERELEASED, 1, 1 );
         }
         return;
@@ -381,11 +391,11 @@ static void __ps2mouse_parse_data_packet(void)
     if (button1_changed == TRUE)
     {
         // Pressed
-        if( mbuttons_current_state[1] == TRUE ){
+        if (mbuttons_current_state[1] == TRUE){
             wmMouseEvent( MSG_MOUSEPRESSED, 2, 2 );
         }
         // Relesed
-        if( mbuttons_current_state[1] == FALSE ){
+        if (mbuttons_current_state[1] == FALSE){
             wmMouseEvent( MSG_MOUSERELEASED, 2, 2 );
         }
         return;
@@ -397,35 +407,39 @@ static void __ps2mouse_parse_data_packet(void)
     if (button2_changed == TRUE)
     {
         // Pressed
-        if( mbuttons_current_state[2] == TRUE ){
+        if (mbuttons_current_state[2] == TRUE){
             wmMouseEvent( MSG_MOUSEPRESSED, 3, 3 );
         }
         // Released
-        if( mbuttons_current_state[2] == FALSE ){
+        if (mbuttons_current_state[2] == FALSE){
             wmMouseEvent( MSG_MOUSERELEASED, 3, 3 );
         }
         return;
     }
 
+// ------------------------------------
+// Step3:
+// Dealing with movement.
+
 // Is the mouse moving or not?
 
-    // Not.
+    // Default: Not.
     ps2_mouse_moving = FALSE;
 
     // Yes.
-    if ( saved_mouse_x != mouse_x || saved_mouse_y != mouse_y )
+    if ( saved_mouse_x != mouse_x || 
+         saved_mouse_y != mouse_y )
     {
         ps2_mouse_moving = TRUE;
     }
 
-// Call the event handler.
+// Call the event handler if we have an move event.
 // IN: event id, x, y.
 // see: grinput.c
-    if (ps2_mouse_moving==TRUE){
+    if (ps2_mouse_moving == TRUE){
         wmMouseEvent( MSG_MOUSEMOVE, mouse_x, mouse_y );
     }
 }
-
 
 // local
 //int __get_device_id(void);
@@ -847,7 +861,8 @@ void DeviceInterface_PS2Mouse(void)
         return;
 // =============================================
 
-    PS2Mouse.last_jiffy = (unsigned long) jiffies;
+    PS2Mouse.last_jiffy = 
+        (unsigned long) get_systime_totalticks();
 
 // Get the byte
     _byte = (unsigned char) in8(0x60);
@@ -900,11 +915,13 @@ void DeviceInterface_PS2Mouse(void)
         mouse_stage++;
         break;
     case 2:
+        // If we have wheel, so we got another stage.
         if (PS2Mouse.has_wheel == TRUE)
         {
             mouse_stage++;
             break;
         }
+        // If we do not have the wheel.
         // Commit packet.
         __ps2mouse_parse_data_packet();
         mouse_stage = 0;

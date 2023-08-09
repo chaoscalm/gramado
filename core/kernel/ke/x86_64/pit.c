@@ -65,7 +65,7 @@ Bits         Usage
 // see: pit.h
 struct pit_info_d  PITInfo;
 
-// total ticks
+// Total ticks. Global.
 unsigned long jiffies=0;
 // por quantos segundos o sistema esta rodando
 // jiffies/sys_time_hz
@@ -386,11 +386,10 @@ unsigned long get_systime_hz (void)
 
 
 // systime in ms
-unsigned long get_systime_ms (void)
+unsigned long get_systime_ms(void)
 {
     return (unsigned long) sys_time_ms;
 }
-
 
 // get_systime_totalticks:
 unsigned long get_systime_totalticks(void)
