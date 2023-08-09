@@ -318,25 +318,24 @@ done:
     
 void i8042_keyboard_disable (void)
 {
-    while ( ( in8 (0x64) & 2) != 0 )
-    { 
+    while ( ( in8(0x64) & 2) != 0 )
+    {
          // Nothing.
     };
-    out8 (0x60,0xF5);
+    out8(0x60,0xF5);
     //sleep(100);
 }
 
 // keyboardEnable:
 //     Enable keyboard.
-void i8042_keyboard_enable (void)
+void i8042_keyboard_enable(void)
 {
-
     // #bugbug
     // Dizem que isso pode travar o sistema.
 
 // Wait for bit 1 of status reg to be zero.
 // Send code for setting Enable command.
-    while ( ( in8 (0x64) & 2) != 0 )
+    while ( ( in8(0x64) & 2) != 0 )
     {
     };
     out8 (0x60,0xF4);
@@ -348,7 +347,7 @@ void keyboard_set_leds(unsigned char flags)
 {
 // Wait for bit 1 of status reg to be zero.
 // Send code for setting the flag.
-    while ( (in8 (0x64) & 2) != 0 )
+    while ( (in8(0x64) & 2) != 0 )
     {
     };
     out8(0x60,KEYBOARD_SET_LEDS); 
@@ -438,7 +437,6 @@ void i8042_keyboard_write (uint8_t data)
     wait_ns(400);
 }
 
-
 /*
  * i8042_keyboard_read2:
  *     Pega um byte na porta 0x60.
@@ -458,10 +456,12 @@ void i8042_keyboard_expect_ack (void)
     unsigned char ack_value=0;
     int timeout=100;
 
-    while(1) 
+    while (1)
     {
         timeout--;
-        if (timeout<0){  break;  }
+        if (timeout <= 0){
+            break;
+        }
 
         //ack_value = (unsigned char) i8042_keyboard_read2();
         
@@ -476,7 +476,7 @@ void i8042_keyboard_expect_ack (void)
 
 // Acabou o tempo, vamos checar o valor.
 // Provavelmente esta errado.
-    if ( ack_value != 0xFA )
+    if (ack_value != 0xFA)
     {
         //#debug
         //printf ("expect_ack: not ack\n");

@@ -47,7 +47,7 @@ irq1_KEYBOARD (void)
 // See: ps2kbd.c
     wait_then_write(0x64,0xA7);
     DeviceInterface_PS2Keyboard();
-    if ( PS2.mouse_initialized == TRUE ){
+    if (PS2.mouse_initialized == TRUE){
         wait_then_write(0x64,0xA8);
     }
 }
