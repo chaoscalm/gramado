@@ -78,7 +78,6 @@ unsigned long sys_time_ms=0;
 struct master_timer_d
 {
     int initialized;
-    
     pid_t pid;
     unsigned long callback_address;
 };
@@ -119,9 +118,7 @@ static int timerShowTextCursor = FALSE;
 
 static int timerTimer(void);
 
-
 // =============================
-
 
 static int timerTimer(void)
 {
@@ -275,6 +272,7 @@ Bits         Usage
 */
 
 
+// timerInit8253:
 // VT8237
 // Compativel com Intel 8254.
 // IN> frequence in HZ.
@@ -290,12 +288,12 @@ void timerInit8253 (unsigned int freq)
 
     PITInfo.initialized = FALSE;
     clocks_per_sec = (unsigned int) (freq & 0xFFFFFFFF);
-    if(clocks_per_sec==0){
+    if (clocks_per_sec == 0){
         x_panic("timerInit8253:");
     }
     PITInfo.clocks_per_sec = clocks_per_sec;
     // latch
-    period = (unsigned int) ( PIT_DEV_FREQ / clocks_per_sec );
+    period = (unsigned int) (PIT_DEV_FREQ / clocks_per_sec);
     PITInfo.dev_freq = (unsigned int) PIT_DEV_FREQ;
     PITInfo.period = period;
 
@@ -384,7 +382,6 @@ unsigned long get_systime_hz (void)
     return (unsigned long) sys_time_hz;
 }
 
-
 // systime in ms
 unsigned long get_systime_ms(void)
 {
@@ -421,30 +418,27 @@ unsigned long get_systime_info(int n)
     return (unsigned long) 0;
 }
 
-
-int new_timer_id (void)
+int new_timer_id(void)
 {
-    int i=0;
-    unsigned long new=0;
-
-
-    for ( i=0; i<32; i++ )
+    register int i=0;
+    unsigned long address=0;
+// Probe for an empty spot.
+    for (i=0; i<32; i++)
     {
-        new = (unsigned long) timerList[i];
-
-        if ( new == 0 ){ return (int) i; }
+        // Get a structure pointer.
+        address = (unsigned long) timerList[i];
+        if (address == 0){
+            return (int) i;
+        }
     };
-
-	// fail
+// fail
     return (int) -1;
 }
-
 
 void timerEnableTextCursor (void)
 {
     timerShowTextCursor = TRUE;
 }
-
 
 void timerDisableTextCursor (void)
 {
@@ -452,33 +446,26 @@ void timerDisableTextCursor (void)
 }
 
 // systime in ms
-unsigned long now (void)
+unsigned long now(void)
 {
     return (unsigned long) get_systime_ms();
 }
-
 
 // fake
 void pit_sleep (unsigned long ms)
 {
     unsigned long t=1;
-
-
-    if ( ms == 0 ){
+    if (ms == 0){
         ms=1;
     }
-
-    // #bugbug
-    // Is there a limit?
-
-    t = (unsigned long) ( ms * 512 );
-
+// #bugbug
+// Is there a limit?
+    t = (unsigned long) (ms * 512);
     while (t > 0)
     {
         t--;
     };
 }
-
 
 /*
  * timerInit:
@@ -486,9 +473,8 @@ void pit_sleep (unsigned long ms)
  *     Inicializa as variáveis do timer.
  * (unsigned long CallBackExemplo); 
  */
-int timerInit (void)
+int timerInit(void)
 {
-
     panic("timerInit: #deprecated");
     return 0;
 
@@ -562,10 +548,8 @@ int early_timer_init (void)
     //g_driver_timer_initialized = FALSE;
 // Breaker
     __breaker_timer_initialized = FALSE;
-
     timerTimer();
-
-    for ( i=0; i<32; i++ ){
+    for (i=0; i<32; i++){
         timerList[i] = (unsigned long) 0;
     };
 
@@ -576,11 +560,16 @@ int early_timer_init (void)
 // We can use the default variable. 
 // See: config.h
     timerInit8253(HZ);
+
 // Quantum
-    set_current_quantum (QUANTUM_MIN);
-    set_next_quantum (QUANTUM_MIN);
-    set_quantum (QUANTUM_MIN);
-// Timeout 
+// #bugbug
+// Is this the right place for that configuration?
+// Is it about thread configuration?
+    set_current_quantum(QUANTUM_MIN);
+    set_next_quantum(QUANTUM_MIN);
+    set_quantum(QUANTUM_MIN);
+
+// Timeout
     set_timeout(0);
 // Whatchdogs
 // Initializing whatchdogs.
@@ -631,23 +620,26 @@ struct timer_d *create_timer (
     //printf     ("create_timer: pid=%d ms=%d type=%d\n",
     //    pid,ms,type);
 
-    if (pid<0){
+// --------------
+
+    if (pid<0 || pid >= PROCESS_COUNT_MAX){
         debug_print("create_timer: [FAIL] pid\n");
         return NULL;
     }
-    
     Process = (struct process_d *) processList[pid];
-    if ( (void*) Process == NULL )
-    {
+    if ((void*) Process == NULL){
         debug_print("create_timer: [FAIL] Process\n");
         return NULL;
     }
-
+// --------------
+    if (current_thread<0 || current_thread >= THREAD_COUNT_MAX){
+        debug_print("create_timer: [FAIL] current_thread\n");
+        return NULL;
+    }
     // Thread de controle.
     //Thread = (struct thread_d *) Process->control;
     Thread = (struct thread_d *) threadList[current_thread];
-    if ( (void*) Thread == NULL )
-    {
+    if ((void*) Thread == NULL){
         debug_print("create_timer: [FAIL] Thread\n");
         return NULL;
     }
@@ -671,31 +663,24 @@ struct timer_d *create_timer (
         //return NULL;
     }
 
-//
 // Structure
-//
 
     Timer = (void *) kmalloc( sizeof(struct timer_d) );
-
-    if ( (void *) Timer == NULL ){
+    if ((void *) Timer == NULL){
         panic ("create_timer: Timer fail \n");
         //printf ("create_timer: Timer fail \n");
         //refresh_screen ();
         //return NULL; 
-
     }else{
-
         // ??
         // List?
         ID = (int) new_timer_id();
-
         // Erro ao obter um novo id.
         if (  ID < 0 || ID > 32 ){
             panic ("create_timer: ID fail \n");
             //printf("create_timer: ID fail \n");
             //refresh_screen ();
             //return NULL;
-
         }else{
 
             Timer->used = TRUE;
