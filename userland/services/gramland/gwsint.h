@@ -40,7 +40,10 @@ extern int current_mode;
 #include "ui/menu.h"
 #include "grinput.h"   //#test
 #include "ui/metrics.h"
+
 #include "ui/window.h"
+#include "ui/wm.h"
+
 #include "rtl/bitblt.h"
 #include "ui/vdesktop.h"
 #include "ui/painter.h"
