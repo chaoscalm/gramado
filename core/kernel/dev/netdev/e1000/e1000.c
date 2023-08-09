@@ -60,8 +60,7 @@ static void __e1000_linkup(struct intel_nic_info_d *d);
 void e1000_show_info(void)
 {
     printf("e1000 NIC info:\n");
-
-    if ( (void*) currentNIC == NULL ){
+    if ((void*) currentNIC == NULL){
         printf ("currentNIC fail\n");
     }
     printf("Counters: TX={%d} RX={%d}\n",
@@ -224,7 +223,7 @@ static void __e1000_linkup(struct intel_nic_info_d *d)
 {
     uint32_t val=0;
 
-    if ((void*)d==NULL){
+    if ((void*)d == NULL){
         panic("__e1000_linkup: d\n");
     }
 // CTRL - Device Control Register
@@ -628,28 +627,26 @@ static void __initialize_rx_support(struct intel_nic_info_d *d)
     //__E1000WriteCommand (d, 0x2820, 0);
 }
 
-
 // Reset the controller.
 static int __e1000_reset_controller(struct intel_nic_info_d *d)
 {
     register int i=0;
-    uint32_t value=0;
+    //uint32_t value=0;
 
     // #debug
     debug_print ("__e1000_reset_controller:\n");
     printf      ("__e1000_reset_controller:\n");
 
 // structure
-    if ( (void*) d == NULL ){
+    if ((void*) d == NULL){
         panic("__e1000_reset_controller: d\n");
     }
-
 // base address
-    if ( d->registers_base_address == 0 ){
+// 0x0 is an invalid base address.
+    if (d->registers_base_address == 0){
         panic ("__e1000_reset_controller: d->registers_base_address\n");
     }
-
-// Clear Multicast Table Array (MTA).
+// Clear the Multicast Table Array (MTA).
     for (i=0; i<128; i++){
         __E1000WriteCommand ( d, 0x5200 + (i * 4), 0 );
     };
@@ -809,17 +806,15 @@ e1000_init_nic (
     unsigned short tmp16=0;
     uint32_t Val=0;
 
-    e1000_initialized = FALSE;
-
-    e1000_tx_counter=0;
-    e1000_rx_counter=0;
-
-// #debug
+    // #debug
     debug_print ("e1000_init_nic:\n");
     printf      ("e1000_init_nic:\n");
-
     //printf("b=%d d=%d f=%d \n", D->bus, D->dev, D->func );
     //printf("82540EM Gigabit Ethernet Controller found\n");
+
+    e1000_initialized = FALSE;
+    e1000_tx_counter=0;
+    e1000_rx_counter=0;
 
 // NIC Intel.
 // #importante
@@ -828,7 +823,7 @@ e1000_init_nic (
 // Fazer uma lista de dispositivos Intel suportados por esse driver.
 // +usar if else.
 
-    data = (uint32_t) diskReadPCIConfigAddr ( bus, dev, fun, 0 );
+    data = (uint32_t) diskReadPCIConfigAddr( bus, dev, fun, 0 );
     Vendor = (unsigned short) (data       & 0xffff);
     Device = (unsigned short) (data >> 16 & 0xffff);
 
@@ -837,7 +832,6 @@ e1000_init_nic (
         debug_print ("e1000_init_nic: Expected 82540EM\n");
         panic ("e1000_init_nic: Expected 82540EM\n");
     }
-
     // #debug
     printf ("Vendor=%x | Device=%x \n", Vendor, Device );
 
@@ -845,18 +839,15 @@ e1000_init_nic (
 // pci device struct
 // passado via argumento. 
 
-    if ( (void *) pci_device ==  NULL ){
-        panic ("e1000_init_nic: pci_device\n");
+    if ((void *) pci_device ==  NULL){
+        panic("e1000_init_nic: pci_device\n");
     }
 
-    // We can to this at the end of this routine.
     pci_device->used = TRUE;
     pci_device->magic = 1234;
-
     pci_device->bus  = (unsigned char) bus;
     pci_device->dev  = (unsigned char) dev;
     pci_device->func = (unsigned char) fun;
-
     pci_device->Vendor = (unsigned short) (data       & 0xffff);
     pci_device->Device = (unsigned short) (data >> 16 & 0xffff);
 
@@ -880,7 +871,6 @@ e1000_init_nic (
 */
 
 // BARs
-
     pci_device->BAR0 = 
         (unsigned long) diskReadPCIConfigAddr( bus, dev, fun, 0x10 );
     pci_device->BAR1 = 
@@ -898,11 +888,10 @@ e1000_init_nic (
 
 // irq
     pci_device->irq_line = 
-        (uint8_t) pciConfigReadByte ( bus, dev, fun, 0x3C );
-// letras
+        (uint8_t) pciConfigReadByte( bus, dev, fun, 0x3C );
+// Those letters.
     pci_device->irq_pin = 
-        (uint8_t) pciConfigReadByte ( bus, dev, fun, 0x3D ); 
-
+        (uint8_t) pciConfigReadByte( bus, dev, fun, 0x3D ); 
 
 // PCI-X Register Access Split?
 
@@ -917,11 +906,11 @@ e1000_init_nic (
 // #bugbug: 
 // size 32bit 64bit?
 
-    phy_address = (unsigned long) ( pci_device->BAR0 & 0xFFFFFFF0 );
+    phy_address = (unsigned long) (pci_device->BAR0 & 0xFFFFFFF0);
     if (phy_address == 0){
         panic ("e1000_init_nic: Invalid phy_address\n");
     }
-  
+
     // ...
 
 // ---------------------
@@ -957,13 +946,10 @@ e1000_init_nic (
 // Checar essa estrutura.
 // see: nicintel.h
 
-    currentNIC = 
-        (void *) kmalloc( sizeof( struct intel_nic_info_d ) );
-
-    if ( (void *) currentNIC ==  NULL ){
-        panic ("e1000_init_nic: currentNIC struct\n");
-    } 
-
+    currentNIC = (void *) kmalloc( sizeof(struct intel_nic_info_d) );
+    if ((void *) currentNIC ==  NULL){
+        panic("e1000_init_nic: currentNIC\n");
+    }
     currentNIC->used = TRUE;
     currentNIC->magic = 1234;
     currentNIC->interrupt_count = 0;
@@ -988,9 +974,9 @@ e1000_init_nic (
           i < 1000 && !currentNIC->has_eeprom; 
           ++i ) 
     {
-        Val = (uint32_t) __E1000ReadCommand ( currentNIC, 0x14 );
+        Val = (uint32_t) __E1000ReadCommand( currentNIC, 0x14 );
         // We have? Yes!.
-        if ( (Val & 0x10) == 0x10){
+        if ( (Val & 0x10) == 0x10 ){
             currentNIC->has_eeprom = TRUE; 
         }
     };
@@ -1054,23 +1040,21 @@ e1000_init_nic (
         (unsigned char) pciGetInterruptLine(bus,dev);
 
     //#debug
-    printf ("Done irqline %d\n",irq_line);   
+    //printf("Done irqline %d\n",irq_line);   
     //refresh_screen();
 
 // irq
     __e1000_setup_irq(irq_line);
-
 // Reset the controller.
     __e1000_reset_controller(currentNIC);
-
+// Flags
     e1000_interrupt_flag = TRUE;
+    e1000_initialized = TRUE;
 
     //#debug
     //printf ("e1000_init_nic: Test #breakpoint\n");
     //refresh_screen();
     //while(1){ asm("hlt"); }
-
-    e1000_initialized = TRUE;
 
 // 0 = no errors
     return 0;
@@ -1085,10 +1069,10 @@ e1000_send(
     uint16_t old=0;
 // dev
     struct intel_nic_info_d *d;
-    d = (struct intel_nic_info_d *) dev;
 
-// device structure
-    if ( (void*) d == NULL ){
+// Device structure
+    d = (struct intel_nic_info_d *) dev;
+    if ((void*) d == NULL){
         printf("e1000_send: d\n");
         goto fail;
     }
@@ -1105,9 +1089,9 @@ e1000_send(
     if (len > E1000_DEFAULT_BUFFER_SIZE)
         panic("e1000_send: len\n");
 
-    if ( (void*) data == NULL )
+    if ((void*) data == NULL){
         panic("e1000:_send: data\n");
-
+    }
 
 // current descriptor
     old = d->tx_cur;
@@ -1147,14 +1131,13 @@ e1000_send(
 // done
     return;
 fail:
-
     refresh_screen();
     return;
 }
 
 static void __e1000_on_transmit(void)
 {
-    // printf ("DeviceInterface_e1000: Transmit completed\n");
+    // printf ("__e1000_on_transmit: Transmit completed\n");
     e1000_tx_counter++;
     networkUpdateCounter(1);
 }
@@ -1175,16 +1158,16 @@ static void __e1000_on_receive(void)
 // Descriptor index.
     uint16_t old=0;
 
-    if ( (void*) currentNIC == NULL ){
+    if ((void*) currentNIC == NULL){
         return;
     }
     if (currentNIC->magic != 1234){
         return;
     }
 
-// #maybe a while
+// #todo
+// Explain it better.
 
-    
     while ( ( currentNIC->legacy_rx_descs[ currentNIC->rx_cur ].status & 0x01) == 0x01 ) 
     {
         // Pega o atual e circula.
@@ -1204,7 +1187,7 @@ static void __e1000_on_receive(void)
         frame_lenght = (uint16_t) currentNIC->legacy_rx_descs[old].length;
 
         // Validation
-        if ( (void*) frame == NULL ){
+        if ((void*) frame == NULL){
             panic ("__e1000_on_receive: frame\n");
         }
         if (frame_lenght > E1000_DEFAULT_BUFFER_SIZE){
@@ -1242,12 +1225,11 @@ static void __e1000_on_receive(void)
         // IN:
         // + frame address
         // + frame lenght
-        if ( (void*) frame != NULL )
+        if ((void*) frame != NULL)
         {
             network_on_receiving ( 
                 (const unsigned char*) frame, 
                 (ssize_t) (frame_lenght & 0xFFFF) );
-
             e1000_rx_counter++;
             networkUpdateCounter(2);
         }
@@ -1375,20 +1357,16 @@ fail:
 // Isso é chamado pelo assembly.
 
 __VOID_IRQ 
-irq_E1000 (void)
+irq_E1000(void)
 {
-    if (e1000_initialized!=TRUE)
+// Is the driver initialized?
+    if (e1000_initialized != TRUE){
         return;
-    gE1000InputTime = (unsigned long) jiffies;
+    }
+// Time in ticks.
+    gE1000InputTime = 
+        (unsigned long) get_systime_totalticks();
+// Call the handler.
     DeviceInterface_e1000();
 }
-
-
-
-
-
-
-
-
-
 
