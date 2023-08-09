@@ -6,10 +6,9 @@
 // A lot of changes by Fred Nora.
 // Suporte à controladora IDE.
 
-#include <kernel.h>  
+#include <kernel.h>
 
 int g_ata_driver_initialized=FALSE;
-
 
 int ATAFlag=0;
 unsigned short *ata_identify_dev_buf;
@@ -84,7 +83,7 @@ static int ata_initialize_ide_device(char port);
 
 // =======================================================
 
-static void __local_io_delay (void)
+static void __local_io_delay(void)
 {
     asm ("xorl %%eax, %%eax" ::);
     asm ("outb %%al, $0x80"  ::);
@@ -93,7 +92,7 @@ static void __local_io_delay (void)
 // low level worker
 // #todo:
 // avoid this for compatibility with another compiler.
-static void __ata_pio_read ( int p, void *buffer, int bytes )
+static void __ata_pio_read( int p, void *buffer, int bytes )
 {
     asm volatile  (\
         "cld;\
@@ -105,7 +104,7 @@ static void __ata_pio_read ( int p, void *buffer, int bytes )
 // low level worker
 // #todo:
 // avoid this for compatibility with another compiler.
-static void __ata_pio_write ( int p, void *buffer, int bytes )
+static void __ata_pio_write( int p, void *buffer, int bytes )
 {
     asm volatile  (\
         "cld;\
@@ -145,11 +144,16 @@ void ata_delay(void)
 // #todo: return type.
 unsigned char ata_status_read(int p)
 {
+    //if (p<0)
+        //return 0;
     return in8( ata_port[p].cmd_block_base_address + ATA_REG_STATUS );
 }
 
 void ata_cmd_write (int p, int cmd_val)
 {
+    //if (p<0)
+        //return;
+
     // no_busy 
     ata_wait_not_busy(p);
 
@@ -176,6 +180,9 @@ void ata_soft_reset(int p)
 
 unsigned char ata_wait_drq(int p)
 {
+    //if (p<0)
+        //return 0;
+
 // #todo: Simplify this routine.
     while ( !(ata_status_read(p) & ATA_SR_DRQ) )
     {
@@ -188,6 +195,8 @@ unsigned char ata_wait_drq(int p)
 
 unsigned char ata_wait_no_drq (int p)
 {
+    //if (p<0)
+        //return 0;
 // #todo: Simplify this routine.
     while ( ata_status_read(p) & ATA_SR_DRQ )
     {
@@ -200,6 +209,8 @@ unsigned char ata_wait_no_drq (int p)
 
 unsigned char ata_wait_busy (int p)
 {
+    //if (p<0)
+        //return 0;
 // #todo: Simplify this routine.
     while (!(ata_status_read(p) & ATA_SR_BSY ))
     {
@@ -214,6 +225,8 @@ unsigned char ata_wait_busy (int p)
 // Ao configurar os bits BUSY e DRQ devemos verificar retornos de erros.
 unsigned char ata_wait_not_busy (int p)
 {
+    //if (p<0)
+        //return 0;
 // #todo: Simplify this routine.
     while ( ata_status_read(p) & ATA_SR_BSY )
     {
@@ -233,8 +246,11 @@ static void __set_ata_addr (int p, int channel)
 // #todo
 // filtrar limites.
 
-    //if( channel<0 )
-        //panic()
+    //if (p<0)
+        //panic();
+
+    //if (channel<0)
+        //panic();
 
     switch (channel){
 
@@ -322,6 +338,9 @@ inline void atapi_pio_read ( int p, void *buffer, uint32_t bytes )
 {
 // No checks!
 // #todo: Port number via parameter.
+
+    //if (p<0)
+        //return;
 
     if (bytes == 0){
         return;
@@ -1452,6 +1471,7 @@ ata_ioctl (
 
 static int __ata_initialize(int ataflag)
 {
+// Called by init_ata().
 // Here we're gonna know some things about the ata controller.
 // + What is the type of ata controller we have: IDE, RAID or AHCI.
 // + For IDE controller we're gonna initialize the 'ports', or the
@@ -1543,7 +1563,7 @@ static int __ata_initialize(int ataflag)
                                     (unsigned char) PCI_CLASSCODE_MASS, 
                                     (unsigned char) PCI_SUBCLASS_IDE );
 
-    if ( (void *) PCIDeviceATA == NULL ){
+    if ((void *) PCIDeviceATA == NULL){
         printk("__ata_initialize: PCIDeviceATA\n");
         Status = (int) -1;
         goto fail;
@@ -1671,7 +1691,7 @@ static int __ata_initialize(int ataflag)
         ready_queue_dev = 
             (struct ata_device_d *) kmalloc( sizeof(struct ata_device_d) );
 
-        if ( (void*) ready_queue_dev == NULL ){
+        if ((void*) ready_queue_dev == NULL){
             printf("__ata_initialize: ready_queue_dev\n");
             Status = (int) -1;
             goto fail;
@@ -1697,7 +1717,7 @@ static int __ata_initialize(int ataflag)
         // Is this a buffer? For what?
         // Is this buffer enough?
         ata_identify_dev_buf = (unsigned short *) kmalloc(4096);
-        if ( (void *) ata_identify_dev_buf == NULL ){
+        if ((void *) ata_identify_dev_buf == NULL){
             printf ("ata_initialize: ata_identify_dev_buf\n");
             Status = (int) -1;
             goto fail;
@@ -1738,9 +1758,14 @@ static int __ata_initialize(int ataflag)
 // ==============================================
 // RAID controller.
 
-    if (AtaController.controller_type == ATA_RAID_CONTROLLER){
+    if (AtaController.controller_type == ATA_RAID_CONTROLLER)
+    {
+        // #debug
         printf ("__ata_initialize: [RAID] Unsupported type\n");
-        while(1){}
+        die();
+        while (1){
+        };
+
         Status = (int) -1;
         goto fail;
     }
@@ -1797,7 +1822,7 @@ done:
 //----------------------------------------------
 //--
 
-// ataDialog:
+// init_ata:
 // Rotina de diálogo com o driver ATA. 
 // Called by init_executive() in system.c
 // #importante
@@ -1815,7 +1840,7 @@ init_ata (
     int msg, 
     unsigned long long1 )
 {
-// Called by zeroInitializeSystemComponents in system.c
+// Called by zeroInitializeSystemComponents in system.c.
 // Do some ata routine given the operation number.
 
     int Status = 1;  // Error.
@@ -1833,7 +1858,7 @@ init_ata (
                 debug_print("ATA in PIO mode\n\n");
             }
             // IN: forcepio?
-            Status = (int) __ata_initialize( (int) long1 );
+            Status = (int) __ata_initialize((int) long1);
             // We can't live without this at the moment.
             if (Status<0){
                 panic("init_ata: ata_initialize failed\n");
