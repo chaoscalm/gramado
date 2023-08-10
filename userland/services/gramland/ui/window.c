@@ -86,28 +86,45 @@ window_post_message_broadcast(
     unsigned long long1,
     unsigned long long2 )
 {
-// Post message to the window. (broadcast)
+// Post message to the window. (broadcast).
+// Return the number of sent messages.
+
     int return_value=-1;
     register int i=0;
-    struct gws_window_d *w;
+    int Counter=0;
+    struct gws_window_d *wReceiver;
 
+// Invalid message code.
+    if (event_type < 0)
+        goto fail;
+
+// Probe for valid Overlapped windows and
+// send a close message.
     for (i=0; i<WINDOW_COUNT_MAX; i++)
     {
-        w = (void*) windowList[i];
-        if ((void*) w != NULL)
+        wReceiver = (void*) windowList[i];
+        if ((void*) wReceiver != NULL)
         {
-            if (w->magic==1234)
+            if (wReceiver->magic == 1234)
             {
-                if (w->type == WT_OVERLAPPED){
-                    window_post_message( w->id, event_type, long1, long2 );
+                if (wReceiver->type == WT_OVERLAPPED)
+                {
+                    // wid = The message goes to this window.
+                    window_post_message( 
+                        wReceiver->id, 
+                        event_type, 
+                        long1, 
+                        long2 );
+                    Counter++;
                 }
             }
         }
     };
 
-    return 0;
+    return (int) Counter;
+fail:
+    return (int) -1;
 }
-
 
 int 
 window_post_message( 

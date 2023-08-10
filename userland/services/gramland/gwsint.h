@@ -2,6 +2,9 @@
 // gwsint.h 
 // Internal definitions for Gramado Window Server.
 
+// Version?
+// See protocol version in protocol.h.
+
 // ...
 extern int current_mode;
 

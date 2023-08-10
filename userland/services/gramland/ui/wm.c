@@ -4423,6 +4423,10 @@ int on_combination(int msg_code)
     if (msg_code == GWS_SelectAll)
     {
         printf("ws: select all\n");
+        
+        // #test:
+        // Sending the wrong message.  
+        // This is just a test for now.
         gwssrv_broadcast_close();
         return 0;
     }

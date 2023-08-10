@@ -6,6 +6,19 @@
 #ifndef __GWS_PROTOCOL_H
 #define __GWS_PROTOCOL_H    1
 
+// --------------
+
+//
+// Protocol version.
+//
+
+#define PROTOCOL_VERSION10  0x0100
+//#define PROTOCOL_VERSION11  0x0101
+// ...
+#define PROTOCOL_VERSION  PROTOCOL_VERSION10
+
+// --------------
+
 // Um pacote tem o tamanho total de 512 bytes.
 #define sz_gPacket  (512)
 

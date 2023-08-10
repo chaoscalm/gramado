@@ -769,12 +769,13 @@ copy_backbuffer (
 
 void gwssrv_broadcast_close(void)
 {
-    // Post message to all the overlapped windows.
+// Post message to all the overlapped windows.
+// see: window.c
     window_post_message_broadcast( 
-        0,
-        GWS_Close,   //MSG_CLOSE
-        1234,
-        5678 );
+        0,           // wid = Ignored
+        GWS_Close,   // msg = msg code
+        1234,        // long1 = signature 1 for close message
+        5678 );      // long2 = signature 2 for close message
 }
 
 //
