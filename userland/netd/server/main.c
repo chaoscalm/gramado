@@ -67,6 +67,9 @@ static int NoReply = FALSE;
 // == Prototypes =========================
 //
 
+static int ServerInitialization(void);
+static int ServerShutdown(void);
+
 static void dispatch(int fd);
 static int serviceInitializeNetwork(void);
 
@@ -464,8 +467,7 @@ static int serviceInitializeNetwork(void)
     return 0;
 }
 
-// main:
-int main (int argc, char **argv)
+static int ServerInitialization(void)
 {
 
 //=======================
@@ -592,6 +594,48 @@ int main (int argc, char **argv)
 fail:
     exit(1);
     return 1;
+}
+
+static int ServerShutdown(void)
+{
+    //#todo
+}
+
+int main (int argc, char **argv)
+{
+    int Status=-1;
+    register int i=0;
+
+// #test: Flags
+    int f1= FALSE;
+    int f2= FALSE;
+    int f3= FALSE;
+    int f4= FALSE;
+
+    if (argc>0)
+    {
+        for (i=0; i<argc; i++)
+        {
+            //printf("%d: {%s}\n",i,argv[i]);
+
+            if ( strncmp( argv[i], "-1", 2 ) == 0 )
+                f1=TRUE;
+            if ( strncmp( argv[i], "-2", 2 ) == 0 )
+                f2=TRUE;
+            if ( strncmp( argv[i], "-3", 2 ) == 0 )
+                f3=TRUE;
+            if ( strncmp( argv[i], "-4", 2 ) == 0 )
+                f4=TRUE;
+        };
+    }
+     
+    Status = (int) ServerInitialization();
+    if (Status == 0){
+        ServerShutdown();
+        exit(0);
+    }
+    
+    return 0;
 }
 
 //
