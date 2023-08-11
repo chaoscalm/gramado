@@ -13,7 +13,7 @@
 #include "include/gns.h"
 
 #define SIZE_DONT_CHANGE  512
-char __gns_buffer[SIZE_DONT_CHANGE];
+static char __gns_buffer[SIZE_DONT_CHANGE];
 
 //=================================
 static int __gns_hello_request(int fd);
@@ -38,9 +38,9 @@ void *gns_system_call (
 }
 
 // Debug vai serial port. (COM1)
-void gns_debug_print (char *string)
+void gns_debug_print(char *string)
 {
-    if ( (void*) string == NULL ){
+    if ((void*) string == NULL){
         return;
     }
     gns_system_call ( 
@@ -55,7 +55,6 @@ void gns_yield(void)
 {
     gns_system_call (265,0,0,0);
 }
-
 
 // Get packet from kernel device.
 int gns_get_packet( unsigned long buffer, int buffer_lenght )
@@ -77,7 +76,7 @@ int gns_get_packet( unsigned long buffer, int buffer_lenght )
 }
 
 // hello request
-static int __gns_hello_request (int fd)
+static int __gns_hello_request(int fd)
 {
     unsigned long *message_buffer = (unsigned long *) &__gns_buffer[0];   
     int n_writes = 0;   // For sending requests.
@@ -219,7 +218,6 @@ process_reply:
     return (int) n_reads;
 }
 
-
 void
 gns_async_command ( 
     int fd, 
@@ -255,9 +253,9 @@ int gns_hello (int fd)
 // Avisamos que um request foi enviado.
    debug_print ("gns_hello: Send request\n");      
 
-    int req_status=-1;
+    int req_status = -1;
     req_status = (int) __gns_hello_request(fd);
-    if(req_status<0){
+    if (req_status<0){
         return -1;
     }
 
@@ -280,10 +278,19 @@ int gns_hello (int fd)
                       fd, 
                       SYNC_REQUEST_GET_ACTION );
         
-        if (value == ACTION_REQUEST){ rtl_yield(); }
-        if (value == ACTION_REPLY ) { break; }
-        if (value == ACTION_ERROR ) { return -1; }
-        if (value == ACTION_NULL )  { return -1; }  // no reply
+        if (value == ACTION_REQUEST){
+            rtl_yield();
+        }
+        if (value == ACTION_REPLY){
+            break;
+        }
+        if (value == ACTION_ERROR){
+            return -1;
+        }
+        // No reply!
+        if (value == ACTION_NULL){
+            return -1; 
+        }
     };
 
 // A sicronização nos diz que ja temos um reply,
@@ -297,7 +304,7 @@ int gns_hello (int fd)
 // ja é motivo pra fechar a conexão.
 
     status = (int) __gns_hello_response(fd);
-    if ( status <= 0 ){
+    if (status <= 0){
         return -1;
     }
     
