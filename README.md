@@ -175,7 +175,5 @@ The source code uses the BSD license.
 ![Screenshot](https://raw.githubusercontent.com/frednora/screenshots/main/gramado-3.png)
 
 
-# Quotes:
-> "Because the biggest challenge for the creator is boredom" - (T. Davis)
-
-
+## Quotes:
+> Exciting :)

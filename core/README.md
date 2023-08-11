@@ -4,7 +4,6 @@
 
     Gramado (c) is a 64bit multithreaded operating system.
 
-
 ## This repository has the source code for:
 
 * Gramado boot loader
@@ -88,6 +87,7 @@ Please, give us some feedback.
 Gramado is a Free and Open Source operating system.
 The source code uses the BSD license.
 
-# Quotes:
-> Oh boy, there is no spoon!
+## Quotes:
+> X
+
 
