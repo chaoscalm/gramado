@@ -73,11 +73,13 @@ extern int main ( int argc, char *argv[] );
 // Esses aplicativos escrevem em stdout.
 // O terminal precisa conhecer esse stdout para ler.
 
-
 // #todo
 // Explain this argument better.
-int crt0 (unsigned long rdi)
+
+void crt0(unsigned long rdi)
 {
+// This function never returns.
+
     // #todo
     // We can get the command line from 'stdin'.
 

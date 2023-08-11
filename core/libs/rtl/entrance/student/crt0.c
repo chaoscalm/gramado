@@ -74,8 +74,9 @@ const char *my_environ[] = {
 
 // #todo
 // Explain this argument better.
-int crt0 (unsigned long rdi)
+void crt0(unsigned long rdi)
 {
+// This function never returns.
 
     // #todo
     // We can get the command line from 'stdin'.

@@ -11,6 +11,7 @@
 
 void crt0_main(void)
 {
+// This function never returns.
 
 //ok
     gramado_system_call(4321,0xa,0xb,0xc);
@@ -27,12 +28,9 @@ void crt0_main(void)
 
     asm ("int $3");
 
-    while(1)
-    {
-        //
+    while (1) { 
+        asm ("pause"); 
     };
-
-    return;
 }
 
 
