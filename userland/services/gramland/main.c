@@ -143,13 +143,16 @@ static int running = FALSE;
 // == Private functions: Prototypes ========
 //
 
+static int ServerInitialization(int dm);
+static void ServerShutdown(void);
+
+
 // Worker
 // There is a vetor with values for the next response.
 // Called by dispatcher().
 static int __send_response(int fd, int is_error);
 
 static int initGUI(void);
-static int on_execute(int dm);
 static void dispacher(int fd);
 
 static void __init_ws_structure(void);
@@ -3274,7 +3277,7 @@ static int initGUI(void)
 }
 
 /*
- * on_execute: 
+ * ServerInitialization: 
  *     + Initializes the gws infrastructure.
  *     + Create the background.
  *     + Create the taskbar.
@@ -3291,7 +3294,7 @@ static int initGUI(void)
 // IN:
 // dm = Launch the default Display Manager.
 // ...
-static int on_execute(int dm)
+static int ServerInitialization(int dm)
 {
 
 //==================
@@ -3480,7 +3483,7 @@ static int on_execute(int dm)
     int gui_status = -1;
     gui_status = (int) initGUI();
     if (gui_status<0){
-        printf("on_execute: initGUI failed\n");
+        printf("ServerInitialization: initGUI failed\n");
         return (int) -1;
     }
 
@@ -3489,7 +3492,7 @@ static int on_execute(int dm)
 
     int graphics_status = (int) initGraphics();
     if (graphics_status<0){
-        printf("on_execute: initGraphics failed\n");
+        printf("ServerInitialization: initGraphics failed\n");
         return (int) -1;
     }
     Initialization.setup_graphics_interface_checkpoint = TRUE;
@@ -3746,6 +3749,55 @@ void gwssrv_quit(void)
     IsTimeToQuit = TRUE;
 }
 
+static void ServerShutdown(void)
+{
+    char shutdown_string[64];
+    int times=0;
+
+    gwssrv_debug_print ("GWSSRV.BIN: ServerShutdown\n");
+    printf             ("GWSSRV.BIN: ServerShutdown\n");
+
+// Clear root window.
+// Show final message.
+
+    if ((void*) __root_window != NULL)
+    {
+        // Clean window
+        clear_window_by_id( __root_window->id, TRUE );
+        // String
+        memset(shutdown_string, 0 , 64);
+        strcat(shutdown_string,"ws: Shutting down ...");
+        strcat(shutdown_string,"\0");
+        dtextDrawText ( 
+            (struct gws_window_d *) __root_window,
+            8, 
+            8, 
+            (unsigned int) COLOR_WHITE, 
+            shutdown_string );
+        
+        // Show the window and the final message.
+        wm_flush_window(__root_window);
+    }
+
+// Close the server's socket.
+    close( ____saved_server_fd );
+
+//-------
+// Mande mensagens para fecharem os programas clientes.
+    gwssrv_broadcast_close();
+
+// wait
+    for (times=0; times<8; times++){
+        rtl_yield();
+    };
+
+// Lance o programa que desliga a maquina.
+    rtl_clone_and_execute("shutdown.bin");
+    DestroyAllWindows();
+done:
+    exit(0);
+}
+
 // main: 
 // Entry point.
 // Called by crt0() in 
@@ -3765,8 +3817,6 @@ int main (int argc, char **argv)
     int fLaunchDM=FALSE;  // Launch the default display manager.
     //int fLaunchTerminal=FALSE;  // Launch the default terminal.
     //...
-
-    char shutdown_string[64];
 
     if (argc>0)
     {
@@ -3840,43 +3890,15 @@ int main (int argc, char **argv)
     };
  */
 
-   int times=0;
-
 //0 = Time to quit.
-    Status = (int) on_execute(fLaunchDM);
-
-    // Shutdown the server.
-    if (Status == 0)
-    {
-        gwssrv_debug_print ("GWSSRV.BIN: exit(0)\n");
-        printf             ("GWSSRV.BIN: exit(0)\n");
-
-        // Clear root window.
-        if ( (void*) __root_window != NULL )
-        {
-            clear_window_by_id( __root_window->id, TRUE );
-            memset(shutdown_string, 0 , 64);
-            strcat(shutdown_string,"ws: Shutting down ...");
-            strcat(shutdown_string,"\0");
-            dtextDrawText ( 
-                (struct gws_window_d *) __root_window,
-                8, 
-                8, 
-                (unsigned int) COLOR_WHITE, 
-                shutdown_string );
-            wm_flush_window(__root_window);
-            close( ____saved_server_fd );
-            //-------
-            // Mande mensagens para fecharem os programas clientes.
-            gwssrv_broadcast_close();
-            for (times=0; times<8; times++){ rtl_yield(); }
-            // Lance o programa que desliga a maquina.
-            rtl_clone_and_execute("shutdown.bin");
-            DestroyAllWindows();
-            exit(0);
-        }
-        exit(0);
+    Status = (int) ServerInitialization(fLaunchDM);
+    if (Status == 0){
+        ServerShutdown();
     }
+
+    // #test
+    // exit(Status);
+    exit(0);
 
 // #todo
 // Unexpected fail.
