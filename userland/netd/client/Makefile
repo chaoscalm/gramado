@@ -32,7 +32,7 @@ LIBGNS    = ../libgns/include/
 LIBGNSOBJ = ../libgns/obj
 
 # Objects
-myObjects = crt0.o main.o rtl.o \
+myObjects = crt0.o main.o globals.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o \
 unistd.o termios.o ioctl.o socket.o gns.o    
 
@@ -47,8 +47,15 @@ main.o:
     -I $(LIBGNS) \
     -I include/ \
     -o main.o
-
 all-c:
+
+	gcc  -c globals.c  $(CFLAGS) \
+    -I $(LIBC) \
+    -I $(LIBGNS) \
+    -I include/ \
+    -o globals.o
+
+# Imports.
 
 	cp $(LIBCOBJ)/crt0.o   .
 	cp $(LIBCOBJ)/rtl.o  .

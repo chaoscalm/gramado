@@ -26,19 +26,7 @@
     Send and receive data using the read() and write() system calls.
 */ 
 
-// rtl
-#include <types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <rtl/gramado.h>
-
-#include <packet.h>
-#include <gns.h>
+#include <gnsint.h>
 
 // Ports.
 #define PORTS_WS  4040
@@ -46,11 +34,15 @@
 #define PORTS_FS  4042
 // ...
 
-#define IP(a, b, c, d)  (a << 24 | b << 16 | c << 8 | d)
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
 
+// ----------------------
 
-char buffer[1500];
+static void InitializeGlobals(void);
+static void ShutdownApplication(int socket_fd);
 
+// ----------------------
 
 /*
 // #test
@@ -71,10 +63,28 @@ struct sockaddr_in addr = {
 */
 
 
+static void InitializeGlobals(void)
+{
+    register int i=0;
+
+// Clear the buffer.
+    for (i=0; i<__BUFFER_SIZE; i++){
+        buffer[i] = 0;
+    };
+}
+
+static void ShutdownApplication(int socket_fd)
+{
+    debug_print("gns.bin: ShutdownApplication\n"); 
+    printf     ("gns.bin: ShutdownApplication\n");
+// Close the given socket.
+    close(socket_fd);
+}
+
 // ========
 // main:
 
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
 
 //========================
@@ -91,9 +101,10 @@ int main ( int argc, char *argv[] )
     int client_fd = -1;
 
     debug_print ("gns.bin: Initializing ...\n");
+    InitializeGlobals();
 
 // Socket
-    client_fd = (int) socket ( AF_INET, SOCK_STREAM, 0 );
+    client_fd = (int) socket( AF_INET, SOCK_STREAM, 0 );
     if (client_fd < 0){
        //gws_debug_print ("gnst: Couldn't create socket\n");
        printf ("gns.bin: [FAIL] Couldn't create socket\n");
@@ -141,12 +152,12 @@ int main ( int argc, char *argv[] )
 
         // ------------------
         // Get data from kernel.
-        data_status = (int) gns_get_packet( buffer, 1500 );
+        data_status = (int) gns_get_packet( buffer, __BUFFER_SIZE );
         if (data_status > 0)
         {
            //#debug
            // We got data from kernel.
-           printf("Data: %s\n",buffer);
+           printf("gns.bin: Data={%s}\n",buffer);
            //exit(0);
         }
 
@@ -163,9 +174,8 @@ int main ( int argc, char *argv[] )
     };
 
 // Not reached.
-    close(client_fd);
-    debug_print ("gns.bin: bye\n"); 
-    printf ("gns.bin: bye\n");
+
+    ShutdownApplication(client_fd);
     return 0;
 }
 
