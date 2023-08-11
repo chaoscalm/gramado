@@ -29,7 +29,7 @@
 
 #include <gnsint.h>
 
-static int __saved_sync_id = -1;
+// static int __saved_sync_id = -1;
 
 //
 // == Gramado Network Protocol ===============================
@@ -69,6 +69,8 @@ static int NoReply = FALSE;
 
 static int ServerInitialization(void);
 static int ServerShutdown(void);
+
+static void __initialize_globals(void);
 
 static void dispatch(int fd);
 static int serviceInitializeNetwork(void);
@@ -132,17 +134,13 @@ static void dispatch(int fd)
 
 // =====================
 // Read the request.
-
-    n_reads = (int) read ( fd, __buffer, sizeof(__buffer) );
-
+    n_reads = (int) read( fd, __buffer, sizeof(__buffer) );
     if (n_reads <= 0)
     {
         debug_print ("gnssrv: dispatch n_reads\n");
-
         // No reply
         rtl_set_file_sync( 
             fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
-
         // Cleaning
         message_buffer[0] = 0;
         message_buffer[1] = 0;
@@ -158,18 +156,15 @@ static void dispatch(int fd)
     if (message_buffer[1] == 0)
     { 
         debug_print ("gnssrv: dispatch Unknown message\n");
-
         // No reply
         rtl_set_file_sync( 
             fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
-
         // Cleaning
         message_buffer[0] = 0;
         message_buffer[1] = 0;
         message_buffer[2] = 0;
         message_buffer[3] = 0;
-        gnssrv_yield(); 
- 
+        gnssrv_yield();
         return;
     }
 
@@ -178,8 +173,8 @@ static void dispatch(int fd)
 // Call the service!
 
     gnsProcedure ( 
-        (void *) message_buffer[0], 
-        (int)       message_buffer[1], 
+        (void *)        message_buffer[0], 
+        (int)           message_buffer[1], 
         (unsigned long) message_buffer[2], 
         (unsigned long) message_buffer[3] );
 
@@ -200,6 +195,8 @@ static void dispatch(int fd)
 // Send reply!
 //
 
+
+// Insert message string int to the response buffer.
     char *m = (char *) (__buffer + 128);
     sprintf( m, "GRAMADO 501 Not Implemented!");
     //sprintf( m, "HTTP/1.1 501 Not Implemented\n\n");
@@ -207,6 +204,7 @@ static void dispatch(int fd)
 
 // Standard message fields.
 // Primeiros longs do buffer.
+// #bugbug: Invalid values for next_response[i];
     message_buffer[0] = next_response[0];         // Window ID.
     message_buffer[1] = SERVER_PACKET_TYPE_REPLY; // next_response[1] 
     message_buffer[2] = next_response[2];         // Return value (long1)
@@ -216,8 +214,9 @@ static void dispatch(int fd)
 // Talvez aqui possamos usar alguma função chamada post_message().
 
 // Sending the reply.
-    n_writes = (int) write ( fd, __buffer, sizeof(__buffer) );
-    if (n_writes<=0){
+    n_writes = (int) write( fd, __buffer, sizeof(__buffer) );
+    if (n_writes<=0)
+    {
         debug_print ("gnssrv: dispatch Response fail\n");
         // No response. It fails.
         rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
@@ -266,7 +265,7 @@ gnsProcedure (
             break;
 
         case MSG_SYSKEYUP:
-            switch ( long1)
+            switch (long1)
             {
                 // #debug
                 case VK_F1:
@@ -278,13 +277,13 @@ gnsProcedure (
                 // do gws.    
                 case VK_F2:
                     my_pid = (int) getpid();
-                    gramado_system_call (7008,my_pid,0,0);
+                    gramado_system_call(7008,my_pid,0,0);
                     break; 
              
                 // Enviar a mensagem para o processo associado
                 // com a janela que tem o foco de entrada.
                 default:
-                    debug_print ("gnssrv: MSG_SYSKEYUP\n");
+                    debug_print("gnssrv: MSG_SYSKEYUP\n");
                     break;
             }    
             break;
@@ -304,13 +303,12 @@ gnsProcedure (
 
         // MSG_GNS_HELLO
         case 1000:
-            printf ("gnssrv: [1000] Hello from Gramado Network Server!\n");
-            printf ("\n");
+            printf("\n");
+            printf("gnssrv: [1000] Hello from Gramado Network Server!\n");
             rtl_yield();
             NoReply = FALSE;
             return 0;
             break;
-
 
         // MSG_GNS_INITIALIZENETWORK
         case 1001:
@@ -467,6 +465,29 @@ static int serviceInitializeNetwork(void)
     return 0;
 }
 
+static void __initialize_globals(void)
+{
+    register int i=0;
+
+// Global flag for the loop.
+    running = FALSE;
+
+    ____saved_server_fd = -1;
+    ____saved_current_client_fd = -1;
+
+// Clear the buffer for the messages.
+// see: globals.c
+    for (i=0; i<GNS_BUFFER_SIZE; i++){
+        __buffer[i] = 0;
+    };
+
+// Clear the tmp buffer for next response metadata.
+// see: globals.c
+    for (i=0; i<32; i++){
+        next_response[i] = 0;
+    };
+}
+
 static int ServerInitialization(void)
 {
 
@@ -489,11 +510,13 @@ static int ServerInitialization(void)
     //unsigned long w=0;
     //unsigned long h=0;
 
-// Global flag for the loop.
-    running = TRUE;
 
 // debug
     printf ("gnssrv: Initializing...\n");
+
+// Initialize global variables.
+    __initialize_globals();
+
 
 // Sincronizaçao provisoria
 // vamos precisar disso antes de tudo;
@@ -522,7 +545,7 @@ static int ServerInitialization(void)
 
 // -------------------
 // socket
-    server_fd = (int) socket (AF_GRAMADO, SOCK_STREAM, 0);
+    server_fd = (int) socket(AF_GRAMADO, SOCK_STREAM, 0);
     if (server_fd<0){
         printf("gnssrv: [FAIL] Couldn't create the server socket\n");
         goto fail;
@@ -566,6 +589,8 @@ static int ServerInitialization(void)
     int curconn = ____saved_server_fd;
 
 // Accept connection from a client. 
+
+    running = TRUE;
 
     while (1)
     {
