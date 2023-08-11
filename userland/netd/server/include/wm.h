@@ -109,8 +109,6 @@
 //#define MSG_HSCROLL 2000
 //#define MSG_VSCROLL 2001
 
-
-
 //
 // Socket messages
 //
@@ -118,23 +116,10 @@
 
 #define MSG_GNS_HELLO 1000
 #define MSG_GNS_INITIALIZENETWORK   1001
-
 #define MSG_GNS_SHUTDOWN   2000   //SOCKET
-
 // The buffer has a protocol starting in the 5th long.
 // buffer[4] = ethernet header.
 #define MSG_GNS_PROTOCOL          3000   
-
-
-
-
-
-
-
-
-
-
-
 
 
 

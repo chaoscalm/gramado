@@ -74,6 +74,7 @@ static void __initialize_globals(void);
 
 static void dispatch(int fd);
 static int serviceInitializeNetwork(void);
+static void serviceHello(void);
 
 // dialog
 static int 
@@ -100,6 +101,18 @@ gns_send_error_response (int fd, int code, char *error_message)
     debug_print ("gnssrv: [TODO] gns_send_error_response\n");
 }
 
+static void serviceHello(void)
+{
+    printf("\n");
+    printf("gnssrv: [1000] Hello from Gramado Network Server!\n");
+    next_response[0] = 0;  //wid
+    next_response[1] = SERVER_PACKET_TYPE_REPLY; // The response is a reply. 
+    next_response[2] = 0;
+    next_response[3] = 0;
+    NoReply = FALSE;
+    rtl_yield();
+}
+
 // internal.
 // Messages sended via socket.
 // obs: read and write use the buffer '__buffer'
@@ -124,7 +137,7 @@ static void dispatch(int fd)
         return;
     }
 
-// Check if we heave a new request.
+// Check if we have a new request.
     int value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
 // Not a request.
     if (value != ACTION_REQUEST){
@@ -304,9 +317,7 @@ gnsProcedure (
         // MSG_GNS_HELLO
         // case 1000:
         case GNS_Hello:
-            printf("\n");
-            printf("gnssrv: [1000] Hello from Gramado Network Server!\n");
-            rtl_yield();
+            serviceHello();           
             NoReply = FALSE;
             return 0;
             break;
