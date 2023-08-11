@@ -117,8 +117,8 @@ LTS releases.
 ```
 ```
     Host machine: Ubuntu 22.04.2 LTS
-    Linux 5.15.0-75-generic x86_64
-    gcc (Ubuntu) 11.3.0 
+    Linux 5.15.0-78-generic x86_64
+    gcc (Ubuntu) 11.4.0 
     GNU ld (GNU Binutils for Ubuntu) 2.38
     NASM version 2.15.05
 ```
