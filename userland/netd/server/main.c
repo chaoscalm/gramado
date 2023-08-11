@@ -302,7 +302,8 @@ gnsProcedure (
 
 
         // MSG_GNS_HELLO
-        case 1000:
+        // case 1000:
+        case GNS_Hello:
             printf("\n");
             printf("gnssrv: [1000] Hello from Gramado Network Server!\n");
             rtl_yield();

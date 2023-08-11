@@ -2,10 +2,13 @@
 // protocol.h
 // The protocol
 
-#ifndef __GNS_H
-#define __GNS_H    1
+#ifndef __PROTOCOL_H
+#define __PROTOCOL_H    1
 
 // Service numbers.
+
+#define GNS_Hello  1000
+// ...
 
 #endif    
 

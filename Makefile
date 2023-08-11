@@ -30,9 +30,8 @@ clean-userland:
 # In userland/
 	-rm -f userland/commands/bin/*.BIN
 	-rm -f userland/apps/bin/*.BIN
-	#-rm userland/apps/bin/*.BIN
-	#-rm userland/netd/bin/*.BIN
-	#-rm userland/services/gramland/bin/*.BIN
+	-rm userland/netd/bin/*.BIN
+	-rm userland/services/gramland/bin/*.BIN
 
 PHONY := clean-core
 clean-core:

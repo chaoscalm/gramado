@@ -28,6 +28,7 @@
 
 // gnssrv
 #include <wm.h>
+#include "protocol.h"
 #include <connect.h>
 #include <packet.h>
 #include <decode.h>
