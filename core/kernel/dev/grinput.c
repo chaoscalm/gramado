@@ -1,8 +1,11 @@
 
-// grinput.c
+// grinput.c - Gramado input.
+// This is the interface for the keyboard and mouse devices.
+// The input events for these devices goes here
+// and then they are send to the event queue in the 
+// window server's thread.
 
 #include <kernel.h>
-
 
 // Keyboard support
 //#define KEYBOARD_KEY_PRESSED  0x80
@@ -13,6 +16,7 @@
 
 #define BREAK_MASK  0x80
 
+// ------------------------------
 
 static int 
 __ProcessExtendedKeyboardKeyStroke(
@@ -158,8 +162,8 @@ wmMouseEvent(
     long long1, 
     long long2 )
 {
-// Called by the mouse handler.
-// Called by __ps2mouse_parse_data_packet in ps2mouse.c.
+// Called by __ps2mouse_parse_data_packet() in ps2mouse.c.
+// Right after the ps2 mouse interrupt handler.
 
     int Status=-1;
     //static long old_x=0;
@@ -299,7 +303,7 @@ fail:
 // Console interrupt
 // Valid foreground thread.
 // Handler for keyboard input.
-// See: kgwm.c
+// See: chardev/display/kgwm.c
 // ##
 // Nesse caso o driver esta chamando a rotina
 // que lida com o evento. Mas o plano é apenas
@@ -313,8 +317,9 @@ wmKeyEvent(
     unsigned char raw_byte,
     int prefix )
 {
+// Called by DeviceInterface_PS2Keyboard() in ps2kbd.c.
+// Right after the ps2 keyboard interrupt handler.
 // Post keyboard event to the current foreground thread.
-// Called by the keyboard handler.
 
     int Prefix = (int) (prefix & 0xFF);
     int fBreak = FALSE;
@@ -852,7 +857,8 @@ done:
 
 int wmTimerEvent(int signature)
 {
-// Called by the timer handler.
+// Called by DeviceInterface_PIT() in pit.c.
+// Right after the the timer interrupt handler.
 
     if (signature != 1234)
         return -1;

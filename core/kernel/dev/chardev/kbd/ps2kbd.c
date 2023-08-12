@@ -290,14 +290,14 @@ CheckByte:
 NormalByte:
 
 // #opçao
-// Apenas enfileira os raw bytes e n~ao processa.
+// Apenas enfileira os raw bytes e nao processa.
     //if ( flag ...
    // put_rawbyte(__raw)
  
 // We don't need this.
 // The routine bellow is always posting 
 // to the windows server.
-// see: tty/kgwm.c
+// see:  chardev/display/kgwm.c
 // IN: tid, scancode, prefix.
     wmKeyEvent( 
         (unsigned char) __raw,
