@@ -1,4 +1,5 @@
 // 'cat' command for Gramado.
+// Concatenate files.
 // 2022 - Fred Nora.
 
 //#include <rtl/gramado.h>
@@ -12,13 +13,14 @@
 #include <fcntl.h>
 #include <errno.h>
 
+//4KB
+#define __BufferSize  (4*1024)
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    int bufsize = (4*1024);  //4KB
-    //char buffer[1024];
-    char buffer[bufsize];
-    
+    static char buffer[__BufferSize];  // tmp
+
     int fd=-1;
 // Counters.
     register int nreads = 0;
@@ -27,30 +29,50 @@ int main(int argc, char *argv[])
     //int fdInput = -1;
     //int fdOutput = -1;
     //int i=0;
-    //int Max = argc;
+    int Max = 8;  //#test
     //char *p;
+    register int i=0;
 
+    /*
+    // #debug
     printf("CAT.BIN: argc %d | argv[0] %s | argv[1] %s\n", 
         argc,       // quantos argumentos 
         argv[0],    // CAT.BIN
         argv[1] );  // FILE.TXT
+    printf("\n");
+    */
 
-    if( argc <= 0 ){
+    if (argc <= 0){
         printf("cat: No args\n");
-        exit(1);
+        goto fail;
     }
-
-    if( argc == 1 ){
+    if (argc == 1){
         printf("cat: We need more args\n");
         //call usage()
-        exit(1);
+        goto fail;
     }
 
+// Clear the tmp buffer.
+// #todo: Actually we're gonna malloc the buffer
+// based on the file size. I guess.
 
-    // pula o primeiro porque eh o nome do programa.
-    
-    //for (i=1; i<Max; i++)
-    //{
+    for (i=0; i<__BufferSize; i++){
+        buffer[i] = 0;
+    };
+
+    if (argc > Max){
+        printf("Too much files in the commnads line\n");
+        goto fail;
+    }
+
+// #todo 
+// Parse parameters.
+
+// Loop
+// Pula o primeiro porque eh o nome do programa.
+
+    for (i=1; i<argc; i++)
+    {
     //    p = argv[i];
     //    if ( *p == '&' )
     //        return 0;
@@ -67,12 +89,11 @@ int main(int argc, char *argv[])
             //exit (-1);
         //}
 
-        fd = (int) open( (char *) argv[1], 0, "a+" );
+        fd = (int) open((char *) argv[i], 0, "a+");
+        if (fd < 0){
+            goto fail;
+        }
 
-        //if (fd<0){
-        //    return -1;
-        //}
-            
         // Poisiona no início do arquivo.
         //rewind(fp);
 
@@ -130,10 +151,10 @@ int main(int argc, char *argv[])
 
         // Write
         // Write on stdout.
-        nwrites = write ( 1, buffer, sizeof(buffer) );
+        nwrites = write( 1, buffer, sizeof(buffer) );
         if (nwrites <= 0){
-            printf ("cat: write fail\n");
-            //exit(-1);
+            printf ("cat: File {%d} failed on write()\n", i);
+            goto fail;
         }
 
         //fprintf(stdout,buffer);
@@ -141,9 +162,15 @@ int main(int argc, char *argv[])
         //printf("OUTPUT: %s \n",buffer);
         // close() ??
         // vai salvar ??
-   // };
+    };
 
     return 0;
+
+fail:
+    printf("~Fail\n");
+    return 0;
 }
+
+
 
 
