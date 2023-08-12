@@ -20,4 +20,4 @@ The boot loader starts at:
     core/boot/vd/fat/main.asm
 --------------------------------------
 The kernel starts at:
-    kernel/arch/x86_64/startup/head_64.asm.
+    core/kernel/arch/x86_64/startup/head_64.asm.
