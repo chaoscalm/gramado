@@ -10,7 +10,6 @@
 #ifndef __TYPES_H
 #define __TYPES_H    1
 
-
 #define TRUE 1
 #define FALSE 0
 #define NULL ((void*)0)
