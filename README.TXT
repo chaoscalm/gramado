@@ -17,7 +17,7 @@ Configuration file:
     include/config/superv/config.h
 --------------------------------------
 The boot loader starts at:
-    core/os/boot/vd/fat/main.asm
+    core/boot/vd/fat/main.asm
 --------------------------------------
 The kernel starts at:
-    core/os/kernel/ke/x86_64/startup/
+    kernel/arch/x86_64/startup/head_64.asm.

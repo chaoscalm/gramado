@@ -27,9 +27,13 @@ The core features are:
 
 The desktop features are:
 
-> * Window Server. See: gramland/burgundy/server/
+> * Window Server. See: userland/services/gramland/.
+> * Window Manager. Embedded into the Window Server.
+> * Terminal. See: userland/apps/terminal/.
+> * Shell. See: userland/shell/.
+> * Display Manager. See: userpand/apps/gdm/
 > * Some few clients connected to the window server via unix-sockets.
-> * Unix-like commands running in the virtual console.
+> * Unix-like commands running in the virtual console not connected with the terminal application yet.
 
 The libraries are:
 
@@ -83,6 +87,7 @@ desktop/ is a place for the graphical user interface.
 
 The main developer is Fred Nora, a brazilian developer.
 Fred Nora is the creator and main maintainer of the project.
+Contributions are welcome.
 
 ## How to Build?
 

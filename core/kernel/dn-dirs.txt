@@ -8,11 +8,10 @@
     net/ - Network support.
 
 (2) process/system:
-    arch/    - Initialization and syscall interface.
+    arch/    - Initialization.
     ke/      - hal, processes and threads.
-    klib/    - libc support.
+    crt/    - libc support.
     mm/      - Memory management.
-    sys/
 
 (3) user/security:
     user/

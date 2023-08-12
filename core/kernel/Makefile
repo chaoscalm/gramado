@@ -11,7 +11,7 @@ linkTarget = KERNEL.BIN
 # LDFLAGS := -m elf_x86_64 -static
 # LDFLAGS := -m elf_x86_64 -s -x -static  
 linkFlags := -m elf_x86_64 \
--s -x -static -T ke/x86_64/startup/link.ld
+-s -x -static -T arch/x86_64/startup/link.ld
 
 # Make variables (CC, etc...)
 AS	= as
@@ -144,9 +144,9 @@ k1:
 # top
 # Head
 # head_64.o
-	$(NASM) ke/x86_64/startup/head_64.asm \
+	$(NASM) arch/x86_64/startup/head_64.asm \
 	$(KERNEL_INCLUDE) \
-	-I ke/x86_64/startup/ \
+	-I arch/x86_64/startup/ \
 	-f elf64 -o head_64.o
 
 # top

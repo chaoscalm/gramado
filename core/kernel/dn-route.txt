@@ -1,6 +1,9 @@
 
     Main route for KERNEL.BIN:
 
+    The entry point is in arch/x86_64/startup/head_64.asm.
+    The link file is arch/x86_64/startup/link.ld.
+
 ------------------------------------------
 _kernel_begin   head_64.asm
 START           head_64.asm
