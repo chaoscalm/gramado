@@ -444,6 +444,7 @@ on_mouse_event(
     unsigned long x, 
     unsigned long y )
 {
+// Process mouse events.
 
 // Quando movemos o mouse, então atualizamos o ponteiro que indica
 // a janela mouse_hover. Esse ponteiro será usado pelos eventos
@@ -640,16 +641,20 @@ static void on_mouse_pressed(void)
 // When the mouse was pressed over en editbox window.
 // So, set the focus?
 
+    int ButtonID = -1;
+
 // Validating the window mouse_over.
     if ( (void*) mouse_hover == NULL ){
         return;
     }
-    if (mouse_hover->magic!=1234){
+    if (mouse_hover->magic != 1234){
         return;
     }
 
     //if (mouse_hover == __root_window)
         //return;
+
+    ButtonID = (int) mouse_hover->id;
 
 // Now we have a new mouse_owner.
 // #todo
@@ -663,14 +668,18 @@ static void on_mouse_pressed(void)
 // Start menu button.
     if (mouse_hover->id == StartMenu.wid)
     {
-        __button_pressed(mouse_hover->id);
+        __button_pressed(ButtonID);
         return;
     }
 
-// Grab event
+//
+// Title bar
+//
+
+    // Grab event
     if (mouse_hover->isTitleBar == TRUE)
     {
-        grab_wid = mouse_hover->id;
+        grab_wid = ButtonID;
         grab_is_active = TRUE;
         // We're not dragging yet.
         // Just clicked.
@@ -678,99 +687,94 @@ static void on_mouse_pressed(void)
         return;
     }
 
+//
+// Controls - (Title bar buttons).
+//
+
 // ===================================
 // >> Minimize control
+// Redraw the button
     if (mouse_hover->isMinimizeControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_pressed(mouse_hover->id);
+            __button_pressed(ButtonID);
             return;
         }
     }
 // ===================================
-
-// ===================================
 // >> Maximize control
+// Redraw the button
     if (mouse_hover->isMaximizeControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_pressed(mouse_hover->id);
-            //set_status_by_id(mouse_hover->id,BS_PRESSED);
-            //redraw_window_by_id(mouse_hover->id,TRUE);
+            __button_pressed(ButtonID);
             return;
         }
     }
 // ===================================
-
-// ===================================
 // >> Close control
+// Redraw the button
     if (mouse_hover->isCloseControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_pressed(mouse_hover->id);
-            //set_status_by_id(mouse_hover->id,BS_PRESSED);
-            //redraw_window_by_id(mouse_hover->id,TRUE);
+            __button_pressed(ButtonID);
             return;
         }
     }
-// ===================================
+
+//
+// Menu item
+// 
 
 // ===================================
 // >> menuitem
 // Lidando com menuitens
-    // Se clicamos em um menu item.
+// Se clicamos em um menu item.
+// Redraw the button
     if (mouse_hover->isMenuItem == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_pressed(mouse_hover->id);
-            //set_status_by_id(mouse_hover->id,BS_PRESSED);
-            //redraw_window_by_id(mouse_hover->id,TRUE);
+            __button_pressed(ButtonID);
             return;
         }
     }
 // ===================================
-
-//
+// Taskbar - (Quick launch buttons)
 // Lidando com os botões da barra de tarefas.
-//
-
 // Em qual botão da taskbar?
 // Se for igual à um dos botões da tb.
-    if( mouse_hover->id == QuickLaunch.buttons[0] ||
-        mouse_hover->id == QuickLaunch.buttons[1] ||
-        mouse_hover->id == QuickLaunch.buttons[2] ||
-        mouse_hover->id == QuickLaunch.buttons[3] )
+
+    if ( ButtonID == QuickLaunch.buttons[0] ||
+         ButtonID == QuickLaunch.buttons[1] ||
+         ButtonID == QuickLaunch.buttons[2] ||
+         ButtonID == QuickLaunch.buttons[3] )
     {
 
         // #bugbug
         // Check type
 
-        if (mouse_hover->id == QuickLaunch.buttons[0])
+        if (ButtonID == QuickLaunch.buttons[0])
         {
         }
 
-        if (mouse_hover->id == QuickLaunch.buttons[1])
+        if (ButtonID == QuickLaunch.buttons[1])
         {
         }
 
-        if (mouse_hover->id == QuickLaunch.buttons[2])
+        if (ButtonID == QuickLaunch.buttons[2])
         {
         }
 
-        if (mouse_hover->id == QuickLaunch.buttons[3])
+        if (ButtonID == QuickLaunch.buttons[3])
         {
         }
 
         // Redraw the button
-        __button_pressed(mouse_hover->id);
+        __button_pressed(ButtonID);
         return;
     }
 
@@ -954,6 +958,8 @@ static void on_control_clicked(struct gws_window_d *window)
 
 static void on_mouse_released(void)
 {
+    int ButtonID = -1;
+
     struct gws_window_d *tmp;
     struct gws_window_d *old_focus;
     struct gws_window_d *wgrab;
@@ -988,19 +994,29 @@ static void on_mouse_released(void)
     if (mouse_hover->magic != 1234)
         return;
 
+    ButtonID = (int) mouse_hover->id;
+
+//
+// Start menu button.
+//
+
 // -------------------
 // #test
 // Start menu button was released.
-    if (mouse_hover->id == StartMenu.wid)
+    if (ButtonID == StartMenu.wid)
     {
-        __button_released(mouse_hover->id);
+        __button_released(ButtonID);
         on_menu_event();
         return;
     }
 
-    // If we already clicked on a window
-    // and are already dragging it.
-    // So, now it's time to drop it.
+//
+// Grabbing a window.
+//
+
+// If we already clicked on a window
+// and are already dragging it.
+// So, now it's time to drop it.
     if ( grab_is_active == TRUE && 
          is_dragging == TRUE && 
          grab_wid > 0 )
@@ -1010,7 +1026,7 @@ static void on_mouse_released(void)
         is_dragging = FALSE;
         
         wgrab = (struct gws_window_d *) get_window_from_wid(grab_wid);
-        if ( (void*) wgrab != NULL )
+        if ((void*) wgrab != NULL)
         {
             // Muda a janela mãe da grab se ela for titlebar.
             if (wgrab->magic == 1234)
@@ -1064,6 +1080,9 @@ static void on_mouse_released(void)
     //if(long1==2){ create_main_menu(mousex,mousey); return 0; }
     //if(long1==2){ create_main_menu(mousex,mousey); return 0; }
 
+//
+// Titlebar
+//
 
 // ===================================
 // Title bar
@@ -1071,7 +1090,7 @@ static void on_mouse_released(void)
     {
         // Get parent.
         tmp = (struct gws_window_d *) mouse_hover->parent;
-        if ( (void*) tmp != NULL )
+        if ((void*) tmp != NULL)
         {
             if (tmp->magic == 1234)
             {
@@ -1091,45 +1110,44 @@ static void on_mouse_released(void)
     }
 
 
+//
+// Controls - (Titlebar buttons).
+//
 
 // ===================================
 // >> Minimize control
+// Redraw the button
     if (mouse_hover->isMinimizeControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_released(mouse_hover->id);
+            __button_released(ButtonID);
             //printf("Release on min control\n");
             on_control_clicked(mouse_hover);
             return;
         }
     }
 // ===================================
-
-// ===================================
 // >> Maximize control
+// Redraw the button
     if (mouse_hover->isMaximizeControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_released(mouse_hover->id);
+            __button_released(ButtonID);
             //printf("Release on max control\n");
             on_control_clicked(mouse_hover);
             return;
         }
     }
 // ===================================
-
-// ===================================
 // >> Close control
+// Redraw the button
     if (mouse_hover->isCloseControl == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_released(mouse_hover->id);
+            __button_released(ButtonID);
             //printf("Release on close control\n");
             // #test
             // On control clicked
@@ -1138,23 +1156,24 @@ static void on_mouse_released(void)
             return;
         }
     }
-// ===================================
+
+
+//
+// Menu itens
+//
 
 // ===================================
 // >> Menuitens
 // Lidando com menuitens
 // Se clicamos em um menu item.
+// Redraw the button
     unsigned long selected_item=0;
     if (mouse_hover->isMenuItem == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            // Redraw the button
-            __button_released(mouse_hover->id);
-            //set_status_by_id(mouse_hover->id,BS_RELEASED);
-            //redraw_window_by_id(mouse_hover->id,TRUE);
-
-            selected_item = (unsigned long) (mouse_hover->id & 0xFFFF);
+            __button_released(ButtonID);
+            selected_item = (unsigned long) (ButtonID & 0xFFFF);
             menuProcedure(
                 NULL,
                 (int) 1,
@@ -1164,39 +1183,39 @@ static void on_mouse_released(void)
             return;
         }
     }
-// ===================================
 
+
+//
+// Quick launch buttons.
+//
 
 //tb_button[0]
-    if(mouse_hover->id == QuickLaunch.buttons[0])
+    if (ButtonID == QuickLaunch.buttons[0])
     {
-        __button_released(mouse_hover->id);
+        __button_released(ButtonID);
         //wm_update_active_window();
         //yellow_status("0: Min");
         //QuickLaunch.pids[0] = (int) rtl_clone_and_execute("terminal.bin");
         return;
     }
-
 //tb_button[1]
-    if(mouse_hover->id == QuickLaunch.buttons[1])
+    if (ButtonID == QuickLaunch.buttons[1])
     {
-        __button_released(mouse_hover->id);
+        __button_released(ButtonID);
         //QuickLaunch.pids[1] = (int) rtl_clone_and_execute("editor.bin");
         return;
     }
-
 //tb_button[2]
-    if(mouse_hover->id == QuickLaunch.buttons[2])
+    if (ButtonID == QuickLaunch.buttons[2])
     {
-        __button_released(mouse_hover->id);
+        __button_released(ButtonID);
         //QuickLaunch.pids[2] = (int) rtl_clone_and_execute("gdm.bin");
         return;
     }
-
 //tb_button[3]
-    if(mouse_hover->id == QuickLaunch.buttons[3])
+    if (ButtonID == QuickLaunch.buttons[3])
     {
-        __button_released(mouse_hover->id); 
+        __button_released(ButtonID); 
         //QuickLaunch.pids[3] = (int) rtl_clone_and_execute("browser.bin");
         // mostra o cliente se ele faz parte da tag 3.
         //show_client(first_client->next,3);
@@ -1204,7 +1223,6 @@ static void on_mouse_released(void)
         return;
     }
 }
-
 
 // Post a message into the window with focus message queue.
 // #todo: We need a worker for posting messages into the queues.
