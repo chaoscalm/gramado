@@ -676,10 +676,10 @@ static void on_mouse_pressed(void)
 // Title bar
 //
 
-    // Grab event
+    // Grab event on title bar window.
     if (mouse_hover->isTitleBar == TRUE)
     {
-        grab_wid = ButtonID;
+        grab_wid = (int) mouse_hover->id;
         grab_is_active = TRUE;
         // We're not dragging yet.
         // Just clicked.
