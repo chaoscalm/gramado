@@ -62,10 +62,10 @@ static int serial_init_port(uint16_t port, uint16_t divisor)
         return (int) FALSE;
     }
 
-// Null divisor. Or out of range.
+// Null divisor or out of range.
 // Use default divisor value.
 // 115200/3 = 38400;
-    if(divisorShort == 0 || divisorShort > SERIAL_DEV_FREQ)
+    if (divisorShort == 0 || divisorShort > SERIAL_DEV_FREQ)
     {
         divisorShort = 3;
         divisorLoByte = (char) (divisorShort & 0xFF);
@@ -73,49 +73,49 @@ static int serial_init_port(uint16_t port, uint16_t divisor)
     }
 
 // COM1
-    if(PortBase == COM1_PORT){
+    if (PortBase == COM1_PORT){
         SerialPortInfo.com1.port_number = (uint16_t) port;
         SerialPortInfo.com1.divisor = (uint16_t) divisorShort;
         SerialPortInfo.com1.divisorLoByte = (char) divisorLoByte;
         SerialPortInfo.com1.divisorHiByte = (char) divisorHiByte;
         SerialPortInfo.com1.dev_freq = SERIAL_DEV_FREQ; //115200
-        if(divisorShort>0){
+        if (divisorShort>0){
             SerialPortInfo.com1.baudrate = 
                 (unsigned long) (SERIAL_DEV_FREQ/divisorShort);
         }
     }
 // COM2
-    if(PortBase == COM2_PORT){
+    if (PortBase == COM2_PORT){
         SerialPortInfo.com2.port_number = (uint16_t) port;
         SerialPortInfo.com2.divisor = (uint16_t) divisorShort;
         SerialPortInfo.com2.divisorLoByte = (char) divisorLoByte;
         SerialPortInfo.com2.divisorHiByte = (char) divisorHiByte;
         SerialPortInfo.com2.dev_freq = SERIAL_DEV_FREQ; //115200
-        if(divisorShort>0){
+        if (divisorShort>0){
             SerialPortInfo.com2.baudrate = 
                 (unsigned long) (SERIAL_DEV_FREQ/divisorShort);
         }
     }
 // COM3
-    if(PortBase == COM3_PORT){
+    if (PortBase == COM3_PORT){
         SerialPortInfo.com3.port_number = (uint16_t) port;
         SerialPortInfo.com3.divisor = (uint16_t) divisorShort;
         SerialPortInfo.com3.divisorLoByte = (char) divisorLoByte;
         SerialPortInfo.com3.divisorHiByte = (char) divisorHiByte;
         SerialPortInfo.com3.dev_freq = SERIAL_DEV_FREQ; //115200
-        if(divisorShort>0){
+        if (divisorShort>0){
             SerialPortInfo.com3.baudrate = 
                 (unsigned long) (SERIAL_DEV_FREQ/divisorShort);
         }
     }
 // COM4
-    if(PortBase == COM4_PORT){
+    if (PortBase == COM4_PORT){
         SerialPortInfo.com4.port_number = (uint16_t) port;
         SerialPortInfo.com4.divisor = (uint16_t) divisorShort;
         SerialPortInfo.com4.divisorLoByte = (char) divisorLoByte;
         SerialPortInfo.com4.divisorHiByte = (char) divisorHiByte;
         SerialPortInfo.com4.dev_freq = SERIAL_DEV_FREQ; //115200
-        if(divisorShort>0){
+        if (divisorShort>0){
             SerialPortInfo.com4.baudrate = 
                 (unsigned long) (SERIAL_DEV_FREQ/divisorShort);
         }
@@ -142,7 +142,6 @@ static int serial_init_port(uint16_t port, uint16_t divisor)
     out8 (PortBase + MCR, 0x0B);
     return TRUE;
 }
-
 
 // serial_init:
 // inicializa todas as portas.
@@ -199,7 +198,7 @@ char serial_read_char(unsigned int port)
 // #todo
 // Check the port validation.
 
-    while ( ( in8(port + 5) & 1 ) == 0 )
+    while ( (in8(port + 5) & 1) == 0 )
     {
         // Nothing
     };

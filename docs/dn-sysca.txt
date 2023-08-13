@@ -1,0 +1,25 @@
+
+   Sobre systemcalls, microkernels e kernel hibridos.
+
+Systemcall no Minix.
+
+Temos a ideia de que uma systemcall e' uma interrupçao feita 
+por um aplicativo em usermode para o kernel prestar algum serviço e 
+entregar um valor de retorno. ok.
+
+No Minix e' diferente ... e esse e' o segredo do Minix. 
+No Minix quando um aplicativo em usermode chama uma systemcall, 
+ele precisa indicar qual sera o programa que ira atender o serviço, 
+pois o kernel nao presta serviços .... o kernel apenas encaminha 
+o pedido para o programa responsavel.
+Ou seja, uma systemcall no Minix e' um mecanismo de IPC e 
+nao um solicitador de serviços presentes no kernel base.
+
+Um microkernel nao presta serviços quando recebe systemcalls, 
+apenas encaminha ... como e' o caso do Minix, descrito acima ... 
+No caso de um kernel hibrido, que e' a maioria dos casos, 
+entao o aplicativo pode fazer systemcalls pra usar 
+os serviços oferecidos pelo kernel, mas tambem 
+pode usar os meanismos de IPC para solicitar os serviços que 
+estao em outros programas.
+

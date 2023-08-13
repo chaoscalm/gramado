@@ -50,6 +50,9 @@ static int __socket_initialize_gramado_ports(void)
  */
 struct socket_d *create_socket_object(void)
 {
+// Crete the socket structure.
+// see: socket.h
+
     struct socket_d *s;
     register int i=0;
 
@@ -72,7 +75,7 @@ struct socket_d *create_socket_object(void)
     //s->addr = 0;
 
     s->family = 0;
-    s->type = 0;
+    s->type = 0;   // (SOCK_STREAM, SOCK_DGRAM, SOCK_RAW ...)
     s->protocol = 0;
 
     s->ip_ipv4 = (unsigned int) 0;
@@ -293,6 +296,10 @@ socket_gramado (
     sock->addr.sa_data[0] = 'x';
     sock->addr.sa_data[1] = 'x';
 
+// #todo
+// For AF_GRAMADO the type needs to be SOCK_RAW
+// and the protocol needs to be GRAMADO_PROTOCOL.
+
 // Process
     pid_t current_process = (pid_t) get_current_process();
     if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
@@ -409,6 +416,11 @@ socket_gramado (
     _file->_w = 0;
 // Status do buffer do socket.
     _file->socket_buffer_full = 0;
+
+//
+// Socket
+//
+
 // Socket pointer
 // Associando a estrutura de socket à estrutura de arquivo.
     _file->socket = sock;
@@ -418,6 +430,8 @@ socket_gramado (
 // Salvamos o ponteira para estrutura de soquete
 // na estrutura de processo do processo atual.
     Process->priv = (void *) sock;
+
+
 // fd
     _file->_file = __slot;
 // Colocando na lista de arquivos abertos no processo.
@@ -470,16 +484,17 @@ socket_unix (
     sock->addr.sa_data[0] = 'x'; 
     sock->addr.sa_data[1] = 'x';
 
-// Process
+// #test
+// GRAMADO_PROTOCOL is a valid protocol in AF_UNIX.
 
+// Process
     pid_t current_process = (pid_t) get_current_process();
     if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
         printf ("socket_unix: current_process\n");
         goto fail;
     }
-
     Process = (void *) processList[current_process];
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         printf("socket_unix: Process\n");
         goto fail;
 
@@ -590,13 +605,17 @@ socket_unix (
     _file->_w = 0;
     _file->socket_buffer_full = 0;  
 
-    _file->socket = sock;
+//
+// Socket
+//
 
+    _file->socket = sock;
 // O arquivo do soquete, o buffer?
     sock->private_file = (file *) _file; 
 // Salvamos o ponteira para estrutura de soquete
 // na estrutura de processo do processo atual.
     Process->priv = (void *) sock;
+
 // fd
     _file->_file = __slot;
 //Colocando na lista de arquivos abertos no processo.
@@ -614,6 +633,12 @@ fail:
 // família AF_INET.
 // Precisa ser uma rotina parecida com a do outro tipo criado.
 // Esse domínio lida com tcp/ip ?
+
+// #todo
+// Based on the socket type when the domain is AF_INET.
+// + SOCK_STREAM = tcp socket.
+// + SOCK_DGRAM  = udp socket.
+// + SOCK_RAW    = raw socket.
 
 int 
 socket_inet ( 
@@ -647,6 +672,19 @@ socket_inet (
     sock->addr_in.sin_port        = 11369;  //?
     sock->addr_in.sin_addr.s_addr = SYS_SOCKET_IP(127,0,0,1);
 
+// #todo
+// Based on the socket type when the domain is AF_INET.
+// + SOCK_STREAM = tcp socket.
+// + SOCK_DGRAM  = udp socket.
+// + SOCK_RAW    = raw socket.
+
+    // Already done when the socket was created.
+    // sock->type = type;
+    // sock->type = protocol;
+
+// #test
+// GRAMADO_PROTOCOL is a valid protocol in AF_INET.
+
 // Process
     pid_t current_process = (pid_t) get_current_process();
     if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
@@ -654,7 +692,7 @@ socket_inet (
         goto fail;
     }
     Process = (void *) processList[current_process];
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         printf("socket_inet: Process\n");
         goto fail;
     }
@@ -755,12 +793,17 @@ socket_inet (
     _file->_w = 0;
     _file->socket_buffer_full = 0;
 
+//
+// Socket
+//
+
     _file->socket = sock;
 // O arquivo do soquete, o buffer ?
     sock->private_file = (file *) _file;
 // Salvamos o ponteira para estrutura de soquete
 // na estrutura de processo do processo atual.
     Process->priv = (void *) sock;
+
 // fd
     _file->_file = __slot;
     _file->used = TRUE;
@@ -800,7 +843,7 @@ fail:
 //     fd if ok.
 //     -1 if it fails.
 
-int sys_socket ( int family, int type, int protocol )
+int sys_socket( int family, int type, int protocol )
 {
 
     //#todo
@@ -842,9 +885,15 @@ int sys_socket ( int family, int type, int protocol )
         return (int) (-EINVAL);
     }
 
-    if ( type != SOCK_STREAM &&
-         type != SOCK_DGRAM  &&
-         type != SOCK_RAW)
+// #todo
+// Based on the socket type when the domain is AF_INET.
+// + SOCK_STREAM = tcp socket.
+// + SOCK_DGRAM  = udp socket.
+// + SOCK_RAW    = raw socket.
+
+    if (type != SOCK_STREAM &&
+        type != SOCK_DGRAM  &&
+        type != SOCK_RAW)
     {
         debug_print ("sys_socket: type not supported\n");
         return (int) (-EINVAL);
@@ -900,8 +949,11 @@ int sys_socket ( int family, int type, int protocol )
     }
 // family, type and protocol.
     __socket->family   = family;
-    __socket->type     = type;      // DATAGRAM or STREAM 
+    __socket->type     = type;     // (SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, ...) 
     __socket->protocol = protocol;
+
+
+
 // ip:port
 // Initialized with '0'.
     __socket->ip_ipv4 = (unsigned int) _ipv4;
@@ -951,7 +1003,7 @@ int sys_socket ( int family, int type, int protocol )
     case AF_INET:
         debug_print ("sys_socket: AF_INET\n");
         __socket->connection_type = 0;//?;  //Is it really a remote connection?
-        return (int) socket_inet ( (struct socket_d *) __socket, 
+        return (int) socket_inet( (struct socket_d *) __socket, 
                          AF_INET, type, protocol );
         break;
 

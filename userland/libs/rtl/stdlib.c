@@ -1682,25 +1682,34 @@ void reverse (char s[])
 
 // itoa:  
 // convert n to characters in s.
-
-void itoa (int n, char s[])
+void itoa(int n, char s[])
 {
-     int i=0; 
-     int sign=0;
- 
-    if ((sign = n) < 0)  /* record sign */
-        n = -n;          /* make n positive */
-    i = 0;
-    
-    do {                         /* generate digits in reverse order */
-         s[i++] = n % 10 + '0';  /* get next digit */
-    } while ((n /= 10) > 0);     /* delete it */
-     
-    if (sign < 0)
+// #bugbug: 
+// What is the size of s[]?
+
+    int i=0; 
+    int sign=0;
+
+// Record the sign and make 'n' sopitive.
+    if ((sign = n) < 0)
+    {
+        n = -n;
+    }
+
+/* generate digits in reverse order */
+/* get next digit */
+/* delete it */
+    i=0;
+    do {
+        s[i++] = n%10 + '0';
+    } while ((n /= 10) > 0);
+
+    if (sign < 0){
         s[i++] = '-';
+    }
     s[i] = '\0';
 
-     reverse(s);
+    reverse(s);
 }
 
 /*

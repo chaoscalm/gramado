@@ -71,29 +71,29 @@ typedef	_BSD_SSIZE_T_	ssize_t;
 #endif
 */
 
-
-
-/* 
- * Sock types
- */
-
-// bsd-like and linux-like ?
-// #todo: do the same on ring3.
- 
 /*
-       SOCK_STREAM     Provides sequenced, reliable, two-way, connection-
-                       based byte streams.  An out-of-band data transmission
-                       mechanism may be supported.
-       SOCK_DGRAM      Supports datagrams (connectionless, unreliable
-                       messages of a fixed maximum length).
-       SOCK_SEQPACKET  Provides a sequenced, reliable, two-way connection-
-                       based data transmission path for datagrams of fixed
-                       maximum length; a consumer is required to read an
-                       entire packet with each input system call.
-       SOCK_RAW        Provides raw network protocol access.
-       SOCK_RDM        Provides a reliable datagram layer that does not
-                       guarantee ordering.
-       SOCK_PACKET     Obsolete and should not be used in new programs;
+    // Socket types
+    // bsd-like and linux-like ?
+    // #todo: do the same on ring3.
+
+    SOCK_STREAM     Provides sequenced, reliable, two-way, connection-
+                    based byte streams.  An out-of-band data transmission
+                    mechanism may be supported.
+
+    SOCK_DGRAM      Supports datagrams (connectionless, unreliable
+                    messages of a fixed maximum length).
+
+    SOCK_SEQPACKET  Provides a sequenced, reliable, two-way connection-
+                    based data transmission path for datagrams of fixed
+                    maximum length; a consumer is required to read an
+                    entire packet with each input system call.
+
+    SOCK_RAW        Provides raw network protocol access.
+
+    SOCK_RDM        Provides a reliable datagram layer that does not
+                    guarantee ordering.
+
+    SOCK_PACKET     Obsolete and should not be used in new programs;
 */
 
 #define SOCK_STREAM     1    /* stream (connection) socket	*/
