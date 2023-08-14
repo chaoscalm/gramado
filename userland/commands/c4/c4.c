@@ -61,11 +61,13 @@ static void stmt(void);
 
 static void next(void)
 {
-    char *pp;
+  char *pp;
 
-  while (tk = *p) {
+  while (tk = *p)
+  {
     ++p;
-    if (tk == '\n') {
+
+    if (tk == '\n'){
       if (src) {
         printf("%d: %.*s", line, p - lp, lp);
         lp = p;
@@ -77,9 +79,11 @@ static void next(void)
         }
       }
       ++line;
+    
     }
     else if (tk == '#') {
       while (*p != 0 && *p != '\n') ++p;
+    
     }
     else if ((tk >= 'a' && tk <= 'z') || (tk >= 'A' && tk <= 'Z') || tk == '_') {
       pp = p - 1;
@@ -87,14 +91,21 @@ static void next(void)
         tk = tk * 147 + *p++;
       tk = (tk << 6) + (p - pp);
       id = sym;
-      while (id[Tk]) {
-        if (tk == id[Hash] && !memcmp((char *)id[Name], pp, p - pp)) { tk = id[Tk]; return; }
+      while (id[Tk]) 
+      {
+        if (tk == id[Hash] && !memcmp((char *)id[Name], pp, p - pp)) 
+        { 
+          tk = id[Tk]; 
+          return; 
+        }
         id = id + Idsz;
       }
       id[Name] = (int)pp;
       id[Hash] = tk;
       tk = id[Tk] = Id;
       return;
+    
+    
     }
     else if (tk >= '0' && tk <= '9') {
       if (ival = tk - '0') { while (*p >= '0' && *p <= '9') ival = ival * 10 + *p++ - '0'; }
@@ -105,6 +116,7 @@ static void next(void)
       else { while (*p >= '0' && *p <= '7') ival = ival * 8 + *p++ - '0'; }
       tk = Num;
       return;
+    
     }
     else if (tk == '/') {
       if (*p == '/') {
@@ -115,6 +127,7 @@ static void next(void)
         tk = Div;
         return;
       }
+    
     }
     else if (tk == '\'' || tk == '"') {
       pp = data;
@@ -127,6 +140,7 @@ static void next(void)
       ++p;
       if (tk == '"') ival = (int)pp; else tk = Num;
       return;
+    
     }
     else if (tk == '=') { if (*p == '=') { ++p; tk = Eq; } else tk = Assign; return; }
     else if (tk == '+') { if (*p == '+') { ++p; tk = Inc; } else tk = Add; return; }
@@ -141,10 +155,11 @@ static void next(void)
     else if (tk == '*') { tk = Mul;  return; }
     else if (tk == '[') { tk = Brak; return; }
     else if (tk == '?') { tk = Cond; return; }
-    else if (tk == '~' || tk == ';' || tk == '{' || tk == '}' || tk == '(' || tk == ')' || tk == ']' || tk == ',' || tk == ':') return;
+    else if (tk == '~' || tk == ';' || tk == '{' || tk == '}' || tk == '(' || tk == ')' || tk == ']' || tk == ',' || tk == ':'){
+       return;
+    }
   }
 }
-
 
 static void expr(int lev)
 {
@@ -363,51 +378,121 @@ int main (int argc, char **argv)
 
   --argc; 
   ++argv;
-  
-  if (argc > 0 && **argv == '-' && (*argv)[1] == 's') { src = 1;   --argc; ++argv; }
-  if (argc > 0 && **argv == '-' && (*argv)[1] == 'd') { debug = 1; --argc; ++argv; }
 
-    if (argc < 1){
-        printf("usage: c4 [-s] [-d] file ...\n");
-        return -1; 
-    }
+  //printf ("c4: Parsing parameters\n");  
+
+  if (argc > 0 && **argv == '-' && (*argv)[1] == 's')
+  { 
+    src = 1;   
+    --argc; 
+    ++argv; 
+  }
+  if (argc > 0 && **argv == '-' && (*argv)[1] == 'd')
+  { 
+    debug = 1; 
+    --argc; 
+    ++argv;
+  }
+
+  if (argc < 1){
+    printf("usage: c4 [-s] [-d] file ...\n");
+    return -1; 
+  }
 
 // Open
 
-    if ((fd = open(*argv, 0, 0)) < 0)
-    { 
-        printf("c4.bin: Could not open(%s)\n", *argv); 
-        return -1; 
-    }
+  //printf ("c4: open()\n");  
+  if ((fd = open(*argv, 0, 0)) < 0)
+  { 
+    printf("c4.bin: Could not open(%s)\n", *argv); 
+    return -1; 
+  }
+
+  //printf ("c4: Alloc\n");  
 
 //poolsz = 256*1024; // arbitrary size
-    poolsz = 512;
+  poolsz = 512;
   
   if (!(sym = malloc(poolsz)))    { printf("could not malloc(%d) symbol area\n", poolsz); return -1; }
   if (!(le = e = malloc(poolsz))) { printf("could not malloc(%d) text area  \n", poolsz); return -1; }
   if (!(data = malloc(poolsz)))   { printf("could not malloc(%d) data area  \n", poolsz); return -1; }
   if (!(sp = malloc(poolsz)))     { printf("could not malloc(%d) stack area \n", poolsz); return -1; }
 
+  //printf ("c4: Memset\n");  
   memset(sym,  0, poolsz);
   memset(e,    0, poolsz);
   memset(data, 0, poolsz);
 
   p = "char else enum if int return sizeof while "
       "open read close printf malloc free memset memcmp exit void main";
-  i = Char; while (i <= While) { next(); id[Tk] = i++; } // add keywords to symbol table
-  i = OPEN; while (i <= EXIT) { next(); id[Class] = Sys; id[Type] = INT; id[Val] = i++; } // add library to symbol table
-  next(); id[Tk] = Char; // handle void type
-  next(); idmain = id; // keep track of main
 
-  if (!(lp = p = malloc(poolsz))) { printf("could not malloc(%d) source area\n", poolsz); return -1; }
-  if ((i = read(fd, p, poolsz-1)) <= 0) { printf("read() returned %d\n", i); return -1; }
+
+  //printf("#debug: Char\n");
+  i = Char; 
+  // add keywords to symbol table
+  while (i <= While)
+  { 
+    next(); 
+    id[Tk] = i++; 
+  }
+
+  //printf("#debug: OPEN\n");  
+  i = OPEN;
+  // add library to symbol table
+  while (i <= EXIT) 
+  { 
+    next(); 
+    id[Class] = Sys; 
+    id[Type] = INT; 
+    id[Val] = i++; 
+  }
+
+  //printf("#debug: Char\n");    
+  // handle void type
+  next();
+  id[Tk] = Char; 
+
+  //printf("#debug: id\n");      
+  // keep track of main
+  next(); 
+  idmain = id; 
+
+
+  //printf("#debug: malloc lp p\n");      
+  // p and lp.
+  if (!(lp = p = malloc(poolsz))){
+    printf("could not malloc(%d) source area\n", poolsz); 
+    return -1;
+  }
+  //printf("#debug: read()\n");      
+  if ((i = read(fd, p, poolsz-1)) <= 0)
+  {
+    printf("read() returned %d\n", i);
+    return -1;
+  }
+  //printf("i={%d}\n",i);
   p[i] = 0;
+
+  //printf("#debug: close()\n");      
   close(fd);
+
+// -------------------
+
+   printf("data={%s}\n",p);
+
+  printf("#debug #breakpoint next()\n");      
 
 // parse declarations
   line = 1;
   next();
-  while (tk) {
+
+  printf ("c4: Loop\n");  
+  
+  while (tk)
+  {
+    // #debug
+    //printf(".\n");
+    
     bt = INT; // basetype
     if (tk == Int) next();
     else if (tk == Char) { next(); bt = CHAR; }

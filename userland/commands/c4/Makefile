@@ -1,5 +1,4 @@
 # c4 c-like interpreter
-# grass command for desert.
 # history:
 # 2019 - Created by Fred Nora.
 
@@ -80,9 +79,6 @@ all-c:
 	cp $(LIBCOBJ)/fcntl.o  .
 	cp $(LIBCOBJ)/termios.o  .
 	cp $(LIBCOBJ)/ioctl.o  .
-
-#bugbug
-#	cp $(APIOBJ)/api.o  .
 
 jackpot-link:
 	ld -m elf_x86_64 -T ../../link.ld -o C4.BIN $(myObjects)   

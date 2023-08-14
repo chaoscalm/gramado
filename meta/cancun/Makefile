@@ -7,7 +7,7 @@ all:
 	gcc ../../userland/commands/jackpot/main.c -o jackpot
 	gcc ../../userland/commands/showfun/main.c -o showfun
 	gcc ../../userland/commands/unknown/main.c -o unknown
-	
+
 clean:
 	-rm cat
 	-rm c4
