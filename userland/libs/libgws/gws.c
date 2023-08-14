@@ -4174,6 +4174,25 @@ struct gws_thread_info_d *thread_info_from_wid(int fd, int wid)
 }
 */
 
+
+// #todo: Not tested yet.
+unsigned int gws_rgb(int r, int g, int b)
+{
+    unsigned int Color = 
+        (unsigned int) (r<<16 &0xff0000)|(g<<8 &0xff00)|(b &0xff); 
+    return (unsigned int) Color;
+}
+
+// #todo: Not tested yet.
+unsigned int gws_argb(int a, int r, int g, int b)
+{
+    unsigned int Color = 
+        (unsigned int) (a<<24 &0xff000000)|(r<<16 &0xff0000)|(g<<8 &0xff00)|(b &0xff); 
+    return (unsigned int) Color;
+}
+
+
+
 //
 // End
 //

@@ -459,6 +459,9 @@ gws_default_procedure (
     unsigned long long1, 
     unsigned long long2 );
 
+unsigned int gws_rgb(int r, int g, int b);
+unsigned int gws_argb(int a, int r, int g, int b);
+
 //
 // End
 //
