@@ -203,7 +203,7 @@ post_message_to_tid (
     return 0;
 
 fail0:
-    if ( (void*) t == NULL ){ return -1; }
+    if ((void*) t == NULL){ return -1; }
     t->MsgQueueTail++;
     if (t->MsgQueueTail >= MSG_QUEUE_MAX){
         t->MsgQueueTail = 0;
@@ -326,7 +326,7 @@ gramado_post(
     if (receiver_tid<0){
         return -1;
     }
-    if ( (void*) message == NULL ){
+    if ((void*) message == NULL){
         return -1;
     }
     message->sender_tid   = (tid_t) sender_tid;
