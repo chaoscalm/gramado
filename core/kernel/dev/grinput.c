@@ -321,6 +321,10 @@ wmKeyEvent(
 // Right after the ps2 keyboard interrupt handler.
 // Post keyboard event to the current foreground thread.
 
+// #bugbug
+// Sometimes we're sending data to multiple targets.
+// Maybe its gonna depend on the input mode.
+
     int Prefix = (int) (prefix & 0xFF);
     int fBreak = FALSE;
 
@@ -791,7 +795,7 @@ done:
 // considerarmos a combinação de teclas, 
 // antes de enviarmos o evento.
 // O estado de capslock não importa aqui.
-
+// see: kstdio.c for __feedSTDIN.
 
     // Not in the embedded shell.
     if (ShellFlag != TRUE)
@@ -804,6 +808,11 @@ done:
                  shift_status != TRUE )
             {
                 __feedSTDIN( (unsigned long) Event_LongASCIICode );
+
+                // #todo
+                // Maybe we're gonna return here depending on
+                // the input mode. 'Cause we don't wanna send
+                // the data to multiple targets.
             }
         }
 
@@ -814,6 +823,11 @@ done:
              ctrl_status != TRUE && 
              shift_status != TRUE )
         {
+            // #todo
+            // Maybe we're gonna send data to the window server
+            // only depending on the input mode. 'Cause we don't wanna
+            // send data to multiple targets.
+
             post_message_to_ws(
                 Event_Message, 
                 Event_LongASCIICode,

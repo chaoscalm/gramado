@@ -15,13 +15,18 @@ post_message_to_tid2 (
     unsigned long long3,
     unsigned long long4 )
 {
-
-// #todo: Change these to target_thread e target_tid.
+// #todo:
+// Nao podemos deixar que toda vez que uma thread receber uma mensagem 
+// ela exija um timeout. Pois uma aplicaçao pode enviar mensagens em loop.
+// Talvez isso deva ser permitido somente para mensagens de input vindas
+// dos device drivers.
 
 // Target thread.
     struct thread_d *t;
     struct msg_d *m;
     int MessageCode=0;
+    // #test
+    int UseTimeout=TRUE;
 // TIDs
     tid_t src_tid = (tid_t) (sender_tid & 0xFFFF);
     tid_t dst_tid = (tid_t) (receiver_tid & 0xFFFF);
@@ -29,27 +34,25 @@ post_message_to_tid2 (
 // Message code.
     MessageCode = (int) (msg & 0xFFFFFFFF);
     if (MessageCode<0){
-        return -1;
+        goto fail;
     }
 
 // tid
     if ( dst_tid < 0 || dst_tid >= THREAD_COUNT_MAX ){
-        panic("post_message_to_tid: dst_tid\n");
+        panic("post_message_to_tid2: dst_tid\n");
         //goto fail;
     }
 // structure
     t = (struct thread_d *) threadList[dst_tid];
-    if ( (void *) t == NULL ){
-        panic ("post_message_to_tid: t \n");
+    if ((void *) t == NULL){
+        panic ("post_message_to_tid2: t\n");
     }
     if ( t->used != TRUE || t->magic != 1234 ){
-        panic ("post_message_to_tid: t validation \n");
+        panic ("post_message_to_tid2: t validation\n");
     }
-
-    if (dst_tid != t->tid){
-        panic("post_message_to_tid: dst_tid != t->tid\n");
+    if (t->tid != dst_tid){
+        panic("post_message_to_tid2: t->tid != dst_tid\n");
     }
-
 
 //
 // This thread needs a timeout.
@@ -58,9 +61,18 @@ post_message_to_tid2 (
 // Let's tell to ts.c that this thread needs a timeout.
 // So this way the ts ca break the round and give to this thread
 // the opportunity to run immediately.
+// #bugbug
+// A malicious process could send a lot of messages
+// causing starvation in the other threads?
 
-    timeout_thread = (struct thread_d *) t;
-    timeout_thread->waiting_for_timeout = TRUE;
+    if (UseTimeout==TRUE)
+    {
+        //if (MessageCode == MSG_KEYDOWN)
+        //{
+            timeout_thread = (struct thread_d *) t;
+            timeout_thread->waiting_for_timeout = TRUE;
+        //}
+    }
 
 
 //
@@ -74,11 +86,11 @@ post_message_to_tid2 (
 
 // Get the pointer for the next entry.
     m = (struct msg_d *) t->MsgQueue[ t->MsgQueueTail ];
-    if ( (void*) m == NULL ){
-        panic ("post_message_to_tid: m\n");
+    if ((void*) m == NULL){
+        panic ("post_message_to_tid2: m\n");
     }
     if ( m->used != TRUE || m->magic != 1234 ){
-        panic ("post_message_to_tid: m validation\n");
+        panic ("post_message_to_tid2: m validation\n");
     }
 
 // Standard
@@ -99,13 +111,16 @@ post_message_to_tid2 (
     }
     return 0;
 
-fail0:
-    if ( (void*) t == NULL ){ return -1; }
+fail2:
+    if ((void*) t == NULL){
+        return -1;
+    }
     t->MsgQueueTail++;
     if (t->MsgQueueTail >= MSG_QUEUE_MAX){
         t->MsgQueueTail = 0;
     }
-    return -1;
+fail:
+    return (int) -1;
 }
 
 
@@ -124,13 +139,19 @@ post_message_to_tid (
     unsigned long long1, 
     unsigned long long2 )
 {
-
-// #todo: Change these to target_thread e target_tid.
+// #todo:
+// Nao podemos deixar que toda vez que uma thread receber uma mensagem 
+// ela exija um timeout. Pois uma aplicaçao pode enviar mensagens em loop.
+// Talvez isso deva ser permitido somente para mensagens de input vindas
+// dos device drivers.
 
 // Target thread.
     struct thread_d *t;
     struct msg_d *m;
     int MessageCode=0;
+    // #test
+    int UseTimeout=TRUE;
+
 // TIDs
     tid_t src_tid = (tid_t) (sender_tid & 0xFFFF);
     tid_t dst_tid = (tid_t) (receiver_tid & 0xFFFF);
@@ -138,9 +159,8 @@ post_message_to_tid (
 // Message code.
     MessageCode = (int) (msg & 0xFFFFFFFF);
     if (MessageCode <= 0){
-        return (int) (-1);
+        goto fail;
     }
-
 // tid
     if ( dst_tid < 0 || dst_tid >= THREAD_COUNT_MAX ){
         panic("post_message_to_tid: dst_tid\n");
@@ -152,20 +172,29 @@ post_message_to_tid (
         panic ("post_message_to_tid: t\n");
     }
     if ( t->used != TRUE || t->magic != 1234 ){
-        panic ("post_message_to_tid: t validation \n");
+        panic("post_message_to_tid: t validation\n");
+    }
+    if (t->tid != dst_tid){
+        panic("post_message_to_tid: t->tid != dst_tid\n");
     }
 
-    if (dst_tid != t->tid){
-        panic("post_message_to_tid: dst_tid != t->tid\n");
-    }
-
+// #test
 // This thread needs a timeout.
 // Let's tell to ts.c that this thread needs a timeout.
 // So this way the ts can break the round and 
 // give to this thread the opportunity to run immediately.
+// #bugbug
+// A malicious process could send a lot of messages
+// causing starvation in the other threads?
 
-    timeout_thread = (struct thread_d *) t;
-    timeout_thread->waiting_for_timeout = TRUE;
+    if (UseTimeout==TRUE)
+    {
+        //if (MessageCode == MSG_KEYDOWN)
+        //{
+            timeout_thread = (struct thread_d *) t;
+            timeout_thread->waiting_for_timeout = TRUE;
+        //}
+    }
 
 //
 // The message
@@ -202,13 +231,16 @@ post_message_to_tid (
     }
     return 0;
 
-fail0:
-    if ((void*) t == NULL){ return -1; }
+fail2:
+    if ((void*) t == NULL){
+        return -1;
+    }
     t->MsgQueueTail++;
     if (t->MsgQueueTail >= MSG_QUEUE_MAX){
         t->MsgQueueTail = 0;
     }
-    return -1;
+fail:
+    return (int) -1;
 }
 
 // Service 112
@@ -285,7 +317,6 @@ post_message_to_ws (
     if (WindowServerInfo.initialized != TRUE){
         return -1;
     }
-
     dst_tid = (tid_t) WindowServerInfo.tid;
     if ( dst_tid < 0 || dst_tid >= THREAD_COUNT_MAX ){
         return -1;
@@ -383,7 +414,7 @@ void *sys_get_message(unsigned long ubuf)
 
 // Get the next head pointer.
     m = (struct msg_d *) t->MsgQueue[ t->MsgQueueHead ];
-    if ( (void*) m == NULL ){
+    if ((void*) m == NULL){
         goto fail0;
     }
     if (m->used != TRUE || m->magic != 1234){
@@ -429,15 +460,21 @@ void *sys_get_message(unsigned long ubuf)
 // Yes, We have a message.
 // round
     t->MsgQueueHead++;
-    if ( t->MsgQueueHead >= MSG_QUEUE_MAX ){ t->MsgQueueHead=0; }
+    if (t->MsgQueueHead >= MSG_QUEUE_MAX){
+        t->MsgQueueHead=0;
+    }
     return (void *) 1;  //#bugbug
 
 fail0:
 // No message.
 // round
-    if ( (void*) t == NULL ){ return NULL; }
+    if ((void*) t == NULL){
+        return NULL;
+    }
     t->MsgQueueHead++;
-    if (t->MsgQueueHead >= MSG_QUEUE_MAX){ t->MsgQueueHead=0; }
+    if (t->MsgQueueHead >= MSG_QUEUE_MAX){
+        t->MsgQueueHead=0;
+    }
     return NULL;
 }
 
@@ -471,7 +508,7 @@ void *sys_get_message2(
 
 // Structure
     t = (void *) threadList[current_thread];
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         panic ("sys_get_message2: t\n");
     }
     if ( t->used != TRUE || t->magic != 1234 ){
@@ -489,7 +526,7 @@ void *sys_get_message2(
 
 // Get the next head pointer.
     m = (struct msg_d *) t->MsgQueue[ t->MsgQueueHead ];
-    if ( (void*) m == NULL ){
+    if ((void*) m == NULL){
         goto fail0;
     }
     if (m->used != TRUE || m->magic != 1234){
@@ -510,7 +547,6 @@ void *sys_get_message2(
     message_address[5] = (unsigned long) m->long4;
     message_address[8] = (unsigned long) m->sender_tid;
     message_address[9] = (unsigned long) m->receiver_tid;
-
 
 // Buffer size:
 // 32 slots.
@@ -537,7 +573,7 @@ void *sys_get_message2(
 
 // Done
 // It is a valid thread pointer.
-    if (restart==TRUE)
+    if (restart == TRUE)
     {
         t->MsgQueueHead=0;
         t->MsgQueueTail=0;
@@ -547,30 +583,32 @@ void *sys_get_message2(
 // Yes, We have a message.
 // round
     t->MsgQueueHead++;
-    if ( t->MsgQueueHead >= MSG_QUEUE_MAX ){ t->MsgQueueHead = 0; }
+    if (t->MsgQueueHead >= MSG_QUEUE_MAX){
+        t->MsgQueueHead = 0;
+    }
     return (void *) 1;
 
 // Is it a valid thread pointer?
 fail0:
 // No message.
 // round
-    if ( (void*) t == NULL ){ return NULL; }
-    if (restart==TRUE)
+    if ((void*) t == NULL){
+        return NULL;
+    }
+    if (restart == TRUE)
     {
-        if ( (void*) t != NULL ){
+        if ((void*) t != NULL){
             t->MsgQueueHead=0;
             t->MsgQueueTail=0;
         }
         return NULL;
     }
-
-    if( (void*) t != NULL){
+    if ((void*) t != NULL){
         t->MsgQueueHead++;
-        if ( t->MsgQueueHead >= MSG_QUEUE_MAX ){
+        if (t->MsgQueueHead >= MSG_QUEUE_MAX){
             t->MsgQueueHead = 0;
         }
     }
-
     return NULL;
 }
 
