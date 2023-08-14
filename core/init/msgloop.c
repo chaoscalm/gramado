@@ -7,12 +7,13 @@
 
 // The tid of the caller.
 // Sent us a system message.
-static int caller_tid =-1;
+static int caller_tid = -1;
 
 //-----------------------------------------
 
 static int __idlethread_loop(void);
 static void do_hello(int src_tid);
+static void do_reboot(int src_tid);
 
 // local
 static int 
@@ -51,6 +52,14 @@ static void do_hello(int src_tid)
         (unsigned long) &RTLEventBuffer[0] );
 }
 
+static void do_reboot(int src_tid)
+{
+    if (src_tid<0)
+        return;
+    printf("init.bin: [55888] reboot request from %d\n", 
+        src_tid );
+    rtl_reboot();
+}
 
 // local
 // #todo: change this name.
@@ -116,9 +125,8 @@ __Procedure (
     case 44888:
         do_hello(caller_tid);
         break;
-
     case 55888:
-        //rtl_reboot();
+        do_reboot(caller_tid);
         break;
 
     // #todo
@@ -161,6 +169,7 @@ static int __idlethread_loop(void)
                 RTLEventBuffer[3] );
             //#test
             //rtl_yield();
+            caller_tid = -1;
         }
     };
 
@@ -173,15 +182,13 @@ static int __idlethread_loop(void)
 int run_server(void)
 {
     int IdleLoopStatus = -1;
-
+    caller_tid = -1;
     //# no focus!
     //rtl_focus_on_this_thread();
-
     IdleLoopStatus = (int) __idlethread_loop();
     if (IdleLoopStatus<0){
         printf ("init.bin: loop fail\n");
     }
-
     return 0;
 }
 

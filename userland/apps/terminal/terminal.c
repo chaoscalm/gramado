@@ -206,7 +206,7 @@ static void __test_winfo(int fd, int wid);
 
 static void __test_ioctl(void);
 
-static void __test_message(unsigned long msg_code);
+static void __test_sync_hello(void);
 
 static void __winmax(int fd);
 static void __winmin(int fd);
@@ -216,12 +216,21 @@ static void __winmin(int fd);
 // #test
 // We sent the message 44888 to the init process
 // and we got the same message back as a response.
-static void __test_message(unsigned long msg_code)
+static void __test_sync_hello(void)
 {
     unsigned long message_buffer[32];
+// The tid of init.bin is '0', i guess. :)
+    int InitProcessControlTID = 0;
+// REsponse support.
+    int __src_tid = -1;
+    int __dst_tid = -1;
+
+//
+// The hello message.
+//
 
     message_buffer[0] = 0; //window
-    message_buffer[1] = (unsigned long) msg_code;  // message code
+    message_buffer[1] = (unsigned long) 44888;  // message code
     message_buffer[2] = (unsigned long) 1234;   // Signature
     message_buffer[3] = (unsigned long) 5678;   // Signature
 // receiver
@@ -232,16 +241,12 @@ static void __test_message(unsigned long msg_code)
     //unsigned long MessageBuffer = 
     //    (unsigned long) &message_buffer[0];
 
-
-// The tid of init.bin is '0', i guess. :)
-    int init_tid = 0;
-
 // ---------------------------------
 // Post
 // Add the message into the queue. In tail.
 // IN: tid, message buffer address
     rtl_post_system_message( 
-        (int) init_tid, 
+        (int) InitProcessControlTID, 
         (unsigned long) message_buffer );
 
 // ---------------------------------
@@ -249,18 +254,9 @@ static void __test_message(unsigned long msg_code)
 // loop to get the response.
 // Its a different buffer from the send routine above.
 
-    int __src_tid=-1;
-    int __dst_tid=-1;
-
-// =================
-
-// Not a hello. Don't wait response.
-    if (msg_code != 44888)
-        return;
-
 // Wait for hello (44888)
 // If we sent a hello.
-    while(1)
+    while (1)
     {
         if ( rtl_get_event() == TRUE )
         {
@@ -271,7 +267,7 @@ static void __test_message(unsigned long msg_code)
                 __src_tid = (int) ( RTLEventBuffer[8] & 0xFFFF );
                 // Get receiver's tid.
                 __dst_tid = (int) ( RTLEventBuffer[9] & 0xFFFF );
-                printf("terminal.bin: 44888 received | sender=%d receiver=%d\n",
+                printf("terminal.bin: 44888 Response received | sender=%d receiver=%d\n",
                     __src_tid,   // Sender, (the caller).
                     __dst_tid);  // Receiver, (us).
                 break;
@@ -824,11 +820,12 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-// Sending message to init.bin?
-    if( strncmp(prompt,"msg",3) == 0 )
+// Sending message to init.bin
+// and wait for response.
+    if ( strncmp(prompt,"msg1",4) == 0 )
     {
-        __test_message(44888);  // hello
-        //__test_message(55888);  // reboot
+        //while(1)
+            __test_sync_hello();
         goto exit_cmp;
     }
 

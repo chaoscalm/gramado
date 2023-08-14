@@ -1870,13 +1870,12 @@ ssize_t rtl_console_beep(void)
 }
 
 // OUT: Child's PID.
-int rtl_clone_and_execute ( char *name )
+int rtl_clone_and_execute(char *name)
 {
-    if ( (void *) name == NULL ){
+    if ((void *) name == NULL){
         printf ("rtl_clone_and_execute: [FAIL] name\n");
         return (int) -1;
     }
-
     if ( *name == 0 ){
         printf ("rtl_clone_and_execute: [FAIL] *name\n");
         return (int) -1;
