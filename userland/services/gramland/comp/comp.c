@@ -60,7 +60,6 @@ int flush_window(struct gws_window_d *window)
 int flush_window_by_id(int wid)
 {
     struct gws_window_d *w;
-
 // wid
     if (wid<0 || wid >= WINDOW_COUNT_MAX){
         goto fail;
@@ -110,25 +109,47 @@ void wmRefreshDirtyRectangles(void)
 // Called by compose.
 // + We need to encapsulate the variables used by this routine
 //   to prevent about concorrent access problems.
+// #bugbug
+// This is not a effitient way of doing this.
+// We got to refresh folowind the bottom top order.
+// + If we refreshed the background window, so,we dont
+//   need to refresh any other window when we're not using 
+//   individual buffer for the windows in the compositor.
 
     register int i=0;
-    struct gws_window_d *tmp;
+    // The component.
+    // It's a window, but we don't care about its type.
+    // All we need to do is refreshing the window's rectangle.
+    struct gws_window_d *w;
 
-    for (i=0; i<WINDOW_COUNT_MAX; ++i){
-        tmp = (struct gws_window_d *) windowList[i];
-        if ((void*) tmp != NULL)
+// Is the root window a valid window
+
+// Get the window pointer, refresh the windows retangle via KGWS and 
+// validate the window.
+    for (i=0; i<WINDOW_COUNT_MAX; ++i)
+    {
+        w = (struct gws_window_d *) windowList[i];
+        if ((void*) w != NULL)
         {
-            if ( tmp->used == TRUE && tmp->magic == 1234 )
+            if ( w->used == TRUE && w->magic == 1234 )
             {
-                // Faster: Refresh via KGWS and validate.
-                if (tmp->dirty == TRUE)
+                if (w->dirty == TRUE)
                 {
                     gws_refresh_rectangle ( 
-                        tmp->absolute_x, 
-                        tmp->absolute_y, 
-                        tmp->width, 
-                        tmp->height );
-                    validate_window(tmp);
+                        w->absolute_x, 
+                        w->absolute_y, 
+                        w->width, 
+                        w->height );
+
+                    // We're done.
+                    // We do the other windows in the next round.
+                    if (w == __root_window)
+                    {
+                       validate_window(w);
+                       return;
+                    }
+
+                    validate_window(w);
                 }
             }
         }
@@ -297,6 +318,9 @@ static void draw_mouse_pointer(void)
 // + Pinta o novo cursor diretamente no lfb.
 void __display_mouse_cursor(void)
 {
+    unsigned long rWidth = 16;
+    unsigned long rHeight = 16;
+
     if ((void*) window_server == NULL)
         return;
     if (window_server->initialized != TRUE)
@@ -319,7 +343,8 @@ void __display_mouse_cursor(void)
 // Apaga se houve algum evento, como movimento.
     if (refresh_pointer_status == TRUE)
     {
-        gws_refresh_rectangle( __old_mouse_x, __old_mouse_y, 16, 16 );
+        gws_refresh_rectangle( 
+            __old_mouse_x, __old_mouse_y, rWidth, rHeight );
         set_refresh_pointer_status(FALSE);
     }
 
