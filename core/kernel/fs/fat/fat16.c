@@ -222,16 +222,14 @@ fsGetFileSize (
 
     debug_print ("fsGetFileSize: $\n");
 
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         printk("fsGetFileSize: [ERROR] file_name\n");
         goto fail;
     }
-
     if (*file_name == 0){
         printk("fsGetFileSize: [ERROR] *file_name\n");
         goto fail;
     }
-
     if (dir_address == 0){
         printk("fsGetFileSize: [ERROR] dir_address\n");
         goto fail;
@@ -625,8 +623,6 @@ int fs_save_fat16_cache(void)
 
     return 0;
 }
-
-
 
 // fat16Init:
 // Called by fsInit inthis document.

@@ -43,7 +43,6 @@ static int __check_address_validation(unsigned long address)
 /*
  * fsLoadFile:
  *    It loads a file into the memory.
-
 IN:
     fat_address          = FAT address.
     dir_addresss         = Directory address.
@@ -51,11 +50,9 @@ IN:
     file_name            = File name.
     buffer               = Where to load the file. The pre-allocated buffer.
     buffer_size_in_bytes = Maximum buffer size.
-
 OUT: 
     1=fail 
     0=ok.
-
  */
 // #bugbug
 // Essa rotina somente consegue pegar o tamanho do arquivo
@@ -122,7 +119,6 @@ fsLoadFile (
 // Sectors per cluster.
     int Spc=0;
 
-
     // #debug:
     debug_print ("fsLoadFile:\n");
     //printf      ("fsLoadFile:\n");
@@ -142,7 +138,7 @@ fsLoadFile (
 
 // #debug
 // We only support one address for now.
-    if ( fat_address != VOLUME1_FAT_ADDRESS ){
+    if (fat_address != VOLUME1_FAT_ADDRESS){
         panic("fsLoadFile: Not valid fat address\n");
     }
 
@@ -163,11 +159,11 @@ fsLoadFile (
 // For now, this is the limit of the rootdir.
 
     //if ( MaxEntries == 0 || MaxEntries >= FAT16_ROOT_ENTRIES )
-    if ( MaxEntries != FAT16_ROOT_ENTRIES ){
+    if (MaxEntries != FAT16_ROOT_ENTRIES){
         panic ("fsLoadFile: MaxEntries limits\n");
     }
 
-    if ( DirEntries > MaxEntries ){
+    if (DirEntries > MaxEntries){
         panic ("fsLoadFile: DirEntries\n");
     }
 
@@ -181,7 +177,7 @@ fsLoadFile (
 // Buffer size in bytes
 // Max = 512 pages.
 
-    if ( BufferSizeInBytes == 0 ){
+    if (BufferSizeInBytes == 0){
         panic("fsLoadFile: BufferSizeInBytes = 0\n");
     }
     if ( BufferSizeInBytes > (512*4096) ){
@@ -197,10 +193,10 @@ fsLoadFile (
 
 // Root file system for the boot disk.
 
-    if ( (void *) root == NULL ){
-        panic ("fsLoadFile: root\n");
+    if ((void *) root == NULL){
+        panic("fsLoadFile: root\n");
     }
-    if ( root->used != TRUE || root->magic != 1234){
+    if (root->used != TRUE || root->magic != 1234){
         panic ("fsLoadFile: root validation\n");
     }
 
@@ -216,7 +212,7 @@ fsLoadFile (
 // #bugbug: 
 // Devemos ver o número de entradas no diretório corrente.
 // Por enquanto so aceitamos 512.
-    if ( root->dir_entries != MaxEntries ){
+    if (root->dir_entries != MaxEntries){
         panic ("fsLoadFile: root->dir_entries\n"); 
     }
 
@@ -235,11 +231,11 @@ fsLoadFile (
 // Na verdade a variável 'root' é do tipo short.
 
 // file name
-    if ( (void *) file_name == NULL ){
+    if ((void *) file_name == NULL){
         printf ("fsLoadFile: file_name\n");
         goto fail;
     }
-    if ( *file_name == 0 ){
+    if (*file_name == 0){
         printf ("fsLoadFile: *file_name\n");
         goto fail;
     }
@@ -251,7 +247,8 @@ fsLoadFile (
 // name size.
 // Se o tamanho da string falhar, vamos ajustar.
     FileNameSize = (size_t) strlen(file_name);
-    if ( FileNameSize > 11 ){
+    if (FileNameSize > 11)
+    {
          printf ("fsLoadFile: Name size %d\n", FileNameSize ); 
          //FileNameSize = 11;
          //return 1; //fail
@@ -281,6 +278,7 @@ fsLoadFile (
 
 // Queremos abrir um arquivo que contenha 0 bytes.
 // New file.
+// #bugbug: Is this a problem?
     if (FileSize == 0)
     {
         debug_print ("fsLoadFile: [FIXME] FileSize\n");
@@ -289,7 +287,7 @@ fsLoadFile (
     }
 
 // The file size can't be bigger than the buffer size.
-    if ( FileSize >= BufferSizeInBytes )
+    if (FileSize >= BufferSizeInBytes)
     {
         debug_print ("fsLoadFile: [FIXME] Buffer Overflow\n");
              printf ("fsLoadFile: [FIXME] FileSize %d BufferSizeInBytes %d\n",
@@ -330,11 +328,10 @@ fsLoadFile (
         {
             //#bugbug: Estamos movendo shorts e não chars.
             //memcpy ( tmpName, &__dir[z], (FileNameSize/2) );
-            memcpy ( tmpName, &__dir[z], FileNameSize );
+            memcpy( tmpName, &__dir[z], FileNameSize );
             tmpName[FileNameSize] = 0;
 
             Status = strncmp( file_name, tmpName, FileNameSize );
-
             if (Status == 0)
             {
                 SavedDirEntry = i; 
@@ -375,10 +372,8 @@ __found:
 // #todo
 // Na verdade os dois primeiros clusters estão indisponíveis.
 
-    // First cluster.
-
+// First cluster
     cluster = (unsigned short) __dir[ z+13 ];
-
     if ( cluster <= 0 || cluster > 0xFFF0 )
     {
         debug_print ("fsLoadFile: Cluster limits\n");
@@ -478,7 +473,7 @@ __loop_next_entry:
 // Some invalid address.
 // We can not load a file in the same core addresses.
 
-    is_valid = (int) __check_address_validation( (unsigned long) Buffer );
+    is_valid = (int) __check_address_validation((unsigned long) Buffer);
     if (is_valid != TRUE){
         panic ("fsLoadFile: Not a valid address\n");
     }
@@ -503,7 +498,6 @@ __loop_next_entry:
 // We already did that a single time before.
 // #bugbug: Não pode ser menor que 0, pois é unsigned short.
 
-
     // #bugbug: O marcador é 0xFFF8
     // Mas no caso de ser um arquivo de apenas um setor
     // então podemos ter aqui o marcador de fim de arquivo.
@@ -515,7 +509,6 @@ __loop_next_entry:
     }
 
 // Read disk.
-
     read_lba ( 
         Buffer, 
         ( VOLUME1_DATAAREA_LBA + cluster -2 ) ); 
@@ -529,7 +522,8 @@ __loop_next_entry:
 
 // #todo:
 // We found a bad cluster.
-    if (cluster==0xFFF7){
+    if (cluster == 0xFFF7)
+    {
         panic("fsLoadFile: Bad cluster\n");
     }
 
@@ -550,10 +544,11 @@ __loop_next_entry:
         // See: gramado/config.h
         // bytes per sector = 512.
         // sectors per cluster  = 1.
-        if( (nreads/2) > IMAGESIZE_LIMIT_IN_KB ){
+        if ( (nreads/2) > IMAGESIZE_LIMIT_IN_KB )
+        {
             panic("fsLoadFile: nreads\n");
         }
-        // 0=OK.
+        // 0 = OK
         return (unsigned long) 0; 
     }
 
@@ -561,7 +556,7 @@ __loop_next_entry:
     goto __loop_next_entry;
 
 fail:
-    debug_print("fsLoadFile: [FAIL] \n");
+    debug_print("fsLoadFile: [FAIL]\n");
     printf     ("fsLoadFile: [FAIL] file={%s}\n", file_name );
     refresh_screen();
     return (unsigned long) 1;
@@ -573,13 +568,12 @@ fsLoadFile2 (
     struct file_context_d *fc, 
     unsigned char *file_name )
 {
-
-    if ( (void*) fc == NULL ){
+    if ((void*) fc == NULL){
         debug_print("fsLoadFile2: fc\n"); 
         return 0;
     }
 
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         debug_print("fsLoadFile2: file_name\n"); 
         return 0;
     }
@@ -590,10 +584,7 @@ fsLoadFile2 (
 
     fc->file_name = file_name;
 
-// #todo
-// Return type.
-
-    return fsLoadFile ( 
+    return (unsigned long) fsLoadFile ( 
                (unsigned long)   fc->fat_address,
                (unsigned long)   fc->dir_address,
                (int)             fc->dir_entries,
@@ -602,12 +593,17 @@ fsLoadFile2 (
                (unsigned long)   fc->buffer_limit );
 }
 
-
+// fsLoadProgram:
+// Load an image from PROGRAM/.
+// IN:
+// + program_name: Program name.
+// + buffer: Pre-allocated buffer.
+// + buffer_size_in_bytes: Buffer size in bytes.
 unsigned long 
 fsLoadProgram (
     char *program_name,
-    unsigned long buffer,                 // pre-allocated buffer.
-    unsigned long buffer_size_in_bytes )  // buffer size.
+    unsigned long buffer,
+    unsigned long buffer_size_in_bytes )
 {
 // Load an image from PROGRAM/
 
@@ -616,8 +612,7 @@ fsLoadProgram (
     // #debug
     //printf ("fsLoadProgram:\n");
 
-
-    if ( (void*) buffer == NULL ){
+    if ((void*) buffer == NULL){
         printf("fsLoadProgram: buffer\n");
         goto fail;
     }
@@ -626,19 +621,19 @@ fsLoadProgram (
         goto fail;
     }
 
+//
+// sdPROGRAMS struture.
+//
 
-    if ( sdPROGRAMS.initialized != TRUE )
-    {
+    if (sdPROGRAMS.initialized != TRUE){
         printf("fsLoadProgram: sdPROGRAMS.initialized\n");
         goto fail;
     }
-
-    if ( sdPROGRAMS.address == 0 )
-    {
+    if (sdPROGRAMS.address == 0){
         printf("fsLoadProgram: sdPROGRAMS.address\n");
         goto fail;
     }
-
+// The memory address for our target directory.
     unsigned long programs_directory_address = 
         sdPROGRAMS.address;
 
@@ -664,18 +659,15 @@ fsLoadProgram (
                             program_name, 
                             (unsigned long) buffer,  // buffer
                             (unsigned long) buffer_size_in_bytes );  // buffer limits in bytes
-
     if (Status!=0){
         goto fail;
     }
-
     return 0;
 
 fail:
     refresh_screen();
     return 1;
 }
-
 
 /*
  * fs_load_path:
@@ -739,7 +731,7 @@ fs_load_path (
     void *__file_buffer;
 
 // Path
-    if ( (void*) path == NULL ){
+    if ((void*) path == NULL){
         panic ("fs_load_path: path\n"); 
     }
     if (*path == 0){

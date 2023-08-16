@@ -1329,6 +1329,9 @@ fail2:
     return (ssize_t) (-1);
 }
 
+
+// sys_open:
+// open() function implementation in ring 0.
 // Syscall 16.
 // #bugbug
 // Precisamos de um endereço em ring 3
@@ -1355,10 +1358,10 @@ sys_open (
 // #todo:
 // check arguments.
 
-    if ( (void*) pathname == NULL ){
+    if ((void*) pathname == NULL){
         return (int) (-EINVAL);
     }
-    if ( *pathname == 0 ){
+    if (*pathname == 0){
         return (int) (-EINVAL);
     }
 
@@ -1375,7 +1378,7 @@ sys_open (
     fp = (file *) devmgr_search_in_dev_list(pathname);
     // Yes, we have a valid pointer 
     // found in the table.
-    if ( (void*) fp != NULL )
+    if ((void*) fp != NULL)
     {
         if (fp->isDevice == TRUE)
         {
@@ -2478,7 +2481,6 @@ int fsInit (void)
 
     debug_print ("fsInit: [TODO]\n");
 
-
 // Buffers
 // Buffers for loading the directories while walking on a pathname
 // when loading a file.
@@ -2490,7 +2492,7 @@ int fsInit (void)
     {
         //addr = (unsigned long) allocPages(1);
         addr = (unsigned long) allocPages(4);  //32*512=16KB
-        if ( (void*) addr == NULL ){
+        if ((void*) addr == NULL){
             panic("fsInit: addr\n");
         }
         fs_buffers[i] = (unsigned long) addr;
@@ -2528,8 +2530,8 @@ int fsInit (void)
     volume1_rootdir_fp = (file *) file_table[slot];
     volume1_rootdir_fp->filetable_index = slot;
 
-    if ( (void *) volume1_rootdir_fp == NULL ){
-        panic ("fsInit: volume1_rootdir_fp \n");
+    if ((void *) volume1_rootdir_fp == NULL){
+        panic ("fsInit: volume1_rootdir_fp\n");
     } else {
         volume1_rootdir_fp->used  = TRUE;
         volume1_rootdir_fp->magic = 1234;
@@ -2581,7 +2583,7 @@ int fsInit (void)
     volume2_rootdir_fp = (file *) file_table[slot];
     volume2_rootdir_fp->filetable_index = slot;
 
-    if ( (void *) volume2_rootdir_fp == NULL ){
+    if ((void *) volume2_rootdir_fp == NULL){
         panic ("fsInit: volume2_rootdir_fp\n");
     }else{
         volume2_rootdir_fp->used  = TRUE;
@@ -2628,20 +2630,19 @@ int fsInit (void)
     pipe_gramadocore_init_execve = 
         (file *) kmalloc( sizeof(file) );
 
-    if ( (void *) pipe_gramadocore_init_execve == NULL ){
+    if ((void *) pipe_gramadocore_init_execve == NULL){
         panic ("fsInit: pipe_gramadocore_init_execve\n");
     }else{
 
         // Aloca memória para o buffer.
         // #todo: Define this variable in the top of the body.
         // #bugbug: Chech this size.
-        unsigned long pipe0base = (unsigned long) kmalloc (512);
-
-        if ( (void *) pipe0base == NULL ){
+        unsigned long pipe0base = (unsigned long) kmalloc(512);
+        if ((void *) pipe0base == NULL){
             panic ("fsInit: pipe0base\n");
         }
 
-        pipe_gramadocore_init_execve->used  = TRUE;
+        pipe_gramadocore_init_execve->used = TRUE;
         pipe_gramadocore_init_execve->magic = 1234;
 
         pipe_gramadocore_init_execve->_base = (unsigned char *) pipe0base;
@@ -4422,14 +4423,14 @@ sys_read_file_from_disk (
 
 // For now we're just able to get files and info
 // in the root dir.
-
+// Default: Root dir.
     unsigned long TargetDirAddress = VOLUME1_ROOTDIR_ADDRESS;
     unsigned long NumberOfEntries = FAT16_ROOT_ENTRIES;
 
     // debug_print ("sys_read_file_from_disk: $\n");
 
 // filename
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         return (int) (-EINVAL);
     }
     if (*file_name == 0){
@@ -4437,16 +4438,36 @@ sys_read_file_from_disk (
     }
 
 
+// Root dir?
+    if (*file_name == '/')
+    {
+        TargetDirAddress = VOLUME1_ROOTDIR_ADDRESS;
+        NumberOfEntries = FAT16_ROOT_ENTRIES;
+        file_name++;
+    }
+
+//
+// Namespace?
+//
+
 // -------------------------------------------
 // #test
 // Is it inside the PROGRAMS/ folder?
+// This is a kind of namespace, but this is not 
+// a new root directory for the whole system,
+// it is only the directory where we're gonna serch
+// for the the desired file.
+// Remember: 
+// We can setup the memory address for this directory 
+// in the structure sdPROGRAMS.
+
     if (*file_name == '#')
     {
-        if ( sdPROGRAMS.initialized != TRUE ){
+        if (sdPROGRAMS.initialized != TRUE){
             printf("sys_read_file_from_disk: sdPROGRAMS.initialized\n");
             goto fail;
         }
-        if ( sdPROGRAMS.address == 0 ){
+        if (sdPROGRAMS.address == 0){
             printf("sys_read_file_from_disk: sdPROGRAMS.address\n");
             goto fail;
         }
@@ -4456,13 +4477,11 @@ sys_read_file_from_disk (
     }
 // -------------------------------------------
 
-
 // Convertendo o formato do nome do arquivo.    
 // >>> "12345678XYZ"
 // #todo: 
 // Não fazer isso em ring3.
-
-    fs_fntos ( (char *) file_name );
+    fs_fntos((char *) file_name);
 
 // #debug
 
