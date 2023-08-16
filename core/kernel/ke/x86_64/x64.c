@@ -1316,7 +1316,7 @@ int x64_probe_smp_via_acpi(void)
 // Probe the acpi table.
 // + 'RSDP signature'
 
-    lapic_initializing( 0xFEE00000 );
+    lapic_initializing(0xFEE00000);
 
     if (LAPIC.initialized == TRUE){
         printf("x64_probe_smp_via_acpi: lapic initialization ok\n");

@@ -216,7 +216,8 @@ inline void invalidate_cache_flush(void)
 void lapic_initializing(unsigned long lapic_pa)
 {
 // Setup BSP's local APIC.
-// Called by smp_probe in x64.c
+// Called by I_init in x64init.c
+// Called by x64_probe_smp_via_acpi() in x64.c
 
     printf("lapic_initializing: \n");
 
@@ -237,7 +238,6 @@ void lapic_initializing(unsigned long lapic_pa)
 // Do we have apic support in this processor?
     //if (has_apic() != TRUE)
         //panic("lapic_initializing: APIC not supported\n");
-
 
 // ===================
 
@@ -312,16 +312,13 @@ void lapic_initializing(unsigned long lapic_pa)
     LAPIC.initialized = TRUE;
 }
 
-
 //
 // ======================================================
 //
 
-
 // #todo
 // Testando um código encontrado em https://wiki.osdev.org/APIC.
-// setting up the APIC: 
- 
+// setting up the APIC:
  
 /* 
  * check_apic:

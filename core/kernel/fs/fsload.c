@@ -1213,6 +1213,8 @@ __try_to_load_program(
     const char *filename, 
     unsigned long image_va )
 {
+// Only inside /PROGRAMS/
+
     unsigned long status=1;
     unsigned long BUGBUG_IMAGE_SIZE_LIMIT = (unsigned long) (512 * 4096);
 
@@ -1222,14 +1224,24 @@ __try_to_load_program(
     // #debug
     //printf ("__try_to_load_program:\n");
 
-    if ( (void*) new_filename == NULL )
+//
+// Invalid file name.
+//
+
+    if ((void*) new_filename == NULL)
+        return -1;
+    if ( *new_filename == 0 )
         return -1;
 
-    if ( *new_filename == '#' )
+//
+// Skip first char.
+//
+
+    if (*new_filename == '#'){
         new_filename++;
+    }
 
-
-    fs_fntos ( (char *) new_filename );
+    fs_fntos ((char *) new_filename);
 
     status = 
         (unsigned long) fsLoadProgram( 
@@ -1257,52 +1269,57 @@ fs_load_image(
 // #todo:
 // Explain better all these variables.
 
-
-    // #test
-    // Try to load a program
-    if ( *filename == '#' ){
-        return (int) __try_to_load_program(filename,image_va);
-    }
-
-
     int Status=-1;
-
 // The address of the rootdir.
 // Is it a physical address.
 // #see: base/new/include/mm/x64gpa.h
-
     unsigned long dir_va = VOLUME1_ROOTDIR_ADDRESS;
     //unsigned long dir_va = VOLUME1_ROOTDIR_PA;
-
     unsigned long dir_entries = FAT16_ROOT_ENTRIES;
-
     char *path;
     char *name;
-
     unsigned long BUGBUG_IMAGE_SIZE_LIMIT = (unsigned long) (512 * 4096);
-
     // para 32 entradas.
     // ????????
     unsigned long BUGBUG_OVERFLOW = ( 32*128 );
-
 
 //
 // Check parameters for image support
 //
 
-    if ( (void*) filename == NULL ){
+    if ((void*) filename == NULL){
         panic ("fs_load_image: [ERROR] filename\n");
     }
-    if ( *filename == 0 ){
+    if (*filename == 0){
         panic ("fs_load_image: [ERROR] *filename\n");
     }
     path = filename;
     name = filename;
-    if (path[0] == '.' && path[1] == '/')
+
+//
+// Path support.
+//
+
+// Loading image from the cwd.
+    if ( path[0] == '.' && 
+         path[1] == '/' )
     {
-        debug_print ("fs_load_image: [FIXME] Can't execute from cwd \n");
-        printf      ("fs_load_image: [FIXME] Can't execute from cwd \n");
+        debug_print ("fs_load_image: [FIXME] Can't execute from cwd\n");
+        printf      ("fs_load_image: [FIXME] Can't execute from cwd\n");
         goto fail;
+    }
+
+// Loading image from the /PROGRAMS/ directory.
+    if (*filename == '#'){
+        return (int) __try_to_load_program(filename,image_va);
+    }
+// Loading image from the root directory.
+    if (*filename == '/')
+    {
+        filename++;
+        // New name.
+        path = filename;
+        name = filename;
     }
 
 //
@@ -1319,7 +1336,7 @@ fs_load_image(
 
 __search:
 
-    fs_fntos ( (char *) name );
+    fs_fntos((char *) name);
     Status = (int) search_in_dir(name,dir_va);
     if (Status == 1){ 
         goto __found; 
@@ -1361,12 +1378,10 @@ __found:
 
     //unsigned long BUGBUG_IMAGE_SIZE_LIMIT = (unsigned long) (512 * 4096);
 
-
-    if ( dir_va == 0 ){
+    if (dir_va == 0){
         panic("fs_load_image: dir_va\n");
     }
-
-    if ( (void *) image_va == NULL ){
+    if ((void *) image_va == NULL){
         panic("fs_load_image: image_va\n");
     }
 
@@ -1385,18 +1400,4 @@ fail:
     panic("fs_load_image: fail\n");
     return -1;
 }
-
-
-// -------
-
-
-
-
-
-
-
-
-
-
-
 

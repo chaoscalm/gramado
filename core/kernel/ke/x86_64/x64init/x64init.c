@@ -1035,7 +1035,7 @@ static int I_init(void)
 // Storage
     int st_status=FALSE;
     st_status = init_storage_support();
-    if ( st_status != TRUE ){
+    if (st_status != TRUE){
        printf ("I_init: init_storage_support fail\n");
        return FALSE;
     }
@@ -1070,7 +1070,7 @@ static int I_init(void)
     PROGRESS("::(5)(3)(5) hal\n"); 
     Status = halInitialize();
     if (Status != TRUE){
-        printf ("I_init: halInitialize fail\n");
+        printf("I_init: halInitialize fail\n");
         return FALSE;
     }
 
@@ -1119,7 +1119,7 @@ static int I_init(void)
 // --------
 // 'processor' structuture initialization.
     processor = (void *) kmalloc( sizeof( struct processor_d ) ); 
-    if ( (void *) processor == NULL ){
+    if ((void *) processor == NULL){
         printf("I_init: processor\n");
         return FALSE;
     }
@@ -1170,6 +1170,10 @@ static int I_init(void)
             printf("I_init: [FAIL] FPU Initialization fail\n");
             return FALSE;
         }
+        
+        //
+        // The SMP support.
+        //
 
         // Initialize smp support via MP Floating point structure. (kinda).
         // Testando a inicializaçao do lapic.
@@ -1182,10 +1186,11 @@ static int I_init(void)
         {
             printf("I_init: [x64_probe_smp] ok\n");
             // Initialize LAPIC based on the address we found before.
-            if ( (void*) MPConfigurationTable != NULL )
+            if ((void*) MPConfigurationTable != NULL)
             {
-                if ( MPConfigurationTable->lapic_address != 0 )
+                if (MPConfigurationTable->lapic_address != 0)
                 {
+                    // see: apic.c
                     lapic_initializing( MPConfigurationTable->lapic_address );
                     if (LAPIC.initialized == TRUE){
                         printf("??: lapic initialization ok\n");
