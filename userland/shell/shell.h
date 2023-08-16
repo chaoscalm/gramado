@@ -5,7 +5,6 @@
 #ifndef __SHELL_H
 #define __SHELL_H    1
 
-
 #define MSG_KEYDOWN       20
 #define MSG_KEYUP         21
 #define MSG_SYSKEYDOWN    22
@@ -21,43 +20,13 @@
 #define COLOR_BLACK    0x000000
 #define COLOR_GRAY     0x808080 
 
-
 extern unsigned long device_width;
 extern unsigned long device_height;
-
 
 //
 // == Prototypes =================================
 //
 
-
-unsigned long shellCompare (void);
-
-int 
-shellProcedure ( 
-    void *window, 
-    int msg, 
-    unsigned long long1, 
-    unsigned long long2 );
-
-void shellPrompt(void);
-void shell_clear_screen(void);
-
-void 
-__shell_draw_rectangle ( 
-    unsigned long x, 
-    unsigned long y, 
-    unsigned long width, 
-    unsigned long height,
-    int color );
-
-void 
-__shell_refresh_rectangle ( 
-    unsigned long x, 
-    unsigned long y, 
-    unsigned long width, 
-    unsigned long height );
-    
 #endif    
 
 

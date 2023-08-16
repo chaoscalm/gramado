@@ -802,9 +802,10 @@ static void compareStrings(int fd)
         return;
     }
 
-// Quit embedded shell and
-// start listening to stderr.
-    if ( strncmp(prompt, "start", 5) == 0 )
+// Quit embedded shell, 
+// launch #shell.bin
+// and start listening to stderr.
+    if ( strncmp(prompt, "start-shell", 11) == 0 )
     {
         printf("Quit embedded shell.\n");
         printf("Start listening to stderr.\n");
@@ -813,7 +814,7 @@ static void compareStrings(int fd)
     } 
 
 // exit: Exit the terminal application.
-    if( strncmp(prompt,"exit",4) == 0 ){
+    if ( strncmp(prompt,"exit",4) == 0 ){
         printf("~exit: Exit the terminal application\n");
         gws_destroy_window(fd,main_window);
         exit(0);
@@ -831,20 +832,20 @@ static void compareStrings(int fd)
 
 // Sleep until
 // IN: ms.
-    if( strncmp(prompt,"sleep",5) == 0 ){
+    if ( strncmp(prompt,"sleep",5) == 0 ){
         rtl_sleep(2000);
         goto exit_cmp;
     }
 
 // Enable network
-    if( strncmp(prompt,"net-on",6) == 0 ){
+    if ( strncmp(prompt,"net-on",6) == 0 ){
         sc82 ( 22001, 
         1,  // ON 
         0, 0 );
         goto exit_cmp;
     }
 // Disable network
-    if( strncmp(prompt,"net-off",7) == 0 ){
+    if ( strncmp(prompt,"net-off",7) == 0 ){
         sc82 ( 22001, 
         0,  // OFF
          0, 0 );
@@ -854,8 +855,8 @@ static void compareStrings(int fd)
 // Network tests
 
 // arp
-    if( strncmp(prompt,"n1", 2) == 0 ){
-        sc82 ( 22003, 1, 0, 0 );
+    if ( strncmp(prompt,"n1", 2) == 0 ){
+        sc82( 22003, 1, 0, 0 );
         goto exit_cmp;
     }
 // udp
@@ -864,15 +865,15 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 // dhcp
-    if( strncmp(prompt,"n3", 2) == 0 ){
-        sc82 ( 22003, 3, 0, 0 );
+    if ( strncmp(prompt,"n3", 2) == 0 ){
+        sc82( 22003, 3, 0, 0 );
         goto exit_cmp;
     }
 
 // Enable mouse.
 // Begging the window server to initialize
 // the mouse support. The kernel part and the ws part.
-    if( strncmp(prompt,"ps2-qemu", 8) == 0 )
+    if ( strncmp(prompt,"ps2-qemu", 8) == 0 )
     {
         // #todo
         // Create a wrapper for that request.
@@ -887,10 +888,10 @@ static void compareStrings(int fd)
     if ( strncmp(prompt,"yn",2) == 0 )
     {
         yn_result = (int) rtl_y_or_n();
-        if ( yn_result == TRUE ){
+        if (yn_result == TRUE){
             printf("Returned TRUE\n");
         }
-        if ( yn_result == FALSE ){
+        if (yn_result == FALSE){
             printf("Returned FALSE\n");
         }
         if ( yn_result != TRUE && yn_result != FALSE ){
@@ -899,8 +900,7 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-
-    if( strncmp(prompt,"open1",5) == 0 )
+    if ( strncmp(prompt,"open1",5) == 0 )
     {
         open("/DEV/KBD0", "a+"); 
         open("/TTY0", "a+");
@@ -910,19 +910,19 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-    if( strncmp(prompt,"int3",4) == 0 ){
+    if ( strncmp(prompt,"int3",4) == 0 ){
         do_int3();
         goto exit_cmp;
     }
 
     //gp fault
-    if( strncmp(prompt,"cli",3) == 0 ){
+    if ( strncmp(prompt,"cli",3) == 0 ){
         do_cli();
         goto exit_cmp;
     }
 
 // Poweroff via ws.
-    if( strncmp(prompt,"poweroff",8) == 0 ){
+    if ( strncmp(prompt,"poweroff",8) == 0 ){
         gws_shutdown(fd);
         goto exit_cmp;
     }
@@ -933,7 +933,7 @@ static void compareStrings(int fd)
 
     // #libc
     // Testing libc components.
-    if( strncmp(prompt,"libc",4) == 0 )
+    if ( strncmp(prompt,"libc",4) == 0 )
     {
         //close(0); 
         //close(1); 
@@ -998,15 +998,13 @@ static void compareStrings(int fd)
         cr();
         lf();  // enxt line.
         goto exit_cmp;
-    } 
-
+    }
 
 // Test escape sequence do terminal.
     if ( strncmp(prompt,"esc",3) == 0 ){
         __test_escapesequence(fd);
         goto exit_cmp;
     }
-
 
 // Test escape sequence do console no kernel.
     if ( strncmp(prompt,"esc2",4) == 0 )
@@ -1021,8 +1019,6 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-
-
 // Quit 'ws'.
     if ( strncmp(prompt,"ws-quit",7) == 0 ){
         //gws_async_command(fd,88,0,0);  //ok
@@ -1030,7 +1026,7 @@ static void compareStrings(int fd)
     }
 
 // Testing ioctl
-    if( strncmp(prompt,"ioctl",5) == 0 ){
+    if ( strncmp(prompt,"ioctl",5) == 0 ){
         __test_ioctl();
         goto exit_cmp;
     }
@@ -2656,16 +2652,16 @@ terminalProcedure (
                 
                 // When using the embedded shell.
                 // Compare strings.
-                if( isUsingEmbeddedShell == TRUE ){
+                if (isUsingEmbeddedShell == TRUE){
                     __on_return_key_pressed(fd);
                     return 0;
                 }
 
                 // When not using the embedded shell.
                 // Goto next line.
-                if( isUsingEmbeddedShell == FALSE ){
+                if (isUsingEmbeddedShell == FALSE){
                     cursor_x++;
-                    if( cursor_x >= Terminal.width_in_chars)
+                    if (cursor_x >= Terminal.width_in_chars)
                     {
                         cursor_x = Terminal.left;
                         cursor_y++;
@@ -2679,7 +2675,7 @@ terminalProcedure (
             // tputc() uses escape sequence.
             default:
                 // Coloca na cmdline
-                if ( isUsingEmbeddedShell == TRUE ){
+                if (isUsingEmbeddedShell == TRUE){
                     input(long1);
                 }
                 // Exibe na área de cliente.

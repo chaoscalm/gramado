@@ -1,5 +1,8 @@
 
 // shell.bin
+// Shell application for Gramado OS.
+// This is gonna run on terminal.bin, sending data 
+// to it via tty. (stderr for now).
 
 // rtl
 #include <types.h>
@@ -19,56 +22,30 @@
 #include "vga_test.h"
 //================
 
-
+int isTimeToQuit=FALSE;
 unsigned long device_width=0;
 unsigned long device_height=0;
 
+//======================================
+
+static void shellPrompt(void);
+static unsigned long shellCompare(void);
+static void doExit(void);
+static void doLF(void);
 
 //======================================
-// Calling kgws in ring0.
-// Using the kgws to refresh the rectangle.
-void 
-__shell_refresh_rectangle ( 
-    unsigned long x, 
-    unsigned long y, 
-    unsigned long width, 
-    unsigned long height )
-{
-    unsigned long Buffer[5];
-    
-    Buffer[0] = (unsigned long) x;
-    Buffer[1] = (unsigned long) y;
-    Buffer[2] = (unsigned long) width;
-    Buffer[3] = (unsigned long) height;
 
-    gramado_system_call ( 
-        10, 
-        (unsigned long) &Buffer[0], 
-        0, 
-        0 );
+static void doExit(void)
+{
+    printf("doExit(): ");
+    fflush(stdout);
+    exit(0);
+    //isTimeToQuit = TRUE;
 }
 
-void 
-__shell_draw_rectangle ( 
-    unsigned long x, 
-    unsigned long y, 
-    unsigned long width, 
-    unsigned long height,
-    int color )
+static void doLF(void)
 {
-    unsigned long Buffer[5];
-    
-    Buffer[0] = (unsigned long) x;
-    Buffer[1] = (unsigned long) y;
-    Buffer[2] = (unsigned long) width;
-    Buffer[3] = (unsigned long) height;
-    Buffer[4] = (unsigned long) (color & 0xFFFFFF);
-
-    gramado_system_call ( 
-        391, 
-        (unsigned long) &Buffer[0], 
-        (unsigned long) &Buffer[0], 
-        0 );
+    printf(".\n");
 }
 
 /*
@@ -78,7 +55,7 @@ __shell_draw_rectangle (
  * prompt foi definido como stdin->_base.
  */
 
-void shellPrompt (void)
+static void shellPrompt(void)
 {
     register int i=0;
 
@@ -98,13 +75,18 @@ void shellPrompt (void)
 // Draw prompt.
 
     //printf("\n");
-    putc('$',stdout);
-    putc(' ',stdout);
+    //putc('$',stdout);
+    //putc(' ',stdout);
+    
+    //printf("\n");
+    printf("$ ");
     fflush(stdout);
+
+    //printf("$\n");
 }
 
 // local
-unsigned long shellCompare (void)
+static unsigned long shellCompare(void)
 {
     unsigned long ret_value=0;
     char *p;
@@ -135,45 +117,22 @@ unsigned long shellCompare (void)
 do_compare:
 
     //shellInsertLF();
-    printf("\n");
+    //printf("\n");
 
     // cls
     if ( strncmp(prompt,"cls",3) == 0 )
     {
-        // suspenso
-        //shell_clear_screen();
-        
-         /*
-        //shell_clear_screen();
-        //while(1){}
-        
-
-        // Draw surface
-        debug_print("1\n");
-        __shell_draw_rectangle( 0, 0,
-            device_width >> 1,  device_height >> 1,  COLOR_GRAY );
-
-        // refresh surface
-        debug_print("2\n");
-        __shell_refresh_rectangle( 0, 0,
-            device_width >> 1,  device_height >> 1 );
-
-        // Reset cursor
-        debug_print("3\n");
-        gramado_system_call( 34, 0, 4, 0 );
-
-        debug_print("4\n");
-        shellPrompt();
-        */
-        
+        //doLF();
+        printf ("~cls \n");
+        //fflush(stdout);
         goto exit_cmp;
     }
  
     // about
     if ( strncmp ( prompt, "about", 5 ) == 0 )
     {
-        printf ("Gramado Operating System ");
-        fflush(stdout);
+        printf ("Gramado Operating System \n");
+        //fflush(stdout);
         goto exit_cmp;
     }
 
@@ -207,7 +166,7 @@ do_compare:
     // current-process
     if ( strncmp ( prompt, "current-process", 15 ) == 0 )
     {
-        printf("\n");
+        //printf("\n");
         //gramado_system_call ( SYSTEMCALL_CURRENTPROCESSINFO, 0, 0, 0 );
         gramado_system_call ( 80, 0, 0, 0 );
         goto exit_cmp; 
@@ -216,14 +175,13 @@ do_compare:
     // process-info
     if ( strncmp ( prompt, "process-info", 12 ) == 0 )
     {
-        printf("\n");
+        //printf("\n");
         gramado_system_call ( 82, 0, 0, 0 );
         goto exit_cmp; 
     }
 
-    if ( strncmp( prompt, "exit", 4 ) == 0 )
-    {
-        exit(0);
+    if ( strncmp( prompt, "exit", 4 ) == 0 ){
+        doExit();
         goto exit_cmp;
     }
 
@@ -231,8 +189,8 @@ do_compare:
     void *hBuffer;
     if ( strncmp( prompt, "malloc", 6 ) == 0 )
     {
-        printf ("Testing heap: 32kb\n");
-        hBuffer = (void *) malloc ( 1024*32 );        // 32 kb
+        printf ("Testing heap: 32KB\n");
+        hBuffer = (void *) malloc( 1024*32 );        // 32 kb
         //...
         if ( (void *) hBuffer == NULL ){
             printf("Fail\n");
@@ -273,8 +231,8 @@ launch_app:
     //rtl_clone_and_execute(prompt);
 
     //printf ("Command not found\n");
-    printf("SHELL.BIN: Command not found ");
-    fflush(stdout);
+    printf("SHELL.BIN: Command not found! \n");
+    //fflush(stdout);
 
 exit_cmp:
     ret_value = 0;
@@ -283,217 +241,15 @@ done:
     return (unsigned long) ret_value;
 }
 
-
-
-int 
-shellProcedure ( 
-    void *window, 
-    int msg, 
-    unsigned long long1, 
-    unsigned long long2 )
-{
-
-    if(msg<0)
-        return -1;
-
-    switch (msg)
-    {
-        // 20 = MSG_KEYDOWN
-        case MSG_KEYDOWN:
-            switch (long1)
-            {
-
-                // [Enter] - Finalize the command line and compare.
-                case VK_RETURN:
-                    input('\0');
-                    shellCompare();
-                    //asm("int $3");
-                    goto done;
-                    break; 
-
-                case VK_TAB: 
-                    printf("\t");
-                    goto done; 
-                    break;
-
-                // keyboard arrows
-                case 0x48: printf ("UP   \n"); goto done; break;
-                case 0x4B: printf ("LEFT \n"); goto done; break;
-                case 0x4D: printf ("RIGHT\n"); goto done; break;
-                case 0x50: printf ("DOWN \n"); goto done; break;
-
-
-                case 0x47: 
-                    printf ("HOME\n");
-                    goto done; 
-                    break;
-                    
-                case 0x4F: 
-                    printf ("END \n"); 
-                    goto done; 
-                    break;
-
-                //pageup pagedown
-                case 0x49: printf ("PAGEUP   \n"); goto done; break;
-                case 0x51: printf ("PAGEDOWN \n"); goto done; break;
-
-                // insert delete
-                case 0x52: printf ("INSERT\n"); goto done; break;
-                case 0x53: printf ("DELETE\n"); goto done; break;
-
-                default:
-                    input ( (unsigned long) long1 );  
-                    printf("%c",long1); fflush(stdout);
-                    break;
-            };
-            break;
-
-  // 22 = MSG_SYSKEYDOWN
-        case MSG_SYSKEYDOWN:
-            switch (long1)
-            {
-                case VK_F1: printf ("F1\n");  break;
-                case VK_F2: printf ("F2\n");  break;
-            };
-            break;
-    };
-
-
-done:
-    return 0;
-}
-
-void shell_clear_screen(void)
-{
-
-//loop:
-
-// Draw surface
-    debug_print("1\n");
-    __shell_draw_rectangle(
-        0,
-        0,
-        (unsigned long) (device_width >> 1),
-        (unsigned long) (device_height >> 1),
-        COLOR_GRAY);
-
-// refresh surface
-    debug_print("2\n");
-    __shell_refresh_rectangle(
-        0,
-        0,
-        (unsigned long) (device_width >> 1),
-        (unsigned long) (device_height >> 1) );
-
-// Reset cursor
-    debug_print("3\n");
-    gramado_system_call(
-        34,
-        0,   // x
-        4,   // y
-        0);
-
-    debug_print("4\n");
-    
-    //goto loop;
-    
-    return;
-}
-
-
-//backup
-int main_backup ( int argc, char *argv[] )
-{
-
-    //argc=0;
-    //argv=NULL;
-    
-    debug_print ("SHELL.BIN\n");
-
-    device_width  = rtl_get_system_metrics(1);
-    device_height = rtl_get_system_metrics(2);
-
-
-    //shell_clear_screen();
-
-    /*
-    // draw surface.
-    __shell_draw_rectangle(
-        0,
-        0,
-        device_width,
-        device_height,
-        COLOR_GREEN );
-    */
-
-    /*
-    // cursor
-    gramado_system_call( 
-        34,
-        0,
-        4,
-        0);
-    */
-
-    printf ("SHELL.BIN: Gramado OS\n");
-    shellPrompt();
-
-
-// #test
-// changing vga resolution.
-// IN: only 320x200x256
-    //printf ("Calling VGA_init\n");
-    //VGA_init(320,200,256);
-
-// #bugbug
-// Clear the screen.
-    //gramado_system_call(390,0,0,0);
-
-//
-// Message loop
-//
-
-// =================================
-// Getting input event with the control thread.
-// #todo: First we need to set the focus on this thread.
-
-// Podemos chamar mais de um diálogo
-// Retorna TRUE quando o diálogo chamado 
-// consumiu o evento passado à ele.
-// Nesse caso chamados 'continue;'
-// Caso contrário podemos chamar outros diálogos.
-
-
-    rtl_focus_on_this_thread();
-    while (1){
-        if ( rtl_get_event() == TRUE ){
-            shellProcedure ( 
-                (void*) RTLEventBuffer[0], 
-                RTLEventBuffer[1], 
-                RTLEventBuffer[2], 
-                RTLEventBuffer[3] );
-        }
-    };
-
-//=================================
-
-    //#debug
-    //asm ("int $3");
-
-    while(1){};
-    
-    return 0;
-}
-
-
 //
 // Main
 //
 
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
     register int i=0;
     int C=0;
+    isTimeToQuit = FALSE;
 
 // -----------------------------------
 // (>>> stdout)
@@ -501,6 +257,7 @@ int main ( int argc, char *argv[] )
 
     printf("shell.bin: argc={%d} ",argc);
     fflush(stdout);
+
     if (argc>0)
     {
         for (i=0; i<argc; i++){
@@ -517,8 +274,10 @@ int main ( int argc, char *argv[] )
     stdout = stderr;
 
 // Send a simple string.
-    printf("SHELL.BIN: Shell is alive!$ ");
+    printf("SHELL.BIN: Shell is alive! ");
     fflush(stdout);
+    
+    shellPrompt();
 
 // ------------------------------------------------
 // Loop: (Input events).
@@ -526,6 +285,9 @@ int main ( int argc, char *argv[] )
 // stderr.
 
     while (1){
+
+        if (isTimeToQuit == TRUE)
+            break;
 
         // #bugbug
         // We got a PF when we type a lot of keys.
@@ -572,19 +334,27 @@ int main ( int argc, char *argv[] )
                 // e nao o kernel
                 // + precisamos nos certivicar que o shell esta lendo de um arquivo.
                 // isso eh uma tentativa
-                if (C == 'q')
-                {
+                //if (C == 'q')
+                //{
                     //printf("%c",'9');
                     //fflush(stdout);
-                    exit(0);   //#test
-                }
-             }
+                    //exit(0);   //#test
+                //}
+            }
         }
     };
 
-    while (1){
-    };
+    if (isTimeToQuit != TRUE)
+    {
+        printf("Quit fail ");
+        fflush(stdout);
+        while (1){
+        } ;
+    }
 
+done:
+    printf("Quit ok ");
+    fflush(stdout);
     return 0;
 }
 

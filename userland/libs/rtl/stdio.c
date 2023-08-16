@@ -397,7 +397,7 @@ int __fflush (FILE *stream)
     // FIXME: fflush(NULL) should flush all open output streams.
     //ASSERT(stream);
 
-    if ( (void *) stream == NULL ){
+    if ((void *) stream == NULL){
         return (int) fflush_all();
     }
 
@@ -415,7 +415,7 @@ int __fflush (FILE *stream)
         //return 0;
 
 // Have an invalid ring3 buffer.
-    if ( (void *) stream->_base == NULL ){
+    if ((void *) stream->_base == NULL){
         debug_print( "__fflush: [ERROR] Invalid ring3 buffer\n");
         return (int) (-1);
     } 
@@ -426,10 +426,9 @@ int __fflush (FILE *stream)
 // Return '0' if there is nothing to flush.
 
     //Count = stream->_ptr - stream->_base;
-
     Count = (size_t) stream->_w;
-
-    if (Count <= 0){
+    if (Count <= 0)
+    {
         stream->_p = stream->_base;
         stream->_w = 0;    // ajust.
         //stream->_r = 0;  // ajust.
@@ -453,13 +452,17 @@ int __fflush (FILE *stream)
 //
 
 //#ifdef _POSIX_
-    nwrite = write ( fileno(stream), stream->_base, Count );
+    nwrite = write( fileno(stream), stream->_base, Count );
 //#else
-//    nwrite = __write ( fileno(stream), stream->_base, Count );
+//    nwrite = __write( fileno(stream), stream->_base, Count );
 //#endif
 
-    if (nwrite <= 0){
-        printf ("__fflush: [FAIL] nwrite\n");
+    if (nwrite <= 0)
+    {
+        //#debug: Recursive.
+        //printf ("__fflush: [FAIL] nwrite Count={%d} \n", Count);
+        
+        Count = 0;
         // Ajust to the next flush.
         stream->_p = stream->_base;
         stream->_w = 0;
@@ -544,9 +547,9 @@ int fflush_all(void)
 // NULL will flush all the streams in the table[].
 // #todo: We need a talbe here in the lib.
 
-int fflush (FILE *stream)
+int fflush(FILE *stream)
 {
-    if ( (void*) stream == NULL ){
+    if ((void*) stream == NULL){
         return (int) fflush_all();
     }
     return (int) __fflush(stream);
