@@ -7,7 +7,8 @@ all:
 	gcc ../../userland/commands/jackpot/main.c -o jackpot
 	gcc ../../userland/commands/showfun/main.c -o showfun
 	gcc ../../userland/commands/unknown/main.c -o unknown
-
+	gcc ../../userland/commands/sum/main.c -o sum
+	
 clean:
 	-rm cat
 	-rm c4
@@ -15,4 +16,5 @@ clean:
 	-rm jackpot
 	-rm showfun
 	-rm unknown
+	-rm sum  
 	

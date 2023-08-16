@@ -1352,8 +1352,16 @@ int fdatasync (int fd)
 // Isso deve fechar o arquivo na lista de arquivo abertos.
 // See:
 // https://man7.org/linux/man-pages/man2/close.2.html
+/*
+A successful close does not guarantee that the data has been
+successfully saved to disk, as the kernel uses the buffer cache
+to defer writes.  Typically, filesystems do not flush buffers
+when a file is closed.  If you need to be sure that the data is
+physically stored on the underlying disk, use fsync(2).  (It will
+depend on the disk hardware at this point.)
+*/
 
-int close (int fd)
+int close(int fd)
 {
     int value = -1;
 
@@ -1362,6 +1370,8 @@ int close (int fd)
         return (int) (-1);
     }    
 
+// Syscall 17.
+// Is it for sys_close() in kernel?
     value = 
         (int) gramado_system_call ( 
                   17, 

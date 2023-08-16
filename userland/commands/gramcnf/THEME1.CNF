@@ -1,7 +1,4 @@
 
-
-
-
 box One 
 [
     meta meta1(){ name("background-color");     content("green");  }

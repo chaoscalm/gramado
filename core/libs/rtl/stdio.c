@@ -1047,6 +1047,17 @@ int putw (int w, FILE *stream)
  *     Close a file.
  *     If work, return 0. 
  */
+// see: 
+// https://man7.org/linux/man-pages/man3/fclose.3.html
+/*
+The fclose() function flushes the stream pointed to by stream
+(writing any buffered output data using fflush(3)) and closes the
+underlying file descriptor.
+Note that fclose() flushes only the user-space buffers provided
+by the C library.  To ensure that the data is physically stored
+on disk the kernel buffers must be flushed too, for example, with
+sync(2) or fsync(2).
+*/
 // #todo
 // fclose() takes a stream, flushes it, and closes it.
 // linux klibc style
@@ -1054,8 +1065,9 @@ int putw (int w, FILE *stream)
 // #todo
 // Any buffered output is written and any buffered input is discarded.
 
-int fclose (FILE *stream)
+int fclose(FILE *stream)
 {
+    // int __ret = -1;
 
 // #bugbug
 // Vamos simplificar pois esta falhando.
@@ -1063,51 +1075,49 @@ int fclose (FILE *stream)
     
     debug_print ("fclose: [FIXME]\n");
 
-    if ( (void *) stream == NULL ){
+// Check parameters.
+    if ((void *) stream == NULL){
+        errno = EBADF;
         return EOF;  
     }
 
-    return (int) close( fileno(stream) ); 
-
-
-    /*
-    int __ret = -1;
-
-
-    if ( (void *) stream == NULL )
-    {
-       return EOF;
-    }
-
+// Flush the data that are in the ring3 buffer.
     fflush(stream);
 
-    // Isso deve fechar o arquivo na lista de arqquivo abertos.
-    __ret = (int) close ( fileno(stream) );
-    
-    //fail
-    if (__ret<0){
+/*
+    if ( stream == stdin )
         return EOF;
-    }
+    if ( stream == stdout )
+        return EOF;
+    if ( stream == stderr )
+        return EOF;
+*/
 
+// Delete the ring 3 structure.
 
     if ( (void *) stream != NULL )
     {
         stream->_base = NULL;
         stream->_p = NULL;
-        
+
         stream->_flags = 0;
         stream->_cnt = 0;
-        
+
+        // Delete the structure.        
         stream = NULL;
 
         // ok
         return 0;
     }
 
-    //fail
+// Close the file and save it into the disk.
+    //return (int) close( fileno(stream) ); 
+    
     return EOF;
-    */
 }
+
+
+
 
 
 // Carrega um arquivo e retorna o ponteiro para a estrutura de stream.

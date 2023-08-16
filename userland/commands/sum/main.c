@@ -5,8 +5,12 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
-int main( int argc, char *argv[] )
+// + Open file
+// + Read file
+// + Close file. (Saving it into the disk).
+int main(int argc, char *argv[])
 {
     register FILE *f;
     register unsigned sum;
@@ -16,45 +20,67 @@ int main( int argc, char *argv[] )
 
     i=1;
 
+// Loop for multiple files.
     do {
     
-        if(i < argc) {
-			if ((f = fopen(argv[i], "a+")) == NULL) 
-			{
-				fprintf(stderr, "sum: Can't open %s\n", argv[i]);
-				errflg += 10;
-				continue;
-			}
+        if (i<argc) {
+            if ((f = fopen(argv[i], "a+")) == NULL) 
+            {
+                fprintf(stderr, "sum: Can't open %s\n", argv[i]);
+                errflg += 10;
+                continue;
+            }
+        // If no filename was provided.
+        } else {
+            f = stdin;
+        };
 
-        } else
-			f = stdin;
-		sum = 0;
-		nbytes = 0;
+        sum = 0;
+        nbytes = 0;
 
         while ((c = getc(f)) != EOF)
         {
-			nbytes++;
-			if (sum&01)
-				sum = (sum>>1) + 0x8000;
-			else
-				sum >>= 1;
-			sum += c;
-			sum &= 0xFFFF;
-		}
-		
-		if (ferror(f)) {
-			errflg++;
-			//fprintf(stderr, "sum: read error on %s\n", argc>1?argv[i]:"-");
-		    printf("sum: read error on %s\n", argc>1?argv[i]:"-");
-		}
+            nbytes++;
+            
+            // #bugbug: '01' ?
+            if (sum & 01)
+                sum = (sum>>1) + 0x8000;
+            else
+                sum >>= 1;
+            
+            sum += c;
+            sum &= 0xFFFF;
+        };
 
-		//printf("%05u%6ld", sum, (nbytes+BUFSIZ-1)/BUFSIZ);
-		printf("sum {%d | %d} \n", sum, (nbytes+BUFSIZ-1)/BUFSIZ);
+        if ( ferror(f) )
+        {
+            errflg++;
+            //fprintf(stderr, "sum: read error on %s\n", argc>1?argv[i]:"-");
+            // #ugly
+            printf("sum: read error on %s\n", 
+                argc > 1 
+                ? argv[i]
+                : "-" );
+        }
 
-		if(argc > 2)
-			printf(" %s\n", argv[i]);
-		printf("\n");
-		fclose(f);
+        //
+        // Print results.
+        //
+        
+        //printf("%05u%6ld", sum, (nbytes+BUFSIZ-1)/BUFSIZ);
+        printf("sum {%d | %d} \n", 
+            sum, 
+            (nbytes+BUFSIZ-1)/BUFSIZ );
+
+        if (argc > 2)
+            printf(" %s\n", argv[i]);
+
+        printf("\n");
+        
+        // #bugbug
+        // Here we're gonna save the file in the disk.
+
+        fclose(f);
 
     } while (++i < argc);
 
@@ -62,5 +88,6 @@ int main( int argc, char *argv[] )
     exit(errflg);
 
     return 0;
+    //return (int) errflg;
 }
 

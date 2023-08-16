@@ -1427,11 +1427,20 @@ sys_open (
 // See:
 // https://man7.org/linux/man-pages/man2/close.2.html
 // https://pubs.opengroup.org/onlinepubs/009695399/functions/close.html
+/*
+A successful close does not guarantee that the data has been
+successfully saved to disk, as the kernel uses the buffer cache
+to defer writes.  Typically, filesystems do not flush buffers
+when a file is closed.  If you need to be sure that the data is
+physically stored on the underlying disk, use fsync(2).  (It will
+depend on the disk hardware at this point.)
+*/
 
 int sys_close(int fd)
 {
     file *object;
     struct process_d *p;
+    int Done=FALSE;
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -1448,7 +1457,9 @@ int sys_close(int fd)
     */
 
 // Invalid fd
-    if ( fd < 0 || fd >= OPEN_MAX ){
+    if ( fd < 0 || fd >= OPEN_MAX )
+    {
+        debug_print("sys_close: bad fd\n");
         return (int) (-EBADF);
     }
 
@@ -1458,9 +1469,8 @@ int sys_close(int fd)
         debug_print("sys_close: current_process\n");
         goto fail;
     }
-
     p = (void *) processList[current_process];
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         debug_print("sys_close: p\n");
         goto fail;
     }
@@ -1473,9 +1483,9 @@ int sys_close(int fd)
 // The object is a file structure.
 
     object = (file *) p->Objects[fd];
-    if ( (void *) object == NULL ){
+    if ((void *) object == NULL){
         debug_print("sys_close: object\n");
-        return (int) (-1);
+        goto fail;
     }
     if ( object->used != TRUE || object->magic != 1234 ){
         debug_print("sys_close: object validation\n");
@@ -1485,35 +1495,32 @@ int sys_close(int fd)
 // What type of object?
 // socket, pipe, virtual console, tty, regular file ??
 
+    Done = FALSE;
+
 // ===============================================
 // socket
-// nada sera salvo no disco.
-    if ( object->____object == ObjectTypeSocket )
+// Do NOT save it into the disk.
+    if (object->____object == ObjectTypeSocket)
     {
         debug_print("sys_close: Trying to close a socket object\n");
         object->socket->used = FALSE; //invalidando a estrutura de socket
         object->socket->magic = 0;//invalidando a estrutura de socket
-        object = NULL;   //destroi a estrutura de arquivo.
-        //p->priv = NULL; //socket privado do processo.
-        p->Objects[fd] = (unsigned long) 0;  // limpa o slot na estrutura de processo.
-        debug_print("sys_close: [FIXME] Done\n");
-        return 0;
+        Done = TRUE;
     }
 
 // ==============================================
 // pipe
-    if ( object->____object == ObjectTypePipe )
+    if (object->____object == ObjectTypePipe)
     {
         debug_print("sys_close: Trying to close a pipe object\n");
-        object = NULL;
-        p->Objects[fd] = (unsigned long) 0;
-        debug_print("sys_close: [FIXME] Done\n");
-        return 0;
+        Done = TRUE;
     }
 
 // ====================================================
 // virtual console.
-    if (object->____object == ObjectTypeVirtualConsole){
+// #todo
+    if (object->____object == ObjectTypeVirtualConsole)
+    {
         debug_print("sys_close: Trying to close a virtual console object\n");
         return 0;
     }
@@ -1523,10 +1530,7 @@ int sys_close(int fd)
     if (object->____object == ObjectTypeTTY)
     {
         debug_print("sys_close: Trying to close a tty object\n");
-        object = NULL;
-        p->Objects[fd] = (unsigned long) 0;
-        debug_print("sys_close: [FIXME] Done\n");
-        return 0;
+        Done = TRUE;
     }
 
 // #bugbug
@@ -1538,7 +1542,8 @@ int sys_close(int fd)
 
 // ===========================================
 // regular file
-    if ( object->____object == ObjectTypeFile )
+// Save the file if it is a regular file.
+    if (object->____object == ObjectTypeFile)
     {
         debug_print("sys_close: [FIXME] trying to close a regular file\n");
         debug_print("sys_close: [FIXME] fsSaveFile\n");
@@ -1563,17 +1568,25 @@ int sys_close(int fd)
             (char *)         object->_base,          // buffer address          
             (char)           0x20 );                 // flag ??
 
-        object = NULL;
-
-        // ??
-        p->Objects[fd] = (unsigned long) 0;
-
-        debug_print("sys_close: [FIXME] Done\n");
-        return 0;
+        Done = TRUE;
     }
 
 // Object type not supported.
-    debug_print("sys_close:[FAIL] Object type not supported yet \n");
+    if (Done != TRUE){
+        debug_print("sys_close:[FAIL] Object type not supported yet \n");
+        goto fail;
+    }
+
+// Everything was done.
+// Let's destroy the object pointer, empty the spot in the list
+// and return 0.
+    if (Done == TRUE)
+    {
+        object = NULL;
+        p->Objects[fd] = (unsigned long) 0;
+        return 0;
+    }
+
 fail:
     debug_print("sys_close: [FAIL]\n");
     return (int) (-1);
