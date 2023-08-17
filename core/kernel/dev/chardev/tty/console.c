@@ -1879,7 +1879,7 @@ int consoleCompareStrings(void)
 // mm1: Show paged memory list.
 // IN: max index.
     if ( strncmp(prompt,"mm1",3) == 0 ){
-        showPagedMemoryList(512); 
+        mmShowPagedMemoryList(512); 
         goto exit_cmp;
     }
 
@@ -1887,7 +1887,7 @@ int consoleCompareStrings(void)
 // inside the kernel heap.
 // IN: max index.
     if ( strncmp(prompt,"mm2",3) == 0 ){
-        showMemoryBlocksForTheKernelAllocator(); 
+        mmShowMemoryBlocksForTheKernelAllocator(); 
         goto exit_cmp;
     }
 
@@ -2016,7 +2016,7 @@ int consoleCompareStrings(void)
 
 // memory:
     if ( strncmp( prompt, "memory", 6 ) == 0 ){
-        memoryShowMemoryInfo();
+        mmShowMemoryInfo();
         goto exit_cmp;
     }
 

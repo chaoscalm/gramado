@@ -827,7 +827,7 @@ unsigned long mmGetFTEndPA(void)
 
 // Checar se a estrutura de página é nula
 // This is very ugly
-int pEmpty (struct page_d *p)
+int isValidPageStruct(struct page_d *p)
 {
     return (p == NULL) ? TRUE : FALSE;
 }
@@ -1074,7 +1074,8 @@ void load_pml4_table(void *phy_addr)
 
 // PAE and PGE
 // inline?
-void enable_pae(void)
+//void __enable_pae(void);
+void __enable_pae(void)
 {
     // PAE and PGE.
     asm volatile ( " movq %%cr4, %%rax; "
@@ -2261,10 +2262,10 @@ int mmInitializePaging(void)
     debug_print ("mmInitializePaging: [DANGER] Load cr3\n");
 
 // pae
-    //printf ("SetUpPaging: enable_pae\n");
+    //printf ("SetUpPaging: __enable_pae\n");
 
     //isso ja foi feito no bl.
-    //enable_pae();
+    //__enable_pae();
 
     //while(1){}
 

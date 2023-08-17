@@ -488,7 +488,7 @@ void sys_show_system_info(int n)
         volume_show_info();      
         break;
     case 3:  
-        //memoryShowMemoryInfo();  
+        //mmShowMemoryInfo();  
         break;
     case 4:
         //systemShowDevicesInfo();

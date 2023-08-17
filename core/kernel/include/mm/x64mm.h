@@ -943,21 +943,20 @@ mm_fill_page_table(
     unsigned long region_2mb_pa,
     unsigned long flags );
 
+// Memory initialization.
 // This routine initializes the paging infrastructure.
 int mmInitializePaging(void);
 int mmInit(void);
 
-// ============
-
-void memoryShowMemoryInfo (void);
-void mmShow_PML4Entry (int index, unsigned long pml4_va);
+// Memory info.
+void mmShowMemoryInfo(void);
+void mmShowPML4Entry(int index, unsigned long pml4_va);
 void mmShowPML4EntryForAllProcesses (int entry_number);
+void mmShowMemoryBlocksForTheKernelAllocator(void);
+void mmShowPagedMemoryList(int max);
 
-void showPagedMemoryList(int max);
-
-void showMemoryBlocksForTheKernelAllocator(void);
-
-void testingPageAlloc (void);
+// mm support
+void mmTestingPageAlloc(void);
 
 int kernel_gc (void);
 
@@ -982,7 +981,7 @@ int I_initialize_frame_table(void);
 unsigned long mmGetFTStartPA(void);
 unsigned long mmGetFTEndPA(void);
 
-int pEmpty (struct page_d *p);
+int isValidPageStruct(struct page_d *p);
 void freePage (struct page_d *p);
 void notfreePage (struct page_d *p);
 

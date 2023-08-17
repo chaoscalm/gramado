@@ -17,7 +17,7 @@ struct scheduler_info_d  SchedulerInfo;
 #define QUEUE_WAITING    2  // Esperando algum evento.
 #define QUEUE_BLOCKED    3  // Bloqueada.
 #define SCHED_QUEUE_MAX  4
-static int __current_sched_queue=0;
+static int __current_sched_queue_head_index=0;
 unsigned long schedQueueHeads[SCHED_QUEUE_MAX];
 
 //
@@ -504,6 +504,8 @@ unsigned long scheduler_get_status (void)
 
 int init_scheduler (unsigned long sched_flags)
 {
+    register int i=0;
+
     debug_print ("init_scheduler: [TODO]\n");
     // ...
 
@@ -515,12 +517,11 @@ int init_scheduler (unsigned long sched_flags)
 
 // -------------------------------
 // Sched queue heads.
-    register int i=0;
     for (i=0; i<SCHED_QUEUE_MAX; i++){
         schedQueueHeads[i] = 0;
     };
-    __current_sched_queue = 0;
-    schedQueueHeads[__current_sched_queue] = 
+    __current_sched_queue_head_index = 0;
+    schedQueueHeads[__current_sched_queue_head_index] = 
         (unsigned long) UPProcessorBlock.IdleThread;
 // -------------------------------
 
@@ -534,7 +535,7 @@ int init_scheduler (unsigned long sched_flags)
 
     SchedulerInfo.policy = SCHED_RR;
     SchedulerInfo.rr_round_counter = 0;
-    SchedulerInfo.flags  = (unsigned long) sched_flags;
+    SchedulerInfo.flags = (unsigned long) sched_flags;
     SchedulerInfo.initialized = TRUE;
 
     return 0;

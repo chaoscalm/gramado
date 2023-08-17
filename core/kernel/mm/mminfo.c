@@ -4,8 +4,7 @@
 
 #include <kernel.h>  
 
-
-void mmShow_PML4Entry (int index, unsigned long pml4_va)
+void mmShowPML4Entry(int index, unsigned long pml4_va)
 {
 
 // #fixme:
@@ -75,13 +74,9 @@ void mmShow_PML4Entry (int index, unsigned long pml4_va)
 */
 }
 
-
-/*
- * memoryShowMemoryInfo:
- *     Show memory info. 
- */
-
-void memoryShowMemoryInfo (void)
+// mmShowMemoryInfo:
+// Show memory info.
+void mmShowMemoryInfo(void)
 {
     unsigned long HeapTotal = 
         ((kernel_heap_end - kernel_heap_start)/1024);
@@ -283,12 +278,12 @@ void mmShowPML4EntryForAllProcesses (int entry_number)
     };
 }
 
+// mmShowPagedMemoryList:
 // Mostra as estruturas de pagina 
 // usadas para paginação no pagedpool.
 // Usada pelo alocador de páginas. 
 // shared ring3 memory?
-
-void showPagedMemoryList(int max)
+void mmShowPagedMemoryList(int max)
 {
     struct page_d *p;
     register int i=0;
@@ -314,7 +309,7 @@ void showPagedMemoryList(int max)
 
 
 /*
- * show_memory_structs:
+ * mmShowMemoryBlocksForTheKernelAllocator:
  *     IMPORTANTE.
  *     Mostra as informações das estruturas de memória. 
  *     Essas são as estruturas usadas pelo kmalloc.
@@ -331,7 +326,7 @@ void showPagedMemoryList(int max)
  * refresh screen
  */
 
-void showMemoryBlocksForTheKernelAllocator(void)
+void mmShowMemoryBlocksForTheKernelAllocator(void)
 {
 // Print the information for each valid memory block
 // in the ring0 kernel allocator.
@@ -374,12 +369,12 @@ void showMemoryBlocksForTheKernelAllocator(void)
     //More?!
 }  
 
-void testingPageAlloc (void)
+void mmTestingPageAlloc(void)
 {
     // #todo
 }
 
 //
-// End.
+// End
 //
 
