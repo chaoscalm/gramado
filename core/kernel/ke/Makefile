@@ -88,9 +88,7 @@ sched.o schedi.o
 
 all:
 
-# x64init/
-
-	$(CC) -c x86_64/x64init/x64init.c  \
+	$(CC) -c x86_64/x64init.c  \
 $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
 
 # hal/

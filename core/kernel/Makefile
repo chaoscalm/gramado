@@ -105,7 +105,7 @@ KERNEL_INCLUDE := -I include/ $(USER_INCLUDE)
 # Classes: Head | Body | Hooks
 
 # Head
-objects-y := head_64.o kmain.o init.o zero.o ar_crt.o  
+objects-y := head_64.o kmain.o zero.o ar_crt.o  
 # Body
 objects-y += ar_dev.o  
 objects-y += ar_fs.o  
@@ -156,7 +156,6 @@ k1:
 
 # More
 	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
-	$(CC) -c init.c    $(KERNEL_INCLUDE) $(CFLAGS) -o init.o
 	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
 
 k2:

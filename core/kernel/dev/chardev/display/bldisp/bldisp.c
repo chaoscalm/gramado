@@ -482,7 +482,7 @@ int bldisp_initialize(void)
     bl_display_device->initialized = TRUE;
 
     PROGRESS("bldisp_initialize: Setup display device\n");
-    printf("bldisp_initialize: Setup display device\n");
+    printf  ("bldisp_initialize: Setup display device\n");
 
     return 0;
 }

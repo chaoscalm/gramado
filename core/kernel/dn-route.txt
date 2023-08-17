@@ -5,13 +5,27 @@
     The link file is arch/x86_64/startup/link.ld.
 
 ------------------------------------------
+Steps:
+- 1 - Head
+- 2 - Initialize archtechture
+- 3 - Execute first process
+
+------------------------------------------
+
+:: (1)
 _kernel_begin   head_64.asm
 START           head_64.asm
-I_x64InitializeKernel  x64init.c
+
+:: (2)
 I_kmain                kmain.c
 I_init_main            init.c
 kernel_booting         init.c
+zero_initialize_arch   zero.c
+zero_initialize_x64    zero.c
+I_x64main              zero.c
 booting_end            init.c
+
+:: (3)
 I_x64ExecuteInitialProcess  x64init.c
 
 

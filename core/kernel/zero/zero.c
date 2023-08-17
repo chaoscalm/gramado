@@ -61,6 +61,7 @@ void zero_initialize_background(void)
 // ke/x86_64/x64init.c
 int zero_initialize_x64(void)
 {
+// Called by zero_initialize_arch().
     return (int) (int) I_x64main();
 }
 
@@ -102,6 +103,7 @@ void zero_show_banner(void)
 
 int zero_initialize_arch(int arch_type)
 {
+// called by booting_begin() in kmain.c
 //=============================
 // Initialize archtecture dependent stuff.
 

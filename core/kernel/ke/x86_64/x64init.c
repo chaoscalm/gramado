@@ -366,7 +366,7 @@ static int I_x64CreateInitialProcess(void)
 }
 
 // =========================================
-// ::(6)
+// ::(3)
 // Passa o comando para o primeiro processo em user mode.
 // Esse processo ja foi previamente configurado.
 // Called by booting_end() in init.c
@@ -376,10 +376,13 @@ void I_x64ExecuteInitialProcess (void)
     register int i=0;
 
     // #debug
-    PROGRESS("::(6)\n");   
+    PROGRESS("::(3)\n");   
     debug_print ("I_x64ExecuteInitialProcess:\n");
     // For real machine.
     //printf      ("I_x64ExecuteInitialProcess: [TODO]\n");
+    
+    // #debug
+    //panic("I_x64ExecuteInitialProcess: breakpoint :)");
 
     if (system_state != SYSTEM_BOOTING){
         panic ("I_x64ExecuteInitialProcess: system_state\n");    
@@ -605,8 +608,6 @@ void I_x64ExecuteInitialProcess (void)
 // ==============
 */
 
-
-
 // ==============
 // #debug
 
@@ -634,7 +635,6 @@ void I_x64ExecuteInitialProcess (void)
 // See:
 // gva.h
 
-
 // cpl
     if (t->cpl != RING3 ){
         panic ("I_x64ExecuteInitialProcess: cpl\n");
@@ -646,7 +646,7 @@ void I_x64ExecuteInitialProcess (void)
         panic ("I_x64ExecuteInitialProcess: rflags_initial_iopl\n");
     }
 
-    PROGRESS("::(6)(2) Go to ring3! \n");
+    PROGRESS("::(3)(2) Go to ring3! \n");
     
     //printf("go!\n");
     //while(1){}
@@ -679,7 +679,7 @@ void I_x64ExecuteInitialProcess (void)
         " iretq           \n" :: "D"(entry), "S"(rsp3) );
 
 // Paranoia
-    PROGRESS("::(6)(?) I_x64ExecuteInitialProcess: Unexpeted error\n");
+    PROGRESS("::(3)(?) I_x64ExecuteInitialProcess: Unexpeted error\n");
     panic("I_x64ExecuteInitialProcess: Unexpeted error\n");
 }
 
@@ -999,6 +999,8 @@ static int I_init(void)
     int Status = FALSE;
     unsigned char ProcessorType=0;
 
+    PROGRESS("I_init:\n");
+
 // #debug
     //debug_print ("I_init:\n");
     //printf      ("I_init:\n");
@@ -1013,15 +1015,14 @@ static int I_init(void)
 
 // ===============================
 // Globals
-    PROGRESS("::(5)(3)(1) globals\n"); 
     init_globals();
-
+    PROGRESS("init_globals ok\n"); 
 
 // ===============================
 // Initialize device manager.
 // see: dev/devmgr.c
-    PROGRESS("::(5)(3)(2) device manager\n"); 
     init_device_manager();
+    PROGRESS("init_device_manager ok\n"); 
 
 // ===============================
 // Storage manager
@@ -1030,7 +1031,7 @@ static int I_init(void)
 // A estrutura 'storage' vai ser o nível mais baixo.
 // É nela que as outras partes devem se basear.
 
-    PROGRESS("::(5)(3)(3) storage, disk, volume, fs\n"); 
+    PROGRESS("storage, disk, volume, fs\n"); 
 
 // Storage
     int st_status=FALSE;
@@ -1054,9 +1055,8 @@ static int I_init(void)
 // ==========================
 // Network support.
 // See: network.c
-    PROGRESS("::(5)(3)(4) network\n"); 
     networkInit();
-
+    PROGRESS("networkInit ok\n"); 
 // ===============================
 // #important
 // We need to be in the phase 1.
@@ -1067,41 +1067,41 @@ static int I_init(void)
 
 // ==========================
 // hal
-    PROGRESS("::(5)(3)(5) hal\n"); 
     Status = halInitialize();
     if (Status != TRUE){
         printf("I_init: halInitialize fail\n");
         return FALSE;
     }
+    PROGRESS("halInitialize ok\n"); 
 
 // ==========================
 // microkernel components:
 // mm, ipc, ps ...
-    PROGRESS("::(5)(3)(6) microkernel\n"); 
     Status = psInitializeMKComponents();
     if (Status != TRUE){
         printf ("I_init: psInitializeMKComponents fail\n");
         return FALSE;
     }
+    PROGRESS("psInitializeMKComponents ok\n"); 
 
 // =========================================
 // Executive components
-    PROGRESS("::(5)(3)(7) executive\n"); 
     Status = zeroInitializeSystemComponents();
     if (Status != TRUE){
         printf ("I_init: zeroInitializeSystemComponents fail\n"); 
         return FALSE;
     }
+    PROGRESS("zeroInitializeSystemComponents ok\n"); 
 
 // =========================================
 // Some gui components.
 // #todo: rever 
-    PROGRESS("::(5)(3)(8) kgwm, fat directories\n"); 
     Status = kgwmInitialize();
     if (Status != TRUE){
         printf ("I_init: kgwmInitialize fail\n"); 
         return FALSE;
     }
+    PROGRESS("kgwmInitialize ok\n"); 
 
 // FAT support.
     initialize_FAT_and_main_directories();
@@ -1114,11 +1114,11 @@ static int I_init(void)
 // + Initialize fpu and smp support.
 // + Detect the hypervisor.
 
-    PROGRESS("::(5)(3)(9) processor, fpu, smp, hv\n"); 
+    PROGRESS("processor, fpu, smp, hv\n"); 
 
 // --------
 // 'processor' structuture initialization.
-    processor = (void *) kmalloc( sizeof( struct processor_d ) ); 
+    processor = (void *) kmalloc( sizeof(struct processor_d) ); 
     if ((void *) processor == NULL){
         printf("I_init: processor\n");
         return FALSE;
@@ -1257,7 +1257,7 @@ fail0:
 }
 
 //================================
-// ::(5)
+// ::(2)(?)
 int I_x64main (void)
 {
 // Called by zero_initialize_x64().
@@ -1312,7 +1312,7 @@ int I_x64main (void)
 
 // ================================
 // sse support.
-    PROGRESS("::(5)(1)\n"); 
+    PROGRESS("::(2)(?)\n"); 
     //debug_print ("[x64] I_x64main: [TODO] SSE support\n");
     // x86_sse_init();
 
@@ -1332,7 +1332,7 @@ int I_x64main (void)
 // durante essa fase da inicialização.
 // See: sysinit.c
 
-    PROGRESS("::(5)(2)\n"); 
+    PROGRESS("::(2)(?)\n"); 
     if (Initialization.current_phase != 0){
         debug_print ("I_x64main: Initialization phase is NOT 0.\n");
         return FALSE;
@@ -1340,7 +1340,7 @@ int I_x64main (void)
 
 // -------------------------------
 // Starting phase 1.
-    PROGRESS("::(5)(3)\n"); 
+    PROGRESS("::(2)(?)\n"); 
     Initialization.current_phase = 1;
 
     Status = (int) I_init(); 
@@ -1377,7 +1377,7 @@ int I_x64main (void)
 // Initialize ws callback support.
 // see: callback.c
 
-    PROGRESS("::(5)(4) kgws, ws, ws callback\n"); 
+    PROGRESS("::(2)(?) kgws, ws, ws callback\n"); 
     // Graphics infrastruture.
     KGWS_initialize();
     // ws registration support.
@@ -1401,7 +1401,7 @@ int I_x64main (void)
 // #bugbug
 // see: x64.c
 
-    PROGRESS("::(5)(5) gdt\n"); 
+    PROGRESS("::(2)(?) gdt\n"); 
     x64_init_gdt();
 
 // ================================
@@ -1411,7 +1411,7 @@ int I_x64main (void)
 // a process structure to handle the kernel base and the
 // window server's control thread.
 
-    PROGRESS("::(5)(6) kernel process\n"); 
+    PROGRESS("::(2)(?) kernel process\n"); 
     Status = I_x64CreateKernelProcess();
     if (Status != TRUE){
         debug_print ("Couldn't create the Kernel process\n");
@@ -1422,7 +1422,7 @@ int I_x64main (void)
 // Create the first ring3 process.
 // INIT.BIN.
 
-    PROGRESS("::(5)(7) init process\n"); 
+    PROGRESS("::(2)(?) init process\n"); 
     Status = I_x64CreateInitialProcess();
     if(Status != TRUE){
         debug_print ("Couldn't create the Initial process\n");
@@ -1447,12 +1447,12 @@ int I_x64main (void)
 // #bugbug This is a test yet.
 // It fails in the real machine.
 
-    PROGRESS("::(5)(8) ps2\n"); 
+    PROGRESS("::(2)(?) ps2\n"); 
     PS2_early_initialization();
     //PS2_initialization();
 
 // Loading .BMP icon images.
-    PROGRESS("::(5)(9) Icons\n"); 
+    PROGRESS("::(2)(?) Icons\n"); 
     windowLoadGramadoIcons();
 
     return TRUE;
@@ -1462,7 +1462,7 @@ int I_x64main (void)
 
 fail:
     // Nothing
-    PROGRESS("::(5)(?) Fail\n"); 
+    PROGRESS("::(4)(?) Fail\n"); 
 fail0:
     debug_print ("[x64] I_x64main: fail\n");
     refresh_screen(); 
@@ -1471,22 +1471,18 @@ fail0:
 
 // ==============================
 // ::(2)
-// Called by START in startup/head_64.asm.
+
 void I_x64InitializeKernel(int arch_type)
 {
 // We don't have any print support yet.
 
-    asm ("cli");
     //#hack
     // current_arch = CURRENT_ARCH_X86_64;
+
 // see:
-// kernel/kmain.c
+// kernel/init.c
     I_kmain(arch_type);
-// Not reached.
-    while (1){
-        asm ("cli");
-        asm ("hlt");
-    }
+
 }
 
 

@@ -644,26 +644,17 @@ struct kernel_classes_d  KernelClasses;
 // see: '_kernel_begin' in head_64.asm.
 
 // ::(2)
-// x86_64 initialization at ke/x86_64/x64init/
-// see: x64init.c
-void I_x64InitializeKernel(int arch_type);
-
-// ::(3)
 // Global initialization.
-// see: kmain.c
+// see: init.c
 int I_kmain(int arch_type);
-
-// ::(4)
 // Inicialização do kernel, independente da arquitetura.
 // See: init.c
 int I_init_main(int arch_type);
-
-// ::(5)
 // x86_64 Initialization. (Main routine)
 // see: x64init.c
 int I_x64main(void);
 
-// ::(6)
+// ::(3)
 // see: x64init.c
 void I_x64ExecuteInitialProcess(void);
 

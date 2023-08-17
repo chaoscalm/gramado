@@ -12,7 +12,7 @@ __HEAD
 ; See: init.c
 extern _saved_bootblock_base
 extern _magic
-extern _I_x64InitializeKernel
+extern _I_kmain
 
 ; See:
 ; kernel.h
@@ -313,13 +313,13 @@ START:
 ; Use the calling convention for this compiler.
 ; rdi
 ; No return
-; See: x64init.c
+; See: kmain.c
 ; #todo: arch type (2) ??
  
     xor rax, rax
     mov rdi, rax    ; First argument.
     ; ...
-    call _I_x64InitializeKernel
+    call _I_kmain
 
 ; Not reached.
 dieLoop:
