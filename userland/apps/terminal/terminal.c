@@ -1593,11 +1593,9 @@ terminal_write_char (
  *     #todo: Esse buffer poderia ser um arquivo que o kernel
  * pudesse usar, ou o servidor de recursos gráficos pudesse usar.
  */
-
 //#importante:
 //o refresh é chamado no default do procedimento de janela
-
-void terminalInsertNextChar (char c)
+void terminalInsertNextChar(char c)
 {
 	// #todo
 	// para alguns caracteres temos que efetuar o flush.
@@ -1922,13 +1920,13 @@ tputc (
 
 //==============================
 // Se uma sequencia foi finalizada, ou nunca foi inicializada.
+// Vamos imprimir quando
+// uma sequencia nao esta inicializada e
+// temos um char que nao eh controle.
 
     if (__sequence_status == 0)
     {
-        // Vamos imprimir quando
-        // uma sequencia nao esta inicializada e
-        // temos um char que nao eh controle.
-        if(is_control==FALSE){
+        if (is_control == FALSE){
             terminal_write_char ( fd, window, (int) ascii ); 
             return;
         }
@@ -1939,7 +1937,7 @@ tputc (
 // Control codes. 
 // (dentro de um range)
 
-    if (is_control==TRUE){
+    if (is_control == TRUE){
 
         switch (ascii)
         {
@@ -1955,7 +1953,9 @@ tputc (
                 return;
                 break;
 
-            //^[   (Esc)
+            //(Esc)
+            // ESC 27 033  0x1B  \e*  ^[  (Escape character)
+            // ESC - sequence starting with ESC (\x1B).
             //case TERMINAL_ESCAPE:
             //case '\e':
             //case '\033':
@@ -2008,7 +2008,7 @@ tputc (
         // A sequencia vai terminar com um 'm'
         // #todo parse csi
         // CSI - Control Sequence Introducer
-        if(Terminal.esc & ESC_CSI){
+        if (Terminal.esc & ESC_CSI){
 
             switch (ascii)
             {
@@ -2026,122 +2026,123 @@ tputc (
                     return;
                     break;
 
-                 //save cursor position
-                 case 's':
-                     //printf("FOUND {Save cursor position}\n");
+                //save cursor position
+                case 's':
+                    //printf("FOUND {Save cursor position}\n");
                      save_cur();
-                     return;
-                     break;
+                    return;
+                    break;
 
-                 //restore cursor position
-                 case 'u':
-                     //printf("FOUND {Restore cursor position}\n");
-                     restore_cur();
-                     return;
-                     break;
+                // restore cursor position
+                case 'u':
+                    //printf("FOUND {Restore cursor position}\n");
+                    restore_cur();
+                    return;
+                    break;
 
-                 //move cursor N lines up (N can be any number)
-                 //N is inside the buffer
-                 case 'A':
-                     //printf("FOUND {A}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     //printf("ivalue {%d}\n",ivalue);
-                     cursor_y = (cursor_y - ivalue);
-                     if(cursor_y<0){ cursor_y=0; }
-                     return;
-                     break;
+                // UP
+                // Move cursor N lines up 
+                // (N can be any number)
+                // N is inside the buffer
+                case 'A':
+                    //printf("FOUND {A}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    //printf("ivalue {%d}\n",ivalue);
+                    cursor_y = (cursor_y - ivalue);
+                    if (cursor_y<0){ cursor_y=0; }
+                    return;
+                    break;
                  
-                 //move cursor N lines down
-                 //N is inside the buffer
-                 case 'B':
-                     //printf("FOUND {B}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     //printf("ivalue {%d}\n",ivalue);
-                     cursor_y = (cursor_y + ivalue);
-                     if(cursor_y>24){ cursor_y=24; }
-                     return;
-                     break;
+                // DOWN
+                // Move cursor N lines down
+                // N is inside the buffer
+                case 'B':
+                    //printf("FOUND {B}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    //printf("ivalue {%d}\n",ivalue);
+                    cursor_y = (cursor_y + ivalue);
+                    if(cursor_y>24){ cursor_y=24; }
+                    return;
+                    break;
 
-                 // Cursor right.
-                 // Pegamos o valor que vem antes disso,
-                 // pra sabermos quando devemos mudar o cursor.
-                 case 'C':
-                     //printf("FOUND {C}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     //printf("ivalue {%d}\n",ivalue);
-                     cursor_x = (cursor_x + ivalue);
-                     if (cursor_x >= 80){
-                         cursor_x=79; 
-                     }
-                     return;
-                     break;
+                // Cursor right.
+                // Pegamos o valor que vem antes disso,
+                // pra sabermos quando devemos mudar o cursor.
+                case 'C':
+                    //printf("FOUND {C}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    //printf("ivalue {%d}\n",ivalue);
+                    cursor_x = (cursor_x + ivalue);
+                    if (cursor_x >= 80){
+                        cursor_x=79; 
+                    }
+                    return;
+                    break;
 
-                 // Cursor left.
-                 // Pegamos o valor que vem antes disso,
-                 // pra sabermos quando devemos mudar o cursor.
-                 case 'D':
-                     //printf("FOUND {D}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     //printf("ivalue {%d}\n",ivalue);
-                     if ( cursor_x >= ivalue )
-                     {
-                         cursor_x = (cursor_x - ivalue);
-                     }
-                     if (cursor_x < 0){
-                         cursor_x=0;
-                     }
-                     return;
-                     break;
+                // Cursor left.
+                // Pegamos o valor que vem antes disso,
+                // pra sabermos quando devemos mudar o cursor.
+                case 'D':
+                    //printf("FOUND {D}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    //printf("ivalue {%d}\n",ivalue);
+                    if (cursor_x >= ivalue)
+                    {
+                        cursor_x = (cursor_x - ivalue);
+                    }
+                    if (cursor_x < 0){
+                        cursor_x=0;
+                    }
+                    return;
+                    break;
 
+                // 2K   erase 2 bytes in the current line 
+                case 'K':
+                    //printf("FOUND {K}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    //printf("ivalue {%d}\n",ivalue);
+                    if ( (cursor_x+ivalue) < 80 )
+                    {
+                        while (ivalue > 0)
+                        {
+                            terminal_write_char(fd, window, (int) ' ');
+                            ivalue--;
+                        }
+                    }
+                    return;
+                    break;
 
-                 // 2K   erase 2 bytes in the current line 
-                 case 'K':
-                     //printf("FOUND {K}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     //printf("ivalue {%d}\n",ivalue);
-                     if( (cursor_x+ivalue)<80)
-                     {
-                         while(ivalue>0){
-                             terminal_write_char (fd, window, (int) ' ');
-                             ivalue--;
-                         }
-                     }
-                     return;
-
-                     break;
-
-
-                 // Estilo de texto.
-                 // Quando aparece o ';' temos que mudar o estilo.
-                 // No buffer tem o valor do novo estilo.
-                 //case TERMINAL_PARAMETER_SEPARATOR:
-                 case ';':
-                     //printf("FOUND {;}\n");
-                     ivalue = (int) CSI_BUFFER[0];
-                     ivalue = (int) (ivalue & 0xFF); //only the first byte.
-                     ivalue = atoi(&ivalue); 
-                     if(ivalue==0){}; //reset all modes (styles and colors)
-                     if(ivalue==1){}; //set bold mode.
-                     if(ivalue==2){}; //set dim/faint mode.
-                     if(ivalue==3){}; //set italic mode.
-                     if(ivalue==4){}; //set underline mode.
-                     if(ivalue==5){}; //set blinking mode
-                     if(ivalue==6){}; //
-                     if(ivalue==7){}; //
-                     if(ivalue==8){}; //set hidden/invisible mode
-                     if(ivalue==9){}; //set strikethrough mode.
-                     return;
-                     break;
+                // Estilo de texto.
+                // Quando aparece o ';' temos que mudar o estilo.
+                // No buffer tem o valor do novo estilo.
+                //case TERMINAL_PARAMETER_SEPARATOR:
+                case ';':
+                    //printf("FOUND {;}\n");
+                    ivalue = (int) CSI_BUFFER[0];
+                    ivalue = (int) (ivalue & 0xFF); //only the first byte.
+                    ivalue = atoi(&ivalue); 
+                    if(ivalue==0){}; //reset all modes (styles and colors)
+                    if(ivalue==1){}; //set bold mode.
+                    if(ivalue==2){}; //set dim/faint mode.
+                    if(ivalue==3){}; //set italic mode.
+                    if(ivalue==4){}; //set underline mode.
+                    if(ivalue==5){}; //set blinking mode
+                    if(ivalue==6){}; //
+                    if(ivalue==7){}; //
+                    if(ivalue==8){}; //set hidden/invisible mode
+                    if(ivalue==9){}; //set strikethrough mode.
+                    return;
+                    break;
 
                 // Vamos apenas colocar no buffer
                 // para analizarmos depois.
@@ -2191,11 +2192,13 @@ tputc (
 
             // ...
  
-        // Valido para ESC_START tambem.
+        // Valido para apos ESC_START tambem.
         }else{
 
             switch (ascii){
 
+            // CSI - Control Sequence Introducer: 
+            // sequence starting with ESC [ or CSI (\x9B)
             // ESC [ -  CSI Control sequence introducer
             // Estavamos no ESC_START e encontramos o '['.
             // Encontramos o '[' depois de \033.
@@ -2680,6 +2683,7 @@ terminalProcedure (
                 }
                 // Exibe na área de cliente.
                 // Estando ou não no shell embutido.
+                // Tem suporte a escape sequence.
                 tputc(
                     (int) fd, 
                     (int) Terminal.client_window_id, 
@@ -2867,8 +2871,6 @@ static int __input_STDERR(int fd)
 // Loop
     while (1){
         C = fgetc(new_stdin);
-        if (C == 'q')
-            break;
         if (C > 0)
         {
             terminalProcedure( 

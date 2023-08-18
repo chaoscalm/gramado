@@ -77,12 +77,12 @@ static void shellPrompt(void)
     //printf("\n");
     //putc('$',stdout);
     //putc(' ',stdout);
-    
     //printf("\n");
+    //printf("$\n");
+
+
     printf("$ ");
     fflush(stdout);
-
-    //printf("$\n");
 }
 
 // local
@@ -99,6 +99,12 @@ static unsigned long shellCompare(void)
 
 // Local pointer,
     p = prompt;
+
+    //if ((void*) p == NULL)
+    //{
+    //    printf("p \n");
+    //    exit(0);
+    //}
 
 // Null string.
     if ( *p == '\0' )
@@ -120,6 +126,7 @@ do_compare:
     //printf("\n");
 
     // cls
+    // #todo: Send escape sequence.
     if ( strncmp(prompt,"cls",3) == 0 )
     {
         //doLF();
@@ -129,9 +136,10 @@ do_compare:
     }
  
     // about
+    // #todo: Create do_banner();
     if ( strncmp ( prompt, "about", 5 ) == 0 )
     {
-        printf ("Gramado Operating System \n");
+        printf ("shell.bin: This is the shell command\n");
         //fflush(stdout);
         goto exit_cmp;
     }
@@ -154,7 +162,7 @@ do_compare:
         goto exit_cmp;
     }
 
-    // mm-size (MB)
+// mm-size (MB)
     unsigned long __mm_size_mb = 0;    
     if ( strncmp( prompt, "mm-size", 7 ) == 0 )
     {
@@ -163,7 +171,7 @@ do_compare:
         goto exit_cmp;
     }
 
-    // current-process
+// current-process
     if ( strncmp ( prompt, "current-process", 15 ) == 0 )
     {
         //printf("\n");
@@ -172,7 +180,7 @@ do_compare:
         goto exit_cmp; 
     }
 
-    // process-info
+// process-info
     if ( strncmp ( prompt, "process-info", 12 ) == 0 )
     {
         //printf("\n");
@@ -180,12 +188,19 @@ do_compare:
         goto exit_cmp; 
     }
 
+// exit
     if ( strncmp( prompt, "exit", 4 ) == 0 ){
         doExit();
         goto exit_cmp;
     }
 
-    // malloc
+// quit
+    if ( strncmp( prompt, "quit", 4 ) == 0 ){
+        doExit();
+        goto exit_cmp;
+    }
+
+// malloc
     void *hBuffer;
     if ( strncmp( prompt, "malloc", 6 ) == 0 )
     {
@@ -201,9 +216,10 @@ do_compare:
         goto exit_cmp;
     }
 
-    // sync - salva os buffers em ring0 no disco fisico.
-    // Isso pode ser um programa.
-    // See: unistd.c
+// sync 
+// Salva os buffers em ring0 no disco fisico.
+// Isso pode ser um programa.
+// See: unistd.c
     if ( strncmp( prompt, "sync", 4 ) == 0 )
     {
         //printf ("sync: \n");
@@ -211,7 +227,7 @@ do_compare:
         goto exit_cmp;
     }
 
-    // tty3
+// tty3
     if ( strncmp ( prompt, "tty3", 4 ) == 0 )
     {
         //if ( isatty(fileno(stdin)) == 0 ){
@@ -228,11 +244,18 @@ do_compare:
 
 launch_app:
 
+    // #todo: Para testes podemos aceitar os
+    // comandos com extensao .bin
     //rtl_clone_and_execute(prompt);
 
     //printf ("Command not found\n");
     printf("SHELL.BIN: Command not found! \n");
     //fflush(stdout);
+
+// #testando escape sequences.
+    //printf("Escape \x1b[4B \n");
+    //fflush(stdout);
+    // ...
 
 exit_cmp:
     ret_value = 0;
