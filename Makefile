@@ -1,4 +1,4 @@
-
+# Makefile in the root folder.
 # Build Gramado OS.
 
 # This is the default target
@@ -45,12 +45,12 @@ clean-core:
 PHONY := clean-base
 clean-base:
 # Clear the disk cache
-	-rm -rf base/*.BIN 
-	-rm -rf base/*.BMP
-	-rm -rf base/EFI/BOOT/*.EFI 
-	-rm -rf base/GRAMADO/*.BIN 
-	-rm -rf base/PROGRAMS/*.BIN 
-	-rm -rf base/USERS/*.BIN 
+	-rm -rf core/base/*.BIN 
+	-rm -rf core/base/*.BMP
+	-rm -rf core/base/EFI/BOOT/*.EFI 
+	-rm -rf core/base/GRAMADO/*.BIN 
+	-rm -rf core/base/PROGRAMS/*.BIN 
+	-rm -rf core/base/USERS/*.BIN 
 
 PHONY := clean-cancun 
 clean-cancun:

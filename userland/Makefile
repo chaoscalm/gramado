@@ -1,5 +1,4 @@
-#A - Facility II
-#desktop
+# Makefile in the userland/ folder.
 # Gramado DE
 
 PRODUCT_NAME  = Gramado DE
