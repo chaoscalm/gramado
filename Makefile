@@ -1,4 +1,4 @@
-
+# Makefile in the root folder.
 # Build Gramado OS.
 
 # This is the default target

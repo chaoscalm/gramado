@@ -1,5 +1,4 @@
-#E - Facility I
-#core
+# Makefile in the core/ folder.
 # Gramado Kernel
 # License: BSD License
 # Compiling on gcc 9.4.0
