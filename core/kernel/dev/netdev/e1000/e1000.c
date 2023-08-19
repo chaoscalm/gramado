@@ -67,10 +67,6 @@ void e1000_show_info(void)
         e1000_tx_counter, e1000_rx_counter );
 }
 
-//
-// =====================
-//
-
 // Read from memory mapped register.
 static uint32_t 
 __E1000ReadCommand ( 
@@ -94,15 +90,12 @@ __E1000WriteCommand (
     *( (volatile unsigned int *) address ) = val;
 }
 
-//----------
-
 static uint32_t 
 __E1000ReadEEPROM ( 
     struct intel_nic_info_d *d, 
     uint8_t addr )
 {
     uint32_t data=0;
-
 
 // ??
 // 00010h EECD EEPROM/Flash Control/Data Register
@@ -121,8 +114,8 @@ __E1000ReadEEPROM (
 	//printf("E1000ReadEEPROM:\n");
 
     // Yes :)
-    if (d->has_eeprom == TRUE) {
-        __E1000WriteCommand ( d, 0x14, 1 | (addr << 8) );
+    if (d->has_eeprom == TRUE){
+        __E1000WriteCommand( d, 0x14, 1 | (addr << 8) );
 
         // #bugbug
         // #hang
@@ -166,16 +159,16 @@ __E1000AllocCont (
     unsigned long va=0;
     unsigned long pa=0;
 
-    if (amount==0){
-        panic ("__E1000AllocCont: [FAIL] amount\n");
+    if (amount == 0){
+        panic("__E1000AllocCont: [FAIL] amount\n");
     }
 
 // ============
 // va
-    va = (unsigned long) kmalloc ( (size_t) amount );
+    va = (unsigned long) kmalloc((size_t) amount);
     *virt = va;
     if (*virt == 0){
-        panic ("__E1000AllocCont: [FAIL] va allocation\n");
+        panic("__E1000AllocCont: [FAIL] va allocation\n");
     }
     //#debug
     //printf("va=%x\n",va);
@@ -198,7 +191,6 @@ __E1000AllocCont (
     return (unsigned long) pa;
 }
 
-
 // Enable interrupt
 // 0xD0 Message Control (0x0080) Next Pointer (0xE0) Capability ID (0x05)
 // 0000 0001  1111 0111  0000   0010  1101   0111
@@ -206,8 +198,7 @@ __E1000AllocCont (
 static void __e1000_enable_interrupt(struct intel_nic_info_d *nic_info)
 {
     uint32_t value=0;
-
-    if ( (void*) nic_info == NULL ){
+    if ((void*) nic_info == NULL){
         panic("__e1000_enable_interrupt: nic_info\n");
     }
 // Enable interrupts
@@ -216,13 +207,12 @@ static void __e1000_enable_interrupt(struct intel_nic_info_d *nic_info)
     //__E1000WriteCommand(nic_info, 0xD0, 0xFB);
     __E1000WriteCommand(nic_info, 0xD0, 0xFF & ~4);
 // Drag the ICR, Interrupt Cause Read.
-    value = (uint32_t) __E1000ReadCommand (nic_info, 0xC0);
+    value = (uint32_t) __E1000ReadCommand(nic_info, 0xC0);
 }
 
 static void __e1000_linkup(struct intel_nic_info_d *d)
 {
     uint32_t val=0;
-
     if ((void*)d == NULL){
         panic("__e1000_linkup: d\n");
     }
@@ -508,7 +498,6 @@ static void __initialize_tx_support(struct intel_nic_info_d *d)
 
 }
 
-
 static void __initialize_rx_support(struct intel_nic_info_d *d)
 {
 // 00100h - Receive Control Register
@@ -682,29 +671,25 @@ static void __e1000_setup_irq(int irq_line)
 
 // irq line.
     uint8_t irq = (uint8_t) (irq_line & 0xFF);
-
 // handler address.
 // #bugbug: 
 // Na verdade o assembly esta usando outro endereço.
 // #todo: 64bit.
     unsigned long handler = (unsigned long) &irq_E1000; 
-
 // #importante
 // Transformando irq em número de interrupção.
 // 9+32=41.
     uint8_t idt_num = (uint8_t) (irq + 32);
 
-// --------------
-
 //#debug OK (irq=9) 
-    printf ("__e1000_setup_irq: irq={%d}\n", irq);
-    printf ("__e1000_setup_irq: idt_num={%d}\n", idt_num);
-    printf ("__e1000_setup_irq: handler={%x}\n", handler);
+    printf("__e1000_setup_irq: irq={%d}\n", irq);
+    printf("__e1000_setup_irq: idt_num={%d}\n", idt_num);
+    printf("__e1000_setup_irq: handler={%x}\n", handler);
 	//printf ("PCIRegisterIRQHandler: pin={%d}\n",currentNIC->pci->irq_pin);//shared INTA#
 	//refresh_screen();
 	//while(1){}
 	//#debug interrupção=41 
-     
+
 	//refresh_screen();
 	//while(1){}
 
@@ -728,19 +713,19 @@ static void __e1000_setup_irq(int irq_line)
 //na verdade o assembly esta usando outro endereço
     nic_idt_entry_new_address = (unsigned long) handler; 
 
-    printf ("__e1000_setup_irq: interrupt={%d}\n", 
+    printf("__e1000_setup_irq: interrupt={%d}\n", 
         nic_idt_entry_new_number );
-    printf ("__e1000_setup_irq: handler={%x}\n", 
+    printf("__e1000_setup_irq: handler={%x}\n", 
         nic_idt_entry_new_address );
 
 // Call assembly.
+// #todo: Move this export to the top of this document.
     extern void asm_nic_create_new_idt_entry(void);
     asm_nic_create_new_idt_entry();
 }
 
 static unsigned long __mapping_nic1_device_address(unsigned long pa)
 {
-
 // pt
 // 0x00088000
     unsigned long *nic1_page_table = 
@@ -770,7 +755,6 @@ static unsigned long __mapping_nic1_device_address(unsigned long pa)
 
     return (unsigned long) nic1_va; 
 }
-
 
 // ---------------------------------------------
 // e1000_init_nic:
@@ -807,8 +791,8 @@ e1000_init_nic (
     uint32_t Val=0;
 
     // #debug
-    debug_print ("e1000_init_nic:\n");
-    printf      ("e1000_init_nic:\n");
+    debug_print("e1000_init_nic:\n");
+    printf     ("e1000_init_nic:\n");
     //printf("b=%d d=%d f=%d \n", D->bus, D->dev, D->func );
     //printf("82540EM Gigabit Ethernet Controller found\n");
 
@@ -829,11 +813,11 @@ e1000_init_nic (
 
     if ( Vendor != 0x8086 || Device != 0x100E )
     {
-        debug_print ("e1000_init_nic: Expected 82540EM\n");
-        panic ("e1000_init_nic: Expected 82540EM\n");
+        debug_print("e1000_init_nic: Expected 82540EM\n");
+        panic      ("e1000_init_nic: Expected 82540EM\n");
     }
     // #debug
-    printf ("Vendor=%x | Device=%x \n", Vendor, Device );
+    printf("Vendor=%x | Device=%x \n", Vendor, Device );
 
 // pci_device structure.
 // pci device struct
@@ -908,7 +892,7 @@ e1000_init_nic (
 
     phy_address = (unsigned long) (pci_device->BAR0 & 0xFFFFFFF0);
     if (phy_address == 0){
-        panic ("e1000_init_nic: Invalid phy_address\n");
+        panic("e1000_init_nic: Invalid phy_address\n");
     }
 
     // ...
@@ -926,15 +910,16 @@ e1000_init_nic (
     virt_address = 
         (unsigned long) __mapping_nic1_device_address(phy_address);
     if (virt_address == 0){
-        panic ("e1000_init_nic: Invalid virt_address\n");
+        panic("e1000_init_nic: Invalid virt_address\n");
     }
 
 // Endereço base.
 // Preparando a mesma base de duas maneiras.
-//char
+// char
     unsigned char *base_address = 
         (unsigned char *) virt_address;
-//#bugbug 64bit address
+// #bugbug 64bit address
+// #todo: Do we need to change this name?
     unsigned long *base_address32 = 
         (unsigned long *) virt_address; 
 
@@ -1151,7 +1136,6 @@ static void __e1000_on_transmit(void)
 // + Frame Check Sequence (FCS) field (4 bytes).
 static void __e1000_on_receive(void)
 {
-
 // Frame
     unsigned char *frame;
     uint16_t frame_lenght=0x0000;
@@ -1244,7 +1228,7 @@ static void DeviceInterface_e1000(void)
 
 // The current NIC.
 // (Intel structure?)
-    if ( (void*) currentNIC == NULL )
+    if ((void*) currentNIC == NULL)
         panic("DeviceInterface_e1000: currentNIC\n");
     if (currentNIC->magic != 1234)
         panic("DeviceInterface_e1000: currentNIC validation\n");
@@ -1324,7 +1308,7 @@ static void DeviceInterface_e1000(void)
         printf ("DeviceInterface_e1000: status = 0x8000\n");
         goto done;
 
-    }else{
+    } else {
         printf("DeviceInterface_e1000: Unknown interrupt cause {%x}\n",
             InterruptCause);   
         goto fail;
@@ -1340,9 +1324,6 @@ fail:
 }
 
 /*
- *******************************************
- *    >>>> HANDLER <<<<
- *******************************************
  * irq_E1000:
  *     Esse é o handler da interrupção para o NIC intel 8086:100E.
  *     Esse é o driver do controlador, ele não atua sobre protocolos 
@@ -1359,13 +1340,14 @@ fail:
 __VOID_IRQ 
 irq_E1000(void)
 {
+// >> The interrupt handler.
+
 // Is the driver initialized?
     if (e1000_initialized != TRUE){
         return;
     }
 // Time in ticks.
-    gE1000InputTime = 
-        (unsigned long) get_systime_totalticks();
+    gE1000InputTime = (unsigned long) get_systime_totalticks();
 // Call the handler.
     DeviceInterface_e1000();
 }
