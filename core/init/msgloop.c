@@ -70,6 +70,8 @@ __Procedure (
     unsigned long long1, 
     unsigned long long2 )
 {
+// Processing requests.
+
     if (msg<0){
         return -1;
     }
@@ -146,6 +148,7 @@ __Procedure (
 static int __idlethread_loop(void)
 {
 // Get input from idlethread.
+// Getting requests or events.
 
 // #todo
 // Get the id of the caller.

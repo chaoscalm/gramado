@@ -159,7 +159,8 @@ extern unsigned long gSavedBPP;
 #include "config/superv/gspin.h"
 #include "config/superv/gwd.h"     // whatch dogs.
 #include "config/superv/pints.h"   // profiler
-#include "config/superv/request.h"
+// #todo: Move it from here.
+#include "request.h"
 #include "config/superv/info.h"    // last one?
 #include "config/superv/kinit.h"   // kernel initialization.
 

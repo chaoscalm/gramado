@@ -620,7 +620,10 @@ void Compositor_Thread(void)
 
 static void dispacher(int fd)
 {
-// Dispatch service.
+// Getting requests from clients via socket file.
+// + Read the request.
+// + Process the request.
+// + Write a response, or not.
 
     unsigned long *message_buffer = (unsigned long *) &__buffer[0];
     ssize_t n_reads=0;
@@ -864,6 +867,9 @@ gwsProcedure (
     unsigned long long1, 
     unsigned long long2 )
 {
+// Process the requests.
+// All the services are the 'Business Logic'.
+
     int Status=0;  //ok
     int my_pid = -1;
 
@@ -904,6 +910,7 @@ gwsProcedure (
     // screen_window = __root_window
 
     case GWS_Hello:
+        // #todo: Put this routine inside a worker.
         gwssrv_debug_print ("gwssrv: Message number 1000\n");
         //#bugbug: Esse endereço de estrutura esta mudando para um valor
         //que nao podemos acessar em ring3.
@@ -925,102 +932,74 @@ gwsProcedure (
         NoReply = FALSE;  // The client-side library is waiting for response.
         break;
 
-    // Create Window
-    // Usará o buffer global
-    // See: window.c
+    // Business Logic:
+    // + Create a window.
+    // + Return the window id.
     case GWS_CreateWindow:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [1001] serviceCreateWindow\n");
         serviceCreateWindow(client_fd);
-        // #test
-        // Handle incoming inputs right after a huge service routine.
-        //if ( is_accepting_input() == TRUE )
-        //    wmInputReader();
-        NoReply = FALSE;  // We need to return the window id.
+        NoReply = FALSE;
         break; 
 
-    // backbuffer putpixel
+    // Business Logic: Paint a pixel in the backbuffer.
     case GWS_BackbufferPutPixel:
         servicepixelBackBufferPutpixel(); 
-        NoReply = FALSE;  // The client-side library is waiting for response.
+        NoReply = FALSE;
         break;
 
-    // backbuffer draw horizontal line
+    // Business Logic: Paint a horizontal line in the backbuffer.
     case GWS_DrawHorizontalLine:
         servicelineBackbufferDrawHorizontalLine();
-        NoReply = FALSE;  // The client-side library is waiting for response.
+        NoReply = FALSE;
         break;
 
-    // Draw char
-    // See: char.c
+    // Business Logic: 
+    // + Paint a char in the backbuffer.
+    // + No response.
     case GWS_DrawChar:
-    
-        // #debug
-        //gwssrv_debug_print ("gwssrv: [1004] serviceDrawChar\n");
-        
         serviceDrawChar();
-        //NoReply = FALSE;
         NoReply = TRUE;
         break;
 
-// Draw text
-// See: dtext.c
+    // Business Logic: 
+    // + Paint a text in the backbuffer.
+    // + No response.
     case GWS_DrawText:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [1005] serviceDrawText\n"); 
         serviceDrawText();
-        //NoReply = FALSE;  // The client-side library is waiting for response.
         NoReply = TRUE;
         break;
 
-    // Refresh window
+    // Business Logic: 
+    // + Refresh a window.
+    // + No response.
     case GWS_RefreshWindow:
-        
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [1006] serviceRefreshWindow\n");
-        
         serviceRefreshWindow();
-        // #test
-        // Handle incoming inputs right after a huge service routine.
-        //if ( is_accepting_input() == TRUE )
-        //    wmInputReader();
-        //NoReply = FALSE;
         NoReply = TRUE;
         break;
 
-     // Redraw window
+    // Business Logic: 
+    // + Repaint a window.
+    // + No response.
      case GWS_RedrawWindow:
-         //#debug
-         //gwssrv_debug_print ("gwssrv: [1007] serviceRedrawWindow\n");
          serviceRedrawWindow();
-        // #test
-        // Handle incoming inputs right after a huge service routine.
-        //if ( is_accepting_input() == TRUE )
-         //   wmInputReader();
-         //NoReply = FALSE;
-         NoReply = TRUE;    // syncronous
+         NoReply = TRUE;
          break;
 
-    // Resize window
+    // Business Logic: Resize a window.
     case GWS_ResizeWindow:
-        
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [1008] serviceResizeWindow\n");
-        
         serviceResizeWindow();
         NoReply = FALSE;
         break;
 
+    // Business Logic: Change the window position.
     case GWS_ChangeWindowPosition:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [1009] serviceChangeWindowPosition\n");
         serviceChangeWindowPosition();
         NoReply = FALSE;
         break;
 
     // ...
 
-    // backbuffer putpixel. (again)
+    // Business Logic: 
+    // Paint a pixel in the backbuffer. (Second implementation!)
     // IN: Color, x, y,rop
     case GWS_BackbufferPutPixel2:
         libdisp_backbuffer_putpixel ( 
@@ -1033,6 +1012,7 @@ gwsProcedure (
 
     // ...
 
+    // Business Logic: ?
     // Disconnect.
     // shutdown.
     // Um cliente quer se desconectar.
@@ -1042,6 +1022,8 @@ gwsProcedure (
         // NoReply = TRUE;  // #todo
         break;
 
+    // Business Logic:
+    // #bugbug: NoReply?
     case GWS_RefreshScreen:
         gws_show_backbuffer();
         // #test
@@ -1051,21 +1033,13 @@ gwsProcedure (
         //NoReply = FALSE;      // #todo
         break;
 
-    // Refresh rectangle ... 
-    // See: wm.c
+    // Business Logic: Refresh a rectangle.
     case GWS_RefreshRectangle:
-        
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [2021] serviceRefreshRectangle\n");
-        
         serviceRefreshRectangle();
-        // #test
-        // Handle incoming inputs right after a huge service routine.
-        //if ( is_accepting_input() == TRUE )
-        //    wmInputReader();
         NoReply = FALSE;
         break;
 
+    // Business Logic: ?
     // ?? #bugbug: The client only sends requests.
     // GWS_GetSendEvent
     case 2030:
@@ -1074,17 +1048,17 @@ gwsProcedure (
         //NoReply = FALSE;  // #todo
         break;
 
-// The server will return an event from the its client's event queue.
+    // Business Logic:
+    //  + The server will return an event 
+    //    from a queue in a given window.
     case GWS_GetNextEvent:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: [2031] serviceNextEvent\n");
         serviceNextEvent();
-        NoReply = FALSE; // Yes. We need a reply.
+        NoReply = FALSE;
         break;
 
+    // Business Logic: Plot a pixel. (Graphics)
     // See: grprim.c
     case GWS_GrPlot0:
-        //gwssrv_debug_print ("gwssrv: [2040] serviceGrPlot0\n");
         serviceGrPlot0();
         NoReply = FALSE;
         break;
@@ -1095,56 +1069,63 @@ gwsProcedure (
         NoReply = FALSE;
         break;
 
-    // 2222: Async command 
-    // Do not send a reply.
+    // Business Logic:
+    // + Asynchronous commands.
+    // + No response.
     case GWS_AsyncCommand:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: GWS_AsyncCommand\n");
-                  //printf ("gwssrv: GWS_AsyncCommand\n");
         serviceAsyncCommand();
         NoReply = TRUE;
         break;
 
+    // Business Logic:
+    // #todo: Describe it here.
+    // No response.
     case GWS_PutClientMessage:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: GWS_PutClientMessage\n");
         servicePutClientMessage();
         NoReply = TRUE;
         break;
 
+    // Business Logic:
+    // #todo: Describe it here.
     case GWS_GetClientMessage:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: GWS_GetClientMessage\n");
         serviceGetClientMessage();
         NoReply = FALSE;
         break;
 
+    // Business Logic:
+    // + Set a text into a buffer in the window structure.
+    // No response.
     case GWS_SetText:
-        //printf ("[GWS_SetText] #todo\n");
         serviceSetText();
         NoReply = TRUE;
         break;
 
+    // Business Logic:
+    // + Get a text from a buffer in the window structure.
     case GWS_GetText:
-        //printf ("[GWS_GetText] #todo\n");
         serviceGetText();
-        NoReply = FALSE;  // The response is the text.
+        NoReply = FALSE;
         return 0;
         break;
 
-// Let's get one event from the client's event queue.
-// Send it as a response.
+    // Business Logic:
+    // Let's get one event from the client's event queue.
+    // Send it as a response.
     case GWS_DrainInput:
         //gwssrv_debug_print("gwssrv: gwsProcedure 8080\n");
         break;
 
+    // Business Logic: Get information about a given window.
     case GWS_GetWindowInfo:
         serviceGetWindowInfo();
-        NoReply = FALSE;   // YES, send the response with the data.
+        NoReply = FALSE;
         break;
 
-// Service 9099:
-// Clone and execute a process, given the image name.
+    // Business Logic:
+    // + Clone this process and execute the child, 
+    //   given the image name.
+    // + NO response.
+    // Service 9099:
     case GWS_CloneAndExecute:
         serviceCloneAndExecute();
         NoReply = TRUE;
@@ -1153,18 +1134,16 @@ gwsProcedure (
 
     // ...
 
+    // Business Logic: Invalid request.
     default:
-        //#debug
-        //gwssrv_debug_print ("gwssrv: Default message number\n");
-        //printf ("msg=%d ",msg);
-        // NoReply = TRUE; //#todo
-        Status = -1;  // Not ok.
+        goto fail;
         break;
     }
-
+// Done
     return (int) Status;
+fail:
+    return (int) -1;
 }
-
 
 static void initBackground(void)
 {
@@ -1204,9 +1183,9 @@ static void initBackground(void)
     // #debug
     // asm ("int $3");
 
-    if ( (void *) __root_window == NULL ){
-        gwssrv_debug_print ("initBackground: __root_window\n");
-        printf             ("initBackground: __root_window\n");
+    if ((void *) __root_window == NULL){
+        gwssrv_debug_print("initBackground: __root_window\n");
+        printf            ("initBackground: __root_window\n");
         exit(1);
     }
     if ( __root_window->used != TRUE || __root_window->magic != 1234 ){
@@ -1415,6 +1394,9 @@ void gwssrv_message_all_clients(void)
 // ??? mas o cliente envia as coisas via request, ???
 int serviceClientEvent(void)
 {
+// Business Logic:
+//
+
     // The buffer is a global variable.
     //unsigned long *message_address = (unsigned long *) &__buffer[0];
     //return 0;  //ok
@@ -1430,6 +1412,9 @@ int serviceClientEvent(void)
 // que pertencem ao cliente que chamou esse serviço.
 int serviceNextEvent(void)
 {
+// Business Logic:
+// Get an event from the queue in a given window.
+
 // #test
 // Get the window in the queue of a given window.
 // #old from Window with focus.
@@ -1490,6 +1475,9 @@ fail:
 // IN: long1=index, long2=restart index or not.
 int serviceNextEvent2(void)
 {
+// Business Logic:
+// Get an event from a queue of a given window, and queue index.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 // Window with focus.
     struct gws_window_d *focus_w;
@@ -1567,6 +1555,9 @@ fail:
 // IN: wid ...
 int serviceGetWindowInfo(void)
 {
+// Business Logic:
+// Getting information about a given window.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 // The request will give us the wid and the message code.
     struct gws_window_d *w;
@@ -1630,11 +1621,15 @@ fail:
     return (int) (-1);
 }
 
-
 // #todo
 // Close all the clients and close the server.
 void serviceExitGWS(void)
 {
+// Business Logic:
+// Exit the window server.
+// For now we're exiting without any kind of notification.
+// Maybe we need to notify all the clients before exiting.
+
     printf ("serviceExitGWS: \n");
     // Kill all the clients.
     printf ("[TODO] Kill all the clients\n");
@@ -1650,6 +1645,8 @@ void serviceExitGWS(void)
 // Now we put messages only in the window structure's message queue.
 int servicePutClientMessage(void)
 {
+// Business Logic:
+
     debug_print("servicePutClientMessage: deprecated\n");
     return 0;
 }
@@ -1658,6 +1655,8 @@ int servicePutClientMessage(void)
 // Now we get messages only in the window structure's message queue.
 int serviceGetClientMessage(void)
 {
+// Business Logic:
+
     debug_print("serviceGetClientMessage: deprecated\n");
     return 0;
 }
@@ -1668,6 +1667,9 @@ int serviceGetClientMessage(void)
 // #todo: Explain the arguments.
 int serviceAsyncCommand(void)
 {
+// Business Logic:
+// Asunchronous Command.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 
     // int window_id=0;
@@ -1982,9 +1984,11 @@ fail:
 // #todo
 // Receive the tid of the client in the request packet.
 // Save it as an argument of the window structure.
-
-int serviceCreateWindow (int client_fd)
+int serviceCreateWindow(int client_fd)
 {
+// Business Logic:
+// Create a window.
+
 // The buffer is a global variable.
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 // The structure for the standard request.
@@ -2281,6 +2285,10 @@ fail:
 // Service 1004.
 int serviceDrawChar (void)
 {
+// Business Logic:
+// Draw a char into the screen.
+// Is it showing or not?
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
@@ -2381,6 +2389,9 @@ int serviceDrawChar (void)
 
 int serviceChangeWindowPosition(void)
 {
+// Business Logic:
+// Change window position.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
@@ -2427,6 +2438,9 @@ int serviceChangeWindowPosition(void)
 
 int serviceResizeWindow(void)
 {
+// Business Logic:
+// Resize a window.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
@@ -2482,6 +2496,8 @@ int serviceResizeWindow(void)
 // #deletar !!!
 int serviceDrawButton(void)
 {
+// Business Logic:
+
     // Deprecated !!
     gwssrv_debug_print("serviceDrawButton: deprecated\n");
     printf            ("serviceDrawButton: deprecated\n");
@@ -2492,8 +2508,11 @@ int serviceDrawButton(void)
 // Redraw window.
 // It will invalidate the window, and it will need to be flushed
 // into the frame buffer.
-int serviceRedrawWindow (void)
+int serviceRedrawWindow(void)
 {
+// Business Logic:
+// Redraw a window. (Repaint).
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
@@ -2554,6 +2573,9 @@ fail:
 // Flush a given area into the framebuffer.
 int serviceRefreshRectangle(void)
 {
+// Business Logic:
+// Refresh a rectangle.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     unsigned long left=0;
     unsigned long top=0;
@@ -2602,6 +2624,9 @@ fail:
 // and let the compositor do its job.
 int serviceRefreshWindow(void)
 {
+// Business Logic:
+// Refresh a window.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
@@ -2671,6 +2696,9 @@ fail:
 // IN: for arguments and a string.
 void serviceCloneAndExecute(void)
 {
+// Business Logic:
+// Clone this process and execute the child.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 // ==================================
 // Get string from message
@@ -2694,6 +2722,10 @@ void serviceCloneAndExecute(void)
 // Service 1005
 int serviceDrawText(void)
 {
+// Business Logic:
+// Draw a text.
+// Is it showing or not?
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d  *window;
     int window_id = -1;      // index 4
@@ -2811,6 +2843,9 @@ crazy_fail:
 // if the window is an editbox window.
 int serviceSetText(void)
 {
+// Business Logic:
+// Set a text into a buffer in the window structure.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d  *window;
     int window_id = -1;      // index 4
@@ -2978,9 +3013,9 @@ fail:
    return -1;
 }
 
-
 int serviceGetText(void)
 {
+// Business Logic:
 // Get a text from a window.
 // Editbox only.
 
@@ -3133,15 +3168,13 @@ crazy_fail:
     return -1;
 }
 
-
-
-
-
-
 // O buffer é uma global nesse documento.
 int 
-servicelineBackbufferDrawHorizontalLine (void)
+servicelineBackbufferDrawHorizontalLine(void)
 {
+// Business Logic:
+// Draw a horizontal line.
+
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     // x1,y,x2,color
     unsigned long x1,y,x2,color;

@@ -95,10 +95,8 @@ struct request_d  REQUEST;
 // Prototypes ===============
 //
 
-void clear_request (void);
-
 int 
-create_request ( 
+createDeferredKernelRequest ( 
     unsigned long number, 
     int status, 
     int timeout,
@@ -108,7 +106,9 @@ create_request (
     unsigned long long1, 
     unsigned long long2 );
 
-int request (void);
+void clearDeferredKernelRequest(void);
+
+int processDeferredKernelRequest(void);
 
 #endif    
 

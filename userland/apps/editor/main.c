@@ -52,6 +52,8 @@
 #define IP(a, b, c, d) (a << 24 | b << 16 | c << 8 | d)
 
 
+static int isTimeToQuit = FALSE;
+
 static int file_status=FALSE;
 char file_buffer[512];
 
@@ -394,6 +396,7 @@ editorProcedure(
         printf ("editor.bin: MSG_CLOSE\n");
         gws_destroy_window(fd,savebutton_window);
         gws_destroy_window(fd,main_window);
+        //isTimeToQuit = TRUE;
         exit(0);
         break;
     
@@ -556,6 +559,8 @@ int main( int argc, char *argv[] )
     int client_fd = -1;
 
     //debug_print ("EDITOR.BIN: Initializing\n");
+
+    isTimeToQuit = FALSE;
 
 /*
 // #test
@@ -879,10 +884,16 @@ int main( int argc, char *argv[] )
 
     //Display->running = TRUE;
 
+// Getting the asynchronous events 
+// from the window server via socket.
+// Processing this events.
     while (1)
     {
         //if ( Display->running != TRUE )
             //break;
+
+        if (isTimeToQuit == TRUE)
+            break;
 
         e = 
         (struct gws_event_d *) gws_get_next_event(
@@ -899,7 +910,13 @@ int main( int argc, char *argv[] )
         }
     };
 
+    if (isTimeToQuit == TRUE){
+        printf("editor.bin: isTimeToQuit\n");
+        exit(0);
+    }
+
 // Hang
+    printf("editor.bin: Fail. Not listening\n");
     while(1){
     };
 

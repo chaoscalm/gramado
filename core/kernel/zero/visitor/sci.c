@@ -1035,6 +1035,8 @@ void *sci0 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Getting requests from ring3 applications via systemcalls.
+
     struct process_d  *p;
     struct thread_d  *t;
 
@@ -1058,25 +1060,25 @@ void *sci0 (
     unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
     cpl = (int) (tmp_cpl & 3);
 
-    if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
+    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
     {
         panic("sci0: cpl");
     }
 
-    if(cpl == 0){
+    if (cpl == 0){
         printf("number=%d\n",number);
         printf("pid=%d\n",current_process);
         //if(current_process != 0){
             panic("sci0: cpl 0\n");
         //}
     }
-    if(cpl == 1){
+    if (cpl == 1){
         panic("sci0: cpl 1\n");
     }
-    if(cpl == 2){
+    if (cpl == 2){
         panic("sci0: cpl 2\n");
     }
-    if(cpl == 3){
+    if (cpl == 3){
         // ok
     }
 
@@ -1095,7 +1097,7 @@ void *sci0 (
         panic("sci0: current_process\n");
     }
     p = (struct process_d *) processList[current_process];
-    if ( (void*) p == NULL ){
+    if ((void*) p == NULL){
         debug_print("sci0: p\n");
         panic("sci0: p\n");
     }
@@ -1124,9 +1126,11 @@ void *sci0 (
         p->exit_in_progress = TRUE;
         // Quando o scheduler passar por ela,
         // vai pular ela e marca-la como zombie.
-        if ( (void*) p->control != NULL ){
-            if (p->control->magic==1234)
+        if ((void*) p->control != NULL)
+        {
+            if (p->control->magic == 1234){
                 p->control->exit_in_progress = TRUE;
+            }
         }
         return NULL;
     }
@@ -1161,6 +1165,7 @@ void *sci0 (
             return NULL;  
             break;
 
+        // Business Logic:
         // 1 (i/o) Essa rotina pode ser usada por 
         // um driver em user mode.
         // #todo: This operation needs permition.
@@ -1171,6 +1176,7 @@ void *sci0 (
                 (unsigned long) arg2, (unsigned long) arg3 ); 
             break;
 
+        // Business Logic:
         // 2 (i/o) Essa rotina pode ser usada por 
         // um driver em user mode.
         // #todo: This operation needs permition.
@@ -1181,6 +1187,7 @@ void *sci0 (
                 (unsigned long) arg2, (unsigned long) arg3 ); 
             break;
 
+        // Business Logic:
         // 3 
         // Carregar um arquivo do disco para a memória.
         // See: fs/fs.c
@@ -1194,6 +1201,7 @@ void *sci0 (
                                 (mode_t) arg4 ); 
             break;
 
+        // Business Logic:
         // 4 
         // Save file.
         // See: fs/fs.c
@@ -1208,6 +1216,7 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 5
         // See: sys.c 
         case SYS_VSYNC:
@@ -1215,6 +1224,7 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 6 - Put pixel. 
         // Coloca um pixel no backbuffer.
         // Isso pode ser usado por um servidor. 
@@ -1229,6 +1239,7 @@ void *sci0 (
             return NULL; 
             break;
 
+        // Business Logic:
         // 8 
         // #todo: #bugbug: 
         // Aqui precisamos de mais parâmetros.
@@ -1242,6 +1253,7 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 9 - Draw a rectangle into the backbuffer.
         // see: rect.c
         case 9:
@@ -1257,6 +1269,7 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 10 - Refresh rectangle.
         // Region?
         case 10:
@@ -1269,7 +1282,7 @@ void *sci0 (
             return NULL;
             break;
 
-
+        // Business Logic:
         // 11:
         // Flush the backbuffer into the lfb.
         case SYS_REFRESHSCREEN: 
@@ -1280,7 +1293,8 @@ void *sci0 (
         // Reserved.
         // Netword: 12,13,14,15
 
-        // 16 - open()
+        // Business Logic: 
+        // 16 - open() implementation.
         // In ring3, see: fcntl.c
         // In ring0, see: fs.c
         // IN: pathname, flags, mode
@@ -1295,7 +1309,8 @@ void *sci0 (
                                 (mode_t)       arg4 ); 
             break;
 
-        // 17 - close()
+        // Business Logic:
+        // 17 - close() implementation.
         // See: sys.c
         // IN: fd
         case SYS_CLOSE:
@@ -1305,7 +1320,8 @@ void *sci0 (
             return (void *) sys_close( (int) arg2 );
             break;
 
-        // 18 - read() 
+        // Business Logic:
+        // 18 - read() implementation.
         // IN: ?
         // See: sys.c
         case SYS_READ:
@@ -1315,7 +1331,8 @@ void *sci0 (
                                 (int)          arg4 ); 
             break;
 
-        // 19 - write()
+        // Business Logic:
+        // 19 - write() implementation
         // IN: ?
         // See: sys.c
         case SYS_WRITE:
@@ -1332,6 +1349,7 @@ void *sci0 (
         // 30,31,32 - Putpixel?
         // 33 - free number.
 
+        // Business Logic:
         // 34
         // Setup cursor position for the current virtual console.
         case SYS_VIDEO_SETCURSOR: 
@@ -1345,20 +1363,26 @@ void *sci0 (
         // 36 - #deprecated
         // 37 - #deprecated
 
+        // Business Logic:
         // 38 - get host name  
         case SYS_GETHOSTNAME:
             return (void *) __gethostname ( (char *) arg2 );
             break;
+        
+        // Business Logic:
         // 39 - set host name 
         // #todo: This operation needs permition?
         case SYS_SETHOSTNAME:
             return (void *) __sethostname ( (const char *) arg2 ); 
             break;
 
+        // Business Logic:
         // 40 - get user name 
         case SYS_GETUSERNAME:
             return (void *) __getusername ( (char *) arg2 );
             break;
+
+        // Business Logic:
         // 41 - Set user name 
         // #todo: This operation needs permition?
         case SYS_SETUSERNAME:
@@ -1367,11 +1391,14 @@ void *sci0 (
 
         // 42 - #deprecated
 
+        // Business Logic:
         // 43 - Create an empty file.
         // See: fs.c
         case 43:
             return (void *) sys_create_empty_file( (char *) arg2 );
             break;
+
+        // Business Logic:
         // 44 - Create an empty directory.
         // See: fs.c
         case 44:
@@ -1402,6 +1429,7 @@ void *sci0 (
 
         // ...
         
+        // Business Logic:
         // 65
         // Put a char in the current virtual console.
         // see: console.c
@@ -1437,8 +1465,9 @@ void *sci0 (
    
         // 71 - fork?
 
+        // Business Logic:
         // 72
-        // See: ke/sys.c
+        // See: sys.c
         // Cria uma thread que fica no estado INITIALIZED.
         // Outra syscall tem que colocar ela em STANDBY.
         case SYS_CREATETHREAD:
@@ -1452,6 +1481,7 @@ void *sci0 (
                                 (char *) a4 );    // name
             break; 
 
+        // Business Logic:
         // 73
         // See: sys.c
         // Cria um processo e coloca a thread primária pra rodar.
@@ -1498,6 +1528,7 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 81: Get parent process id.
         // See: sys.c
         case SYS_GETPPID: 
@@ -1531,6 +1562,7 @@ void *sci0 (
 
         // 84 - livre.
 
+        // Business Logic:
         // 85
         case SYS_GETPID: 
             return (void *) get_current_pid();
@@ -1542,7 +1574,7 @@ void *sci0 (
         // se for valido retorna 1234
         // testando ...
         case SYS_88:
-            return (void *) processTesting (arg2);
+            return (void *) processTesting(arg2);
             break;
 
         // 89 - livre
@@ -1550,16 +1582,18 @@ void *sci0 (
         // ------------------
         // 90~99 Reservado para thread support
 
+        // Business Logic:
         // 94
         case SYS_STARTTHREAD:
             debug_print("sci0: SYS_STARTTHREAD\n");
-            return (void *) newos_start_thread ( (struct thread_d *) arg2 );
+            return (void *) newos_start_thread( (struct thread_d *) arg2 );
             break;
 
         // ------------------
 
         // 100~109: free
 
+        // Business Logic:
         // 110
         // IN: flags.
         // see: ke/sys.c
@@ -1570,6 +1604,7 @@ void *sci0 (
             return (void *) (reb_ret & 0xFFFFFFFF);
             break;
 
+        // Business Logic:
         // 111
         // See: tlib.c
         // Get the next system message.
@@ -1580,6 +1615,7 @@ void *sci0 (
                 (unsigned long) &message_address[0] );
             break;
 
+        // Business Logic:
         // tlib.c
         // Post message to tid.
         // Asynchronous.
@@ -1623,13 +1659,14 @@ void *sci0 (
             return NULL;
             break;
 
+        // Business Logic:
         // 126
         // Permitindo que drivers e servidores em usermode acessem
         // as portas.
         // #todo: This operation needs permition?
         // #bugbug
         // #todo: 
-        // Tem que resolver as quest�es de privil�gios.
+        // Tem que resolver as questoes de privilegios.
         // IN: bits, port
         case SYS_USERMODE_PORT_IN:
             return (void *) portsx86_IN ( 
@@ -1637,13 +1674,14 @@ void *sci0 (
                                 (unsigned short) (arg3 & 0xFFFF) );
             break;
 
+        // Business Logic:
         // 127
         // Permitindo que drivers e servidores em usermode acessem
         // as portas.
         // #todo: This operation needs permition?
         // #bugbug
         // #todo: 
-        // Tem que resolver as quest�es de privil�gios.
+        // Tem que resolver as questoes de privilegios.
         // IN: bits, port, value
         case SYS_USERMODE_PORT_OUT:
             portsx86_OUT ( 
@@ -1728,7 +1766,7 @@ void *sci0 (
         // get socket IP
         // Gramado API socket support. (not libc)
         case 161:
-            return (void *) getSocketIPV4 ( (struct socket_d *) arg2 );
+            return (void *) getSocketIPV4( (struct socket_d *) arg2 );
             break;
 
         // 162
@@ -1873,12 +1911,20 @@ void *sci0 (
         // 223 - Get sys time info.
         // informaçoes variadas sobre o sys time.
         case 223:
-            return (void *) get_systime_info ( (int) arg2 );
+            return (void *) get_systime_info((int) arg2);
             break;
 
-        // 224, 225
-        case SYS_GETTIME:  return (void *) get_time();  break;
-        case SYS_GETDATE:  return (void *) get_date();  break;
+        // Business Logic:
+        // 224
+        case SYS_GETTIME:
+            return (void *) get_time();
+            break;
+
+        // Business Logic:
+        // 225
+        case SYS_GETDATE:
+            return (void *) get_date();
+            break;
 
 // 226 - get
 // Obs: 
@@ -1930,14 +1976,16 @@ void *sci0 (
         // =====================================
         // (250 ~ 255) - Info support.
 
+        // Business Logic: Get system metrics.
         // 250
         // IN: index
         case SYS_GETSYSTEMMETRICS:
             //if (arg2<0)
                 //return NULL;
-            return (void *) sys_get_system_metrics ( (int) arg2 );
+            return (void *) sys_get_system_metrics((int) arg2);
             break;
 
+        // Business Logic: Invalid request.
         default:
             __default_syscall_counter++;
             debug_print ("sci0: [FIXME] Default\n");
@@ -1959,6 +2007,8 @@ void *sci1 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Getting requests from ring3 applications via systemcalls.
+
     debug_print ("sci1: [TODO]\n");
 
     pid_t current_process = (pid_t) get_current_process();
@@ -2021,6 +2071,8 @@ void *sci2 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Getting requests from ring3 applications via systemcalls.
+
     struct process_d  *p;
     struct thread_d  *t;
 
@@ -2117,22 +2169,24 @@ void *sci2 (
         return NULL;
     }
 
+// Business Logic: fcntl() implementation.
+// See: ?
     if (number == 5){
         debug_print("sci2: [5] fcntl\n");
-        return (void*) sys_fcntl ( (int) arg2, (int) arg3, (unsigned long) arg4 );
+        return (void*) sys_fcntl( (int) arg2, (int) arg3, (unsigned long) arg4 );
     }
 
-// read() implementation.
+// Business Logic: read() implementation.
 // See: fs.c
     if (number == 18){
         //debug_print("sci2: [18] read\n");
-        return (void *) sys_read ( 
+        return (void *) sys_read( 
                             (unsigned int) arg2, 
                             (char *)       arg3, 
                             (int)          arg4 );
     }
 
-// write() implementation.
+// Business Logic: write() implementation.
 // See: fs.c
     if (number == 19){
         //debug_print("sci2: [19] write\n");
@@ -2144,10 +2198,10 @@ void *sci2 (
 
     // ...
 
-// Yield 
-// See: ps/sched/schedi.c
-// Set a flag that this thread will be preempted.
-
+// Business Logic: 
+//  + Yield 
+//  + Set a flag that this thread will be preempted.
+// See: sched/schedi.c
     if (number == 265)
     {
         debug_print("sci2: [265] Yield\n");
@@ -2155,25 +2209,26 @@ void *sci2 (
         return NULL; 
     }
 
+// Business Logic: 
 // Sleep until.
+// #todo: Explaint it better here.
+// #bugbug
+// We cant drastically change the state of a thread,
+// we need to schedule that operation.
+// given to the ts the opportunity to do that 
+// in the right moment. As well as we do for the yield operation.
+// Agendando a operação de sleep.
+// O ts vai fazer isso quando for seguro.
 // IN: tid, ms
     if (number == 266)
     {
+        // #bugbug: ?
         printf("sci2: [266] Sleep until\n");   
-        // #bugbug
-        // We cant drastically change the state of a thread,
-        // we need to schedule that operation.
-        // given to the ts the opportunity to do that 
-        // in the right moment. As well as we do for the yield operation.
-        
-        // Agendando a operação de sleep.
-        // O ts vai fazer isso quando for seguro.
         sleep( (tid_t) current_thread, (unsigned long) arg2 );
         return NULL; 
     }
 
-
-// 900
+// Business Logic: 
 // Clona e executa o filho dado o nome do filho.
 // O filho inicia sua execução do início da imagem.
 // #bugbug: Isso às vezes falha na máquina real.
@@ -2193,8 +2248,7 @@ void *sci2 (
                             (unsigned long) arg3 );
     }
 
-
-// ioctl() handler.
+// Business Logic: ioctl() implementation.
 // See: fs.c
 // IN: fd, request, arg
     if (number == 8000)
@@ -2208,9 +2262,10 @@ void *sci2 (
     }
 
 
-// fcntl()
-// See: ke/sys.c
-    if ( number == 8001 ){
+// Business Logic: fcntl() implementation. 
+// (second time) see: number 5.
+// See: sys.c
+    if (number == 8001){
         debug_print("sci2: [8001] fcntl\n");
         return (void *) sys_fcntl (
                             (int) arg2, 
@@ -2218,6 +2273,7 @@ void *sci2 (
                             (unsigned long) arg4 );
     }
 
+// Business Logic: 
 // Clear the fg console background with a given color.
 // Do not change the colors.
     unsigned int bg_color=0;
@@ -2234,22 +2290,24 @@ void *sci2 (
         return NULL;
     }
 
+// Business Logic: 
 // Change the foreground color of the current console.
     if (number == 8004)
     {
         if (fg_console<0 || fg_console > 3){
             return NULL;
         }
-        
+
         // #bugbug
         // #deprecated
         // Cant change the kernel consoles.
         // Only the other ttys.
         // CONSOLE_TTYS[fg_console].fg_color = (unsigned int) arg2;
-        
+
         return NULL;
     }
 
+// Business Logic: 
 // Configurando sincronização de leitura e escrita em arquivo.
 // principalmente socket.
 // A estrutura de arquivo contém uma estrutura de sincronização de leitura e escrita.
@@ -2263,6 +2321,7 @@ void *sci2 (
         return NULL;
     }
 
+// Business Logic: 
 // Pegando informação sobre sincronização de leitura e escrita de arquivos.
 // principalmente para socket.
 // A estrutura de arquivo contém uma estrutura de sincronização de leitura e escrita.
@@ -2274,29 +2333,39 @@ void *sci2 (
         return (void*) sys_get_file_sync( (int) arg2, (int) arg3 );
     }
 
-//=====
+//
+// Global sync
+//
+
+// ============
 // See: sys.c
-    // Set action.
+    // Business Logic: Set action.
     if ( number == 10002 ){
         sys_set_global_sync( (int) arg2, (int) arg3, (int) arg4 );
         return NULL;
     }
-    // Get action.
+    // Business Logic: Get action.
     if ( number == 10003 ){
         return (void*) sys_get_global_sync( (int) arg2, (int) arg3 );
     }
-    // Create sync.
+    // Business Logic: Create sync.
     // OUT: sync id.
     if (number == 10004){
         return (void*) sys_create_new_sync();
     }
-    // Get sync id.
+    // Business Logic: Get sync id.
     // Provisorio para teste
     if(number == 10005){
         return (void*) get_saved_sync();
     }
 //=====
 
+//
+// Sync in file.
+//
+
+// ===============
+    // Business Logic: 
     // Set file sync action
     // IN: fd, request, data
     // see; fs.c
@@ -2310,7 +2379,9 @@ void *sci2 (
     if ( number == 10007 ){
         return (void*) sys_get_file_sync( (int) arg2, (int) arg3 );
     }
+// ===============
 
+// Business Logic:
 // Save FAT cache into the disk.
 // FAT cache.
 // This is the FAT cache for the system disk.
@@ -2327,31 +2398,31 @@ void *sci2 (
         return NULL;
     }
 
-// Get the tid of the current thread.
-    if ( number == 10010 ){
+// Business Logic: Get the tid of the current thread.
+    if (number == 10010){
         //debug_print("sci2: [10010] GetCurrentTID\n");
         return (void*) GetCurrentTID();
     }
 
 // -----------------------------
-// foreground thread
+// Business Logic: 
 // Set the foreground thread given it's tid.
 // #todo: We need a method for that.
 // IN: arg2=tid.
-    if ( number == 10011 )
+    if (number == 10011)
     {
         debug_print("sci2: [10011] set foreground thread tid\n");
         //Change the priority of the old foreground thread?
         //set_thread_priority( threadList[foreground_thread], PRIORITY_NORMAL);
         if (arg2<0 || arg2>=THREAD_COUNT_MAX){ return NULL; }  //fail
         t = (struct thread_d *) threadList[arg2];
-        if( (void*) t == NULL ){ return NULL; }; //fail
-        if(t->used != TRUE) { return NULL; }; //fail
-        if(t->magic != 1234){ return NULL; }; //fail
+        if ((void*) t == NULL){ return NULL; }; //fail
+        if (t->used != TRUE)  { return NULL; }; //fail
+        if (t->magic != 1234) { return NULL; }; //fail
         //Giving more credits. But the scheduler will balance
         //it at the and of the round.
-        //t->quantum  = QUANTUM_FIRST_PLANE;
-        t->quantum  = (QUANTUM_MAX + 88);
+        //t->quantum = QUANTUM_FIRST_PLANE;
+        t->quantum = (QUANTUM_MAX + 88);
         t->priority = PRIORITY_MAX;
         
         //#test
@@ -2366,14 +2437,22 @@ void *sci2 (
         return NULL;
     }
 
-    // Get Init PID
-    if (number == 10020){ return (void*) GRAMADO_PID_INIT; }
-    // Get Init TID
-    if (number == 10021){ return (void*) INIT_TID; }
+    // Business Logic: Get Init PID
+    if (number == 10020){ 
+        return (void*) GRAMADO_PID_INIT;
+    }
+    // Business Logic: Get Init TID
+    if (number == 10021){
+        return (void*) INIT_TID;
+    }
 
 //
 // Network
 //
+
+// #todo:
+// We can put all the network services in a single dialog function.
+// Just like a procedure. networkProcesure(....);
 
 // Set network status.
 // Enable or disable.
@@ -2404,18 +2483,23 @@ void *sci2 (
         return NULL;
     }
 
-// 
+// Business Logic:
+// PS2 full initialization.
     if (number == 22011)
     {
-        if (HVInfo.initialized == TRUE){
-            if (HVInfo.type == HV_TYPE_QEMU){
+        if (HVInfo.initialized == TRUE)
+        {
+            // qemu.
+            if (HVInfo.type == HV_TYPE_QEMU)
+            {
                 printf("[22011]: PS2 full initialization on qemu\n");
                 PS2_initialization();
+                return NULL;
             }
+            //if (HVInfo.type == ?){...}
         }
         return NULL;
     }
-
 
 // #deprecated.
 // shared memory 2mb surface.
@@ -2436,7 +2520,8 @@ void *sci2 (
         return NULL;
     }
 
-
+// Business Logic:
+// #important: We're avoiding the callback support.
 // Callback support.
 // see: ts.c
 // see: pit.c
@@ -2487,10 +2572,9 @@ void *sci2 (
 // Maybe kill the caller. 
 // Maybe return.
 
-    panic ("sci2: [FIXME] default syscall \n");
+    panic("sci2: [FIXME] default syscall\n");
     return NULL;
 }
-
 
 /*
  * __servicePutChar:
@@ -2532,21 +2616,20 @@ pid_t newos_getpid(void)
     return (pid_t) sys_getpid();
 }
 
-
 // REAL (coloca a thread em standby para executar pela primeira vez.)
 // MOVEMENT 1 (Initialized --> Standby).
-int newos_start_thread( struct thread_d *thread )
+int newos_start_thread(struct thread_d *thread)
 {
 
-// structure
-    if( (void*) thread == NULL )
+// Validation
+    if ((void*) thread == NULL)
         return (-1);
-    if(thread->used != TRUE)
+    if (thread->used != TRUE)
         return (-1);
-    if(thread->magic != 1234)
+    if (thread->magic != 1234)
         return (-1);
 
-    SelectForExecution ( (struct thread_d *) thread );
+    SelectForExecution( (struct thread_d *) thread );
     return 0;
 }
 
@@ -2592,7 +2675,6 @@ void *newos_alloc_shared_ring3_pages(pid_t pid, int number_of_bytes)
 // See: core/system.c
 // IN: x,y
 // #todo: Essa rotina dever pertencer ao user/
-
 void newos_set_cursor( unsigned long x, unsigned long y )
 {
 
@@ -2603,8 +2685,6 @@ void newos_set_cursor( unsigned long x, unsigned long y )
         (unsigned long) x, 
         (unsigned long) y );
 }
-
-
 
 //
 // End

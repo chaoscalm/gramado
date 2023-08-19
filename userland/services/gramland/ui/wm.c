@@ -4537,10 +4537,12 @@ inline int is_combination(int msg_code)
 
 // wmInputReader:
 // (Input port)
-int wmInputReader(void)
-{
 // Get the messages in the queue,
 // respecting the circular queue.
+int wmInputReader(void)
+{
+// Getting input events from the event queue
+// inside the control thread structure.
 
     int status=0;
 
@@ -4718,6 +4720,8 @@ fail:
 
 int wmInputReader2(void)
 {
+// Getting input events from the event queue
+// inside the control thread structure.
 // Process all the messages in the queue, 
 // starting at the first message.
 // Disrespecting the circular input.

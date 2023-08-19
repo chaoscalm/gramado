@@ -686,10 +686,9 @@ void init_globals(void)
 
 // ===================
 
-
 // The kernel request
 // See: request.c
-    clear_request();
+    clearDeferredKernelRequest();
 }
 
 // ===========================

@@ -125,8 +125,7 @@ static void __on_finished_executing(struct thread_d *t)
         //#debug
         //debug_print (" X ");
         tsCallExtraRoutines();
-        //xxRequest();
-        //request();
+        //processDeferredKernelRequest();
         extra = FALSE;
     }
 
@@ -822,7 +821,7 @@ void tsCallExtraRoutines(void)
     debug_print ("tsCallExtraRoutines: [FIXME] \n");
 
     // Kernel requests.
-    //xxRequest();
+    //processDeferredKernelRequest();
 
     // Unix signals.
     //xxSignal();

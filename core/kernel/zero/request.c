@@ -3,35 +3,15 @@
 
 #include <kernel.h>    
 
-void clear_request (void)
-{
-    REQUEST.kernel_request = 0;
-    REQUEST.status     = 0;
-    REQUEST.timeout    = 0;
-    REQUEST.target_pid = 0;
-    REQUEST.target_tid = 0;
-
-    REQUEST.msg    = 0;
-    REQUEST.long1  = 0;
-    REQUEST.long2  = 0;
-    REQUEST.long3  = 0;
-    REQUEST.long4  = 0;
-    REQUEST.long5  = 0;
-    REQUEST.long6  = 0;
-
-// The number of the current request.
-    kernel_request = 0;
-}
-
 /*
- * create_request:
+ * createDeferredKernelRequest:
  *     Cria o request, que será atendido depois.
  *     Isso eh chamado no serviço 70, por exemplo.
  *     #bugbug: Pode haver sobreposicao de requests?
  */
 
 int 
-create_request ( 
+createDeferredKernelRequest ( 
     unsigned long number, 
     int status, 
     int timeout,
@@ -42,10 +22,10 @@ create_request (
     unsigned long long2 )
 {
 
-    debug_print ("create_request:\n");
+    debug_print ("createDeferredKernelRequest:\n");
 
     if (number > KERNEL_REQUEST_MAX){
-        debug_print ("create_request: number not valid\n");
+        debug_print ("createDeferredKernelRequest: number not valid\n");
         return 1;
         //return -1;  //#todo: Use this one if it is possible.
     }
@@ -82,9 +62,28 @@ create_request (
     return 0;
 }
 
+void clearDeferredKernelRequest(void)
+{
+    REQUEST.kernel_request = 0;
+    REQUEST.status     = 0;
+    REQUEST.timeout    = 0;
+    REQUEST.target_pid = 0;
+    REQUEST.target_tid = 0;
+
+    REQUEST.msg    = 0;
+    REQUEST.long1  = 0;
+    REQUEST.long2  = 0;
+    REQUEST.long3  = 0;
+    REQUEST.long4  = 0;
+    REQUEST.long5  = 0;
+    REQUEST.long6  = 0;
+
+// The number of the current request.
+    kernel_request = 0;
+}
 
 /*
- * request:
+ * processDeferredKernelRequest:
  *    Trata os requests do Kernel.
  *    Isso eh chamado durante a a fase kernel 
  *    de uma interrupçao de timer.
@@ -97,8 +96,9 @@ create_request (
  * de request.
  *   Um request será atendido somente quando o timeout zerar. (defered)
  */
-int request (void)
+int processDeferredKernelRequest(void)
 {
+// Processing the defered kernel request.
 
 // Targets
     struct process_d  *Process;
@@ -141,7 +141,7 @@ int request (void)
 
     if (r >= KERNEL_REQUEST_MAX){
         // msg ...
-        printf ("request: invalid request\n");
+        printf ("processDeferredKernelRequest: Invalid request\n");
         return -1;
     }
 
@@ -160,28 +160,28 @@ int request (void)
         //1 - Tratar o tempo das threads de acordo com o tipo.  
         //#importante: De acordo com o tipo de thread.
         case KR_TIME:
-            debug_print ("request: KR_TIME\n");
-            panic       ("request: KR_TIME\n");
+            //debug_print ("processDeferredKernelRequest: KR_TIME\n");
+            panic       ("processDeferredKernelRequest: KR_TIME\n");
             break;
 
 
         //2 - faz a current_thread dormir. 
         case KR_SLEEP:
-            debug_print ("request: block a thread\n");
+            //debug_print ("processDeferredKernelRequest: block a thread\n");
             //do_thread_blocked ( (int) REQUEST.target_tid );
             break;
 
 
         //3 - acorda a current_thread.
         case KR_WAKEUP:
-            debug_print ("request: wake up a thread\n");
+            //debug_print ("processDeferredKernelRequest: wake up a thread\n");
             //wakeup_thread ( (int) REQUEST.target_tid );
             break;
 
 
         //4
         case KR_ZOMBIE:
-            debug_print ("request: do thread zombie\n");
+            //debug_print ("processDeferredKernelRequest: do thread zombie\n");
             //do_thread_zombie ( (int) REQUEST.target_tid );
             break;
 
@@ -189,7 +189,7 @@ int request (void)
         //Uma nova thread passa a ser a current, para rodar pela primeira vez.
         //Não mexer. Pois temos usado isso assim.	
         case KR_NEW:
-            debug_print ("request: Start a new thread\n");
+            //debug_print ("processDeferredKernelRequest: Start a new thread\n");
             //Start a new thread. 
             if (start_new_task_status == 1)
             {
@@ -200,21 +200,21 @@ int request (void)
 
         //6 - torna atual a próxima thread anunciada pela atual.
         case KR_NEXT:
-            debug_print ("request: KR_NEXT\n");
-            panic       ("request: KR_NEXT\n");
+            //debug_print ("processDeferredKernelRequest: KR_NEXT\n");
+            panic       ("processDeferredKernelRequest: KR_NEXT\n");
             break;
 
 
         //7 - tick do timer.
         case KR_TIMER_TICK:
-            debug_print ("request: KR_TIMER_TICK\n");
-            panic       ("request: KR_TIMER_TICK\n");
+            //debug_print ("processDeferredKernelRequest: KR_TIMER_TICK\n");
+            panic       ("processDeferredKernelRequest: KR_TIMER_TICK\n");
             break;
 
         //8 - limite de funcionamento do kernel.
         case KR_TIMER_LIMIT:
-            debug_print ("request: KR_TIMER_LIMIT\n");
-            panic       ("request: KR_TIMER_LIMIT\n");
+            //debug_print ("processDeferredKernelRequest: KR_TIMER_LIMIT\n");
+            panic       ("processDeferredKernelRequest: KR_TIMER_LIMIT\n");
             break;
 
 
@@ -224,7 +224,7 @@ int request (void)
         // Se spawn retornar, continua a rotina de request. 
         // Sem problemas.
         case KR_CHECK_INITIALIZED:
-            debug_print ("request: Check for standby\n");
+            //debug_print ("processDeferredKernelRequest: Check for standby\n");
             //check_for_standby ();
             break;
 
@@ -234,14 +234,14 @@ int request (void)
         // ?? args ??	
         // o serviço 124 aciona esse request.
         case KR_DEFERED_SYSTEMPROCEDURE:
-            debug_print ("request: defered system procedure [TODO]\n");
+            //debug_print ("processDeferredKernelRequest: defered system procedure [TODO]\n");
             //system_procedure ( REQUEST.window, REQUEST.msg, REQUEST.long1, REQUEST.long2 );
             break;
 
 
         //exit process
         case 11:
-            debug_print ("request: Exit process\n");
+            //debug_print ("processDeferredKernelRequest: Exit process\n");
             //exit_process ( (int) REQUEST.target_pid, (int) REQUEST.long1 );
             break;
 
@@ -250,7 +250,7 @@ int request (void)
         // Sairemos da thread, mas se for a thread de controle, 
         // também sairemos do processo.
         case 12:
-            debug_print ("request: [12] Exit thread\n");
+            //debug_print ("processDeferredKernelRequest: [12] Exit thread\n");
             //printf      ("request: [12] [DEBUG] Exiting thread %d\n", 
             //    REQUEST.target_tid);
             //do_request_12( (int) REQUEST.target_tid );
@@ -260,7 +260,7 @@ int request (void)
         //make target porcess current
         //cuidado.
         case 13:
-            debug_print ("request: Get current process\n");
+            //debug_print ("processDeferredKernelRequest: Get current process\n");
             //current_process = REQUEST.target_pid;
             set_current_process(REQUEST.target_pid);
             break;
@@ -269,13 +269,13 @@ int request (void)
         //make target thread current
         //cuidado.
         case 14:
-            debug_print ("request: Get current thread\n");
+            //debug_print ("processDeferredKernelRequest: Get current thread\n");
             current_thread = REQUEST.target_tid;
             break;
 
 
         case 15:
-            debug_print ("request: Wait for a reason \n");
+            //debug_print ("processDeferredKernelRequest: Wait for a reason \n");
             //wait_for_a_reason ( REQUEST.target_tid, (int) REQUEST.long1  );
             break;
 
@@ -296,17 +296,16 @@ int request (void)
                                  (unsigned long) REQUEST.long2 );
             break;
 
-
         default:
-            debug_print ("request: Default \n");  
-            printf      ("request: Default request {%d} \n", r );
+            debug_print ("processDeferredKernelRequest: Default\n");  
+            printf      ("processDeferredKernelRequest: Default request {%d}\n", r );
             break;
     };
 
 
 // Done:
 // Essas finalizações aplicam para todos os requests.
-    clear_request();
+    clearDeferredKernelRequest();
     kernel_request = (unsigned long) 0;  
 
 // Ok.
