@@ -4,7 +4,6 @@
 #include <kernel.h>
 
 // handle ipv4 package
-// Called by all the embedded nic device drivers.
 // IN:
 // buffer = ip header base address.
 // size = ip packet size. (ip header + ip payload).
@@ -13,16 +12,19 @@ network_handle_ipv4(
     const unsigned char *buffer, 
     ssize_t size )
 {
+// Called by network_on_receiving() in network.c.
 // 0x0800
 
-// The protocol for the payload.
-    uint8_t Protocol=0;
+// The buffer.
     struct ip_d *ip;
     ip = (struct ip_d *) buffer;
 
+// The protocol for the payload.
+    uint8_t Protocol=0;
+
     //printf ("IP: received\n");
 
-    if ( (void*) ip == NULL ){
+    if ((void*) ip == NULL){
         printf("network_handle_ipv4: ip\n");
         goto fail;
     }
@@ -60,10 +62,17 @@ network_handle_ipv4(
 // 20~65535
     //printf("Total lenght: {%d}\n",ip->ip_len);
 
-    if (ip->ip_len < 20 || ip->ip_len > 65535){
+    if (ip->ip_len < 20 || ip->ip_len > 65535)
+    {
         //#debug
-        panic("IP: Bad total lenght\n");
+        //printf("#debug: len={%d}\n",ip->ip_len);
+        //refresh_screen();
+        panic("IP: Bad total lenght #debug\n");
     }
+
+//
+// Protocol
+//
 
 // List of IP protocol numbers
 // See:
@@ -85,7 +94,7 @@ network_handle_ipv4(
         
         network_handle_udp(
             (buffer + IP_HEADER_LENGHT),
-            (ip->ip_len - IP_HEADER_LENGHT)  );
+            (ip->ip_len - IP_HEADER_LENGHT) );
 
         return;
     }
@@ -105,6 +114,9 @@ network_handle_ipv4(
         //network_handle_tcp(..);
         goto drop0;
     }
+
+    // #debug
+    // Not supported ipv4 protocol.
 
 drop:
     return;
@@ -135,8 +147,10 @@ drop:
 
     // hang
     printf ("network_handle_ipv4: #breakpoint :)\n");
+    // die();
     refresh_screen();
-    while(1){}
+    while (1){
+    };
 
 fail:
     printf ("network_handle_ipv4: Fail\n");

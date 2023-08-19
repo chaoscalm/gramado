@@ -42,12 +42,15 @@ network_handle_udp(
     const unsigned char *buffer, 
     ssize_t size )
 {
+
+// The buffer
     struct udp_d *udp;
+    udp = (struct udp_d *) buffer;
+    int PushIntoTheQueue = TRUE;
 
     //printf ("UDP: Received\n");
 
-    udp = (struct udp_d *) buffer;
-    if ( (void*) udp == NULL ){
+    if ((void*) udp == NULL){
         printf("network_handle_ipv4: udp\n");
         return;
     }
@@ -106,13 +109,11 @@ network_handle_udp(
         return;
     }
 
+// TEST dialog.
     if (dport == 34884 || dport == 11888)
     {
-        //printf ("UDP: Message{%s}\n", udp_payload );
-        printf ("MESSAGE: {%s}\n", udp_payload );
-
         //printf("UDP: dport{%d}\n",dport);
-        //printf (" '%s' \n",udp_payload);
+        printf("UDP: MESSAGE: {%s}\n", udp_payload );
         //die();
 
         /*
@@ -136,7 +137,7 @@ network_handle_udp(
         */
     }
 
-
+// TEST dialog
     if (dport == 22888){
         printf ("UDP: Message{%s}\n", udp_payload );
         //die();
@@ -146,9 +147,12 @@ network_handle_udp(
 // #test
 // Copy into a list of buffers.
 // The application is gonna get this.
-    network_push_packet( 
-        udp_payload, 
-        512 );
+// #bugbug: 
+// What kind of data we're pushing into these buffers?
+// Is it the raw frame only? Or only UDP?
+// see: network.c
+    //if (PushIntoTheQueue==TRUE)
+        network_push_packet( udp_payload, 512 );
 }
 
 // -----------------
@@ -160,7 +164,6 @@ void network_save_mac( uint8_t mac[6] )
         saved_mac[i] = (uint8_t) mac[i];
     };
 }
-
 
 void network_test_udp(void)
 {
@@ -175,13 +178,11 @@ void network_test_udp(void)
         __udp_gramado_default_ipv4,   // scr ip
         __udp_target_default_ipv4,    // dst ip
         __udp_target_mac,             // dst mac
-        34885,                  // source port
-        34884,                  // dst port
-        message,         //msg
-         512 );              //msg lenght
+        34885,      // source port
+        34884,      // dst port
+        message,    // msg
+         512 );     // msg lenght
 }
-
-
 
 void 
 network_test_udp0(
@@ -194,22 +195,21 @@ network_test_udp0(
     memset(message,0,sizeof(message));
     sprintf(message,"Hello from Gramado to Linux\n");
 
-
     network_send_udp( 
         __udp_gramado_default_ipv4,   // scr ip
-        tip,    // dst ip
-        tmac,             // dst mac
-        sport,                  // source port
-        dport,                  // dst port
-        message,         //msg
-         512 );              //msg lenght
+        tip,                          // dst ip
+        tmac,                         // dst mac
+        sport,      // source port
+        dport,      // dst port
+        message,    // msg
+         512 );     // msg lenght
 }
 
 void network_test_udp2(void)
 {
     network_test_udp0( 
-        saved_mac,                                   // linux mac
-        __udp_target_default_ipv4,    // linux ip
+        saved_mac,                  // linux mac
+        __udp_target_default_ipv4,  // linux ip
         34885,
         34884 );
 }
@@ -247,21 +247,17 @@ network_send_udp (
     register int i=0;
     int j=0;
 
-// BUffers:
+// Buffers:
 // ethernet, ipv4, udp, data.
     struct ether_header  *eh;
     struct ip_d  *ipv4;
     struct udp_d  *udp;
-    char *data = (char *) data_buffer;
+    char *data = (char *) data_buffer;  // UDP payload.
 
-
-    if ( (void*) data == NULL ){
-        printf ("network_send_udp: Invalid data buffer\n");
-        goto fail;
-    }
+//==============================================
 
 // NIC Intel device structure.
-    if ( (void *) currentNIC == NULL ){
+    if ((void *) currentNIC == NULL){
         printf ("network_send_udp: currentNIC fail\n");
         goto fail;
     }
@@ -276,12 +272,18 @@ network_send_udp (
     //...
 
 //==============================================
-// # ethernet header #
-//
+    if ((void*) data == NULL){
+        printf ("network_send_udp: Invalid data buffer\n");
+        goto fail;
+    }
 
-    eh = (void *) kmalloc ( sizeof(struct ether_header ) );
-    if ( (void *) eh == NULL){
-        printf ("network_send_udp: eh fail\n");
+
+//==============================================
+// # ethernet header #
+
+    eh = (void *) kmalloc( sizeof(struct ether_header ) );
+    if ((void *) eh == NULL){
+        printf("network_send_udp: eh fail\n");
         goto fail;
     }
 
@@ -291,7 +293,7 @@ network_send_udp (
 // O endereço mac da origem está na estrutura do controlador nic intel. 
 // O endereço mac do destino foi passado via argumento.
 
-    for ( i=0; i<6; i++ ){
+    for (i=0; i<6; i++){
         eh->mac_src[i] = (uint8_t) currentNIC->mac_address[i];  // source 
         eh->mac_dst[i] = (uint8_t) target_mac[i];               // dest
     };
@@ -299,10 +301,10 @@ network_send_udp (
 
 //==============================================
 // # ipv4 header #
-//
-    ipv4 = (void *) kmalloc ( sizeof(struct ip_d) );
-    if ( (void *) ipv4 == NULL){
-        printf ("network_send_udp: ipv4 fail\n");
+
+    ipv4 = (void *) kmalloc( sizeof(struct ip_d) );
+    if ((void *) ipv4 == NULL){
+        printf("network_send_udp: ipv4 fail\n");
         goto fail;
     }
 
@@ -316,7 +318,6 @@ network_send_udp (
 // - Differentiated Services Code Point (6bits)
 // - Explicit Congestion Notification (2bits)
     ipv4->ip_tos = 0x00;  // 8 bit (0=Normal)
-
 
 // IPV4 Length
 // ip + (ip payload)
@@ -345,7 +346,7 @@ network_send_udp (
 // Flags (3bits) (Do we have fragments?)
 // Fragment offset (13bits) (fragment position)
 // Don't fragment for now.
- ipv4->ip_off = ToNetByteOrder16(0x4000); 
+    ipv4->ip_off = ToNetByteOrder16(0x4000); 
 
     ipv4->ip_ttl = 255;  //64; //0x40;  //8bit
 
@@ -374,8 +375,8 @@ network_send_udp (
 
     unsigned char *spa = (unsigned char *) &ipv4->ip_src.s_addr;
     unsigned char *tpa = (unsigned char *) &ipv4->ip_dst.s_addr;
-    int it=0;
-    for ( it=0; it<4; it++ )
+    register int it=0;
+    for (it=0; it<4; it++)
     {
         spa[it] = (uint8_t) source_ip[it]; 
         tpa[it] = (uint8_t) target_ip[it]; 
@@ -403,14 +404,12 @@ network_send_udp (
 
 //==============================================
 // # udp header #
-//
 
-    udp = (void *) kmalloc ( sizeof(struct udp_d) );
-    if ( (void *) udp == NULL){
-        printf ("network_send_udp: udp fail\n");
+    udp = (void *) kmalloc( sizeof(struct udp_d) );
+    if ((void *) udp == NULL){
+        printf("network_send_udp: udp fail\n");
         goto fail;
     }
-
 
 // Ports
     udp->uh_sport = (uint16_t) ToNetByteOrder16(source_port);
@@ -437,8 +436,7 @@ network_send_udp (
     //refresh_screen();
     //while(1){}
 
-//----------------------------------------------------------------------
-
+// ----------------------------------------------------
 
 //
 // Buffer
@@ -453,7 +451,7 @@ network_send_udp (
 // Usaremos esse offset logo abaixo.
 // Pegamos esse offset na estrutura do controlador nic intel.
 // Copiando o pacote no buffer.
-// Pegando o endere�o virtual do buffer na estrutura do controlador 
+// Pegando o endereco virtual do buffer na estrutura do controlador 
 // nic intel. Para isso usamos o offset obtido logo acima.
 
     uint16_t buffer_index = (uint16_t) currentNIC->tx_cur;
@@ -477,7 +475,7 @@ network_send_udp (
 // Copy
 //
 
-    if ( (void*) frame == NULL )
+    if ((void*) frame == NULL)
         panic("network_send_udp: frame\n");
 
 // Copiando as estruturas para o buffer.
@@ -515,11 +513,11 @@ network_send_udp (
             ( ETHERNET_HEADER_LENGHT +
               IP_HEADER_LENGHT +
               UDP_HEADER_LENGHT );
-    for ( j=0; j<data_lenght; j++ ){
+    for ( j=0; j<data_lenght; j++ )
+    {
         frame[data_offset +j] = data[j];
     };
 
- 
 // ---------------------------------------
 // send
 // lenght:
@@ -534,6 +532,20 @@ network_send_udp (
                  data_lenght );
 
 
+//
+// Check
+//
+
+    // #todo
+    //if ((void*) frame == NULL)
+    //    goto fail;
+    //if (FRAME_SIZE == 0)
+    //    goto fail;
+
+//
+// Send
+//
+
 // Send frame via NIC.
     e1000_send( currentNIC, FRAME_SIZE, frame );
 
@@ -543,7 +555,7 @@ network_send_udp (
     //refresh_screen();
     //while(1){}
     
-    printf ("Done\n");
+    printf("Done\n");
     return 0;
 fail:
     printf ("Fail\n");

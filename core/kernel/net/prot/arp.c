@@ -21,7 +21,6 @@ unsigned char __arp_gateway_default_ipv4[4] = {
 };
 
 // handle arp package
-// Called by all the embedded nic device drivers.
 // IN:
 // buffer = The address after the ethernet header.
 void 
@@ -29,18 +28,18 @@ network_handle_arp(
     const unsigned char *buffer, 
     ssize_t size )
 {
-// handler
+// Called by network_on_receiving() in network.c.
 // 0x0806
+
+// The buffer.
+    struct ether_arp *ar;
+    ar = (struct ether_arp *) buffer;
 
     char message[512];
     memset(message,0,sizeof(message));
     sprintf(message,"Hello from Gramado to Linux\n");
 
-
-    struct ether_arp *ar;
-    ar = (struct ether_arp *) buffer;
-
-    if ( (void*) ar == NULL ){
+    if ((void*) ar == NULL){
         printf("network_handle_arp: ar\n");
         goto fail;
     }

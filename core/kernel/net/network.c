@@ -183,15 +183,16 @@ network_on_receiving (
         return -1;
     }
 
+//
+// Frame
+//
+
     if ((void*) frame == NULL){
         //printf("network_on_receiving: frame\n");
         goto fail;
     }
-
     // 1~8192
-    if ( frame_size <= 0 || 
-         frame_size > E1000_DEFAULT_BUFFER_SIZE )
-    {
+    if ( frame_size <= 0 || frame_size > E1000_DEFAULT_BUFFER_SIZE ){
         //printf("network_on_receiving: frame_size\n");
         goto fail;
     }
@@ -243,15 +244,22 @@ network_on_receiving (
         (unsigned short) eth->type);
 */
 
+// Get ethernet type.
     Type = (uint16_t) FromNetByteOrder16(eth->type);
 
+// Ethernet type.
     switch (Type){
+    // IPV6
+    // case ...?
+    //     break; 
+    // IPV4
     case ETHERTYPE_IPv4:
         Show=TRUE;
         network_handle_ipv4( 
             (frame + ETHERNET_HEADER_LENGHT), 
             (frame_size - ETHERNET_HEADER_LENGHT) );
         break;
+    // ARP
     case ETHERTYPE_ARP:
         Show=TRUE;
         network_handle_arp( 
@@ -302,21 +310,24 @@ network_push_packet(
     int len )
 {
 // Push packet.
+// #bugbug: 
+// What kind of data we're pushing into these buffers?
+// Is it the raw frame only? Or only UDP?
+
+    void *dst_buffer;
+    int tail=0;
 
     printf ("--------------------- >>>> PUSH\n");
 
-    int tail=0;
-    void *dst_buffer;
-
 // Check args
-    if ( (void*) src_buffer == NULL ){
-        panic ("network_push_packet: src_buffer\n");
+    if ((void*) src_buffer == NULL){
+        panic("network_push_packet: src_buffer\n");
     }
 
 // #todo
 // Veja na configuração do dispositivo, que o buffer 
 // configurado para o hardware é de 0x3000 bytes.
-    if (len>1500){
+    if (len > 1500){
         debug_print("network_push_packet: [FIXME] len\n");
         len = 1500;
         //return -1;
