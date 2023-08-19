@@ -44,18 +44,19 @@ inline int isdigit(int c)
 
 inline unsigned char __tolower(unsigned char c)
 {
-	if (isupper(c))
-		c -= 'A'-'a';
-	return c;
+    if (isupper(c)){
+        c -= 'A'-'a';
+    }
+    return (unsigned char) c;
 }
 
 inline unsigned char __toupper(unsigned char c)
 {
-	if (islower(c))
-		c -= 'a'-'A';
-	return c;
+    if (islower(c)){
+        c -= 'a'-'A';
+    }
+    return (unsigned char) c;
 }
-
 
 // Fast implementation of tolower() for internal usage. 
 // Do not use in your code.
@@ -69,8 +70,6 @@ inline int isodigit(const char c)
 {
     return c >= '0' && c <= '7';
 }
-
-
 
 //
 // End

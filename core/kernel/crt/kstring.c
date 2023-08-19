@@ -3,7 +3,6 @@
 
 #include <kernel.h>
 
-
 // string_compute_checksum: 
 // retorna um checksum dado um buffer e um tamanho.
 // This is good for ring0, 
@@ -23,7 +22,7 @@ string_compute_checksum (
 // Armazena o resultado total.
     unsigned long Total=0;
 
-    if(l==0){
+    if (l==0){
         return (unsigned long) 0;
     }
 
@@ -44,17 +43,17 @@ string_compute_checksum (
     return (unsigned long) Total;
 }
 
-
 // strcmp:
 //     Compare two strings. 
-
-int strcmp (char *s1, char *s2)
+int strcmp(char *s1, char *s2)
 {
     register int i=0;
 
     for ( i=0; s1[i] == s2[i]; i++ )
     {
-        if ( s1[i] == '\0' ){  return 0;  }
+        if (s1[i] == '\0'){
+            return 0;
+        }
     };
 
     return ((int) (s1[i] - s2[i]));
@@ -62,15 +61,16 @@ int strcmp (char *s1, char *s2)
 
 // strncmp:
 //    Compare n bytes of two strings. 
-int strncmp ( char *s1, char *s2, int len )
+int strncmp( char *s1, char *s2, int len )
 {
     register int n = len;
 
     while (n > 0)
     {
         n--;
-        
-        if ( *s1 != *s2 ){  return (int) 1;  }
+        if ( *s1 != *s2 ){
+            return (int) 1;
+        }
 
         // #bugbug ??
         
@@ -99,16 +99,20 @@ int str_cmp(unsigned char *str1, unsigned char *str2)
     };
 
 // Mesma quantidade de chars iguais
-    if (*str1 == *str2){ return 0; }
-
-    if (*str1 > *str2) { return 1; }
-
-    if (*str1 < *str2) { return (int) (-1); }
+    if (*str1 == *str2){
+        return 0;
+    }
+    if (*str1 > *str2){
+        return 1;
+    }
+    if (*str1 < *str2){
+        return (int) (-1);
+    }
 
     return (int) (-1);
 }
 
-void *memcpy ( void *v_dst, const void *v_src, unsigned long n )
+void *memcpy( void *v_dst, const void *v_src, unsigned long n )
 {
     register const char *src = (char *) v_src;
                    char *dst = (char *) v_dst;
@@ -122,7 +126,7 @@ void *memcpy ( void *v_dst, const void *v_src, unsigned long n )
     return v_dst;
 }
 
-void *memcpy32 ( void *v_dst, const void *v_src, unsigned long n )
+void *memcpy32( void *v_dst, const void *v_src, unsigned long n )
 {
     register const int *src = (int *) v_src;
                    int *dst = (int *) v_dst;
@@ -136,7 +140,7 @@ void *memcpy32 ( void *v_dst, const void *v_src, unsigned long n )
     return v_dst;
 }
 
-void *memcpy64 ( void *v_dst, const void *v_src, unsigned long n )
+void *memcpy64( void *v_dst, const void *v_src, unsigned long n )
 {
     register const long *src = (long *) v_src;
                    long *dst = (long *) v_dst;
@@ -152,19 +156,17 @@ void *memcpy64 ( void *v_dst, const void *v_src, unsigned long n )
 
 // strcpy:  
 //     Copy a string
-char *strcpy ( char *to, const char *from )
+char *strcpy( char *to, const char *from )
 {
     register int i=0;
-
     while ( to[i] = from[i] )
     {
         i += 1;
     };
-
     return (to);
 }
 
-char *strncpy (char *s1, const char *s2, size_t n)
+char *strncpy(char *s1, const char *s2, size_t n)
 {
     char *s = s1;
 
@@ -189,8 +191,7 @@ char *strncpy (char *s1, const char *s2, size_t n)
 
 // strcat: 
 //     Concatenate strings.
-
-char *strcat (char *to, const char *from)
+char *strcat(char *to, const char *from)
 {
     char *ret = to;
 
@@ -591,7 +592,10 @@ char *k_strtok (char *s, const char *delim)
 {
     static char *last;
 
-    return k_strtok_r (s, delim, &last);
+    //if ((void*)s==NULL)
+        //return NULL;
+
+    return k_strtok_r(s, delim, &last);
 }
 
 // Duplicate a string.
@@ -612,13 +616,13 @@ char *strdup (const char *str)
 
 // #todo:
 //  simplify this thing.
-    if ( !(copy = (char *) kmalloc( ( size_t ) len ) ) )
+    if ( !(copy = (char *) kmalloc((size_t)len)) )
     {
         return NULL;
     }
 
 // Copy
-    memcpy (copy, str, len);
+    memcpy(copy, str, len);
  
     return (char *) copy;
 }

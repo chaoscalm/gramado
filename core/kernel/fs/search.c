@@ -47,10 +47,12 @@ search_in_dir (
 // Número máximo de entradas no diretório.
 // #todo: O número de entradas poderia ser passado via argumento.
     unsigned long NumberOfEntries = 512;
-// name.
-    char NameX[13];
-// Buffer for copying the name.
-    char NameBuffer[13];
+
+// Local copy: The desired filename.
+    char Name_Desired[13];
+// Local copy: The filename found in the current directory entry.
+    char Name_InEntry[13];
+
 // Buffer.
 // #importante: 
 // O endereço do diretório foi passado via argumento.
@@ -88,14 +90,15 @@ search_in_dir (
         goto fail;
     }
 
-    if (stringSize < 11 )
+    if (stringSize < 11)
     {
+        //#todo: maybe!
         //while(stringSize<11)
         //{
-        //    strcat(NameBuffer," ");
+        //    strcat(Name_Desired," ");
         //    stringSize++;
         //}
-        //printf ("NameBuffer={%s}\n",NameBuffer);
+        //printf ("Name_Desired={%s}\n",Name_Desired);
             
             //#debug
         //refresh_screen();
@@ -103,57 +106,56 @@ search_in_dir (
     
         if (stringSize == 10)
         { 
-            NameBuffer[10] = ' '; 
-            stringSize=11;
+            Name_Desired[10] = ' '; 
         }
         
-        if (stringSize ==  9)
+        if (stringSize == 9)
         { 
-            NameBuffer[10] = ' '; 
-            NameBuffer[9]  = ' '; 
-            stringSize=11;
+            Name_Desired[10] = ' '; 
+            Name_Desired[9]  = ' '; 
         }
         
-        if (stringSize ==  8)
+        if (stringSize == 8)
         { 
-            NameBuffer[10] = ' '; 
-            NameBuffer[9]  = ' '; 
-            NameBuffer[8]  = ' '; 
-            stringSize=11;
+            Name_Desired[10] = ' '; 
+            Name_Desired[9]  = ' '; 
+            Name_Desired[8]  = ' '; 
         }
     }
 
-// copy
-    strncpy (NameBuffer, file_name, stringSize);
-// finalize
-    NameBuffer[11] = 0;
+// Copy
+// Copy all the 11 chars.
+    strncpy(Name_Desired, file_name, 11);
+// Finalize
+    Name_Desired[11] = 0;
 //---------------------------
-
 
 /*
 // hack hack
-    if (stringSize != 11 ){
+    if (stringSize != 11){
         printf ("search_in_dir: [ERROR] Wrong name size. {%d} \n", 
         stringSize);
         goto fail;
     }
 */
 
-// name.
+// File name.
 
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         printf ("search_in_dir: [ERROR] file_name\n");
         goto fail;
     }
-    if ( *file_name == 0 ){
+    if (*file_name == 0){
         printf ("search_in_dir: [ERROR] *file_name\n");
         goto fail;
     }
-    if ( *file_name == '/' ){
-        printf ("search_in_dir: [FIXME] absolute pathname not supported yet.\n");
+// #bugbug
+// #todo
+// Can't search for a filename that starts with a '/'.
+    if (*file_name == '/'){
+        printf ("search_in_dir: Invalid char in file name\n");
         goto fail;
     }
-
 
 // Address Limits:
 // Endereço de memória onde o diretório está.
@@ -164,63 +166,83 @@ search_in_dir (
     }
 
 // Search
+// Probe for a given filename.
 
-    for ( i=0; i < NumberOfEntries; i++ )
+    for (i=0; i < NumberOfEntries; i++)
     {
         // FAT_DIRECTORY_ENTRY_FREE
-        if ( dir[j] == (char) 0xE5 ){ j += 0x20; continue; }
+        if (dir[j] == (char) 0xE5){
+            j += 0x20; 
+            continue; 
+        }
 
-        // diretório atual ou diretório pai.
+        // Diretório atual ou diretório pai.
         // '.' ou '..'
-        if ( dir[j] == '.' )        { j += 0x20; continue; }
+        if (dir[j] == '.'){
+            j += 0x20;
+            continue;
+        }
 
         //#TODO
         //pegar o tamanho da string para determinar o quanto comparar.
 
         // Entrada normal. Diferente de zero.
         // Copia o nome e termina incluindo o char 0.
-        if ( dir[j] != 0 )
+        if (dir[j] != 0)
         {
-            memcpy( NameX, &dir[j], 11 );
-            NameX[11] = 0;
+            memcpy( Name_InEntry, &dir[j], 11 );
+            Name_InEntry[11] = 0;
 
-            //Status = (int) strncmp ( file_name, NameX, 11 );
-            Status = (int) strncmp ( NameBuffer, NameX, 11 );
+            //Status = (int) strncmp ( file_name, Name_InEntry, 11 );
+            Status = (int) strncmp( Name_Desired, Name_InEntry, 11 );
             
             // Found!
+            // #todo:
+            // Maybe we can return the 
+            // index in '*index_return' parameter.
             if (Status == 0)
             {
                 // #debug
-                debug_print("search_in_dir: Found $\n");
-                // printf ("search_in_dir: Found\n"); 
+                debug_print("search_in_dir: Found\n");
+                // printf ("search_in_dir: Found\n");
+
+                // *index_return = j;
+                
                 return (int) TRUE; 
             }
-            //Nothing.
+            // Nothing
         }
+
         // Próxima entrada. Repete 512 vezes.
         j += 0x20;
     };
 
 fail:
     debug_print("search_in_dir: Not found $\n");
-    printf ("search_in_dir: File not found\n");
+    printf("search_in_dir: File not found\n");
     // return FALSE;
     return (int) -1;
 }
 
-int search_in_root (const char *file_name)
+int search_in_root(const char *file_name)
 {
-    if ( (void*) file_name == NULL ){
-        debug_print ("search_in_root: [ERROR] file_name\n");
-        return -1;
-    }
-    if ( *file_name == 0 ){
-        debug_print ("search_in_root: [ERROR] *file_name\n");
-        return -1;
-    }
+    unsigned long dir_va = VOLUME1_ROOTDIR_ADDRESS;
+    // #test #todo
+    // unsigned long dir_va = (unsigned long) get_rootdir_va();
 
+// Pointer validation.
+    if ((void*) file_name == NULL){
+        debug_print("search_in_root: [ERROR] file_name\n");
+        goto fail;
+    }
+    if (*file_name == 0){
+        debug_print("search_in_root: [ERROR] *file_name\n");
+        goto fail;
+    }
 // IN: filename, dir address
-    return (int) search_in_dir ( file_name, VOLUME1_ROOTDIR_ADDRESS );
+    return (int) search_in_dir(file_name,dir_va);
+fail:
+    return (int) -1;
 }
 
 /*
@@ -232,7 +254,6 @@ int search_in_root (const char *file_name)
  *  Obs: tem algo parecido na função que salva um arquivo.
  *  O retorno deve ser short, mesmo tipo do cluster.
  */
-
 // #bugbug
 // empty uninitialized.
 // Search in file_cluster_list[]
@@ -241,7 +262,7 @@ int search_in_root (const char *file_name)
 // OUT:
 // + The number of the first cluster in the list.
 // + 0 if failure.
-unsigned short fs_find_n_empty_entries (int n)
+unsigned short fs_find_n_empty_entries(int n)
 {
 
 //
@@ -306,47 +327,42 @@ findEmptyDirectoryEntry (
 {
     register int i=0;
     int j=0;
+    int EntrySizeInBytes = 32;
     unsigned char *dir = (unsigned char *) dir_address;
 
-    if ( dir_address == 0 )     { goto fail; }
-    if ( number_of_entries < 0 ){ goto fail; }
+    if (dir_address == 0){
+        goto fail;
+    }
+    if (number_of_entries < 0){
+        goto fail;
+    }
 
-// The entry size is 32 bytes.
-    for ( i=0; i<number_of_entries; i++ )
+// Probe
+    for (i=0; i<number_of_entries; i++)
     {
-        if ( dir[j] == 0 ){
+        if (dir[j] == 0){
             return (int) i; 
         }
-        j = (j+32);
+        // Next entry
+        j = (int) (j + EntrySizeInBytes);
     };
 
 fail:
     return (int) (-1);
 }
 
-
-/*
- * fsSearchFile:
- *    Procura por um arquivo no diretório raiz de uma partição.
- *    Com o diretório raiz já carregado na memória.
- * @todo: 
- *    Atender à especificações diferentes de sistemas de arquivos, como:
- *    +Tamanho do cluster
- *    +Tamanho do disco
- *    +Tipo de sistema de arquivos. (nao por enquanto)
- */
-// #todo
-// Include 'dir address' as parameter.
-// only on root dir.
-//int fsSearchFile( const char *name ) 
-int fsSearchFile (const char *file_name)
+// Wrapper.
+int fsSearchFileInRoot(const char *file_name)
 {
-    debug_print ("fsSearchFile:\n");
+// Only in root dir.
+    debug_print ("fsSearchFileInRoot:\n");
+    if ((void*) file_name == NULL)
+        return (int) -1;
     return (int) search_in_root(file_name);
 }
 
 /*
- * fs_find_empty_entry:
+ * fs_find_empty_entry_in_fat:
  *     Encontrar uma entrada vazia na fat.
  *     @todo: Isso pe importante:
  */
@@ -354,34 +370,33 @@ int fsSearchFile (const char *file_name)
 //encontrar uma entrada vazia na fat.
 //fornecer o endereço da fat na memória.
 
-unsigned short fs_find_empty_entry ( char *fat_address )
+unsigned short fs_find_empty_entry_in_fat(char *fat_address)
 {
-    debug_print ("fs_find_empty_entry: [TODO]\n");
+    debug_print("fs_find_empty_entry_in_fat: [TODO]\n");
+    panic("fs_find_empty_entry_in_fat:");
     return (unsigned short) 0;
 }
 
 // #bugbug
 // Not tested yet.
 // OUT: index.
-int search_path_in_the_inode_table( const char *path )
+int search_path_in_the_inode_table(const char *path)
 {
     struct inode_d *tmp_inode;
-    int i=0;
+    register int i=0;
     size_t PathSize = 0;
     int Status = -1;
-    
 
     debug_print("search_path_in_the_inode_table: [FIXME] Not tested yet\n");
 
-
-    if ( (void*) path == NULL ){
+// path validation.
+    if ((void*) path == NULL){
         debug_print("search_path_in_the_inode_table: [ERROR] path\n");
-        return -1;
+        goto fail;
     }
-
     if (*path == 0){
         debug_print("search_path_in_the_inode_table: [ERROR] *path\n");
-        return -1;
+        goto fail;
     }
  
     PathSize = (size_t) strlen(path);
@@ -391,21 +406,25 @@ int search_path_in_the_inode_table( const char *path )
         if ( inode_table[i] != 0 )
         {
             tmp_inode = (struct inode_d *) inode_table[i];
-            if( (void*) tmp_inode != NULL)
+            if ((void*) tmp_inode != NULL)
             {
                 //#todo validation
                 
                 //#bugbug: types = (const char *)
                 Status = strncmp( path, tmp_inode->path, PathSize );
-                if ( Status == 0 ){ return (int) i; }; //ok
+                // OK
+                if (Status == 0){
+                    return (int) i;
+                } 
             }
         } 
     };
-    
+
+fail:
     return -1;
 }
 
 //
-// End.
+// End
 //
 

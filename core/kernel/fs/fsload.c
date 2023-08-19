@@ -3,10 +3,17 @@
 
 #include <kernel.h>
 
+// ------------------
 
-int senda=1;
+static int __check_address_validation(unsigned long address);
 
-static int __check_address_validation( unsigned long address );
+static int 
+__try_to_load_program( 
+    const char *filename, 
+    unsigned long image_va );
+
+// ------------------
+
 
 // WORKER
 // Called by fsLoadFile
@@ -20,15 +27,18 @@ static int __check_address_validation( unsigned long address );
 
 static int __check_address_validation(unsigned long address)
 {
+// #todo
+// We also can check against some well known ranges.
+
     int Status=TRUE;  //ok
 
 // fat, rootdir, base kernel, lfb, backbuffer ...
 
-    if ( address == VOLUME1_FAT_ADDRESS_VA )           { Status=FALSE; }
-    if ( address == VOLUME1_ROOTDIR_ADDRESS_VA )       { Status=FALSE; }
-    if ( address == KERNEL_IMAGE_BASE )                { Status=FALSE; }
-    if ( address == DEFAULT_LFB_VIRTUALADDRESS )       { Status=FALSE; }
-    if ( address == DEFAULT_BACKBUFFER_VIRTUALADDRESS ){ Status=FALSE; }
+    if (address == VOLUME1_FAT_ADDRESS_VA)           { Status=FALSE; }
+    if (address == VOLUME1_ROOTDIR_ADDRESS_VA)       { Status=FALSE; }
+    if (address == KERNEL_IMAGE_BASE)                { Status=FALSE; }
+    if (address == DEFAULT_LFB_VIRTUALADDRESS)       { Status=FALSE; }
+    if (address == DEFAULT_BACKBUFFER_VIRTUALADDRESS){ Status=FALSE; }
     // ...
 
 // #todo
@@ -247,6 +257,8 @@ fsLoadFile (
 // name size.
 // Se o tamanho da string falhar, vamos ajustar.
     FileNameSize = (size_t) strlen(file_name);
+    //if (FileNameSize <= 0)
+    //    goto fail;
     if (FileNameSize > 11)
     {
          printf ("fsLoadFile: Name size %d\n", FileNameSize ); 
@@ -281,16 +293,16 @@ fsLoadFile (
 // #bugbug: Is this a problem?
     if (FileSize == 0)
     {
-        debug_print ("fsLoadFile: [FIXME] FileSize\n");
-        printf      ("fsLoadFile: [FIXME] FileSize %d\n", FileSize);
+        debug_print("fsLoadFile: [FIXME] FileSize\n");
+        printf     ("fsLoadFile: [FIXME] FileSize %d\n", FileSize);
         //goto fail;
     }
 
 // The file size can't be bigger than the buffer size.
     if (FileSize >= BufferSizeInBytes)
     {
-        debug_print ("fsLoadFile: [FIXME] Buffer Overflow\n");
-             printf ("fsLoadFile: [FIXME] FileSize %d BufferSizeInBytes %d\n",
+        debug_print("fsLoadFile: [FIXME] Buffer Overflow\n");
+             printf("fsLoadFile: [FIXME] FileSize %d BufferSizeInBytes %d\n",
                  FileSize, BufferSizeInBytes );
         goto fail;
     }
@@ -346,11 +358,11 @@ fsLoadFile (
 // Saiu do while. 
 // O arquivo não foi encontrado.
 //__notFound:
-    debug_print ("fsLoadFile: File not found\n");
-    printf      ("fsLoadFile 1: %s not found\n", file_name );  
+    debug_print("fsLoadFile: File not found\n");
+    printf     ("fsLoadFile 1: %s not found\n", file_name );  
     goto fail;
 
-// Found.
+// Found
 // O arquivo foi encontrado.
 __found:
 
@@ -376,8 +388,8 @@ __found:
     cluster = (unsigned short) __dir[ z+13 ];
     if ( cluster <= 0 || cluster > 0xFFF0 )
     {
-        debug_print ("fsLoadFile: Cluster limits\n");
-        printf      ("fsLoadFile: Cluster limits %x \n", cluster );
+        debug_print("fsLoadFile: Cluster limits\n");
+        printf     ("fsLoadFile: Cluster limits %x\n", cluster );
         goto fail;
     }
 
@@ -762,10 +774,9 @@ fs_load_path (
 // Counting the levels.
 // Start with 0.
     n_levels = (int) fs_count_path_levels(path);
-
-    // Temos uma quantidade limitada de buffers
-    // prealocados para os diretórios.
-    if( n_levels<=0 || n_levels >= FS_N_BUFFERS )
+// Temos uma quantidade limitada de buffers
+// prealocados para os diretórios.
+    if ( n_levels<=0 || n_levels >= FS_N_BUFFERS )
     {
         panic ("fs_load_path: n_levels\n");
     }
@@ -886,12 +897,13 @@ fs_load_path (
 
                 // Add the extension.
                 i=8;  // [8] [9] [10]
+                // #todo: Do not use scope definitions.
                 int ExtCounter=0;
                 while (i<11)
                 {
                     // O marcador de fim de string pode aparecer
                     // emqualquer umdos 3 elementos da extensão.
-                    if( *p == 0 )
+                    if (*p == 0)
                     {
                        break;
                     }
@@ -912,7 +924,7 @@ fs_load_path (
                 {
                     if (i<11)
                     {
-                        while(i<11)
+                        while (i<11)
                         {
                             ExtCounter++;
                             name_buffer[i] = ' ';
@@ -928,34 +940,31 @@ fs_load_path (
                 // Finalize the string.
                 name_buffer[11] = 0;
                      
-                printf ("\n");
-                printf ("fs_load_path: This is the name {%s}\n",name_buffer); 
-
+                printf("\n");
+                printf("fs_load_path: This is the name {%s}\n",name_buffer); 
 
                 //
-                // Load file.
+                // Load file
                 //
     
                 // Como esse é o último, 
                 // então vamos usar o endereço desejado pelo usuário.
                 __dst_buffer = (void *) __file_buffer;
-    
-                if ( (void *) __dst_buffer == NULL ){
-                    panic ("fs_load_path: __dir\n");
+                if ((void *) __dst_buffer == NULL)
+                {
+                    panic ("fs_load_path: __dst_buffer\n");
                 }
 
-                
                 // #bugbug
                 // Se o diretório for o diretório raiz
                 // então não podemos sondar menos que 512 entradas.
                 // #todo: Temos que considerar o número de entradas
                 // exatos de um diretório.
                 // Podemos ter um limite estabelecido pelo sistema.
-                
+
+                // Load the file. (The last level)
                 // IN: 
                 // fat address, dir address, filename, file address.
-                
-                // Load the file. (The last level)
                 Ret = fsLoadFile ( 
                           (unsigned long) VOLUME1_FAT_ADDRESS,  // fat address
                           (unsigned long) __src_buffer,         // dir address. onde procurar. 
@@ -964,10 +973,10 @@ fs_load_path (
                           (unsigned long) __dst_buffer,         // addr. Onde carregar.
                           (unsigned long) __file_buffer_size_in_bytes );  // tamanho do buffer onde carregar.             
                 // ok.
-                if ( Ret == 0 )
+                if (Ret == 0)
                 {
-                    printf ("Level %d loaded!\n\n",l);
-                    
+                    printf("Level %d loaded!\n\n",l);
+
                     // #importante
                     // Esse nível tinha ponto, então deveria ser o último.
                     if ( l != (n_levels-1) )
@@ -985,11 +994,9 @@ fs_load_path (
                 };
             }
 
-
             //
             // Load a DIRECTORY.
             //
-
 
             // Se encontramos um indicador de próximo nível,
             // então esse nível não será considerado binário.
@@ -1000,7 +1007,7 @@ fs_load_path (
             // então o que temos no buffer é um nome de diretorio.
             // Se o i for igual a 0, então o nome do diretorio
             // estava errado e temos uma barra seguida da outra.
-            if ( *p == '/' )
+            if (*p == '/')
             {
                 if (i==0){
                     panic("fs_load_path: Invalid folder name\n");
@@ -1034,8 +1041,8 @@ fs_load_path (
                 // Finalize the string.
                 name_buffer[11] = 0;
                 
-                printf ("\n");
-                printf ("fs_load_path: This is the name {%s}\n",name_buffer);
+                printf("\n");
+                printf("fs_load_path: This is the name {%s}\n",name_buffer);
 
                 //
                 // Load directory.
@@ -1056,19 +1063,19 @@ fs_load_path (
                                 
                 //__dst_buffer = (void *) kmalloc (    BUGBUG_OVERFLOW    ); 
                 
-                if( l<0 || l >= FS_N_BUFFERS ){
-                    panic("fs_load_path: __dir\n");
-                }
-                __dst_buffer = (void *) fs_buffers[l];
-                
-                if ( (void *) __dst_buffer == NULL ){
-                    panic ("fs_load_path: __dir\n");
+                if ( l<0 || l >= FS_N_BUFFERS ){
+                    panic("fs_load_path: l\n");
                 }
 
-                // IN: 
-                // fat address, dir address, filename, file address.
+                __dst_buffer = (void *) fs_buffers[l];
+                if ((void *) __dst_buffer == NULL)
+                {
+                    panic("fs_load_path: __dst_buffer\n");
+                }
 
                 // Load the directory. (Not the last level)
+                // IN: 
+                // fat address, dir address, filename, file address.
                 Ret = fsLoadFile ( 
                           (unsigned long) VOLUME1_FAT_ADDRESS,  // fat address
                           (unsigned long) __src_buffer,         // dir address. onde procurar.
@@ -1076,24 +1083,19 @@ fs_load_path (
                           (const char *) name_buffer,          // nome que pegamos no path 
                           (unsigned long) __dst_buffer,         // onde carregar. 
                           (unsigned long) DirBufferSizeInBytes );                             // tamanho do buffer onde carregar.
-                          
-                          
+  
                 // ok.
-                if ( Ret == 0 )
+                if (Ret == 0)
                 {
-                    printf ("Level %d loaded!\n\n",l);
-                    
+                    printf("Level %d loaded!\n\n",l);
                     // O endereço onde carregamos o arquivo desse nível
                     // será o endereço onde vamos procurar o arquivo do próximo nível.
                     __src_buffer = __dst_buffer;
-                    
                     break;
-
                 }else{
-                    panic ("fs_load_path: [FAIL] Loading level 0\n");
+                    panic("fs_load_path: [FAIL] Loading level 0\n");
                 };
             }
-
 
             // Avançamos o char se não foi '.', nem '/'.
             p++;
@@ -1107,9 +1109,7 @@ fail:
     return (-1);
 }
 
-
 // -------------
-
 
 /*
  * fsLoadFileFromCurrentTargetDir:
@@ -1132,7 +1132,7 @@ int fsLoadFileFromCurrentTargetDir(void)
 // 4KB
     unsigned long xxxTempFileSize = 4096;
 
-    debug_print ("fsLoadFileFromCurrentTargetDir: [FIXME] Loading dir \n");
+    debug_print ("fsLoadFileFromCurrentTargetDir: [FIXME] Loading dir\n");
 
 // #bugbug
 // Isso 'e um limite para o tamanho do arquivo (apenas dir).
@@ -1146,18 +1146,17 @@ int fsLoadFileFromCurrentTargetDir(void)
 // 4KB each time ?
 
     new_address = (unsigned long) kmalloc((size_t)xxxTempFileSize);
-    if ( new_address == 0 ){
-        debug_print ("fsLoadFileFromCurrentTargetDir: new_address\n");
-        return -1;
+    if (new_address == 0){
+        debug_print("fsLoadFileFromCurrentTargetDir: new_address\n");
+        goto fail;
     }
     current_target_dir.current_dir_address = (unsigned long) new_address;
 
 // ??
 // Se o endereço atual falhar, 
 // resetamos ele e retornamos.
-
-    if ( current_target_dir.current_dir_address == 0 ){
-        debug_print ("fsLoadFileFromCurrentTargetDir: [FAIL] invalid address\n");
+    if (current_target_dir.current_dir_address == 0){
+        debug_print("fsLoadFileFromCurrentTargetDir: [FAIL] invalid address\n");
         goto fail;
     }
 
@@ -1206,11 +1205,6 @@ fail:
 static int 
 __try_to_load_program( 
     const char *filename, 
-    unsigned long image_va );
-
-static int 
-__try_to_load_program( 
-    const char *filename, 
     unsigned long image_va )
 {
 // Only inside /PROGRAMS/
@@ -1224,13 +1218,10 @@ __try_to_load_program(
     // #debug
     //printf ("__try_to_load_program:\n");
 
-//
 // Invalid file name.
-//
-
     if ((void*) new_filename == NULL)
         return -1;
-    if ( *new_filename == 0 )
+    if (*new_filename == 0)
         return -1;
 
 //

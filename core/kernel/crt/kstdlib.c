@@ -76,23 +76,24 @@ int k_atoi(const char *str)
     //return (int) (sign ? -rv : rv);
 }
 
-
-
 // Supporting the services 808 e 809.
 // See: sci.c
 // #todo: change the name to 'ubuf'.
-int __ptsname (int fd, char *buf, size_t buflen)
+int __ptsname(int fd, char *buf, size_t buflen)
 {
-     char *ptsname_buffer = (char *) buf;
-     char test_str[50] = "__ptsname: test string";
+    char *ptsname_buffer = (char *) buf;
+    // #bugbug
+    char test_str[50] = "__ptsname: test string";
 
 // #todo: fd
+    //if (fd<0)
+        //return -1;
 
-    if ( (void*) buf == NULL ){
+    if ((void*) buf == NULL){
         return (int) (-EINVAL);
     }
 // 64 bytes limit
-    strcpy ( ptsname_buffer, (const char *) test_str );
+    strcpy( ptsname_buffer, (const char *) test_str );
 // Lá na lib em ring3 a rotina retorna 
 // para o app o ponteiro para o buffer
     return 0;
@@ -113,10 +114,14 @@ static void *__kmalloc_impl(size_t size, int clean)
     void *ptr;
     unsigned long ul_size = (unsigned long) (size & 0xFFFFFFFF);
 
+// #todo
+    //if (ul_size == 0)
+        //ul_size = 1;
+
 // IN: (unsigned long) size.
     ptr = (void *) heapAllocateMemory(ul_size);
-    if (clean==TRUE){
-        if ( (void*) ptr != NULL ){
+    if (clean == TRUE){
+        if ((void*) ptr != NULL){
             memset(ptr, 0, size);
         }
     }
@@ -137,10 +142,10 @@ void *kmalloc(size_t size)
 
 // Process structure
     process = (void*) get_current_process_pointer();
-    if ( (void*) process == NULL ){
+    if ((void*) process == NULL){
         IncrementUsageCounter=FALSE;
     }
-    if (process->magic!=1234){
+    if (process->magic != 1234){
         IncrementUsageCounter=FALSE;
     }
 // size
@@ -154,14 +159,14 @@ void *kmalloc(size_t size)
     }
 // Allocate
     ptr = (void *) __kmalloc_impl(_lsize,FALSE);
-    if ( (void *) ptr == NULL ){
+    if ((void *) ptr == NULL){
         debug_print ("kmalloc: ptr\n");
         return NULL;
     }
 // Increment the usage conter for each process.
-    if (IncrementUsageCounter==TRUE)
+    if (IncrementUsageCounter == TRUE)
     {
-        if ( (void*) process != NULL )
+        if ((void*) process != NULL)
         {
             if (process->magic == 1234)
             {
@@ -197,15 +202,14 @@ void *kmalloc(size_t size)
 // Virtually and physically contiguous.
 // See:
 // mm/mm.c
-void kfree (void *ptr)
+void kfree(void *ptr)
 {
-    if ( (void *) ptr == NULL ){
-        debug_print ("kfree: ptr\n");
+    if ((void *) ptr == NULL){
+        debug_print("kfree: ptr\n");
         return;
     }
     heapFreeMemory(ptr);
 }
-
 
 // kcalloc: 
 // Alloca e preenche com zero.
@@ -214,6 +218,10 @@ void *kcalloc(size_t count, size_t size)
 {
     void *ptr;
     size_t new_size = (size_t) (count * size);
+
+// #todo
+    //if (size <= 0)
+        //size = 1;
 
     if (count <= 0){
         new_size = (1*size);

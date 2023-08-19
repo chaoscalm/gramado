@@ -10,21 +10,22 @@
 // suporte a rotina da libc.
 // #todo: How many bytes we can copy into the buffer.
 // We need a parameter for that.
-int __gethostname (char *buffer)
+int __gethostname(char *buffer)
 {
     char *hostname_buffer = (char *) buffer;
     int size=0;
 
 // Invalid buffer
-    if ( (void*) buffer == NULL ){
-        return -1;
+    if ((void*) buffer == NULL){
+        goto fail;
     }
 // Estrutura default para informações sobre o host.
 // see: host.h
-    if ( (void *) HostInfo == NULL ){
+    if ((void *) HostInfo == NULL)
+    {
         printf ("__gethostname: HostInfo\n");
-        //refresh_screen();
-        return (int) -1;
+        refresh_screen();
+        goto fail;
     }
 // Copy 64 bytes.
     strcpy ( 
@@ -34,6 +35,8 @@ int __gethostname (char *buffer)
     size = (int) HostInfo->hostName_len;
 
     return (int) size;
+fail:
+    return (int) -1;
 }
 
 // Host name
@@ -41,15 +44,15 @@ int __gethostname (char *buffer)
 // configurando o hostname.
 // do mesmo jeito que configuramos o username,
 // só que em estruturas diferentes
-int __sethostname (const char *new_hostname)
+int __sethostname(const char *new_hostname)
 {
     size_t StringLen=0;
 
-    if ( (void*) new_hostname == NULL ){
-        return -1;
+    if ((void*) new_hostname == NULL){
+        goto fail;
     }
-    if ( *new_hostname == 0 ){
-        return -1;
+    if (*new_hostname == 0){
+        goto fail;
     }
 
     StringLen = (size_t) strlen (new_hostname);
@@ -57,9 +60,10 @@ int __sethostname (const char *new_hostname)
 
 // Estrutura HostInfo em host.h 
 // (network)
-    if ( (void *) HostInfo == NULL ){
+    if ((void *) HostInfo == NULL){
         printf ("__sethostname: HostInfo\n");
-        return (int) -1;
+        refresh_screen();
+        goto fail;
     }
     HostInfo->hostName_len = (size_t) StringLen;
     // ...
@@ -70,6 +74,8 @@ int __sethostname (const char *new_hostname)
         (const char *) new_hostname );
 
     return 0;
+fail:
+    return (int) -1;
 }
 
 long fpathconf (int fildes, int name)
@@ -84,14 +90,13 @@ long pathconf (const char *pathname, int name)
     return -1;
 } 
 
-
 // sys_lseek - reposition read/write file offset
 // See:
 // https://man7.org/linux/man-pages/man2/lseek.2.html
 // #todo:
 // IN: ??
 // OUT: ??
-off_t sys_lseek (int fd, off_t offset, int whence)
+off_t sys_lseek(int fd, off_t offset, int whence)
 {
     file *f;
     struct process_d *p;
@@ -114,17 +119,17 @@ off_t sys_lseek (int fd, off_t offset, int whence)
 // pid
     pid_t current_process = (pid_t) get_current_process();
     if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
-        return -1;
+        goto fail;
     }
 
 // Process structure.
     p = (struct process_d *) processList[current_process];
     if ( (void *) p == NULL ){
         debug_print("sys_lseek: p\n");
-        return -1;
+        goto fail;
     }
     if (p->magic!=1234){
-        return -1;
+        goto fail;
     }
 
 // File
@@ -153,6 +158,8 @@ off_t sys_lseek (int fd, off_t offset, int whence)
         (off_t) ( f->_p - f->_base );
 
     return (off_t) FinalResult;
+fail:
+    return (off_t) -1;
 }
 
 //

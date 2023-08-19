@@ -7,39 +7,33 @@
 
 #include <kernel.h>
 
-
 // Máximo que um pipe pode ser,
 // quando não é super user.
-
 unsigned int pipe_max_size = 4096;
-
 
 // Duplicate a file stream.
 // #todo
 // Here is not the place for this function.
 // Move it to rtl.
 
-int sys_dup (int oldfd)
+int sys_dup(int oldfd)
 {
     file *f_old;
     file *f_new;
-
     struct process_d *Process;
-
-    int i=0;
+    register int i=0;
     int slot = -1;
 
     if ( oldfd < 0 || oldfd >= OPEN_MAX ){
         return (int) (-EINVAL);
     }
 
-// process
+// Process
 
     pid_t current_process = (pid_t) get_current_process();
 
     Process = (void *) processList[current_process];
-
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         debug_print("sys_dup: [FAIL]\n");
         return -1;
     }else{
@@ -49,7 +43,6 @@ int sys_dup (int oldfd)
         }
         //ok
     };
-
 
 // Get an empty slot.
 
@@ -96,7 +89,7 @@ int sys_dup (int oldfd)
             return -1;
         }
 
-        f_new->used  = TRUE;
+        f_new->used = TRUE;
         f_new->magic = 1234;
 
         // herdando.
@@ -124,28 +117,28 @@ fail:
 // Here is not the place for this function.
 // Move it to rtl.
 
-int sys_dup2 (int oldfd, int newfd)
+int sys_dup2(int oldfd, int newfd)
 {
     file *f_old;
     file *f_new;
     struct process_d *Process;
 
-    if( oldfd < 0 || oldfd >= OPEN_MAX )
+    if ( oldfd < 0 || oldfd >= OPEN_MAX )
         return (int) (-EINVAL);
 
-    if( newfd < 0 || newfd >= OPEN_MAX )
+    if ( newfd < 0 || newfd >= OPEN_MAX )
         return (int) (-EINVAL);
 
+// Process
 
     pid_t current_process = (pid_t) get_current_process();
 
     Process = (void *) processList[current_process];
-
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         //#todo: We need a message here.
         return -1;
     }else{
-        if ( Process->used != 1 || Process->magic != 1234 )
+        if ( Process->used != TRUE || Process->magic != 1234 )
         {
             return -1;
         }
@@ -174,7 +167,7 @@ int sys_dup2 (int oldfd, int newfd)
             return -1;
         }
 
-        f_new->used  = TRUE;
+        f_new->used = TRUE;
         f_new->magic = 1234;
 
         // Herdado.
@@ -208,13 +201,13 @@ int sys_dup3 (int oldfd, int newfd, int flags)
     file  *f_new;
     struct process_d *Process;
 
-
-    if( oldfd < 0 || oldfd >= OPEN_MAX )
+    if ( oldfd < 0 || oldfd >= OPEN_MAX )
         return (int) (-EINVAL);
 
-    if( newfd < 0 || newfd >= OPEN_MAX )
+    if ( newfd < 0 || newfd >= OPEN_MAX )
         return (int) (-EINVAL);
 
+// Process
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -223,17 +216,15 @@ int sys_dup3 (int oldfd, int newfd, int flags)
     // #todo
     // Error messages
 
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         return -1;
     }else{
-
-         if ( Process->used != TRUE || Process->magic != 1234 )
-         {
-             return -1;
-         }
-		 //ok
+        if ( Process->used != TRUE || Process->magic != 1234 )
+        {
+            return -1;
+        }
+        //ok
     };
-
 
     int slot = newfd;
 
@@ -242,24 +233,22 @@ int sys_dup3 (int oldfd, int newfd, int flags)
         return -1;
     }
 
-//#todo: filtrar oldfd
+// #todo: filtrar oldfd
 
     f_old = (file *) Process->Objects[oldfd];
 
-    if ( (void *) f_old == NULL ){
+    if ((void *) f_old == NULL){
         Process->Objects[slot] = (unsigned long) 0;
         return -1;
     }else{
 
         f_new = (file *) Process->Objects[slot];
-
-        if ( (void *) f_new == NULL )
-        {
+        if ((void *) f_new == NULL){
             Process->Objects[slot] = (unsigned long) 0;
             return -1;
         }
 
-        f_new->used  = TRUE;
+        f_new->used = TRUE;
         f_new->magic = 1234;
 
         // Herdado
@@ -279,15 +268,13 @@ int sys_dup3 (int oldfd, int newfd, int flags)
 fail:
 	//errno = ?;
     return (int) (-1);
- }
-
+}
 
 /*
  * sys_pipe:
- *     It creates two structures of stream that point 
- * to the same buffer.
- *     It has no name.
- *     It return two file descriptors.
+ * It creates two structures of stream that point to the same buffer.
+ * It has no name.
+ * It return two file descriptors.
  */
 // #bugbug
 // Maybe we need just one stream and two pointer.
@@ -296,19 +283,18 @@ fail:
 // Isso precisa ter duas estruturas de arquivos,
 // dois descritores, mas apenas um buffer.
 
-int sys_pipe ( int *pipefd, int flags )
+int sys_pipe( int *pipefd, int flags )
 {
     file *f1;
     file *f2;
-
     struct process_d *Process;
-
-    int i=0;
+    register int i=0;
     int slot1 = -1;
     int slot2 = -1;
 
     debug_print ("sys_pipe:\n");
 
+// Process
     pid_t current_process = (pid_t) get_current_process();
         
     // Why ?    
@@ -322,7 +308,7 @@ int sys_pipe ( int *pipefd, int flags )
 
     Process = (void *) processList[current_process];
 
-    if ( (void *) Process == NULL ){
+    if ((void *) Process == NULL){
         debug_print("sys_pipe: Process\n");
         //todo printf
         return (int) (-1);
@@ -335,7 +321,6 @@ int sys_pipe ( int *pipefd, int flags )
         }
         //ok
     };
-
 
 //#todo
 //temos que criar uma rotina que procure slots em Process->Streams[]
@@ -354,18 +339,22 @@ int sys_pipe ( int *pipefd, int flags )
     // Reserva um slot.
     for ( i=3; i< OPEN_MAX; i++ )
     {
-        if ( Process->Objects[i] == 0 )
+        if (Process->Objects[i] == 0)
         {
-            Process->Objects[i] = 216;  slot1 = i;  break;
+            Process->Objects[i] = 216;
+            slot1 = i;
+            break;
         }
     };
 
     // Reserva um slot.
     for ( i=3; i< OPEN_MAX; i++ )
     {
-        if ( Process->Objects[i] == 0 )
+        if (Process->Objects[i] == 0)
         {
-            Process->Objects[i] = 216;  slot2 = i;  break;
+            Process->Objects[i] = 216;
+            slot2 = i;
+            break;
         }
     };
 
@@ -382,7 +371,8 @@ int sys_pipe ( int *pipefd, int flags )
     char *buff = (char *) kmalloc(BUFSIZ);
     //char *buff = (char *) newPage ();
 
-    if ( (void *) buff == NULL ){
+    if ((void *) buff == NULL)
+    {
         Process->Objects[slot1] = (unsigned long) 0;
         Process->Objects[slot2] = (unsigned long) 0;
         debug_print("sys_pipe: buffer fail\n");
@@ -405,10 +395,10 @@ int sys_pipe ( int *pipefd, int flags )
     // As duas estruturas compartilham o mesmo buffer.
     }else{
         
-        f1->used  = TRUE;
+        f1->used = TRUE;
         f1->magic = 1234;
-        
-        f2->used  = TRUE;
+
+        f2->used = TRUE;
         f2->magic = 1234;
 
         // File: object type.
@@ -421,7 +411,6 @@ int sys_pipe ( int *pipefd, int flags )
         f2->pid = (pid_t) current_process;
         f2->uid = (uid_t) current_user;
         f2->gid = (gid_t) current_group;
-
 
         // full duplex ?
 
@@ -444,7 +433,6 @@ int sys_pipe ( int *pipefd, int flags )
         f2->sync.can_execute = FALSE;
         f2->sync.can_accept = FALSE;
         f2->sync.can_connect = FALSE;
-
 
         // No name for now.
         f1->_tmpfname = NULL;
@@ -477,12 +465,13 @@ int sys_pipe ( int *pipefd, int flags )
         Process->Objects[slot1] = (unsigned long) f1;
         Process->Objects[slot2] = (unsigned long) f2;
 
-		// #importante
-		// Esse é o retorno esperado.
-		// Esses índices representam o número do slot
-		// na lista de arquivos abertos na estrutura do processo atual.
+        // #importante
+        // Esse é o retorno esperado.
+        // Esses índices representam 
+        // o número do slot na lista de arquivos abertos 
+        // na estrutura do processo atual.
 
-        // Return.
+        // Return
         pipefd[0] = slot1;
         pipefd[1] = slot2; 
 
@@ -499,37 +488,42 @@ int sys_pipe ( int *pipefd, int flags )
     return (int) (-1);
 }
 
-
 // #todo:
-int sys_read_pipe ( int fd, char *ubuf, int count )
+int sys_read_pipe( int fd, char *ubuf, int count )
 {
     debug_print ("sys_read_pipe: TODO\n");
 
     if (fd<0 || fd>=OPEN_MAX){
         return (int) (-EBADF);
     }
-
-    if ( (void*) ubuf == NULL ){
+    if ((void*) ubuf == NULL){
         return (int) (-EINVAL);
     }
+    if (count<0)
+        return -1;
+
+// #todo ...
 
     return (int) -1;
 }
 
 // #todo:
-int sys_write_pipe ( int fd, char *ubuf, int count )
+int sys_write_pipe( int fd, char *ubuf, int count )
 {
     debug_print ("sys_write_pipe: TODO\n");
 
-    if(fd<0 || fd >= OPEN_MAX)
+    if (fd<0 || fd >= OPEN_MAX)
         return (int) (-EBADF);
 
-    if( (void*) ubuf == NULL )
+    if ((void*) ubuf == NULL)
         return (int) (-EINVAL);
+    if (count<0)
+        return -1;
+
+// #todo: ...
 
     return -1;
 }
-
 
 // The pipe is created with buffer in form of
 // packets.
@@ -538,10 +532,9 @@ int sys_write_pipe ( int fd, char *ubuf, int count )
 int is_packetized(struct file *file);
 int is_packetized(struct file *file)
 {
-	return (file->_flags & O_DIRECT) != 0;
+    return (file->_flags & O_DIRECT) != 0;
 }
 */
-
 
 int 
 pipe_ioctl ( 
@@ -549,7 +542,7 @@ pipe_ioctl (
     unsigned long request, 
     unsigned long arg )
 {
-    debug_print ("pipe_ioctl: TODO\n");
+    debug_print("pipe_ioctl: #todo\n");
 
     if (fd<0 || fd>=OPEN_MAX)
     {
@@ -557,21 +550,16 @@ pipe_ioctl (
     }
 
     switch (request){
-
     // ...
-    
     default:
         debug_print("pipe_ioctl: [FAIL] default\n");
         break;
     };
 
-
     return -1;
 }
 
-
-
 //
-// End.
+// End
 //
 

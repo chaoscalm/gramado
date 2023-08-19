@@ -4,7 +4,6 @@
 #ifndef __FS_FS_H
 #define __FS_FS_H    1
 
-
 // Main directories in the system.
 struct system_directory_d
 {
@@ -612,9 +611,9 @@ findEmptyDirectoryEntry (
     unsigned long dir_address, 
     int number_of_entries );
 
-int fsSearchFile (const char *file_name);
-unsigned short fs_find_empty_entry ( char *fat_address );
-int search_path_in_the_inode_table( const char *path );
+int fsSearchFileInRoot(const char *file_name);
+unsigned short fs_find_empty_entry_in_fat(char *fat_address);
+int search_path_in_the_inode_table(const char *path);
 
 int
 fsSaveFile ( 

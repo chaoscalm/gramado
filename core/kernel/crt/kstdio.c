@@ -33,8 +33,7 @@ file *pipe_gramadocore_init_execve;
 //Pipe usado pela rotina execve.
 file *pipe_execve;
 
-
-
+// ---------------------------
 static void __clear_prompt_buffers(void);
 static void __initialize_file_table(void);
 static void __initialize_inode_table(void);
@@ -43,21 +42,24 @@ static void __initialize_stdout(void);
 static void __initialize_stderr(void);
 static void __initialize_virtual_consoles(void);
 static char *_vsputs_r(char *dest, char *src);
-
 // ---------------------------
 
-
-int __feedSTDIN( unsigned long ch )
+// Feed stdin.
+int __feedSTDIN(unsigned long ch)
 {
     //char Data = (char) (ch & 0x7F);
     char Data = (char) (ch & 0xFF);
     char ch_buffer[2];
 
-    if ( (void*) stdin == NULL ){
+    if ((void*) stdin == NULL){
         goto fail;
     }
-    if (stdin->used != TRUE) { return -1; }
-    if (stdin->magic != 1234){ return -1; }
+    if (stdin->used != TRUE){
+        goto fail;
+    }
+    if (stdin->magic != 1234){
+        goto fail;
+    }
 
 // Can write.
     stdin->sync.can_write = TRUE;
@@ -82,9 +84,8 @@ int __feedSTDIN( unsigned long ch )
     stdin->_flags = __SRD;
     return 0;
 fail:
-    return -1;
+    return (int) -1;
 }
-
 
 // service 8002
 // IN: fd for the new stdin
@@ -116,7 +117,7 @@ int sys_setup_stdin(int stdin_fd)
 
 // structure
     f = (file *) p->Objects[stdin_fd];
-    if ( (void*)f==NULL ){
+    if ((void*) f == NULL){
         return FALSE;
     }
     if (f->used != TRUE){
@@ -141,9 +142,13 @@ int sys_setup_stdin(int stdin_fd)
 int is_socket(file *f)
 {
 // Fail
-    if ( (void *) f == NULL ){ return FALSE; }
+    if ((void *) f == NULL){
+        return FALSE;
+    }
 // Yes
-    if ( f->____object == ObjectTypeSocket ){ return TRUE; }
+    if (f->____object == ObjectTypeSocket){
+        return TRUE;
+    }
 // No
     return FALSE;
 }
@@ -151,9 +156,13 @@ int is_socket(file *f)
 int is_virtual_console(file *f)
 {
 // Fail
-    if ( (void *) f == NULL ){ return FALSE; }
+    if ((void *) f == NULL){
+        return FALSE;
+    }
 // Yes
-    if ( f->____object == ObjectTypeVirtualConsole ){ return TRUE; } 
+    if (f->____object == ObjectTypeVirtualConsole){
+        return TRUE;
+    } 
 // No
     return FALSE;
 }
@@ -174,7 +183,7 @@ unsigned long kinput(unsigned long ch)
 // See: ???
 // Onde estão as flags ???
 
-    if ( g_inputmode == INPUT_MODE_LINE )
+    if (g_inputmode == INPUT_MODE_LINE)
     {
         if (prompt_pos >= PROMPT_SIZE)
         {
@@ -186,7 +195,7 @@ unsigned long kinput(unsigned long ch)
     }
 
     //tem que ter o tamanho de um arquivo.
-    if (g_inputmode == INPUT_MODE_MULTIPLE_LINES )
+    if (g_inputmode == INPUT_MODE_MULTIPLE_LINES)
     {
         if (prompt_pos >= PROMPT_SIZE)
         {
@@ -207,7 +216,7 @@ unsigned long kinput(unsigned long ch)
     //case 0x1C:
     case VK_RETURN:
         //modo linha 
-        if (g_inputmode == INPUT_MODE_LINE )
+        if (g_inputmode == INPUT_MODE_LINE)
         {
             prompt[prompt_pos] = (char )'\0'; //end of line.
             //#todo: ?? ldiscCompare();
@@ -222,16 +231,18 @@ unsigned long kinput(unsigned long ch)
             goto input_done;
         }
         //modo multiplas linhas 
-        if (g_inputmode == INPUT_MODE_MULTIPLE_LINES )
+        if (g_inputmode == INPUT_MODE_MULTIPLE_LINES)
         {
-            prompt[prompt_pos] = (char )'\r';  prompt_pos++;
-            prompt[prompt_pos] = (char )'\n';  prompt_pos++;
+            prompt[prompt_pos] = (char )'\r'; 
+            prompt_pos++;
+            prompt[prompt_pos] = (char )'\n';
+            prompt_pos++;
         }
         break;
 
     // Backspace
     case 0x0E:
-        if ( prompt_pos <= 0 )
+        if (prompt_pos <= 0)
         {
             prompt_pos = 0;
             prompt[prompt_pos] = (char ) '\0';
@@ -257,10 +268,10 @@ input_more:
 input_done:
     return VK_RETURN;
 fail:
+    // #bugbug: Slow.
     refresh_screen();
     return (unsigned long) 0; 
 }
-
 
 /*
  * printchar:
@@ -609,7 +620,7 @@ int print ( char **out, int *varg )
 // por inteiro em long mode.
 // Usaremos kinguio_printf por enquanto.
 
-int printk_old ( const char *format, ... )
+int printk_old( const char *format, ... )
 {
     register int *varg = (int *) (&format);
 
@@ -862,13 +873,12 @@ int kinguio_printf(const char *fmt, ...)
 
 int kputs(const char *str)
 {
-    if ( (void *) str == NULL ){
+    if ((void *) str == NULL){
         return -1;
     }
-    return (int) printk ("%s",str);
+    return (int) printk("%s",str);
     //return (int) printf ("%s",str);
 }
-
 
 /*
  * sprintf_old:
@@ -906,13 +916,12 @@ int mysprintf(char *buf, const char *fmt, ...)
     return (int) n;
 }
 
-
-int k_ungetc ( int c, file *f )
+int k_ungetc( int c, file *f )
 {
     if (c == EOF){ 
         return (int) c;
     }
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         return EOF;
     }
 
@@ -1001,22 +1010,20 @@ int k_fgetc(file *f)
 
 fail:
     //#debug
+    // #bugbug: Slow
     printf ("k_fgetc: fail\n");
     refresh_screen();
     return EOF;
 }
 
-
-int k_feof ( file *f )
+int k_feof (file *f)
 {
     int ch=0;
  
     if ((void *) f == NULL){
         return (int) (-1);
     } else {
-
         ch = k_fgetc(f);
-
         if (ch == EOF){
             return (int) 1;
         }else{
@@ -1372,13 +1379,13 @@ fail:
 // k_setbuf:
 // see: 
 // https://linux.die.net/man/3/setvbuf
-void k_setbuf (file *f, char *buf)
+void k_setbuf(file *f, char *buf)
 {
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         debug_print("k_setbuf: f\n");
         return;
     }
-    if ( (void *) buf == NULL ){
+    if ((void *) buf == NULL){
         debug_print("k_setbuf: buf\n");
         return;
     }
@@ -1525,6 +1532,8 @@ regularfile_ioctl (
 
 static void __initialize_stdin(void)
 {
+// Called by kstdio_initialize().
+
     int slot=-1;
 
 // stdin
@@ -1559,7 +1568,7 @@ static void __initialize_stdin(void)
 // Esse buffer está sendo usado pelo console.
 
     stdin->_base = &prompt[0];    //See: kstdio.h
-    stdin->_p       = &prompt[0];
+    stdin->_p = &prompt[0];
     stdin->_bf._base = stdin->_base;
     stdin->_lbfsize = PROMPT_SIZE; //128; //#todo
     stdin->_r = 0;
@@ -1576,7 +1585,7 @@ static void __initialize_stdin(void)
     }
     stdin->inode = (struct inode_d *) inode_table[slot];
     stdin->inodetable_index = slot;
-    if( (void*) stdin->inode == NULL ){
+    if ((void*) stdin->inode == NULL){
         x_panic("__initialize_stdin: [FAIL] stdin inode struct\n");
     }
     stdin->inode->filestruct_counter = 1; //inicialize
@@ -1591,9 +1600,10 @@ static void __initialize_stdin(void)
     stdin->magic = 1234;
 }
 
-
 static void __initialize_stdout(void)
 {
+// Called by kstdio_initialize().
+
     int slot=-1;
 
 // stdout
@@ -1604,7 +1614,7 @@ static void __initialize_stdout(void)
         x_panic("__initialize_stdout: slot");
     }
     stdout = (file *) file_table[slot];
-    if ( (void*) stdout == NULL ){
+    if ((void*) stdout == NULL){
         x_panic("__initialize_stdout: stdout");
     }
     stdout->filetable_index = slot;
@@ -1633,9 +1643,9 @@ static void __initialize_stdout(void)
 
 // buffer
     stdout->_base = &prompt_out[0];  //See: kstdio.h
-    stdout->_p       = &prompt_out[0];
+    stdout->_p = &prompt_out[0];
     stdout->_bf._base = stdout->_base;
-    stdout->_lbfsize  = PROMPT_SIZE; //128; //#todo
+    stdout->_lbfsize = PROMPT_SIZE; //128; //#todo
     stdout->_r = 0;
     stdout->_w = 0;
     stdout->_cnt = PROMPT_SIZE;
@@ -1667,6 +1677,8 @@ static void __initialize_stdout(void)
 
 static void __initialize_stderr(void)
 {
+// Called by kstdio_initialize().
+
     int slot = -1;
 
 // stderr
@@ -1677,7 +1689,7 @@ static void __initialize_stderr(void)
         x_panic("__initialize_stderr: slot");
     }
     stderr = (file *) file_table[slot];
-    if ( (void*) stderr == NULL ){
+    if ((void*) stderr == NULL){
         x_panic("__initialize_stderr: stderr");
     }
     stderr->filetable_index = slot;
@@ -1698,9 +1710,9 @@ static void __initialize_stderr(void)
     stderr->_flags = (__SWR | __SRD); 
 // buffer
     stderr->_base = &prompt_err[0];  //See: kstdio.h
-    stderr->_p    = &prompt_err[0];
+    stderr->_p = &prompt_err[0];
     stderr->_bf._base = stderr->_base;
-    stderr->_lbfsize  = PROMPT_SIZE; //128; //#todo
+    stderr->_lbfsize = PROMPT_SIZE; //128; //#todo
     stderr->_r = 0;
     stderr->_w = 0;
     stderr->_cnt = PROMPT_SIZE;
@@ -1710,12 +1722,12 @@ static void __initialize_stderr(void)
     // inode support.
     // pega slot em inode_table[] 
     slot = get_free_slots_in_the_inode_table();
-    if(slot<0 || slot >=NUMBER_OF_FILES){
+    if (slot<0 || slot >=NUMBER_OF_FILES){
         x_panic("__initialize_stderr: stderr inode slot\n");
     }
     stderr->inode = (struct inode_d *) inode_table[slot];
     stderr->inodetable_index = slot;
-    if ( (void*) stderr->inode == NULL ){
+    if ((void*) stderr->inode == NULL){
         x_panic("__initialize_stderr: stderr inode struct\n");
     }
     stderr->inode->filestruct_counter = 1; //inicialize
@@ -1730,7 +1742,6 @@ static void __initialize_stderr(void)
     stderr->magic = 1234;
 }
 
-
 // Os buffers dos arquivos acima.
 // prompt[]
 // Esses prompts são usados como arquivos.
@@ -1741,8 +1752,8 @@ static void __clear_prompt_buffers(void)
     register int i=0;
     for (i=0; i<PROMPT_SIZE; i++)
     {
-        prompt[i]     = (char) '\0';
-        //prompt_in[i] = (char) '\0';  //#todo
+        prompt[i] = (char) '\0';
+        //prompt_in[i] = (char) '\0';  //#todo #maybe
         prompt_out[i] = (char) '\0';
         prompt_err[i] = (char) '\0';
     };
@@ -1758,7 +1769,7 @@ static void __initialize_file_table(void)
     for (i=0; i<NUMBER_OF_FILES; i++)
     {
         tmp = (void*) kmalloc(sizeof(file));
-        if ((void*)tmp==NULL){
+        if ((void*)tmp == NULL){
            x_panic("__initialize_file_table: tmp\n");
         }
         memset( tmp, 0, sizeof(struct file_d) );
@@ -1774,7 +1785,6 @@ static void __initialize_file_table(void)
     };
 }
 
-
 // Create n inodes and put the pointers
 // into the inode table.
 static void __initialize_inode_table(void)
@@ -1784,8 +1794,8 @@ static void __initialize_inode_table(void)
 
     for (i=0; i<32; i++)
     {
-        tmp_inode = (void*) kmalloc (sizeof(struct inode_d));
-        if ((void*)tmp_inode==NULL){
+        tmp_inode = (void*) kmalloc(sizeof(struct inode_d));
+        if ((void*)tmp_inode == NULL){
             x_panic("__initialize_inode_table: tmp_inode\n");
         }
         memset( tmp_inode, 0, sizeof(struct inode_d) );
@@ -1810,13 +1820,13 @@ static void __initialize_virtual_consoles(void)
 // stdout:
 // At this moment we need a valid stdout structure.
 
-    if ( (void*) stdout == NULL )
+    if ((void*) stdout == NULL)
         x_panic("__initialize_virtual_consoles: No stdout");
     if (stdout->magic != 1234)
         x_panic("__initialize_virtual_consoles: Invalid stdout");
 
 //
-// Colors
+// Setup colors.
 //
 
     unsigned int bg_colors[CONSOLETTYS_COUNT_MAX];
@@ -1835,6 +1845,9 @@ static void __initialize_virtual_consoles(void)
     bg_colors[3] = (unsigned int) COLOR_RED;
     fg_colors[3] = (unsigned int) COLOR_YELLOW;
 
+//
+// Initialize
+// 
 
     for (i=0; i<CONSOLETTYS_COUNT_MAX; i++)
     {
@@ -1849,7 +1862,7 @@ static void __initialize_virtual_consoles(void)
 
             if (i==0)
             {
-                if ( (void*) console0_tty != NULL )
+                if ((void*) console0_tty != NULL)
                 {
                     if (console0_tty->magic != 1234){
                         x_panic("__initialize_virtual_consoles: No console0_tty");
@@ -1861,7 +1874,7 @@ static void __initialize_virtual_consoles(void)
 
             if (i==1)
             {
-                if ( (void*) console1_tty != NULL )
+                if ((void*) console1_tty != NULL)
                 {
                     if (console1_tty->magic != 1234){
                         x_panic("__initialize_virtual_consoles: No console1_tty");
@@ -1873,7 +1886,7 @@ static void __initialize_virtual_consoles(void)
 
             if (i==2)
             {
-                if ( (void*) console2_tty != NULL )
+                if ((void*) console2_tty != NULL)
                 {
                     if (console2_tty->magic != 1234){
                         x_panic("__initialize_virtual_consoles: No console2_tty");
@@ -1885,7 +1898,7 @@ static void __initialize_virtual_consoles(void)
 
             if (i==3)
             {
-                if ( (void*) console3_tty != NULL )
+                if ((void*) console3_tty != NULL)
                 {
                     if (console3_tty->magic != 1234){
                         x_panic("__initialize_virtual_consoles: No console3_tty");
@@ -1894,7 +1907,6 @@ static void __initialize_virtual_consoles(void)
                     console0_tty->next = NULL;
                 }
             }
-
         }
     };
 
@@ -1907,7 +1919,6 @@ static void __initialize_virtual_consoles(void)
     //refresh_screen();
     //while(1){}
 }
-
 
 /*
  * kstdio_initialize:
@@ -1929,7 +1940,7 @@ static void __initialize_virtual_consoles(void)
 // In this routine:
 // + Initializing the structures for stdin, stdout and stderr
 
-int kstdio_initialize (void)
+int kstdio_initialize(void)
 {
     kstdio_standard_streams_initialized =  FALSE;
 
@@ -1949,7 +1960,7 @@ int kstdio_initialize (void)
     g_inputmode = INPUT_MODE_MULTIPLE_LINES;
 
     stdio_terminalmode_flag = TRUE;
-    stdio_verbosemode_flag  = TRUE;
+    stdio_verbosemode_flag = TRUE;
 
 // Last registered error.
     errno = 0;

@@ -26,7 +26,6 @@ struct system_directory_d  sdPROGRAMS;  // 'PROGRAMS'
 //unsigned long fs_buffers[8];
 unsigned long fs_buffers[FS_N_BUFFERS];
 
-
 //see: fs.h
 struct filesystem_d  *root;
 
@@ -39,7 +38,6 @@ struct cwd_d  CWD;
 unsigned long search_path_dir_address=0;
 unsigned long search_path_dir_entries=0;
 
-
 // ========================================
 
 //
@@ -51,24 +49,26 @@ unsigned long search_path_dir_entries=0;
 // File read.
 // It's called by sys_read.
 // Copia à partir do início do arquivo.
-
-int file_read_buffer ( file *f, char *buffer, int len )
+int file_read_buffer( file *f, char *buffer, int len )
 {
     char *p;
     int Count=0;
 
     p = buffer;
-
 // #test
     Count = (int) (len & 0xFFFF);
 
 // Check file
-    if ( (void *) f == NULL ){
-        printf ("file_read_buffer: file\n");
+    if ((void *) f == NULL){
+        printf ("file_read_buffer: f\n");
+        goto fail;
+    }
+    if ( f->used != TRUE || f->magic != 1234 ){
+        printf ("file_read_buffer: f validation\n");
         goto fail;
     }
 // Check buffer
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         printf ("file_read_buffer: p\n");
         goto fail;
     }
@@ -81,8 +81,7 @@ int file_read_buffer ( file *f, char *buffer, int len )
 // #bugbug: Isso é provisório
 // A quantidade que desejamos ler é menor que o tamanho do buffer.
 // Estamos lendo do início do arquivo?
-
-    if ( Count > f->_lbfsize ){
+    if (Count > f->_lbfsize){
         printf ("file_read_buffer: Count > f->_lbfsize\n");
         goto fail;
     }
@@ -92,11 +91,6 @@ int file_read_buffer ( file *f, char *buffer, int len )
     //    Count = f->_fsize;
     //    goto fail;
     //}
-
-    if ( f->used != TRUE || f->magic != 1234 ){
-        printf ("file_read_buffer: [FAIL] f validation\n");
-        goto fail;
-    }
 
 /*
 // stdin
@@ -276,7 +270,7 @@ int file_read_buffer ( file *f, char *buffer, int len )
         }
 
         //---
-        memcpy ( (void *) buffer, (const void *) f->_p, Count ); 
+        memcpy( (void *) buffer, (const void *) f->_p, Count ); 
 
         // Atualizamos o ponteiro de trabalho
         f->_p = (f->_p + Count);
@@ -324,11 +318,16 @@ file_write_buffer (
 
     // debug_print ("file_write_buffer:\n");
 
-    if ( (void *) f == NULL ){
+// File validation.
+    if ((void *) f == NULL ){
         printf ("file_write_buffer: f\n");
         goto fail;
     }
-    if ( (void *) p == NULL ){
+    // #todo: Check used and magic.
+    //if (f->magic != 1234)
+        //return -1;
+
+    if ((void *) p == NULL){
         printf ("file_write_buffer: p\n");
         goto fail;
     }
@@ -340,29 +339,29 @@ file_write_buffer (
     }
 
 //
-// Copy!
+// Copy
 //
 
 // Socket file.
 // Se o arquivo é um socket, então não concatenaremos 
 // escrita ou leitura.
-    if ( f->____object == ObjectTypeSocket ){
-        memcpy ( (void *) f->_base, (const void *) string, len );
+    if (f->____object == ObjectTypeSocket){
+        memcpy( (void *) f->_base, (const void *) string, len );
         return len;
     }
 
+// Pipe file.
 // não concatenaremos
-    if ( f->____object == ObjectTypePipe ){
-        memcpy ( (void *) f->_base, (const void *) string, len );
+    if (f->____object == ObjectTypePipe){
+        memcpy( (void *) f->_base, (const void *) string, len );
         return len;
     }
 
-// Normal file.
+// Regular file, TTY file, IO Buffer file.
 // Tem que atualizar o ponteiro para que o próximo
 // write seja depois desse write.
 // Para isso o ponteiro precisa estar no base quando
 // o write for usado pela primeira vez.
-
 // Mas se o write for usado num arquivo aberto com 
 // open(), então o ponteiro deve estar no fim do arquivo.
 // Isso não significa que está no fim do buffer.
@@ -376,9 +375,9 @@ file_write_buffer (
         // #bugbug
         // Temos que ter um limite aqui ... !!!
         // #todo
-    
+
         // se o tamanho do buffer for maior que o padrao.
-        if ( f->_lbfsize > BUFSIZ ){
+        if (f->_lbfsize > BUFSIZ){
             printf ("file_write_buffer: _lbfsize\n");
             goto fail;
         }
@@ -393,12 +392,12 @@ file_write_buffer (
         }
 
         // Se o offset de escrita ultrapassa os limites.
-        if ( f->_w >= BUFSIZ )
+        if (f->_w >= BUFSIZ)
         {
             //#bugbug
             debug_print("file_write_buffer: f->_w >= BUFSIZ\n");
             printf     ("file_write_buffer: f->_w >= BUFSIZ\n");
-            f->_w = BUFSIZ; 
+            f->_w = BUFSIZ;
             f->_cnt = 0;
             return EOF;
         }
@@ -420,12 +419,12 @@ file_write_buffer (
             return EOF;
         }
 
-        // inicio do arquivo
-        if ( f->_cnt > f->_lbfsize )
+        // Inicio do arquivo
+        if (f->_cnt > f->_lbfsize)
         {
             printf ("file_write_buffer: _cnt\n");
             f->_cnt = f->_lbfsize;
-            f->_p = f->_base; 
+            f->_p = f->_base;
             f->_w = 0;
             f->_r = 0;
         }
@@ -435,7 +434,7 @@ file_write_buffer (
         }
 
         // Se o que desejamos escrever é maior que o espaço que temos.
-        if ( len > f->_cnt )
+        if (len > f->_cnt)
         {
             // Estamos no fim do arquivo
             if ( f->_cnt <= 0 )
@@ -443,7 +442,7 @@ file_write_buffer (
                 f->_w = f->_lbfsize;
                 f->_r = f->_lbfsize;
                 f->_p = f->_base + f->_lbfsize;
-                f->_cnt = 0; 
+                f->_cnt = 0;
                 return -1;
             }
 
@@ -467,7 +466,7 @@ file_write_buffer (
         f->_p = (f->_base + f->_w);
 
         // Escrevemos usando o ponteiro de escrita.
-        memcpy ( (void *) f->_p, (const void *) string, len ); 
+        memcpy( (void *) f->_p, (const void *) string, len ); 
     
         // Atualizamos o ponteiro de escrita
         f->_p = (f->_p + len);
@@ -539,7 +538,7 @@ sys_read (
     }
 // ubuf
 // todo: Checar a validade da região de memória.
-    if ( (void *) ubuf == NULL ){
+    if ((void *) ubuf == NULL){
         return (ssize_t) (-EINVAL);
     }
 // count
@@ -577,15 +576,16 @@ sys_read (
 // File
 // Get the object pointer.
     fp = (file *) get_file_from_fd(fd);
-    if ( (void *) fp == NULL ){
-        debug_print ("sys_read: fp not open\n");
-        printf      ("sys_read: fp not open\n");
+    if ((void *) fp == NULL)
+    {
+        debug_print("sys_read: fp not open\n");
+        printf     ("sys_read: fp not open\n");
         goto fail; 
     }
 
     if (fp->sync.can_read != TRUE){
-        debug_print ("sys_read: [PERMISSION] Can NOT read the file\n");
-        printf      ("sys_read: [PERMISSION] Can NOT read the file\n");
+        debug_print("sys_read: [PERMISSION] Can NOT read the file\n");
+        printf     ("sys_read: [PERMISSION] Can NOT read the file\n");
         goto fail; 
     }
 
@@ -952,7 +952,7 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
         return (ssize_t) (-EBADF);
     }
 // ubuf
-    if ( (void *) ubuf == NULL ){
+    if ((void *) ubuf == NULL){
         return (ssize_t) (-EINVAL);
     }
 // count
@@ -997,10 +997,10 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
 // in the process structure.
 
     fp = (file *) get_file_from_fd(fd);
-    if ( (void *) fp == NULL )
+    if ((void *) fp == NULL)
     {
-        debug_print ("sys_write: fp not open\n");
-        printf      ("sys_write: fp not open #hang\n");
+        debug_print("sys_write: fp not open\n");
+        printf     ("sys_write: fp not open #hang\n");
         //printf      ("fd{%d} pid{%d}\n",fd,current_process);
         //printf("entry0: %x\n", __P->Objects[0]);
         //printf("entry1: %x\n", __P->Objects[1]);
@@ -1013,8 +1013,8 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
     }
 
     if (fp->sync.can_write != TRUE){
-        debug_print ("sys_write: [PERMISSION] Can NOT write the file\n");
-        printf      ("sys_write: [PERMISSION] Can NOT write the file\n");
+        debug_print("sys_write: [PERMISSION] Can NOT write the file\n");
+        printf     ("sys_write: [PERMISSION] Can NOT write the file\n");
         goto fail; 
     }
 
@@ -1306,11 +1306,9 @@ RegularFile:
 //==============================================
 
 fail:
-
     // #debug
     // debug_print ("sys_write: [FAIL] Something is wrong!\n");
     // printf      ("sys_write: [FAIL] something is wrong!\n");
-
 fail2:
 
     //invalidate_screen();
@@ -1328,7 +1326,6 @@ fail2:
 
     return (ssize_t) (-1);
 }
-
 
 // sys_open:
 // open() function implementation in ring 0.
@@ -1734,7 +1731,7 @@ file *get_file_from_fd(int fd)
         return NULL;
     }
     p = (struct process_d *) processList[current_pid];
-    if ( (void*) p == NULL ){
+    if ((void*) p == NULL){
         debug_print ("get_file_from_fd: p\n");
         panic       ("get_file_from_fd: p\n");
         //return NULL;
@@ -1780,10 +1777,10 @@ int sys_get_global_sync (int sync_id, int request)
     }
 
     s = (struct kstdio_sync_d *) syncList[sync_id];
-    
-    if ( request == SYNC_REQUEST_GET_ACTION )
+
+    if (request == SYNC_REQUEST_GET_ACTION)
     {
-        if ( (void*) s == NULL ){
+        if ((void*) s == NULL){
             goto fail;
         }
         return (int) s->action;
@@ -1808,9 +1805,9 @@ void sys_set_global_sync(int sync_id, int request, int data)
 
     s = (struct kstdio_sync_d *) syncList[sync_id];
 
-    if ( request == SYNC_REQUEST_SET_ACTION )
+    if (request == SYNC_REQUEST_SET_ACTION)
     {
-        if ( (void*) s != NULL ){
+        if ((void*) s != NULL){
             s->action = data;
         }
     }
@@ -1889,7 +1886,7 @@ int sys_get_file_sync (int fd, int request)
     }
 
     p = (void *) processList[current_process];
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         debug_print("sys_get_file_sync: p\n");
         return (int) (-1);
     }
@@ -1901,7 +1898,7 @@ int sys_get_file_sync (int fd, int request)
 // Object
 
     object = (file *) p->Objects[fd];
-    if ( (void*) object == NULL ){
+    if ((void*) object == NULL){
         debug_print("sys_get_file_sync: [FAIL] object\n");
         return (int) (-1);
     }
@@ -1967,7 +1964,7 @@ void sys_set_file_sync(int fd, int request, int data)
     }
 
     p = (void *) processList[current_process];
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         debug_print("sys_set_file_sync: p\n");
         return;
     }
@@ -1980,7 +1977,7 @@ void sys_set_file_sync(int fd, int request, int data)
 // Everything is a file.
 
     object = (file *) p->Objects[fd];
-    if ( (void*) object == NULL ){
+    if ((void*) object == NULL){
         debug_print("sys_set_file_sync: object\n");
         return;
     }
@@ -2078,7 +2075,7 @@ int sys_open_device_by_number(int device_index)
 
 // Get file pointer.
     fp = (file*) dev_dir[i].fp;
-    if ( (void*) fp == NULL ){
+    if ((void*) fp == NULL){
         return (int) -1;
     }
     if (fp->magic != 1234){
@@ -2093,7 +2090,7 @@ int sys_open_device_by_number(int device_index)
         return -1;
     }
     p = (struct process_d *) processList[current_process];
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         debug_print ("sys_open_device_by_number: p\n");
         return -1;
     }
@@ -2138,7 +2135,7 @@ unsigned long sys_get_file_size(char *path)
 {
     unsigned long FileSize=0;
 
-    if ( (void*) path == NULL ){
+    if ((void*) path == NULL){
         debug_print("sys_get_file_size: path\n");
         return 0;
     }
@@ -2154,7 +2151,6 @@ unsigned long sys_get_file_size(char *path)
 
     return (unsigned long) FileSize; 
 }
-
 
 // IN: fd
 // OUT: 
