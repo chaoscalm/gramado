@@ -8,46 +8,40 @@
 // The control thread of the first ring3 process.
 // This is the init thread.
 
-struct thread_d *create_init_thread (void)
+struct thread_d *create_init_thread(void)
 {
+// Called by I_x64CreateInitialProcess() in x64init.c 
+
     struct thread_d *t;
 // This is the first thread.
 // See: thread.h
     tid_t TID = (tid_t) INIT_TID;
-// loops
-    register int r=0;    // Wait reason.
-    register int i=0;    // Message queue.
-    register int q=0;    // Message queue.
-
+// Loops
+    register int r=0;  // Wait reason
+    register int i=0;  // Message queue
+    register int q=0;  // Message queue
     char *ThreadName = "Ring3InitThread";
-
-    // Stack pointer.
+// Stack pointer.
     void *__initStack;   
 
-    debug_print ("create_tid3:\n");
+    debug_print ("create_init_thread:\n");
 
-
-    // The init process.
-
-    if ( (void *) InitProcess == NULL ){
-        panic ("create_tid3: InitProcess\n");
+// We need a valid init process structure.
+    if ((void *) InitProcess == NULL){
+        panic ("create_init_thread: InitProcess\n");
     }
-
-    // ??
-    // e a validade da estrutura de processo? 
-
-    // Struct.
-
+    if (InitProcess->magic != 1234){
+        panic ("create_init_thread: InitProcess validation\n");
+    }
+// Thread structure.
     t = (void *) kmalloc( sizeof(struct thread_d) );
-
-    if ( (void *) t == NULL ){
-        panic ("create_tid3: t\n");
+    if ((void *) t == NULL){
+        panic ("create_init_thread: t\n");
     } 
-
-    t->objectType  = ObjectTypeThread;
+    t->objectType = ObjectTypeThread;
     t->objectClass = ObjectClassKernelObjects;
-    t->personality = (int) PERSONALITY_GRAMADO;
 
+    t->personality = (int) PERSONALITY_GRAMADO;
     t->exit_in_progress = FALSE;
 
 // INIT process control thread.
@@ -58,9 +52,9 @@ struct thread_d *create_init_thread (void)
     t->base_priority = PRIORITY_SYSTEM_THRESHOLD;  // Static
     t->priority      = PRIORITY_SYSTEM_THRESHOLD;  // Dynamic
 
-    // #todo
-    // #bugbug
-    // We need to review that thing!
+// #todo
+// #bugbug
+// We need to review that thing!
 
 //
 // TID
@@ -71,44 +65,36 @@ struct thread_d *create_init_thread (void)
 // #bugbug: 
 // Is this a valid pointer?
 // is this a valid pid?
-
     t->owner_process = (void *) InitProcess;
     t->owner_pid = (pid_t) InitProcess->pid; 
 
+// Local name.
     t->name_address = (unsigned long) ThreadName; 
-
-    t->state = INITIALIZED;
-
-    // Execution plane.
+// Execution plane.
     t->plane = BACKGROUND_THREAD;
-
-
     t->surface_rect = NULL;
-
     // ...
-
     t->input_mode = IM_MESSAGE_INPUT;
+    
+// @todo: 
+// #bugbug: #importante
+// A stack da idle nao deve ficar no heap do kernel.
+// Pois a idle esta em user mode e deve ter sua stack 
+// em user mode para ter permissao de acesso.
+// Mas ficara aqui por enquanto.
+// Obs: Mais abaixo a pilha foi configurada manualmente 
+// no lugar certo.
 
-
-	// @todo: 
-	// #bugbug: #importante
-	// A stack da idle n�o deve ficar no heap do kernel.
-	// Pois a idle est� em user mode e deve ter sua stack 
-	// em user mode para ter permiss�o de acesso.
-	// Mas ficar� aqui por enquanto.
-	// Obs: Mais abaixo a pilha foi configurada manualmente 
-	// no lugar certo.
-	
 	//InitThread->Heap = ?;
 	//InitThread->HeapSize = ?;
 	//InitThread->Stack = ?;
 	//InitThread->StackSize = ?;
 
-
-// Stack. @todo: A stack deve ser a que est� na TSS
+// Stack. 
+// @todo: A stack deve ser a que esta na TSS
 // #BugBug.
-// Estamos alocando mas n�o etamos usando.
-// #podemos usar o alocador de p�ginas e alocar uma p�gina para isso.
+// Estamos alocando mas nao etamos usando.
+// #podemos usar o alocador de paginas e alocar uma pagina para isso.
 // Stack.
 // #bugbug
 // Não estamos usando isso.
@@ -117,20 +103,20 @@ struct thread_d *create_init_thread (void)
 // Essa stack está em ring0.
 // Se o processo precisa de uma stack em ring 0 então usaremos essa.
 
-    __initStack = (void *) kmalloc (8*1024);
-
-    if ( (void *) __initStack == NULL ){
-        panic ("create_tid3: __initStack\n");
+    // 8KB.
+    __initStack = (void *) kmalloc(8*1024);
+    if ((void *) __initStack == NULL){
+        panic("create_init_thread: __initStack\n");
     }
 
 //
-// pml4
+// PML4
 //
 
     // pml4 physical address
     t->pml4_PA = (unsigned long ) InitProcess->pml4_PA;
-    if ( t->pml4_PA == 0 ){
-        panic("create_tid3: t->pml4_PA\n");
+    if (t->pml4_PA == 0){
+        panic("create_init_thread: t->pml4_PA\n");
     }
 
     // Clean the 'wait reason'.
@@ -145,7 +131,9 @@ struct thread_d *create_init_thread (void)
 // ===============================
 // Message queue.
 
-    for ( q=0; q<MSG_QUEUE_MAX; ++q ){ t->MsgQueue[q] = 0; };
+    for (q=0; q<MSG_QUEUE_MAX; ++q){
+        t->MsgQueue[q] = 0;
+    };
     t->MsgQueueHead = 0;
     t->MsgQueueTail = 0;
 
@@ -154,12 +142,13 @@ struct thread_d *create_init_thread (void)
 
     struct msg_d  *tmp;
 
-    for ( i=0; i<MSG_QUEUE_MAX; ++i )
+    for (i=0; i<MSG_QUEUE_MAX; ++i)
     {
-        tmp = (struct msg_d *) kmalloc( sizeof( struct msg_d ) );
-        if ( (void*) tmp == NULL ){
-            debug_print("create_tid3: tmp\n");
-            panic      ("create_tid3: tmp\n");
+        tmp = (struct msg_d *) kmalloc( sizeof(struct msg_d) );
+        if ((void*) tmp == NULL)
+        {
+            debug_print("create_init_thread: tmp\n");
+            panic      ("create_init_thread: tmp\n");
         }
         
         tmp->opaque_window = NULL;
@@ -178,7 +167,9 @@ struct thread_d *create_init_thread (void)
 // Pode sofrer preempção por tempo.
     t->is_preemptable = PREEMPTABLE;
 
+//
 // Temporizadores.
+//
 
     // Jiffies
     t->step = 0; 
@@ -214,27 +205,22 @@ struct thread_d *create_init_thread (void)
     t->sleep_in_progress =  FALSE;
     t->desired_sleep_ms = 0;
 
-    //
-    // #obs: 
-    // Essa parte eh dependente da arquitetura, 
-    // deveria estar em uma pasta, por exemplo, x86/.
+// #obs: 
+// Essa parte eh dependente da arquitetura, 
+// deveria estar em uma pasta, por exemplo, x86/.
     // if(MachineType == i386Type){...};
-    //
-
 
 //
 // == Context ===================
 //
 
-    // #todo: 
-    // Isso deve ser uma estrutura de contexto.
-
-    // #
-    // 0x3200 é o estado inicial de eflags.
-    // Existe um spawn especial para essa thread,
-    // onde eflags inicia com o valor 0x3000.
-    // See: x86init.c
-
+// #todo: 
+// Isso deve ser uma estrutura de contexto.
+// #
+// 0x3200 é o estado inicial de eflags.
+// Existe um spawn especial para essa thread,
+// onde eflags inicia com o valor 0x3000.
+// See: x86init.c
 // Stack frame.
 // See: gva.h
 // cpl and iopl
@@ -260,7 +246,6 @@ struct thread_d *create_init_thread (void)
     t->context.gs = 0x23;
 
 // General purpose
-
     t->context.rax = 0;
     t->context.rbx = 0;
     t->context.rcx = 0;
@@ -278,26 +263,27 @@ struct thread_d *create_init_thread (void)
     t->context.r14 = 0;
     t->context.r15 = 0;
 
+// Entry point.
 // O endereço incial, para controle.
-    t->initial_rip = 
-        (unsigned long) t->context.rip; 
+    t->initial_rip = (unsigned long) t->context.rip; 
 
     t->saved = FALSE; 
 
-	//#bugbug
-	//Obs: As estruturas precisam j� estar devidamente inicializadas.
+// #bugbug
+// Obs: As estruturas precisam ja estar devidamente inicializadas.
 	//IdleThread->root = (struct _iobuf *) file_root;
 	//IdleThread->pwd  = (struct _iobuf *) file_pwd;
 
-	//CPU configuration.
+//CPU configuration.
 	//IdleThread->cpuID = 0;              //Qual processador.
-	//IdleThread->confined = 1;           //Flag, confinado ou n�o.
+	//IdleThread->confined = 1;           //Flag, confinado ou nao.
 	//IdleThread->CurrentProcessor = 0;   //Qual processador.
-	//IdleThread->NextProcessor = 0;      //Pr�ximo processador. 
+	//IdleThread->NextProcessor = 0;      //Proximo processador. 
 
+// Navigation
     t->next = NULL;
-    
-    // Coloca na lista de estruturas.
+
+// Coloca na lista de estruturas.
     threadList[TID] = (unsigned long) t;
 
 // Conductor
@@ -310,14 +296,13 @@ struct thread_d *create_init_thread (void)
 // #importante
 // Contador de threads
 // Vamos atualizar o contador de threads, 
-// pois mais uma thread existe, mesmo que n�o esteja rodando ainda.
+// pois mais uma thread existe, mesmo que nao esteja rodando ainda.
 // #importante 
 // nesse caso o contador foi configurado manualmente. 
 // isso acontece com as threads do gramado core.
 // #importante
-// A cria��o da thread idle vai inicializar o contador,
-// para depois s� incrementarmos.
-
+// A criacao da thread idle vai inicializar o contador,
+// para depois so incrementarmos.
 
 // Usado pelo scheduler.
 // See: sched.c
@@ -342,15 +327,14 @@ struct thread_d *create_init_thread (void)
 // se logo em seguida estamos selecionando para execuçao
 // colocando no estado standby.
 
-//
-// #bugbug: Overflow
-//
-
+    // #bugbug: Overflow
     //queue_insert_data ( queue, (unsigned long) t, QUEUE_INITIALIZED );
+
+// State
+    t->state = INITIALIZED;
 
     t->used = TRUE;
     t->magic = 1234;
-
 
 // == Execution ===============================
 // #todo
@@ -359,7 +343,7 @@ struct thread_d *create_init_thread (void)
 
     SelectForExecution(t);    
 
-    //debug_print ("create_tid3: done\n");
+    //debug_print ("create_init_thread: done\n");
 
     return (struct thread_d *) t;
 }
@@ -367,8 +351,4 @@ struct thread_d *create_init_thread (void)
 //
 // End
 //
-
-
-
-
 
