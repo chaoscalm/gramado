@@ -664,7 +664,10 @@ int main( int argc, char *argv[] )
     main_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_OVERLAPPED, 1, 1, "EDITOR", 
+                  WT_OVERLAPPED,  // type 
+                  WINDOW_STATUS_ACTIVE,  // status 
+                  VIEW_NULL,             // view
+                  "EDITOR", 
                   viewwindowx, viewwindowy, w_width, w_height,
                   0, 
                   0x0000,  

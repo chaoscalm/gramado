@@ -42,6 +42,14 @@
 
 //----------
 
+// #test w->view
+#define VIEW_NULL      0
+#define VIEW_FULL      1000
+#define VIEW_MAXIMIZED 1001
+#define VIEW_MINIMIZED 1002
+#define VIEW_NORMAL    1003 //Normal (restaurada)
+//...
+
 // Button styles (int)
 #define BSTYLE_3D  0
 #define BSTYLE_FLAT  1

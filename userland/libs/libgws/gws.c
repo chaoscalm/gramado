@@ -121,6 +121,7 @@ __gws_createwindow_request (
     unsigned int bg_color,
     unsigned long type,
     unsigned long status,
+    unsigned long view,
     unsigned long style,
     unsigned long parent,
     char *name );
@@ -2053,6 +2054,7 @@ __gws_createwindow_request (
     unsigned int bg_color,
     unsigned long type,
     unsigned long status,
+    unsigned long view,
     unsigned long style,
     unsigned long parent,
     char *name )
@@ -2075,7 +2077,7 @@ __gws_createwindow_request (
     message_buffer[0] = 0;
     message_buffer[1] = GWS_CreateWindow;
     message_buffer[2] = status;  // #test Status
-    message_buffer[3] = 0;  // #test view
+    message_buffer[3] = view;    // #test view
 // l,t,w,h
 // These are the outer values.
 // Including the border if it has one.
@@ -3112,6 +3114,7 @@ gws_create_window (
                   color, 
                   type, 
                   status,
+                  view,
                   style, 
                   parentwindow, 
                   Name );

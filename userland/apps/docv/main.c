@@ -410,8 +410,11 @@ docvProcedure(
         return 0;
         break;
 
+    // #todo;
+    // Create the worker update_clients();
     case MSG_PAINT:
-        if( event_window == __main_window ){
+        if (event_window == __main_window)
+        {
             //gws_redraw_window(fd,__addressbar_window,TRUE);
             //gws_redraw_window(fd,__button_window,TRUE);
             //gws_redraw_window(fd,__client_window,TRUE);
@@ -566,7 +569,10 @@ int main ( int argc, char *argv[] )
     main_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_OVERLAPPED, 1, 1, "DOCVIEWER",
+                  WT_OVERLAPPED, 
+                  WINDOW_STATUS_ACTIVE,  // status
+                  VIEW_NULL,             // view
+                  "DOCVIEWER",
                   viewwindowx, viewwindowy, w_width, w_height,
                   0, 
                   0x0000,  

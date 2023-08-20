@@ -603,9 +603,8 @@ redraw_window (
 
     unsigned int __tmp_color = COLOR_WINDOW;
 
-
 // Structure validation.
-    if ( (void *) window == NULL ){
+    if ((void *) window == NULL){
         goto fail;
     }
     if (window->used!=TRUE || window->magic!=1234){

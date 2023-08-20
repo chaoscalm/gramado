@@ -165,7 +165,7 @@ extern struct gws_windowmanager_d  WindowManager;
 #define WM_MODE_MONO        3
 // ...
 
-// Apresentação ??
+// #test w->view
 #define VIEW_NULL      0
 #define VIEW_FULL      1000
 #define VIEW_MAXIMIZED 1001

@@ -262,8 +262,8 @@ void useFrame( int value )
 void *doCreateWindow ( 
     unsigned long type, 
     unsigned long style,
-    unsigned long status,  // Status do botao e da janela.
-    unsigned long view, 
+    unsigned long status,  // #test Status do botao e da janela.
+    unsigned long view,    // #test 
     char *title, 
     unsigned long x, 
     unsigned long y, 
@@ -542,7 +542,8 @@ void *doCreateWindow (
     window->status = (int) (status & 0xFFFFFFFF);
     // The 'window status' is used as 'button state'
     int ButtonState = (int) (status & 0xFFFFFFFF);
-
+// View
+    window->view = (int) view;
 
     window->bg_color = (unsigned int) frame_color;
     window->clientrect_bg_color = (unsigned int) client_color;
@@ -563,7 +564,6 @@ void *doCreateWindow (
     window->client_dc = NULL;
     window->is_solid = (int) is_solid;
     window->rop = (unsigned long) rop_flags;
-    window->view   = (int) view;
     window->focus  = FALSE;
     // We already validated it when we create the object.
     //window->dirty  = FALSE;  // Validate
@@ -1631,8 +1631,8 @@ fail:
 void *CreateWindow ( 
     unsigned long type, 
     unsigned long style,
-    unsigned long status,  // Status do botao, e da janela. 
-    unsigned long view, 
+    unsigned long status,  // #test Status do botao, e da janela. 
+    unsigned long view,    // #test view 
     char *title,
     unsigned long x, 
     unsigned long y, 
@@ -1662,6 +1662,15 @@ void *CreateWindow (
     }
     */
 
+    /*
+    // #debug
+    int myview = (view & 0xFFFFFFFF);
+    if (myview == VIEW_MAXIMIZED){
+        printf("VIEW_MAXIMIZED\n"); exit(0);
+    }
+    */
+
+
 // =================
 // name
 // Duplicate
@@ -1674,7 +1683,7 @@ void *CreateWindow (
     if( (void*) title != NULL ){
         strcpy(_name,title);
     }
-    if( (void*) title == NULL ){
+    if ((void*) title == NULL){
         strcpy(_name,"No title");
     }
 // =================
@@ -1772,8 +1781,8 @@ void *CreateWindow (
             (void *) doCreateWindow ( 
                          WT_SIMPLE, 
                          style, 
-                         status, 
-                         view, 
+                         status,  //#test 
+                         view,    //#test
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -1819,7 +1828,11 @@ void *CreateWindow (
 
         __w = 
             (void *) doCreateWindow ( 
-                         WT_SIMPLE, 0, status, view, (char *) _name, 
+                         WT_SIMPLE, 
+                         0, 
+                         status, 
+                         view, 
+                         (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
@@ -1905,7 +1918,11 @@ void *CreateWindow (
 
         __w = 
             (void *) doCreateWindow ( 
-                         WT_SIMPLE, 0, status, view, (char *) _name,
+                         WT_SIMPLE, 
+                         0, 
+                         status, 
+                         view, 
+                         (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
@@ -1931,7 +1948,11 @@ void *CreateWindow (
 
         __w = 
             (void *) doCreateWindow ( 
-                         WT_SIMPLE, 0, status, view, (char *) _name,
+                         WT_SIMPLE, 
+                         0, 
+                         status, 
+                         view, 
+                         (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 

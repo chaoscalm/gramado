@@ -371,7 +371,10 @@ int main( int argc, char *argv[] )
     main_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_OVERLAPPED, 1, 1, "BROWSER",
+                  WT_OVERLAPPED, 
+                  WINDOW_STATUS_ACTIVE,  // status
+                  VIEW_NULL,             // view
+                  "BROWSER",
                   viewwindowx, viewwindowy, w_width, w_height,
                   0, 
                   0x0000,  

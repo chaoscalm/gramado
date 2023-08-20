@@ -3105,7 +3105,10 @@ int terminal_init(void)
     main_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_OVERLAPPED, 1, 1, "TERMINAL",
+                  WT_OVERLAPPED, 
+                  WINDOW_STATUS_ACTIVE,  // status
+                  VIEW_NULL,             // view
+                  "TERMINAL",
                   mwLeft, mwTop, mwWidth, mwHeight,
                   0,
                   WS_TERMINAL,
