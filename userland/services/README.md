@@ -1,4 +1,6 @@
-# Services - The servers.
+# Services
+
+The servers and daemons.
 
 ```
  * ftpd/ - FTP server.
