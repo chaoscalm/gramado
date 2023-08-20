@@ -689,6 +689,8 @@ redraw_window (
 // =======================
 // WT_BUTTON
 
+    int ButtonState = BS_DEFAULT;
+
     //Termina de desenhar o botão, mas não é frame
     //é só o botão...
     //caso o botão tenha algum frame, será alguma borda extra.
@@ -699,11 +701,13 @@ redraw_window (
 
     if (window->type == WT_BUTTON)
     {
+        ButtonState = (int) (window->status & 0xFFFFFFFF);
+ 
         //if ( (void*) window->parent == NULL )
             //printf("redraw_window: [FAIL] window->parent\n");
 
         // Atualiza algumas características da janela.
-        switch (window->status)
+        switch (ButtonState)
         {
             case BS_FOCUS:
                 border1 = COLOR_BLUE;
@@ -731,6 +735,8 @@ redraw_window (
 
             //?
             case BS_PROGRESS:
+                border1 = COLOR_GRAY;
+                border2 = COLOR_GRAY;
                 break;
 
             case BS_DEFAULT:

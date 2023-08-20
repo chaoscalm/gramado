@@ -740,10 +740,15 @@ int main( int argc, char *argv[] )
 // The [Save] button.
 // inside the main window.
 
+    // #test
+    // The 'button state' is the same of window status.
     savebutton_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_BUTTON,1,1,"Save",
+                  WT_BUTTON,
+                  BS_DEFAULT,  // window status or button state
+                  1,
+                  "Save",
                   (( lWi.cr_width/8 )*6),  //l 
                   4,                  //t
                   (( lWi.cr_width/8 )*1), 

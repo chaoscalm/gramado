@@ -2035,8 +2035,8 @@ int serviceCreateWindow(int client_fd)
 // wid, msg code, data1, data2;
     r.wid  = message_address[0];
     r.code = message_address[1];
-    r.ul2  = message_address[2];
-    r.ul3  = message_address[3];
+    r.ul2  = message_address[2];  // Status
+    r.ul3  = message_address[3];  // View
 // l,t,w,h
 // These are the outer values.
 // Including the border if it has one.
@@ -2060,7 +2060,6 @@ int serviceCreateWindow(int client_fd)
     r.ul10 = message_address[10]; 
     pwid = (int) (r.ul10 & 0xFFFF);
 // Style
-// #test
     r.ul11 = message_address[11];  
     my_style = (unsigned long) r.ul11;  // 8 bytes
 // Client pid
@@ -2145,12 +2144,21 @@ int serviceCreateWindow(int client_fd)
 // #todo
 // What is the border size?
 
+    /*
+    // #debug
+    int mystate = (status & 0xFFFFFFFF);
+    if (mystate == BS_PRESS){
+        printf("BS_PRESS\n"); exit(0);
+    }
+    */
+
+
     Window = 
         (struct gws_window_d *) CreateWindow ( 
                                     type,      // type
                                     my_style,  // style
-                                    1,         // status 
-                                    1,         // view
+                                    r.ul2, // status 
+                                    1,     // r.ul3 view
                                     r.data,    // name
                                     x, y, w, h,  // l,t,w,h 
                                     (struct gws_window_d *) Parent,  // parent struct pointer 

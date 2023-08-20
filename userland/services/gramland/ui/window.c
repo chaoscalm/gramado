@@ -66,16 +66,19 @@ static struct gws_window_d *__create_window_object(void);
 static struct gws_window_d *__create_window_object(void)
 {
     struct gws_window_d *window;
+
     window = (void *) malloc( sizeof(struct gws_window_d) );
-    if ( (void *) window == NULL ){
+    if ((void *) window == NULL){
         return NULL;
     }
     memset( window, 0, sizeof(struct gws_window_d) );
     window->used = TRUE;
     window->magic = 1234;
+    window->style = 0;
 // Validate.
 // This way the compositor can't redraw it.
     window->dirty = FALSE;
+    
     return (struct gws_window_d *) window;
 }
 
@@ -259,7 +262,7 @@ void useFrame( int value )
 void *doCreateWindow ( 
     unsigned long type, 
     unsigned long style,
-    unsigned long status, 
+    unsigned long status,  // Status do botao e da janela.
     unsigned long view, 
     char *title, 
     unsigned long x, 
@@ -526,14 +529,24 @@ void *doCreateWindow (
 
 // Create the window object.
     window = (struct gws_window_d *) __create_window_object();
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return NULL;
     }
+
+// Type
+    window->type = (unsigned long) type;
+// Style
+    window->style = (unsigned long) style;
+// Status (active or inactive)
+// Status do botao e da janela. (int)
+    window->status = (int) (status & 0xFFFFFFFF);
+    // The 'window status' is used as 'button state'
+    int ButtonState = (int) (status & 0xFFFFFFFF);
+
+
     window->bg_color = (unsigned int) frame_color;
     window->clientrect_bg_color = (unsigned int) client_color;
-    window->type = (unsigned long) type;
-// A lot of flags
-    window->style = (unsigned long) style;
+
 // buffers
     window->dedicated_buf = NULL;
     window->back_buf = NULL;
@@ -550,7 +563,6 @@ void *doCreateWindow (
     window->client_dc = NULL;
     window->is_solid = (int) is_solid;
     window->rop = (unsigned long) rop_flags;
-    window->status = (int) (status & 0xFFFFFFFF);
     window->view   = (int) view;
     window->focus  = FALSE;
     // We already validated it when we create the object.
@@ -623,7 +635,7 @@ void *doCreateWindow (
 
 // ===================================
 // Title: Just a pointer.
-    if ( (void*) title != NULL ){
+    if ((void*) title != NULL){
         if (*title != 0){
             window->name = (char *) title;
         }
@@ -637,12 +649,12 @@ void *doCreateWindow (
 // ===================================
 // Parent and child.
 
-    if ( (void*) pWindow == NULL ){
+    if ((void*) pWindow == NULL){
         window->parent = NULL;
         Parent = NULL;
         window->subling_list = NULL;
     }
-    if ( (void*) pWindow != NULL ){
+    if ((void*) pWindow != NULL){
         window->parent = (struct gws_window_d *) pWindow;
         Parent = (struct gws_window_d *) pWindow;
         //window->subling_list = ?;
@@ -668,29 +680,34 @@ void *doCreateWindow (
 // Qual é o status da janela, se ela é a janela ativa ou não.
 // ?? Devemos definir quais são os status possíveis da janela.
 
-    // Active 
-    if (window->status == WINDOW_STATUS_ACTIVE)
-    { 
-        set_active_window(window); 
-        //window->active = WINDOW_STATUS_ACTIVE;
-        //window->status = (unsigned long) WINDOW_STATUS_ACTIVE;
-        window->relationship_status = 
-            (unsigned long) WINDOW_REALATIONSHIPSTATUS_FOREGROUND; 
-        //#todo
-        //window->z = 0;  //z_order_get_free_slot()
-        //...
-    }
+//
+// Window status - (Not a button)
+// 
 
-    // Inactive
-    if (status == WINDOW_STATUS_INACTIVE)
-    { 
-        //window->active = WINDOW_STATUS_INACTIVE;
-        //window->status = (unsigned long) WINDOW_STATUS_INACTIVE;
-        window->relationship_status = 
-            (unsigned long) WINDOW_REALATIONSHIPSTATUS_BACKGROUND;
-        //todo
-        //window->z = 0; //z_order_get_free_slot()
-        //...
+    if ( window->type == WT_OVERLAPPED )
+    {
+        // Active 
+        if (window->status == WINDOW_STATUS_ACTIVE)
+        { 
+            set_active_window(window); 
+            //window->active = WINDOW_STATUS_ACTIVE;
+            //window->status = (unsigned long) WINDOW_STATUS_ACTIVE;
+            window->relationship_status = 
+                (unsigned long) WINDOW_REALATIONSHIPSTATUS_FOREGROUND; 
+            //#todo
+            //window->z = 0;  //z_order_get_free_slot()
+           //...
+        }
+        // Inactive
+        if (window->status == WINDOW_STATUS_INACTIVE)
+        { 
+            //window->active = WINDOW_STATUS_INACTIVE;
+            window->relationship_status = 
+                (unsigned long) WINDOW_REALATIONSHIPSTATUS_BACKGROUND;
+            //todo
+            //window->z = 0; //z_order_get_free_slot()
+            //...
+        }
     }
 
 //
@@ -1216,13 +1233,10 @@ void *doCreateWindow (
     // We need to work on this case.
 
     default:
-        
         debug_print("doCreateWindow: [DEBUG] default\n");
              printf("doCreateWindow: [DEBUG] default\n");
-        while (1)
-        {
+        while (1){
         };
-
         //return NULL;
         break;
     };
@@ -1381,12 +1395,10 @@ void *doCreateWindow (
         {
             if (window->focus == TRUE) { __tmp_color = xCOLOR_GRAY1; }
             if (window->focus == FALSE){ __tmp_color = xCOLOR_GRAY2; }
-
             doFillWindow( 
                 (window->absolute_x +1), (window->absolute_y +1), 
                 (window->width +1 +1), (window->height +1 +1), 
                 __tmp_color, __rop_flags );
-
             //#todo
             window->shadow_color = (unsigned int) __tmp_color;
         }
@@ -1426,8 +1438,7 @@ void *doCreateWindow (
                 window->bg_color = (unsigned int) frame_color;
                 break;
             default:
-                window->bg_color = 
-                    (unsigned int) COLOR_PINK;
+                window->bg_color = (unsigned int) COLOR_PINK;
                 break;
         };
 
@@ -1471,14 +1482,11 @@ void *doCreateWindow (
 // é só o botão...
 // caso o botão tenha algum frame, será alguma borda extra.
 // border color:
-// #bugbug
-// o conceito de status e state
-// está meio misturado. ja que estamos usando
-// a função de criar janela para criar botão.
 
     if ((unsigned long) type == WT_BUTTON)
     {
-        switch (status)  // ??
+        // #ps: ButtonState = window status.
+        switch (ButtonState)
         {
             case BS_FOCUS:
                 window->focus = TRUE;
@@ -1490,14 +1498,19 @@ void *doCreateWindow (
                 break;
 
             case BS_PRESS:
+                //printf("BS_PRESS\n"); exit(0);
                 buttonSelected = TRUE;
-                buttonBorderColor1       = COLOR_WHITE; 
-                buttonBorderColor2       = xCOLOR_GRAY3;
+                buttonBorderColor1       = xCOLOR_GRAY1; 
+                buttonBorderColor2       = COLOR_WHITE;
                 buttonBorderColor2_light = xCOLOR_GRAY5; 
                 buttonBorder_outercolor  = COLOR_BLACK;
                 break;
 
             case BS_HOVER:
+                buttonBorderColor1       = COLOR_WHITE; 
+                buttonBorderColor2       = xCOLOR_GRAY1;
+                buttonBorderColor2_light = xCOLOR_GRAY5; 
+                buttonBorder_outercolor  = COLOR_BLACK;
                 break;
                     
             case BS_DISABLED:
@@ -1508,6 +1521,9 @@ void *doCreateWindow (
                 break;
 
             case BS_PROGRESS:
+                buttonBorderColor1 = COLOR_GRAY;
+                buttonBorderColor2 = COLOR_GRAY;
+                buttonBorder_outercolor  = COLOR_GRAY;
                 break;
 
             case BS_DEFAULT:
@@ -1515,7 +1531,7 @@ void *doCreateWindow (
                 buttonFocus = FALSE;
                 buttonSelected = FALSE;
                 buttonBorderColor1       = COLOR_WHITE;   // left/top
-                buttonBorderColor2       = xCOLOR_GRAY3;  // right/bottom
+                buttonBorderColor2       = xCOLOR_GRAY1;  // right/bottom
                 buttonBorderColor2_light = xCOLOR_GRAY5;
                 buttonBorder_outercolor  = COLOR_BLACK;
                 break;
@@ -1615,7 +1631,7 @@ fail:
 void *CreateWindow ( 
     unsigned long type, 
     unsigned long style,
-    unsigned long status, 
+    unsigned long status,  // Status do botao, e da janela. 
     unsigned long view, 
     char *title,
     unsigned long x, 
@@ -1637,6 +1653,14 @@ void *CreateWindow (
 
     //gwssrv_debug_print ("CreateWindow:\n");
 
+
+    /*
+    // #debug
+    int mystate = (status & 0xFFFFFFFF);
+    if (mystate == BS_PRESS){
+        printf("BS_PRESS\n"); exit(0);
+    }
+    */
 
 // =================
 // name
@@ -1849,14 +1873,18 @@ void *CreateWindow (
 
         __w = 
             (void *) doCreateWindow ( 
-                         WT_BUTTON, 0, status, view, (char *) _name, 
+                         WT_BUTTON,   // type 
+                         0,           // style
+                         status,      // status (Button state)
+                         view,        // view
+                         (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
                          frame_color, client_color, 
                          (unsigned long) __rop_flags );
 
-         if ( (void *) __w == NULL ){
+         if ((void *) __w == NULL){
              gwssrv_debug_print ("CreateWindow: doCreateWindow fail\n");
              goto fail;
          }

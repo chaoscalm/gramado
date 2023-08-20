@@ -429,7 +429,10 @@ int main( int argc, char *argv[] )
     button = 
         (int) gws_create_window (
                   client_fd,
-                  WT_BUTTON, 1, 1, ">",
+                  WT_BUTTON, 
+                  BS_DEFAULT, 
+                  1, 
+                  ">",
                   (w_width -24 -4),  // l 
                   4,                 // t
                   24, 

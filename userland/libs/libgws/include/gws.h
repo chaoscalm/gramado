@@ -291,7 +291,7 @@ wid_t
 gws_create_window ( 
     int fd,
     unsigned long type,        //1, Tipo de janela (popup,normal,...)
-    unsigned long status,      //2, Estado da janela (ativa ou nao)
+    unsigned long status,      //2, Estado da janela (ativa ou nao) (button state)
     unsigned long view,        //3, (min, max ...)
     char *windowname,          //4, Título. #todo maybe const char.
     unsigned long x,           //5, Deslocamento em relação às margens do Desktop. 

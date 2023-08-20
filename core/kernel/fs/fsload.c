@@ -744,20 +744,20 @@ fs_load_path (
 
 // Path
     if ((void*) path == NULL){
-        panic ("fs_load_path: path\n"); 
+        panic("fs_load_path: path\n"); 
     }
     if (*path == 0){
-        panic ("fs_load_path: *path\n"); 
+        panic("fs_load_path: *path\n"); 
     }
 
 // Address
     if (address == 0){
-        panic ("fs_load_path: address\n");
+        panic("fs_load_path: address\n");
     }
 
 // Buffer size
     if (buffer_size == 0){
-        panic ("fs_load_path: buffer_size\n");
+        panic("fs_load_path: buffer_size\n");
     }
 
 //===================================
@@ -778,7 +778,7 @@ fs_load_path (
 // prealocados para os diretórios.
     if ( n_levels<=0 || n_levels >= FS_N_BUFFERS )
     {
-        panic ("fs_load_path: n_levels\n");
+        panic("fs_load_path: n_levels\n");
     }
 
 // #debug
@@ -1103,8 +1103,8 @@ fs_load_path (
     };   
 
 fail:
-    debug_print ("fs_load_path: Fail\n");
-    printf      ("fs_load_path: Fail\n");
+    debug_print("fs_load_path: Fail\n");
+    printf     ("fs_load_path: Fail\n");
     refresh_screen();
     return (-1);
 }

@@ -578,7 +578,10 @@ int main( int argc, char *argv[] )
     button1_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_BUTTON, 1, 1, "Reboot",
+                  WT_BUTTON, 
+                  BS_DEFAULT, 
+                  1, 
+                  "Reboot",
                   bu1_l, bu1_t, bu1_w, bu1_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
@@ -631,7 +634,10 @@ int main( int argc, char *argv[] )
     button2_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_BUTTON, 1, 1, "Confirm",
+                  WT_BUTTON, 
+                  BS_DEFAULT, 
+                  1, 
+                  "Confirm",
                   bu2_l, bu2_t, bu2_w, bu2_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 

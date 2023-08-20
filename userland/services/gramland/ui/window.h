@@ -173,7 +173,12 @@ extern struct gws_windowmanager_d  WindowManager;
 #define VIEW_NORMAL    1003 //Normal (restaurada)
 //...
 
-// Button state
+// Button styles (int)
+#define BSTYLE_3D  0
+#define BSTYLE_FLAT  1
+// ...
+
+// Button states (int)
 #define BS_NULL      0 
 #define BS_DEFAULT   1
 #define BS_RELEASED  1
@@ -189,7 +194,7 @@ extern struct gws_windowmanager_d  WindowManager;
 #define WINDOW_UNLOCKED  0
 
 //
-// Window style
+// Window Style
 //
 
 #define WS_MAXIMIZED    0x0001
@@ -198,22 +203,26 @@ extern struct gws_windowmanager_d  WindowManager;
 #define WS_STATUSBAR    0x0008  // In the bottom
 
 #define WS_LOCKED              0x0010  // No input
+// 0x0020
 #define WS_CLIP_IN_CLIENTAREA  0x0040
+// 0x0080
 
 #define WS_TITLEBAR      0x0100
 #define WS_TITLEBARICON  0x0200
 #define WS_TRANSPARENT   0x0400
+// 0x0800
 
 #define WS_HSCROLLBAR   0x1000
 #define WS_VSCROLLBAR   0x2000
 #define WS_CHILD        0x4000
+// 0x8000
 
 #define WS_APP       0x10000
 #define WS_DIALOG    0x20000
 #define WS_TERMINAL  0x40000
+// 0x80000
 
 //----------
-
 
 // window status
 #define WINDOW_STATUS_ACTIVE       1
@@ -265,7 +274,7 @@ struct gws_button_d
 // Estilo de design.
 // 3D, flat ...
     int style;
-//button states:
+// Button states: See BS_XXXXX.
 //1. Default
 //2. Focus
 //3. Expanded/Toggled/Selected
@@ -543,9 +552,6 @@ struct gws_window_d
 // Event queue.
      //struct gws_event_d *event_queue;
 
-// #todo
-// We need to review that list of flags.
-// We already using some flags.
     unsigned long style;
 // Uma janela de aplicativo
 // poderá ter janelas de aplicativo dentro de sua área de cliente.
@@ -612,7 +618,7 @@ struct gws_window_d
 // Estado: (Full,Maximized,Minimized...)
     int view; 
 
-// ?
+// Active, inactive.
     int status;
 
 //
