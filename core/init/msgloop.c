@@ -39,8 +39,8 @@ static void do_hello(int src_tid)
     printf("init.bin: [44888] Hello received from %d\n", 
         src_tid );
 
-    //if (dst_tid<0)
-        //return;
+    if (dst_tid<0)
+        return;
 
 // -------------
 // Reply: 

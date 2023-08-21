@@ -206,40 +206,30 @@ static void __test_winfo(int fd, int wid);
 
 static void __test_ioctl(void);
 
-static void __test_sync_hello(void);
+static void __test_send_async_hello(void);
 
 static void __winmax(int fd);
 static void __winmin(int fd);
 
 //====================================================
-
-// #test
-// We sent the message 44888 to the init process
-// and we got the same message back as a response.
-static void __test_sync_hello(void)
+static void __test_send_async_hello(void)
 {
+// Send async hello. 44888.
+
     unsigned long message_buffer[32];
 // The tid of init.bin is '0', i guess. :)
     int InitProcessControlTID = 0;
-// REsponse support.
-    int __src_tid = -1;
-    int __dst_tid = -1;
+// Response support.
+    //int __src_tid = -1;
+    //int __dst_tid = -1;
 
-//
-// The hello message.
-//
-
+// The hello message
     message_buffer[0] = 0; //window
     message_buffer[1] = (unsigned long) 44888;  // message code
     message_buffer[2] = (unsigned long) 1234;   // Signature
     message_buffer[3] = (unsigned long) 5678;   // Signature
-// receiver
-    message_buffer[4] = 0;  //init tid
-// sender
-    message_buffer[5] = 0;  //?
-
-    //unsigned long MessageBuffer = 
-    //    (unsigned long) &message_buffer[0];
+    message_buffer[4] = 0;  // Receiver
+    message_buffer[5] = 0;  // Sender
 
 // ---------------------------------
 // Post
@@ -249,31 +239,8 @@ static void __test_sync_hello(void)
         (int) InitProcessControlTID, 
         (unsigned long) message_buffer );
 
-// ---------------------------------
-// #test
-// loop to get the response.
-// Its a different buffer from the send routine above.
-
-// Wait for hello (44888)
-// If we sent a hello.
-    while (1)
-    {
-        if ( rtl_get_event() == TRUE )
-        {
-            // Receiving a response from init.bin?
-            if  (RTLEventBuffer[1] == 44888)
-            {
-                // Get caller's tid.
-                __src_tid = (int) ( RTLEventBuffer[8] & 0xFFFF );
-                // Get receiver's tid.
-                __dst_tid = (int) ( RTLEventBuffer[9] & 0xFFFF );
-                printf("terminal.bin: 44888 Response received | sender=%d receiver=%d\n",
-                    __src_tid,   // Sender, (the caller).
-                    __dst_tid);  // Receiver, (us).
-                break;
-            }
-        }
-    };
+// Done
+    // return;
 }
 
 // Redraw and refresh the client window.
@@ -826,7 +793,7 @@ static void compareStrings(int fd)
     if ( strncmp(prompt,"msg1",4) == 0 )
     {
         //while(1)
-            __test_sync_hello();
+            __test_send_async_hello();
         goto exit_cmp;
     }
 
