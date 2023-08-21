@@ -457,11 +457,11 @@ int __fflush (FILE *stream)
 //    nwrite = __write( fileno(stream), stream->_base, Count );
 //#endif
 
+// Fail
     if (nwrite <= 0)
     {
         //#debug: Recursive.
         //printf ("__fflush: [FAIL] nwrite Count={%d} \n", Count);
-        
         Count = 0;
         // Ajust to the next flush.
         stream->_p = stream->_base;
@@ -472,15 +472,17 @@ int __fflush (FILE *stream)
         return EOF;
     }
 
+// Error
 // #todo
 // Something is wrong
-    if (nwrite != Count){
+    if (nwrite != Count)
+    {
         debug_print("__fflush: [DEBUG] nwrite != Count\n");
         // #todo
         // stream->_flags |= _IOERROR; 
         // stream->error = errno;
         // #todo
-        //return -1;
+        //return EOF;
     }
 
 // Re-initialize
@@ -491,6 +493,7 @@ int __fflush (FILE *stream)
     //stream->have_ungotten = false;
     //stream->ungotten = 0;
 
+// done
     return 0;
 }
 
@@ -568,14 +571,16 @@ int ____bfill (FILE *stream)
 {
     int n_read = 0;
 
-    if ( (void *) stream == NULL ){
-        debug_print ("____bfill: [FAIL] struct \n");
-        printf      ("____bfill: [FAIL] struct \n");
-        return (int) (-1);
+    if ((void *) stream == NULL)
+    {
+        debug_print("____bfill: [FAIL] struct\n");
+        printf     ("____bfill: [FAIL] struct\n");
+        goto fail;
     }
 
 // Check buffer size
-    if (stream->_lbfsize != BUFSIZ){
+    if (stream->_lbfsize != BUFSIZ)
+    {
         debug_print ("____bfill: [FAIL] _lbfsize \n");
         printf      ("____bfill: [FAIL] _lbfsize %d\n",
             stream->_lbfsize);
@@ -636,28 +641,29 @@ int ____bfill (FILE *stream)
     //                   stream->_cnt );
     //}
 
-    n_read = (int) read ( fileno(stream), stream->_p, BUFSIZ );
-
-    if (n_read < 0){
+    n_read = (int) read( fileno(stream), stream->_p, BUFSIZ );
+    if (n_read < 0)
+    {
         stream->_fsize = 0;
         stream->_cnt = BUFSIZ;
-        return EOF;
+        goto fail;
     }
-    
-    if (n_read == 0){
+    if (n_read == 0)
+    {
         stream->_fsize = 0;
         stream->_cnt = BUFSIZ;
-        return EOF;
+        goto fail;
     }
-
-    // enchemos o buffer
-    if ( n_read >= (BUFSIZ-1) ){
+    // Enchemos o buffer
+    if ( n_read >= (BUFSIZ-1) )
+    {
         stream->_fsize = BUFSIZ;
-        stream->_cnt = 0;
+        stream->_cnt = 0;  // Nao ha mais espaco.
         stream->_p = stream->_base;
         stream->_w = 0;
         stream->_r = 0;
-        return BUFSIZ;
+        // Retorna a quantidade de bytes carregados no buffer.
+        return (int) BUFSIZ;
     }
 
 // Update
@@ -675,9 +681,11 @@ int ____bfill (FILE *stream)
 //done:
 // Retornamos a quantidade disponível para leitura.
 // Isso será usado por __getc.
+// Retorna a quantidade de bytes carregados no buffer.
     return (int) n_read;
+fail:
+    return (int) EOF;
 }
-
 
 // __getc:
 // #todo:
@@ -702,10 +710,11 @@ int __getc(FILE *stream)
     register int ch=0;
     int nreads=0;
 
-    if ( (void *) stream == NULL ){
-        debug_print ("__getc: stream\n");
-        printf      ("__getc: stream\n");
-        return EOF;
+    if ((void *) stream == NULL)
+    {
+        debug_print("__getc: stream\n");
+        printf     ("__getc: stream\n");
+        goto fail;
     }
 
     // File is not readable.
@@ -731,10 +740,11 @@ int __getc(FILE *stream)
 // Não podemos acessar um ponteiro nulo ... 
 // no caso endereço.
 
-    if ( (void*) stream->_p == NULL ){
-        debug_print ("__getc: Invalid stream->_p\n");
-        printf      ("__getc: Invalid stream->_p\n");
-        return EOF;
+    if ((void*) stream->_p == NULL)
+    {
+        debug_print("__getc: Invalid stream->_p\n");
+        printf     ("__getc: Invalid stream->_p\n");
+        goto fail;
     }
 
 // Se a quantidade de bytes restantes no buffer for maior que zero 
@@ -750,9 +760,11 @@ int __getc(FILE *stream)
          stream->_cnt <= BUFSIZ && 
          stream->_r < stream->_fsize )
     {
+        // Get the char.
         ch = (int) *stream->_p;
-        stream->_p++;
-        stream->_r++;
+
+        stream->_p++;  // pointer
+        stream->_r++;  // offset
         // Diminui a quantidade de bytes restantes no buffer em ring3.
         stream->_cnt--;
         return (int) ch;
@@ -791,7 +803,7 @@ int __getc(FILE *stream)
             stream->_p = stream->_base;
             stream->_w = 0;
             stream->_r = 0;
-            return EOF;
+            goto fail;
         }
 
         // Ok
@@ -823,7 +835,7 @@ int __getc(FILE *stream)
         stream->_cnt = 0;
         stream->_w = BUFSIZ;  // o escritor eta no fim do arquivo.
         stream->_r = BUFSIZ;  // o leitor eta no fim do arquivo.
-        return EOF;
+        goto fail;
     }
 
 // == Read ring3 buffer ====================
@@ -832,31 +844,27 @@ int __getc(FILE *stream)
 // #bugbug
 // FAIL!
 
-    debug_print ("__getc: [BUGBUG] Unexpected return\n");
-    printf      ("__getc: [BUGBUG] Unexpected return\n");
+    debug_print("__getc: [BUGBUG] Unexpected return\n");
+    printf     ("__getc: [BUGBUG] Unexpected return\n");
 
-    return EOF;
+fail:
+    return (int) EOF;
 }
-
-
-// __putc:
-//
 
 int __putc(int ch, FILE *stream)
 {
-    // #todo
+
+// Invalid char
     //if(ch<0){
-    //    return -1;
+    //    goto fail;
     //}
 
-// #bugbug
-// O buffer precisa já estar inicializado.
-
-    if ( (void *) stream == NULL )
+// Invalid stream
+    if ((void *) stream == NULL)
     {
        debug_print("__putc: stream\n");
        printf     ("__putc: stream\n");
-       return -1;
+       goto fail;
     }
 
 // Se nosso ponteiro de escrita é 
@@ -868,15 +876,16 @@ int __putc(int ch, FILE *stream)
     {
        debug_print("__putc: [FAIL] Overflow\n");
        printf     ("__putc: [FAIL] Overflow\n");
-       stream->_cnt = 0;
-       return -1;  //EOF
+       stream->_cnt = 0;  // Fim do arquivo.
+       goto fail;
     }
 
-// Coloca no buffer.
-// Incrementa o offset de escrita.
-
+// Insert into the buffer and increment the offset.
+// All the chars. '\n' is also include.
     stream->_base[stream->_w] = ch;
     stream->_w++;
+// #test
+    //stream->_cnt = ( BUFSIZ - stream->_w ); 
 
 // Overflow
 // Se chegamos ao fim do arquivo.
@@ -897,7 +906,8 @@ int __putc(int ch, FILE *stream)
 // Então vamos enviar o buffer para o kernel.
 // Assim o kernel vai exibir o buffer no console atual.
 
-    if (ch == '\n'){ 
+    if (ch == '\n')
+    {
         fflush(stream);
         return (int) ch;
     }
@@ -906,6 +916,9 @@ int __putc(int ch, FILE *stream)
         //return EOF;
 
     return (int) ch;
+
+fail:
+    return (int) EOF;
 }
 
 // Don't change it.
