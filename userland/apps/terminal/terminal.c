@@ -188,7 +188,7 @@ terminalProcedure (
 //
 
 // System messages.
-static void __event_loop(int fd, int wid);
+static void __get_event(int fd, int wid);
 
 static int __input_STDIN(int fd);
 static int __input_STDOUT(int fd);
@@ -2870,6 +2870,7 @@ static int __input_STDIN(int fd)
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
     int C=0;
+    int fGetSystemEvents = TRUE;
 
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
     new_stdin = stdin;
@@ -2914,7 +2915,9 @@ static int __input_STDIN(int fd)
                 C );          // long2 (ascii)
         }
         // System events.
-        __event_loop( client_fd, window_id );
+        if (fGetSystemEvents == TRUE){
+            __get_event( client_fd, window_id );
+        }
     };
 
     printf ("__input_STDIN: Stop listening stdin\n");
@@ -2923,7 +2926,7 @@ fail:
     return (int) -1;
 }
 
-static void __event_loop(int fd, int wid)
+static void __get_event(int fd, int wid)
 {
     int msg_code = 0;
 
