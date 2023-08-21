@@ -143,12 +143,10 @@ void wmRefreshDirtyRectangles(void)
 
                     // We're done.
                     // We do the other windows in the next round.
-                    if (w == __root_window)
-                    {
+                    if (w == __root_window){
                        validate_window(w);
                        return;
                     }
-
                     validate_window(w);
                 }
             }
@@ -200,7 +198,6 @@ int gws_show_window_rect(struct gws_window_d *window)
     //{
         //window->width = window->width +4;
         //window->height = window->height +4;
-
         //refresh_rectangle ( window->left, window->top, 
         //    window->width +2, window->height +2 ); 
         //return (int) 0;
@@ -258,6 +255,7 @@ void mouse_at(void)
                      __new_mouse_y > w->absolute_y &&
                      __new_mouse_y > w->absolute_bottom )
                 {
+                    // Not the root
                     if (w != __root_window)
                     {
                         mouse_hover = (void *) w;
@@ -356,7 +354,6 @@ void __display_mouse_cursor(void)
     draw_mouse_pointer();
 //------ 
 }
-
 
 // Flush
 // The compositor.

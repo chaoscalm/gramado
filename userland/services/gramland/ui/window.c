@@ -172,7 +172,6 @@ fail:
     return -1;
 }
 
-
 void gws_enable_transparence(void)
 {
     config_use_transparency=TRUE;
@@ -2095,35 +2094,42 @@ int RegisterWindow(struct gws_window_d *window)
     register int Slot=0;
     struct gws_window_d *tmp; 
 
-    if ( (void *) window == NULL ){
+    if ((void *) window == NULL)
+    {
         //gws_debug_print ("RegisterWindow: window struct\n");
-        return (int) -1;
+        goto fail;
     }
+
+// #todo ?
+    //if (window->magic != 1234)
+        //goto fail;
 
 // Contagem de janelas e limites.
 // (é diferente de id, pois id representa a posição
 // da janela na lista de janelas).
 
     windows_count++;
-
-    if ( windows_count >= WINDOW_COUNT_MAX ){
-        printf ("RegisterWindow: Limits\n");
-        return -1;
+    if (windows_count >= WINDOW_COUNT_MAX)
+    {
+        printf ("RegisterWindow: windows_count\n");
+        goto fail;
     }
 
 // Search for empty slot
-    for (Slot=0; Slot<1024; ++Slot)
+    for (Slot=0; Slot<WINDOW_COUNT_MAX; ++Slot)
     {
         tmp = (struct gws_window_d *) windowList[Slot];
         // Found!
-        if ( (void *) tmp == NULL ){
+        if ((void *) tmp == NULL)
+        {
             windowList[Slot] = (unsigned long) window; 
+            // The slot number is the new wid.
             window->id = (int) Slot;
             return (int) Slot;
         }
     };
-
-// fail
+// After the loop.
+fail:
     //gwssrv_debug_print("No more slots\n");
     return (int) (-1);
 }
@@ -2137,13 +2143,13 @@ int DestroyWindow(int wid)
     int fUpdateDesktop = FALSE;
 
     if (wid<0){
-        return -1;
+        goto fail;
     }
     window = (struct gws_window_d *) get_window_from_wid(wid);
-    if ( (void*) window == NULL )
-        return -1;
+    if ((void*) window == NULL)
+        goto fail;
     if (window->magic != 1234)
-        return -1;
+        goto fail;
 
 //
 // Not an overlapped window.
@@ -2178,7 +2184,7 @@ int DestroyWindow(int wid)
     int wid_max=-1;
     int wid_clo=-1;
     tmpw = (void *) window->titlebar;
-    if ( (void*) tmpw != NULL )
+    if ((void*) tmpw != NULL)
     {
         if (tmpw->magic == 1234)
         {
@@ -2195,7 +2201,7 @@ int DestroyWindow(int wid)
 // ---------------
 // Destroy min control
     tmpw = (struct gws_window_d *) get_window_from_wid(wid_min);
-    if ( (void*) tmpw != NULL )
+    if ((void*) tmpw != NULL)
     {
         if (tmpw->magic == 1234)
         {
@@ -2207,7 +2213,7 @@ int DestroyWindow(int wid)
 // ---------------
 // Destroy max control
     tmpw = (struct gws_window_d *) get_window_from_wid(wid_max);
-    if ( (void*) tmpw != NULL )
+    if ((void*) tmpw != NULL)
     {
         if (tmpw->magic == 1234)
         {
@@ -2219,7 +2225,7 @@ int DestroyWindow(int wid)
 // ---------------
 // Destroy clo control
     tmpw = (struct gws_window_d *) get_window_from_wid(wid_clo);
-    if ( (void*) tmpw != NULL )
+    if ((void*) tmpw != NULL)
     {
         if (tmpw->magic == 1234)
         {
@@ -2248,10 +2254,11 @@ int DestroyWindow(int wid)
     if (fUpdateDesktop == TRUE){
         wm_update_desktop(TRUE,TRUE);
     }
-
+// Done
     return 0;
+fail:
+    return (int) -1;
 }
-
 
 void DestroyAllWindows(void)
 {
@@ -2264,15 +2271,13 @@ void DestroyAllWindows(void)
         {
             if (tmp->used == TRUE)
             {
-                if (tmp->magic == 1234)
-                {
+                if (tmp->magic == 1234){
                     DestroyWindow(tmp->id);
                 }
             }
         }
     };
 }
-
 
 /*
 int this_type_has_a_title(int window_type);
@@ -2284,7 +2289,6 @@ int this_type_has_a_title(int window_type)
     return FALSE;
 }
 */
-
 
 /*
 int this_type_can_become_active(int window_type);
@@ -2306,43 +2310,41 @@ struct gws_window_d *get_window_object(int wid)
 }
 */
 
-//#todo
-// get client rect froma given window.
-// #todo: All the types has a client window?
-// Or is it valid only for overlapped windows?
 struct gws_rect_d *clientrect_from_window(struct gws_window_d *window)
 {
-    struct gws_rect_d *rect;
+// Get a pointer for client area's rectangle.
+// #todo: 
+// All the types has a client window?
+// Or is it valid only for overlapped windows?
 
-    if ( (void*) window == NULL )
+    struct gws_rect_d *rect_cw;
+
+    if ((void*) window == NULL)
         return NULL;
-
     if (window->used != TRUE)
         return NULL;
-
     if (window->magic != 1234)
         return NULL;
+    rect_cw = (struct gws_rect_d *) &window->rcClient;
 
-    rect = (struct gws_rect_d *) &window->rcClient;
-
-    return (struct gws_rect_d *) rect;
+    return (struct gws_rect_d *) rect_cw;
 }
 
-//#todo
 struct gws_rect_d *rect_from_window(struct gws_window_d *window)
 {
-    struct gws_rect_d *rect;
+// Get a pointer for a window's rectangle.
 
-    if ( (void*) window == NULL )
+    struct gws_rect_d *rc_window;
+
+    if ((void*) window == NULL)
         return NULL;
     if (window->used != TRUE)
         return NULL;
     if (window->magic != 1234)
         return NULL;
+    rc_window = (struct gws_rect_d *) &window->rcWindow;
 
-    rect = (struct gws_rect_d *) &window->rcWindow;
-
-    return (struct gws_rect_d *) rect;
+    return (struct gws_rect_d *) rc_window;
 }
 
 //
