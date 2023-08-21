@@ -187,6 +187,9 @@ terminalProcedure (
 // Event loop
 //
 
+// System messages.
+static void __event_loop(int fd, int wid);
+
 static int __input_STDIN(int fd);
 static int __input_STDOUT(int fd);
 static int __input_STDERR(int fd);
@@ -2608,7 +2611,7 @@ terminalProcedure (
 
 // ==================
 
-    switch(msg){
+    switch (msg){
 
     //case MSG_QUIT:
     //case 4080:
@@ -2683,6 +2686,9 @@ terminalProcedure (
         exit(0);
         break;
 
+    case MSG_PAINT:
+        printf ("terminal.bin: MSG_PAINT\n");
+        break;
 
     default:
         return 0;
@@ -2907,12 +2913,46 @@ static int __input_STDIN(int fd)
                 C,            // long1 (ascii)
                 C );          // long2 (ascii)
         }
+        // System events.
+        __event_loop( client_fd, window_id );
     };
 
     printf ("__input_STDIN: Stop listening stdin\n");
     return 0;
 fail:
     return (int) -1;
+}
+
+static void __event_loop(int fd, int wid)
+{
+    int msg_code = 0;
+
+// Get one single event.
+    if ( rtl_get_event() != TRUE )
+        return;
+
+// Dispatch
+    msg_code = (int) (RTLEventBuffer[1] & 0xFFFFFFFF);
+
+    switch (msg_code){
+    // Accepting only these messages.
+    case MSG_CLOSE:
+    case MSG_PAINT:
+    // ...
+        terminalProcedure ( 
+            fd,  // socket 
+            wid,  // wid 
+            (int) msg_code, 
+            (unsigned long) RTLEventBuffer[2],
+            (unsigned long) RTLEventBuffer[3] );
+        break;
+    //#test
+    case 44888:
+       printf("terminal.bin: 44888 Received\n");
+       break;
+    default:
+        break;
+    };
 }
 
 static void __initialize_basics(void)

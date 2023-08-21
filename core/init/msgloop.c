@@ -167,7 +167,7 @@ static int __idlethread_loop(void)
             // Dispatch.
             __Procedure ( 
                 (void*) RTLEventBuffer[0], 
-                RTLEventBuffer[1], 
+                RTLEventBuffer[1],  // msg 
                 RTLEventBuffer[2], 
                 RTLEventBuffer[3] );
             //#test
