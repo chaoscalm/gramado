@@ -188,7 +188,8 @@ terminalProcedure (
 //
 
 // System messages.
-static void __get_event(int fd, int wid);
+static void __get_system_event(int fd, int wid);
+static void __get_ws_event(int fd, int event_wid);
 
 static int __input_STDIN(int fd);
 static int __input_STDOUT(int fd);
@@ -2679,15 +2680,18 @@ terminalProcedure (
     //    return 0;
     //    break;
 
+    // ok. It's working.
+    case MSG_PAINT:
+        //printf ("terminal.bin: MSG_PAINT\n");
+        //clear_terminal_client_window(fd);
+        //doPrompt(fd);
+        break;
+
     case MSG_CLOSE:
         printf ("terminal.bin: MSG_CLOSE\n");
         gws_destroy_window(fd,terminal_window);
         gws_destroy_window(fd,main_window);
         exit(0);
-        break;
-
-    case MSG_PAINT:
-        printf ("terminal.bin: MSG_PAINT\n");
         break;
 
     default:
@@ -2862,15 +2866,18 @@ static int __input_STDERR(int fd)
 
 static int __input_STDIN(int fd)
 {
+// Get events from stdin, kernel and ws.
 // Pegando o input de 'stdin'.
 // #importante:
 // Esse event loop pega dados de um arquivo.
+
 
     FILE *new_stdin;
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
     int C=0;
-    int fGetSystemEvents = TRUE;
+    int fGetSystemEvents = TRUE;  // from kernel.
+    int fGetWSEvents = TRUE;  // from window server.
 
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
     new_stdin = stdin;
@@ -2914,9 +2921,14 @@ static int __input_STDIN(int fd)
                 C,            // long1 (ascii)
                 C );          // long2 (ascii)
         }
+        // Get events from the window server.
+        
         // System events.
         if (fGetSystemEvents == TRUE){
-            __get_event( client_fd, window_id );
+            __get_system_event( client_fd, window_id );
+        }
+        if (fGetWSEvents == TRUE){
+            __get_ws_event( client_fd, main_window );
         }
     };
 
@@ -2926,7 +2938,7 @@ fail:
     return (int) -1;
 }
 
-static void __get_event(int fd, int wid)
+static void __get_system_event(int fd, int wid)
 {
     int msg_code = 0;
 
@@ -2954,6 +2966,47 @@ static void __get_event(int fd, int wid)
        printf("terminal.bin: 44888 Received\n");
        break;
     default:
+        break;
+    };
+}
+
+static void __get_ws_event(int fd, int event_wid)
+{
+// Get only one event from the window server.
+
+    struct gws_event_d lEvent;
+    lEvent.used = FALSE;
+    lEvent.magic = 0;
+    lEvent.type = 0;
+    lEvent.long1 = 0;
+    lEvent.long2 = 0;
+
+    struct gws_event_d *e;
+    e = 
+        (struct gws_event_d *) gws_get_next_event(
+                                   fd, 
+                                   event_wid,
+                                   (struct gws_event_d *) &lEvent );
+// Invalid event.
+    if ((void *) e == NULL)
+        return;
+    if (e->magic != 1234)
+        return;
+
+// Dispatch event.
+    int event_type = (int) (e->type & 0xFFFFFFFF);
+    if (event_type<0)
+        return;
+    switch (event_type){
+    // ...
+    case MSG_PAINT:
+    case MSG_CLOSE:
+        terminalProcedure( 
+            fd,          // socket
+            e->window,   // window ID
+            e->type,     // message code
+            e->long1,    // long1 (ascii)
+            e->long2 );  // long2 (ascii)
         break;
     };
 }
