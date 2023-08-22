@@ -1330,9 +1330,7 @@ static void doPrompt(int fd)
 // #bugbug
 // Refreshing the whole window is too much.
 // Refresh only the rectangle of the size of a char or line.
-// #todo: Call gws_refresh_retangle(...) (Not implemented yet)
 
-    // it works.
     gws_refresh_retangle(
         fd,
         (cursor_x*8),(cursor_y*8),8,8);
@@ -1340,7 +1338,6 @@ static void doPrompt(int fd)
     // it works
     //gws_refresh_window(fd,wid);
 }
-
 
 // interna
 // Isso chama o aplicativo true.bin
@@ -1614,7 +1611,7 @@ terminal_write_char (
         (unsigned long) c );
 
 // Coloca no buffer de linhas e colunas.
-    terminalInsertNextChar ( (char) c ); 
+    terminalInsertNextChar((char) c); 
 
 // Circula
 // próxima linha.
@@ -2695,11 +2692,17 @@ terminalProcedure (
     case MSG_KEYDOWN:
         switch(long1)
         {
+            //case 0:
+                //break;
+
+            // [ Enter ]
             case VK_RETURN:
                 
                 // When using the embedded shell.
                 // Compare strings.
-                if (isUsingEmbeddedShell == TRUE){
+                if (isUsingEmbeddedShell == TRUE)
+                {
+                    //printf ("terminalProcedure; VK_RETURN\n");
                     __on_return_key_pressed(fd);
                     return 0;
                 }
@@ -2984,6 +2987,12 @@ static int __input_STDIN(int fd)
         if (isUsingEmbeddedShell == FALSE){
             break;
         }
+        // #bubug
+        // Logo apos lermos um ENTER, o terminal vai colocar
+        // alguma coisa em stdin. Provavelmente estamos lendo
+        // alguma coisa da linha de comandos usada pelo processo filho.
+        // #bubug
+        // Estamos lendo dois ENTER seguidos.
         C = fgetc(new_stdin);
         if (C > 0)
         {

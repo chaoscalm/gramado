@@ -124,7 +124,7 @@ off_t sys_lseek(int fd, off_t offset, int whence)
 
 // Process structure.
     p = (struct process_d *) processList[current_process];
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         debug_print("sys_lseek: p\n");
         goto fail;
     }
@@ -134,11 +134,11 @@ off_t sys_lseek(int fd, off_t offset, int whence)
 
 // File
     f = (file *) p->Objects[fd];
-    if ( (void *) f == NULL ){
+    if ((void *) f == NULL){
         debug_print("sys_lseek: f\n");
         return -1;  // (off_t) (-EBADF); 
     }
-    if (f->magic!=1234){
+    if (f->magic != 1234){
         return -1;  // (off_t) (-EBADF);
     }
 
@@ -148,9 +148,10 @@ off_t sys_lseek(int fd, off_t offset, int whence)
 
 // fseek
 // See: kstdio.c
-    k_fseek ( (file *) f, (long) offset, (int) whence );
+    k_fseek( (file *) f, (long) offset, (int) whence );
 
-    if ( f->_p < f->_base ){
+    if ( f->_p < f->_base )
+    {
         panic("sys_lseek: #fixme f->_p < f->_base\n");
     }
 

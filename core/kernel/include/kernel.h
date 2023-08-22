@@ -2,136 +2,13 @@
 // kernel.h
 // Created by Fred Nora.
 
-//
-// == gramado modes =========================
-//
-
-// See: 'current_mode'.
-#define GRAMADO_JAIL        0x00
-#define GRAMADO_P1          0x01
-#define GRAMADO_HOME        0x02
-#define GRAMADO_P2          0x03
-#define GRAMADO_CASTLE      0x04
-#define GRAMADO_CALIFORNIA  0x05
-// ...
-
-
-// ============================
-
-//
-// System State
-//
-
-// # This is a test yet.
-
-// Nothing
-#define SYSTEM_NULL        0
-// Getting info from bootloader tables.
-// Setup global, and configurations.
-// Starting serial debuyg support and virtual console support.
-#define SYSTEM_PREINIT     1
-// The system is starting ...
-#define SYSTEM_BOOTING     2
-// The system is scheduling ...
-#define SYSTEM_SCHEDULING  3
-// The system is running.
-#define SYSTEM_RUNNING     4
-// The system is running the reboot routine.
-#define SYSTEM_REBOOT      5
-// The system is running the poweroff routine.
-#define SYSTEM_POWEROFF    6
-// The system is running the routine to restart the kernel.
-#define SYSTEM_RESTART     7
-// The system was aborted ... ex: initialization fail
-#define SYSTEM_ABORTED     8
-// Running the panic routine.
-#define SYSTEM_PANIC       9
-// The initialization fail and we are
-// halted for ever.
-#define SYSTEM_DEAD        10
-// ...
-
-extern int system_state;
-
-// ============================
-
-
-
-//
-// IO Control
-//
-
-// #todo
-// include/user/ is a better place for this structure.
-// But it needs to a global thing.
-
-// This is the idea:
-// Instead of selecting the io model,
-// we will select the components that will be used in the input system.
-
-struct io_control_d
-{
-    int initialized;
-    int useTTY;
-    int useEventQueue;
-};
-struct io_control_d  IOControl;
-
-
-//
-// == input modes ==================================================
-//
-
-// See: 'current_input_mode'.
-
-
-// ================
-// fred:
-// Talvez o bom mesmo seja usarmos apenas o input mode tty.
-// Nesse caso para todos os tipos de aplicativo eles precisaram ler
-// a tty para pegar o input no seu modo raw.
-// Todo esse trabalho so existe porque o kernel esta construindo
-// o evento de input ao inves de mandar o input no formato raw.
-// ================
-
-
-// Setup input mode.
-// Used by applications using the kgws window server.
-// This is the mode used when we do not have a 
-// loadble ring3 window server.
-// Send the input event to the thread associated with the
-// window with focus in the window server embedded inside the kernel.
-#define INPUT_MODE_EVENTS  1000
-#define INPUT_MODE_SETUP   INPUT_MODE_EVENTS
-
-// tty input mode.
-// In this mode we're gonna send the input to the tty buffer.
-// This way a virtual terminal can share the input with its client.
-#define INPUT_MODE_TTY    2000
-
-// ws input mode.
-// Used for the applications running on an environment
-// with a loadable window server. Just like gws window server.
-#define INPUT_MODE_WS     3000
-
-// ...
-
-// Display device support.
-// Imported from bl64.
-// Change to gSavedLFB ...
-// See: screen.c
-
-extern unsigned long gSavedLFB;
-extern unsigned long gSavedX;
-extern unsigned long gSavedY;
-extern unsigned long gSavedBPP;
-
-
-// =========================================================
-
 // #todo
 // Reorganizar esses headers quando puder.
 
+#include "mode.h"
+#include "state.h"
+#include "io_ctrl.h"
+#include "bootinfo.h"
 
 // (NT)
 // Gramado OS headers.
@@ -168,15 +45,16 @@ extern unsigned long gSavedBPP;
 
 #include "gramado/jiffies.h"
 
-// klib: libc support.
+//
+// crt: Libc support.
+//
+
+#include "public/ktypes.h"
+#include "public/ktypes2.h"
 #include "kstdarg.h"
 #include "kerrno.h"
 #include "kcdefs.h"
 #include "kstddef.h"
-
-#include "public/ktypes.h"
-#include "public/ktypes2.h"
-
 #include "kobject.h"
 #include "klimits.h"
 #include "kstdio.h"
@@ -202,19 +80,15 @@ extern unsigned long gSavedBPP;
 #include "mm/mm.h"
 #include "mm/memmap.h" 
 #include "mm/intelmm.h"
-
 #include "mm/mmblock.h"
-
 #include "mm/x64mm.h"
 #include "mm/mmglobal.h"  // Deve ficar mais acima.
 #include "mm/heap.h"      // Heap pointer support.
 #include "mm/aspace.h"    // Address Space, (data base account).
 #include "mm/bank.h"      // Bank. database
 
-
 // memory and libc
 #include "runtime.h"
-
 
 // hal
 #include "hal/ports64.h"
@@ -276,7 +150,6 @@ extern unsigned long gSavedBPP;
 #include "dev/display/graphics.h"
 #include "dev/grinput.h"
 
-
 // Serial port. (COM).
 #include "dev/tty/serial.h"
 
@@ -333,13 +206,13 @@ extern unsigned long gSavedBPP;
 
 // ----------------------
 
-// por ultimo em devices.
-// device manager
+// Last:
+// Device manager.
 #include "dev/devmgr.h"  
 
 // ----------------------
+// Depois de devices.
 
-// depois de devices.
 // fs
 #include "fs/path.h"       // path.
 #include "fs/fat.h"        // fat16.
@@ -409,7 +282,6 @@ extern unsigned long gSavedBPP;
 // baixo são incluidas mais de uma vez, pois não te ifndef pra elas
 // podemos colocar todas elas dentro de arquivos .h
 // e mover as definições para arquivos .c.
-
 
 // ------------------------------
 // Product type.

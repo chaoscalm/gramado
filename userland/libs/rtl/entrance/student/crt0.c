@@ -210,9 +210,6 @@ void crt0(unsigned long rdi)
     char buffer[4096];
     memset(buffer, 0, 512);
 
-// rewind
-    //rewind(stdin);
-
 // Copy
     int n=0;
     n = read(
@@ -228,6 +225,16 @@ void crt0(unsigned long rdi)
         //printf("crt0.c: n<=0");
         //fflush(stdout);
     //}
+
+
+// Depois de lido o stdin e colocada a cmdline no buffer local,
+// então é hora de apagarmos os arquivo, para que outro
+// programa consiga usar o arquivo.
+// Tambem atualizaremos a estrutura em ring3.
+// GRAMADO_SEEK_CLEAR = 1000.
+// see in kernel: kunistd.c e kstdio.c.
+    lseek( fileno(stdin), 0, 1000);
+    rewind(stdin);
 
 /*
     // from shared buffer
@@ -290,13 +297,6 @@ e o crt0 do driver, não ativa.
 // execute I/O Sensitive Instructions (IN, INS, OUT, OUTS, CLI, STI). 
 
     asm volatile ("int $199");
-
-// Depois de lido o stdin e colocada acmdline no buffer local,
-// então é hora de apagarmos os arquivo, para que outro
-// programa consiga usar o arquivo.
-// tambem atualizaremos a estrutura em ring3.
-    lseek( fileno(stdin), 0, 1000);
-    rewind(stdin);
 
 //
 // Call main().

@@ -21,7 +21,7 @@
 
 /* Structure describing the system and machine.  */
 
-struct utsname 
+struct utsname_d
 {
     /* Name of the implementation of the operating system.  */
     char sysname[_UTSNAME_LENGTH];
@@ -41,6 +41,8 @@ struct utsname
     char domainname[_UTSNAME_LENGTH]; 
     //#endif
 };
+#define utsname utsname_d
+
 
 //The length of the arrays in a struct utsname is unspecified (see
 //NOTES); the fields are terminated by a null byte ('\0').

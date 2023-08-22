@@ -1053,7 +1053,7 @@ int k_ferror(file *f)
 // #dictioonary-ptbr: whence=deonde
 // #todo
 // IN:
-int k_fseek ( file *f, long offset, int whence )
+int k_fseek( file *f, long offset, int whence )
 {
     register int i=0;
     char *p;
