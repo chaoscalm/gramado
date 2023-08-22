@@ -1,4 +1,5 @@
 # Compiling Gramado Boot Loader
+# BL.BIN
 # 2018 - Created by Fred Nora.
 #      - Adapted from Matheus Castello's script.
 # todo:
@@ -56,7 +57,7 @@ fs.o \
 shell.o \
 r_render.o \
 abort.o \
-faults.o  
+faults.o    
 
 
 all-bl: bl-x86 link-x86 finalize clean
@@ -98,7 +99,6 @@ bl-x86:
 	$(CC) -c dd/timer.c     -I include/ $(CFLAGS)  -o timer.o
 	$(CC) -c dd/hdd.c       -I include/ $(CFLAGS)  -o hdd.o
 	$(CC) -c dd/ide.c       -I include/ $(CFLAGS)  -o ide.o
-
 
 link-x86:
 #todo:

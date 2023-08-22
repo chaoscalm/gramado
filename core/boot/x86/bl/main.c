@@ -64,7 +64,6 @@ unsigned long EDITBOX_TEXT_COLOR=0;
 unsigned long LegacyCR3=0;        //Valor existente.
 unsigned long BootLoaderCR3=0;    //Valor configurado pelo Boot Loader.
 
-
 int useGUI=0;
 
 unsigned long g_proc_status=0;
@@ -91,12 +90,10 @@ struct menuitem_d MENU[8];
 // see: bli386.h
 int bliTesting=0;
 
-
 //static char *codename = "Gramado Boot";
 //char kernel_file_name[] = "kernel.bin";
 //static char **argv = { NULL, NULL, NULL };
 //static char **envp = { NULL, NULL, NULL };
-
 
 //
 // == Private functions: Prototypes =======================
@@ -109,7 +106,7 @@ __clean_memory(
     unsigned long start_address, 
     unsigned long end_address );
 static int blLoadKernelImage(void);
-static void blShowMenu (void);
+static void blShowMenu(void);
 static void blMenu(void);
 
 // =========================================
@@ -118,24 +115,19 @@ static void blMenu(void);
 // begin - Testing memory size
 //================================================================
 
-static unsigned long init_testing_memory_size (int mb)
+static unsigned long init_testing_memory_size(int mb)
 {
     unsigned char *BASE = (unsigned char *) 0;  
-    
     int offset=0; 
-    int i=0;
-
+    register int i=0;
 // Salvando os valores durante o test.
     unsigned char ____value1 = 0;
     unsigned char ____value2 = 0;
-
 //
-// Flag.
+// Flag
 //
-
     // Acionando flag.
     ____testing_memory_size_flag = 1;
-
 
 //#debug
 /*
@@ -143,7 +135,6 @@ static unsigned long init_testing_memory_size (int mb)
     printf ("init_testing_memory_size: Looking for %d MB base...\n", mb);
     refresh_screen();
 */
-
 
 // Começamos em 1MB porque o primeiro mega contem coisa do bios.
     for (i=1; i< (mb+1); i++)
@@ -173,29 +164,27 @@ static unsigned long init_testing_memory_size (int mb)
         // Se retiramos os mesmos bytes que colocamos.
         if (____value1 == 0xAA && ____value2 == 0x55)
         {
-            //salvamos o �ltimo endere�o de mem�ria v�lido.
-            __last_valid_address =  (unsigned long) &BASE[offset];
+            // Salvamos o ultimo endereco de memoria valido.
+            __last_valid_address = (unsigned long) &BASE[offset];
         
             // continua sondando.
 
-        // Se n�o conseguimos retirar os mesmos bytes que colocamos
-        // e n�o tivemos uma exce��o.
+        // Se nao conseguimos retirar os mesmos bytes que colocamos
+        // e nao tivemos uma excecao.
         }else{
 
             ____testing_memory_size_flag = 0;
             
-            printf ("__testing_memory_size: out of range with no exception! \n");
-            printf ("__testing_memory_size: last valid address = %x \n", 
+            printf("__testing_memory_size: Out of range with no exception!\n");
+            printf("__testing_memory_size: Last valid address = %x\n", 
                 __last_valid_address);
             refresh_screen();
-            
-            
+
             ____testing_memory_size_flag = 0;
-            return __last_valid_address;
+            return (unsigned long) __last_valid_address;
             
             /*
-            while(1)
-            {
+            while (1){
                 asm ("cli");
                 asm ("hlt");
             }
@@ -205,11 +194,11 @@ static unsigned long init_testing_memory_size (int mb)
 
      ____testing_memory_size_flag = 0;        
             
-// ok temos um endereço de memoria
+// Ok, temos um endereço de memoria
 // tambem sera salvo em uma variavel global 
 // para o caso de panic.
 
-    return __last_valid_address;
+    return (unsigned long) __last_valid_address;
 }
 
 //================================================================
@@ -222,12 +211,12 @@ static unsigned long __setup_physical_memory(void)
 //++
 // == Memory size ===============================
 // #test
-// Sondando quanta mem�ria f�sica tem instalada.
+// Sondando quanta memoria fisica tem instalada.
 // Faremos isso antes de mapearmos qualquer coisa e
 // antes de carregarmos qualquer arquivo.
 // #todo:
-// Temos v�rias quest�es � se considerar, como o fato de sujarmos
-// a IVT no in�cio da mem�ria.
+// Temos varias questoes a se considerar, como o fato de sujarmos
+// a IVT no inicio da memoria.
 
     unsigned long __address = 0;
 
@@ -240,7 +229,7 @@ static unsigned long __setup_physical_memory(void)
     // 511
     //__address = (unsigned long) init_testing_memory_size (1024);   
 
-    //para testar na m�quina real com 2048 mb instalado.
+    //para testar na maquina real com 2048 mb instalado.
     __address = (unsigned long) init_testing_memory_size(2048);   
     
 // #todo
@@ -300,7 +289,8 @@ __clean_memory(
 // 4 bytes per time.
     for ( i=0; i<max; i++ )
     {
-        if ( &CLEARBASE[i] < end_address ){
+        if ( &CLEARBASE[i] < end_address )
+        {
             CLEARBASE[i] = (unsigned long) 0;
         }
     };
@@ -308,10 +298,8 @@ __clean_memory(
 //--
 }
 
-
-
 /*
- * newOSLoadKernelImage: 
+ * blLoadKernelImage: 
  *     It loads the kernel image at 0x00100000.
  *     The entry point is at 0x00101000.
  */ 
@@ -339,8 +327,8 @@ static int blLoadKernelImage(void)
 // See: loader.c
 
     Status = (int) elfLoadKernelImage(image_name);
-    if (Status<0){
-        printf ("newOSLoadKernelImage: elfLoadKernelImage fail\n");
+    if (Status < 0){
+        printf ("blLoadKernelImage: elfLoadKernelImage fail\n");
         goto fail;
     }
 
@@ -353,9 +341,9 @@ fail:
 }
 
 // Show menu.
-static void blShowMenu (void)
+static void blShowMenu(void)
 {
-    int i=0;
+    register int i=0;
 
 // Cursor
     g_cursor_x = 0;
@@ -370,9 +358,9 @@ static void blShowMenu (void)
         if (MENU[i].used == TRUE)
         {
             if ( i == menu_highlight ){
-                printf ("* %s \n", MENU[i].string);
+                printf("* %s \n", MENU[i].string);
             }else{
-                printf ("  %s \n", MENU[i].string);
+                printf("  %s \n", MENU[i].string);
             };
         }
     };
@@ -405,11 +393,8 @@ static void blMenu(void)
     //blShowMenu(); 
 
     while (1){
-
         blShowMenu();
-        
         Key = keyboard_wait_key();
-    
         switch (Key)
         {
             case 'x': 
@@ -447,7 +432,7 @@ ____go:
 // + Load the kernel image.
 // + Setup paging and the base pagetables used by the kernel.
 // + Jumps to the kernel image.
-void bl_main (void)
+void bl_main(void)
 {
     int Status = (-1);
     int fTest=FALSE;
@@ -481,7 +466,6 @@ void bl_main (void)
         (unsigned long) (SavedY * DisplayDevice.pitch);
 
     DisplayDevice.initialized = TRUE;
-
 
 // Init.
 // See: init.c
@@ -526,10 +510,11 @@ void bl_main (void)
 
     Status = blLoadKernelImage();
     if (Status<0){
-         printf("bl_main: blLoadKernelImage fail.\n");
+         printf("bl_main: blLoadKernelImage fail\n");
          refresh_screen();
-         while(1){
+         while (1){
              asm("cli");
+             asm("hlt");
          };
          //goto run_rescue_shell;
     }
@@ -581,7 +566,7 @@ void bl_main (void)
     printf ("paging and jump to the kernel.\n");
 */
 
-    printf("bl_main: Kernel image loaded.\n");
+    printf("bl_main: Kernel image loaded\n");
 
 //#breakpoint
     //refresh_screen();
@@ -615,9 +600,9 @@ See: https://wiki.osdev.org/X86-64
     unsigned long c=0;
     unsigned long d=0;
 
-    cpuid ( 0x80000001, a, b, c, d );
+    cpuid( 0x80000001, a, b, c, d );
 
-    unsigned long data = (unsigned long) (d >> 29 );
+    unsigned long data = (unsigned long) (d >> 29);
 
 /*
 // x86_64 is supported.
@@ -628,10 +613,10 @@ See: https://wiki.osdev.org/X86-64
 */
 
 // x86_64 is not supported.
-    if ( (data & 1) == 0 ){
+    if ((data & 1) == 0){
         printf("bl_main: [ERROR] x86_64 hardware not supported\n");
         refresh_screen();
-        while(1){
+        while (1){
             asm ("cli");
             asm ("hlt");
         };
@@ -698,7 +683,7 @@ void blAbort()
 
 void die(void)
 {
-    printf ("BL.BIN: [DIE] System Halted\n");
+    printf("BL.BIN: [DIE] System Halted\n");
     refresh_screen();
     while (1){
         asm ("cli");
@@ -706,9 +691,8 @@ void die(void)
     };
 }
 
-
 //
-// End.
+// End
 //
 
 

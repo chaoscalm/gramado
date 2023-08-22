@@ -1,6 +1,6 @@
 
-//pci support.
-
+// pci.h
+// pci support.
 
 #define PCI_ADDRESS_PORT      0x0CF8
 #define PCI_DATA_PORT         0x0CFC
@@ -10,8 +10,6 @@
 #define PCI_MAX_FUNCTIONS     8     //Ok.
 
 #define PCI_INVALID_VENDORID  0xFFFF
-
-
 
 //
 // PCI Offset.
@@ -47,9 +45,6 @@
 #define PCI_OFFSET_INTERRUPTPIN             0x3D //char (Read only).
 #define PCI_OFFSET_MIN_GRANT                0x3E //char  Minimum Grant MGNT
 #define PCI_OFFSET_MAX_LATENCY              0x3F //char  Maximum Latency MLAT
-
-
- 
 
 // 
 // Class Codes. 
@@ -148,8 +143,6 @@
 //#define PCI_SUBCLASS_INFINIBANDTOPCI    0x0A	//InfiniBand to PCI host bridge.	
 #define PCI_SUBCLASS_BRIDGE     0x80	//Bridge.
 
-
-
 //7
 #define PCI_SUBCLASS_SERIAL       0       //Serial controller.	
 #define PCI_SUBCLASS_PARALLEL     0x01    //Parallel controller.	
@@ -158,8 +151,6 @@
 #define PCI_SUBCLASS_GPIB         0x04	  //GPIB controller.	
 #define PCI_SUBCLASS_SMARDCARD        0x05    //Smard Card controller.	
 #define PCI_SUBCLASS_COMMUNICATION    0x80	  //Communication controller.
-
-
 
 //8
 //#define PCI_SUBCLASS_PIC          0x00
@@ -170,8 +161,6 @@
 #define PCI_SUBCLASS_SDHOST       0x05
 #define PCI_SUBCLASS_IOMMU        0x06
 
-
-
 //9
 #define PCI_SUBCLASS_KEYBOARD     0	      //Keyboard controller.	
 //#define PCI_SUBCLASS_DIGPEN       0x01	  //Digitizer Pen.	
@@ -180,12 +169,9 @@
 #define PCI_SUBCLASS_GAMEPORT     0x04	  //Gameport controller.	
 #define PCI_SUBCLASS_INPUT        0x80    //Input device controller.
 
-
-
 //A
 //#define PCI_SUBCLASS_GDS  0	      //Generic Docking Station.	
 //#define PCI_SUBCLASS_DS   0x80    //Docking Station.
-
 
 //b
 #define PCI_SUBCLASS_386        0       //386.	

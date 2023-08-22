@@ -3,7 +3,6 @@
 
 #include <bootloader.h>
 
-
 void *malloc(size_t size)
 {
     void *h;
@@ -13,20 +12,18 @@ void *malloc(size_t size)
         //#todo: Message
         return NULL;
     }
-
     if (s == 0){
         s=1;
     }
 
 // Alocar memória no heap do kernel.
     h = (void *) heapAllocateMemory(s);
-    if ( (void *) h == NULL ){
+    if ((void *) h == NULL){
         return NULL;
     }
 
     return (void *) h; 
 }
-
 
 /*
  * free:
@@ -45,21 +42,20 @@ void *malloc(size_t size)
  * no mmblock que libere o bloco para outras alocações. 
  */
 
-void free (void *ptr)
+void free(void *ptr)
 {
 
 //#todo: message
-    if ( (void *) ptr == NULL ){
+    if ((void *) ptr == NULL){
         return;
     }
 
 // See: 
 // memory.c
-    FreeHeap (ptr);
+    FreeHeap(ptr);
 }
 
 //
-// End.
+// End
 //
-
 

@@ -2,13 +2,12 @@
  * File: stdio.c 
  *     Rotinas de input/output.
  *     Biblioteca C do Boot Loader.
- *     Inclui rotinas gr�ficas no fim do arquivo.
+ *     Inclui rotinas graficas no fim do arquivo.
  *     Inclui vsync.
  * 2015 - Created by Fred Nora.
  */
 
 #include <bootloader.h>
-
 
 extern unsigned long SavedBootBlock;
 extern unsigned long SavedLFB;
@@ -23,11 +22,11 @@ static void _outbyte(int c);
 static void outbyte(int c);
 // ===================================
 
-
 // _outbyte: 
-// Coloca um char na tela. Com op��es de modo de v�deo.
+// Coloca um char na tela. 
+// Com opces de modo de video.
 // Called by outbyte().
-static void _outbyte (int c)
+static void _outbyte(int c)
 {
     unsigned long i=0;
     unsigned long x=0;
@@ -53,7 +52,7 @@ static void _outbyte (int c)
                 c );
             break;
         // ...
-        // modo gr�fico vesa 640x480 24bpp, 8 pixel por caractere.
+        // Modo grafico vesa 640x480 24bpp, 8 pixel por caractere.
         default:
             my_buffer_char_blt( 
                 (8*g_cursor_x), 
@@ -80,8 +79,8 @@ static void _outbyte (int c)
 }
 
 // outbyte:
-// Trata o caractere antes de por na mem�ria de video.
-static void outbyte (int c)
+// Trata o caractere antes de por na memoria de video.
+static void outbyte(int c)
 {
     register int Ch=c;      // Copy
     static char prev = 0;
@@ -96,9 +95,9 @@ static void outbyte (int c)
         return;
     }
 
-// Sendo maior que 'espa�o'. 
+// Sendo maior que 'espaco'. 
 
-// Volta ao in�cio da linha.
+// Volta ao inicio da linha.
     if ( Ch == '\r' )
     {
         g_cursor_x = 0;
@@ -106,7 +105,7 @@ static void outbyte (int c)
         return;    
     }
  
-// Vai pra pr�xima linha e volta ao inicio da linha.    
+// Vai pra proxima linha e volta ao inicio da linha.    
     if ( Ch == '\n' && prev != '\r' )
     {
         g_cursor_y++;
@@ -127,7 +126,7 @@ static void outbyte (int c)
     {
         g_cursor_x += (4);    //criar a var -> 'g_tab_size'
         prev = Ch;
-        return;         
+        return;
     }
 
 //space 
@@ -162,7 +161,7 @@ static void outbyte (int c)
 //25 = g_linha_max (50*8 pixels) 
     if (g_cursor_y > 74){
         scroll();
-        g_cursor_y = 74;  //isso pode ir para dentro da fun��o scroll().
+        g_cursor_y = 74;  // Osso pode ir para dentro da funcao scroll().
     }
 
 // Imprime os caracteres normais.
@@ -172,15 +171,15 @@ static void outbyte (int c)
     prev = Ch;
 }
 
-
 // panic:
 // Message support for fatal error.
-void panic (const char *msg)
+// #todo: Move this routine to another file.
+void panic(const char *msg)
 {
-    if ( (void*) msg != NULL )
+    if ((void*) msg != NULL)
     {
-        if ( *msg != 0 ){
-            printf ("BL.BIN: [PANIC] %s\n", msg );
+        if (*msg != 0){
+            printf("BL.BIN: [PANIC] %s\n", msg );
         }
     }
     die();
@@ -188,7 +187,7 @@ void panic (const char *msg)
 
 // scroll:
 // #bugbug: Is it for text mode? 
-void scroll (void)
+void scroll(void)
 {
 //loop
     register unsigned short i=0;
@@ -219,7 +218,7 @@ void scroll (void)
 // bl_clear: 
 // Limpa a tela em text mode. 
 // #bugbug
-// N�o usamos mas esse modo de v�deo. 
+// Nao usamos mas esse modo de video. 
 int bl_clear (int color)
 {
     register unsigned int i=0;
@@ -227,8 +226,10 @@ int bl_clear (int color)
 
     while (i < (80*25*2)) 
     { 
-        vidmemz[i] = 219;    i++;
-        vidmemz[i] = color;  i++;
+        vidmemz[i] = 219; 
+        i++;
+        vidmemz[i] = color;
+        i++;
     };
 
     g_cursor_x = 0;
@@ -241,17 +242,15 @@ int bl_clear (int color)
 // Imprime uma string em uma determinada linha. 
 // @todo: Mudar para bl_print(...) 
 // #bugbug
-// N�o usamos mas esse modo de v�deo. 
+// Nao usamos mas esse modo de video. 
 
 // #deprecated
 
-int kprintf ( char *message, unsigned int line, int color )
+int kprintf( char *message, unsigned int line, int color )
 {
     //loop
     register unsigned int i = 0;
-
     char *vidmemp = (char *) 0x000B8000; 
-
 
     //if ( (void*) message == NULL ){ return -1; };
     //if ( *message == 0 )          { return -1; };
@@ -275,18 +274,16 @@ int kprintf ( char *message, unsigned int line, int color )
             vidmemp[i] = color; 
             i++; 
         };
- 
-        //Nothing.
+        // Nothing
     }; 
 
     return 0; 
 } 
 
-
 /*
  * prints:
  *     Print string.
- *     Parte da fun��o printf(). 
+ *     Parte da funcao printf(). 
  */
 
 static int prints ( 
@@ -328,19 +325,15 @@ static int prints (
 		printchar (out, padchar);
 		++pc;
 	};
-
-    //Nothing.
-    
+    // Nothing
 done:
     return pc;
 }
 
-
 /*
  * printi:
- *     Parte da fun��o printf()
+ *     Parte da funcao printf()
  */
- 
 static int printi ( 
    char **out, 
    int i, 
@@ -398,12 +391,10 @@ done:
     return pc + prints(out, s, width, pad);
 }
 
-
 /*
  * print:
- *     Parte da fun��o printf()
+ *     Parte da funcao printf()
  */
-
 static int print (char **out, int *varg)
 {
     register int width, pad;
@@ -494,7 +485,7 @@ static int print (char **out, int *varg)
 // Assuming sizeof(void *) == sizeof(int). 
 // #todo
 // Change the name to blprintf()
-int printf ( const char *format, ... )
+int printf( const char *format, ... )
 {
     register int *varg = (int *)(&format);
     // sincronisa.  
@@ -502,7 +493,7 @@ int printf ( const char *format, ... )
     return print (0, varg);
 }
 
-int sprintf (char *out, const char *format, ... )
+int sprintf(char *out, const char *format, ... )
 {
     register int *varg = (int *)(&format);
     // vsync();
@@ -512,19 +503,22 @@ int sprintf (char *out, const char *format, ... )
 // printchar:
 // Print a char.
 // extern int putchar(int c);
-static void printchar (char **str, int c)
+static void printchar(char **str, int c)
 {
+    //if (c<0)
+        //return;
+
     if (str){
         **str = c;
         ++(*str);
     } else { 
-        putchar (c);
+        putchar(c);
     };
 }
 
 // putchar:
 // Put a char.
-int putchar (int ch)
+int putchar(int ch)
 {
     outbyte(ch);
     return (int) ch; 
@@ -534,23 +528,23 @@ int putchar (int ch)
 // #deprecated.
 int printf_main(void)
 {
-	return -1;
+    return -1;
 }
 
 // input:
 // Coloca os caracteres digitados em uma string. 
-unsigned long input (unsigned long ch)
+unsigned long input(unsigned long ch)
 {
-//Converte.
-	char c = (char) ch;    
+    // Converte.
+    char c = (char) ch;    
 
-//Filtra limite.
-	if (prompt_pos > 250){ 
-	    printf ("input: The command is too large\n");	
-	    return (unsigned long) 0; 
-	}
+// Limits
+    if (prompt_pos > 250){
+        printf("input: Buffer limits\n");
+        return (unsigned long) 0; 
+    }
 
-//Trata caractere digitado.
+// Trata caractere digitado.
 
 	switch (c)
 	{
@@ -605,8 +599,14 @@ my_buffer_horizontal_line (
     unsigned long x2, 
     unsigned long color )
 {
-    while (x1 < x2){
-        my_buffer_put_pixel ( color, x1, y, 0 );
+
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+
+    while (x1 < x2)
+    {
+        my_buffer_put_pixel( color, x1, y, 0 );
         x1++;  
     };
 }
@@ -630,12 +630,16 @@ my_buffer_put_pixel (
     unsigned long dx )
 {
 
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+
     //asm volatile(" \n "
     //    : // no inputs
     //    : "a"(ax), "b"(bx), "c"(cx), "d"(dx) );
 
 //#Warning
-//suspenso, vamos tentar n�o usar o assembly
+//suspenso, vamos tentar nao usar o assembly
     //gui_buffer_putpixel(); 
     //return;
 
@@ -658,15 +662,18 @@ my_buffer_put_pixel (
     int bytes_count=0;
 
     switch (SavedBPP){
-    case 32:  bytes_count = 4;  break;
-    case 24:  bytes_count = 3;  break;
+    case 32:
+        bytes_count = 4;
+        break;
+    case 24:
+        bytes_count = 3;
+        break;
     // ...
     // #bugbug
     default:
         bytes_count = 3;
         break;
     };
-
 
 // #importante
 // Pegamos a largura do dispositivo.
@@ -678,7 +685,7 @@ my_buffer_put_pixel (
     where[offset]    = b;
     where[offset +1] = g;
     where[offset +2] = r;
-    if ( SavedBPP == 32 ){ where[offset +3] = a; }
+    if (SavedBPP == 32){ where[offset +3] = a; }
 }
 
 // my_buffer_char_blt:
@@ -689,7 +696,11 @@ my_buffer_char_blt (
     unsigned long y, 
     unsigned long color, 
     unsigned long c )
-{ 
+{
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+ 
     int x2=0; 
     int y2=0;
     unsigned char bit_mask = 0x80;
@@ -706,24 +717,27 @@ my_buffer_char_blt (
             if ( (*work_char & bit_mask) ){
                 my_buffer_put_pixel( color, x + x2, y, 0);
             } 
-            bit_mask = ( bit_mask >> 1 );
+            bit_mask = (bit_mask >> 1);
         };
 
-        y++;          //Pr�xima linha.
-        work_char++;  //Incrementa 8 bits.
+        y++;          // Proxima linha.
+        work_char++;  // Incrementa 8 bits.
     };
 }
 
-
 /*
  * vsync: 
- *     Sincroniza a pintura com o retra�o vertical.
+ *     Sincroniza a pintura com o retraco vertical.
  *     OBS: Talvez deva usar cli e sti 
  *     //#todo: Move this to another place, maybe fb device support.
  */
-
 void vsync()
 {
+
+// #todo
+// This is graphics routine. (low level)
+// Move this routine to another file.
+
     // Wait until any previous retrace has ended.
     do {
     // nothing.
@@ -739,9 +753,11 @@ void vsync()
 // Pega um byte na porta. 
 char gui_inb (int port)
 {
+// #todo: Move this routine to another file.
+
     char value=0;
 
-    value = in8 (port);
+    value = in8(port);
 
     asm (" nop \n");
     asm (" nop \n");
@@ -767,13 +783,19 @@ void refresh_screen2()
 // 800x600x32
 void clear_backbuffer(void)
 {
-    int i=0;
+
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+
+    register int i=0;
     // Backbuffer address.
     // Is this a good address ?
     // almos 16MB mark?
     // #todo
     // We can use unsigned longs.
-    unsigned char *backbuffer  = (unsigned char *) (0x1000000 - 0x800000); 
+    unsigned char *backbuffer = 
+        (unsigned char *) (0x1000000 - 0x800000); 
 
 // #bugbug
 // Not good for smaller resolutions.
@@ -790,6 +812,10 @@ void clear_backbuffer(void)
 //    g_cursor_y = 0;
 unsigned long get_cursor_x ()
 {  
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+
     //unsigned long *int_args  = (unsigned long *) 0x0090000;
     //return   int_args[4];
     
@@ -802,6 +828,10 @@ unsigned long get_cursor_x ()
 //    g_cursor_y = 0;
 unsigned long get_cursor_y ()
 { 
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
+
     //unsigned long *int_args  = (unsigned long *) 0x0090000;
     //return  int_args[8]; 
     
@@ -819,7 +849,9 @@ unsigned long get_cursor_y ()
  * c - y 
  * d - null
  */
-
+// #todo
+// This is graphics routine.
+// Move this routine to another file.
 void 
 carrega_bitmap_16x16 ( 
     unsigned long ax, 
@@ -827,7 +859,6 @@ carrega_bitmap_16x16 (
     unsigned long cx, 
     unsigned long dx )
 {
-
     asm volatile (" \n "
         : // no inputs
         : "a"(ax), "b"(bx), "c"(cx), "d"(dx) );

@@ -54,7 +54,6 @@ segment .head_x86
 ; See: gdef.h
 extern ___last_valid_address 
 
-
 extern _g_lbf_pa  ; LFB - Linear Frame Buffer. (physical address).
 extern _bl_main   ; Entrada da parte em C.
 ;...

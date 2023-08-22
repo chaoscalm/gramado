@@ -12,14 +12,16 @@
  */
 
 // Modes.
+// #important
 #define GRAMADO_JAIL        0x00
 #define GRAMADO_P1          0x01
-#define GRAMADO_HOME        0x02
+#define GRAMADO_HOME        0x02  // Balance
 #define GRAMADO_P2          0x03
 #define GRAMADO_CASTLE      0x04
+//---
 #define GRAMADO_CALIFORNIA  0x05
+//#define GRAMADO_CALIFORNIA2  0x06
 // ...
-
 
 extern int current_mode;
 
@@ -29,7 +31,6 @@ extern int current_mode;
 
 #include "config/config.h" 
 #include "gdef.h"
-
  
 extern unsigned long SavedX;
 extern unsigned long SavedY;
@@ -43,18 +44,15 @@ extern unsigned long SavedBPP;
 extern unsigned long task0_stack;
 extern unsigned long task1_stack;
 extern unsigned long task2_stack;
- 
- 
+
 //
 // Funções importadas.
 //
  
 extern void refresh_screen();
  
- 
 // Boot Loader version.
-#define BL_VERSION "0.1"
-
+#define BL_VERSION  "0.1"
 
 /*
  * Status do carregamento de um arquivo.
@@ -93,7 +91,6 @@ extern void refresh_screen();
 #define SI_PM 1    //Protected mode.
 #define SI_LM 2    //Long mode.
 #define SI_SM 3    //SMM, System Management Mode (Supervisor Mode).
-
 
 /*
  * Boot Loader page directory constants.
@@ -330,7 +327,6 @@ extern unsigned long EDITBOX_BG_COLOR;
 extern unsigned long EDITBOX_TEXT_COLOR;
 
 
-
 //
 // CR3 support.
 //
@@ -342,12 +338,10 @@ extern unsigned long BootLoaderCR3;    //Valor configurado pelo Boot Loader.
 //CR0
 //unsigned long registerCR0;
 
-
 /*
  *  Variables for GUI support. Usar ou não o modo gráfico.
  */
 extern int useGUI;
-
 
 /*
  * Variables for window procedure support.
@@ -357,7 +351,6 @@ extern unsigned long g_next_app;
 extern unsigned long g_next_proc;
 extern unsigned long g_nova_mensagem;
 extern unsigned long next_address;  //??
-
 
 /*
  * Variables for task support.
@@ -389,23 +382,20 @@ struct system_d
     unsigned long video_mode;   
     //Continua...        
 };
-
 typedef struct system_d  system_t;
 
 extern system_t system_info;
 
- 
  
 /*
  * Structure for global video parameters.
  */ 
  
 /*
- * VideoBlock:
+ * video_d:
  *     Estrutura para informações sobre parâmetros de vídeo.
  *     @todo: criar um header para video. video.h.
  */
-
 struct video_d
 {
 	int useGui;      //Se estamos ou não usando gui. text mode, video mode.
@@ -425,7 +415,6 @@ struct video_d
 	char chAtrib;              //Atributo do caractere. 
 	//...           
 };
-
 typedef struct video_d VideoBlock_t;
 
 extern VideoBlock_t VideoBlock;    //@todo: Usar um ponteiro.
@@ -440,34 +429,28 @@ struct vesa_d
     unsigned long mode_number;    //Número do modo.
     unsigned long x_res;          //Pixels por linha.
     unsigned long y_res;          //Pixels por coluna.
-    unsigned long bpp;            //Bits per pixel.		
+    unsigned long bpp;            //Bits per pixel.
 	//Continua...
 };
-
 typedef struct vesa_d vesa_t;
 
 extern vesa_t vesa_mode;
-
-
 
 /*
  * Structure for support window procedure parameters.
  *
  */
-
 struct procedure_d
 {
     unsigned long next;      //Endereço do procimo procedimento.     
     unsigned long status;    //Status do procedimento do sistema. 
     unsigned long res1;      //Reservado.
     unsigned long res2;      //Reservado.
-    // ...        	
+    // ...
 };
-
 typedef struct procedure_d procedure_t;
 
 extern procedure_t procedure_info;
-
 
 
 /*
@@ -482,46 +465,31 @@ gdtr_t bl_gdtr;    //Sem ponteiro.
 */
 
 
-/*
- *  Boot Loader prototypes.
- */
- 
- 
- 
 struct menuitem_d
 {
     int id;
     int used;
     int magic;
-    
     char string[80];
-    
     char image_path[128];    // "/BOOT/KERNEL.BIN"
     unsigned long image_address;
     
 };
 
-extern int menu_highlight;
-
 extern struct menuitem_d MENU[8];
-
-
-
+extern int menu_highlight;
 
 //
 // == prototypes ============================
 //
 
-
 // x86 Ports support.
-
 unsigned char in8 (int port);
 unsigned short in16 (int port);
 unsigned long in32 (int port);
 void out8 ( int port, unsigned char data );
 void out16 (int port, unsigned short data);
 void out32 ( int port, unsigned long data );
-
 
 // CPU instructions support.
  
@@ -540,7 +508,6 @@ void pushFlags();
 void popFlags();
 int getStackPointer(int addr);
 int setStackPointer(int addr);
-
 
 //
 // MSR support.
@@ -622,8 +589,8 @@ void read_lba( unsigned long address, unsigned long lba);
 // PCI support.
 //
 
-int pciInit(); 
-int pciInfo();
+int pciInit(void); 
+int pciInfo(void);
 unsigned char pciGetClassCode(unsigned char bus, unsigned char slot);
 unsigned short pciCheckVendor(unsigned char bus, unsigned char slot);
 unsigned short pciCheckDevice(unsigned char bus, unsigned char slot);
@@ -635,18 +602,16 @@ pciConfigReadWord (
     unsigned char func, 
     unsigned char offset );
 
-
 //
 // Boot Loader services.
 //
 
 void system_services();
 
-
-void reboot();
+void reboot(void);
 void abort(void);
 void die(void);
 
 //
-// End.
+// End
 //

@@ -36,18 +36,14 @@ pciConfigReadWord (
     unsigned long address=0;
     unsigned short tmp=0;
 
-
 // Create configuration address and
 // Write out the address.
-
     address = (unsigned long) ( (lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xfc) | ((unsigned long) 0x80000000) );
-
-    out32 ( PCI_ADDRESS_PORT, address );
+    out32( PCI_ADDRESS_PORT, address );
 
 // Read in the data port.
 // (offset & 2) * 8) = 0 
 // Will choose the first word of the 32 bits register.  
-
     tmp = (unsigned short) ( ( in32 (PCI_DATA_PORT) >> ((offset & 2) * 8)) & 0xffff );
 
     return (unsigned short) tmp; 
@@ -57,88 +53,79 @@ pciConfigReadWord (
  * pciCheckDevice:
  *     Check device, offset 2. 
  */
-
 unsigned short 
 pciCheckDevice ( 
     unsigned char bus, 
     unsigned char slot )
 {
+// Get device.
 
 //Off 0.
 //Offset 2 = device.
 
-    unsigned short Vendor=0;    
+    //unsigned short Vendor=0;    
     unsigned short Device=0;    
 
-//Pega o vendor.
-//PCI_OFFSET_VENDORID
-
+/*
+// Pega o vendor. (Not used)
+// PCI_OFFSET_VENDORID
     Vendor = pciConfigReadWord ( bus, slot, 0, 0 );    
-
     if (Vendor == PCI_INVALID_VENDORID){
         return (unsigned short) 0;
     }
+*/
 
-//Pega o device
-//PCI_OFFSET_DEVICEID
-
-    Device = pciConfigReadWord ( bus, slot, 0, 2 ); 
+// Pega o device
+// PCI_OFFSET_DEVICEID
+    Device = pciConfigReadWord( bus, slot, 0, 2 ); 
 
     return (unsigned short) Device;
 }
-
 
 /*
  * pciCheckVendor:
  *     Check vendor, offset 0. 
  */
-
 unsigned short 
 pciCheckVendor ( 
     unsigned char bus, 
     unsigned char slot )
 {
+// Get vendor.
 
 //Offset 0.
     unsigned short Vendor=0;    
 
 //Pega o vendor.
 //PCI_OFFSET_VENDORID
-
     Vendor = pciConfigReadWord ( bus, slot, 0, 0 );    
-
-    if ( Vendor == PCI_INVALID_VENDORID ){
+    if (Vendor == PCI_INVALID_VENDORID){
         return (unsigned short) 0;
     }
 
     return (unsigned short) Vendor; 
 }
 
-
 unsigned char 
 pciGetClassCode ( 
     unsigned char bus, 
     unsigned char slot )
 {
-    unsigned char ClassCode=0;
+// Get class code.
 
+    unsigned char ClassCode=0;
     ClassCode = (unsigned char) pciConfigReadWord ( 
                                     bus, slot, 0, 
                                     PCI_OFFSET_CLASSCODE );
 
-// #todo: 
-// Checar a validade do class code.
-
     return (unsigned char) ClassCode;
 }
-
 
 /*
  * pciInfo:
  *    Pega e mostra informações sobre PCI.
  */
- 
-int pciInfo()
+int pciInfo(void)
 {
     unsigned char i=0;
     unsigned char j=0;
@@ -261,7 +248,7 @@ int pciInfo()
  *     Initialize PCI.
  */
 
-int pciInit()
+int pciInit(void)
 {
 
 	//int i;

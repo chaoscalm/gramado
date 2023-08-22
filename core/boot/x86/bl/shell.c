@@ -413,11 +413,12 @@ void testa_mbr()
 // Mudar nome
 void testa_root()
 {
-    my_read_hd_sector ( FAT16_ROOTDIR_ADDRESS, FAT16_ROOTDIR_LBA, 0, 0 );
-    printf ("%s", FAT16_ROOTDIR_ADDRESS );
+    my_read_hd_sector( FAT16_ROOTDIR_ADDRESS, FAT16_ROOTDIR_LBA, 0, 0 );
+    printf("%s", FAT16_ROOTDIR_ADDRESS );
 }
 
-void reboot()
+// #todo: Move this routine to another file.
+void reboot(void)
 {
 // #bugbug
 // Devemos chamar asm_reboot()

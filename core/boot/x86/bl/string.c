@@ -2,23 +2,22 @@
 // string.c
 // 2015 - Created by Fred Nora.
 
-
 #include <bootloader.h>
 
-
 // Compare two strings.
-int strcmp (char *s1, char *s2)
+int strcmp(char *s1, char *s2)
 {
     register int i=0;
 
     for ( i=0; s1[i] == s2[i]; i++ )
     {
-        if (s1[i] == '\0') { return 0; }
+        if (s1[i] == '\0'){
+            return 0;
+        }
     };
 
     return ( (int) (s1[i] - s2[i]) );
 }
-
 
 // Compare n bytes of two strings.
 int strncmp (char *s1, char *s2, int len)
@@ -45,8 +44,7 @@ int strncmp (char *s1, char *s2, int len)
     return 0;
 }
 
-
-// COmpare two strings.
+// Compare two strings.
 int str_cmp (unsigned char *str1, unsigned char *str2)
 {
     while ( *str1 == *str2 && 
@@ -61,34 +59,30 @@ int str_cmp (unsigned char *str1, unsigned char *str2)
     if (*str1 == *str2) 
         return 0;
 
-
     if (*str1 > *str2) 
         return (int) 1;
-
 
     if (*str1 < *str2) 
         return (int) -1;
 
-//Done.
+//Done
     return (int) -1;
 }
 
-
 // Copy n bytes.
-void *memcpy ( void *v_dst, const void *v_src, unsigned long c )
+// Simple, byte oriented memcpy.
+void *memcpy( void *v_dst, const void *v_src, unsigned long c )
 {
     const char *src = v_src;
     char *dst = v_dst;
 
-// Simple, byte oriented memcpy.
-
-    while (c--)
+    while (c--){
         *dst++ = *src++;
+    };
 
 //done:
     return v_dst;
 }
-
 
 // Get the size of a string.
 size_t strlen (const char *s)
@@ -103,23 +97,18 @@ size_t strlen (const char *s)
     return (size_t) i;
 }
 
-
 // Copy a string.
-char *strcpy (char *to, const char *from)
+char *strcpy(char *to, const char *from)
 {
     register int i=0;
-
-    while (to[i] = from[i])
-    {
+    while (to[i] = from[i]){
         i += 1;
     };
-
     return (to);
 }
 
-
 // Concatenate strings.
-char *strcat (char *to, const char *from)
+char *strcat(char *to, const char *from)
 {
     char *ret = to;
 
@@ -132,7 +121,6 @@ char *strcat (char *to, const char *from)
     return (ret);
 }
 
-
 // Copy n bytes.
 void bcopy (char *from, char *to, int len)
 {
@@ -142,9 +130,8 @@ void bcopy (char *from, char *to, int len)
     };
 }
 
-
 // Fill with 0s.
-void bzero (char *cp, int len)
+void bzero(char *cp, int len)
 {
     while (len--)
     {
@@ -152,7 +139,6 @@ void bzero (char *cp, int len)
     };
 }
 
-
 //
-// End.
+// End
 //

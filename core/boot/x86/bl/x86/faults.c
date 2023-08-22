@@ -14,70 +14,68 @@ void faultsShowRegisters();
 /*
  * cpu_faults:
  *     Tratamento de faults do Boot Loader.
- *     Trata a fault de acordo com o n�mero.
- * Obs: Isso pertence ao Boot Loader. N�o h� threads para serem fechadas.
- * @todo: Exibir as falhas de inicializa��o.
+ *     Trata a fault de acordo com o numero.
+ * Obs: Isso pertence ao Boot Loader. Nao ha threads para serem fechadas.
+ * @todo: Exibir as falhas de inicializacao.
  * 2015 - Created.
  */
-
-void cpu_faults (unsigned long fault_number)
+void cpu_faults(unsigned long fault_number)
 {
     g_cursor_x = 0;
     g_cursor_y = 0;
 
     printf("faults-cpu_faults: %d\n", fault_number );
 
-//se estamos testando a mem�ria.
-    if ( ____testing_memory_size_flag == 1 )
+//se estamos testando a memoria.
+    if (____testing_memory_size_flag == 1)
     {
         // global. See: gdef.h
-        printf ("cpu_faults: Testing memory size\n");
-        printf ("cpu_faults: Out of range with exception %d\n", fault_number );
-        printf ("cpu_faults: address = %x \n", __last_valid_address);
+        printf("cpu_faults: Testing memory size\n");
+        printf("cpu_faults: Out of range with exception %d\n", fault_number );
+        printf("cpu_faults: address = %x\n", __last_valid_address);
         refresh_screen();
-            while(1)
-            {
+            while (1){
                 asm ("cli");
                 asm ("hlt");
-            }
+            };
     }
 
-// Mostra o erro de acordo com o n�mero.
+// Mostra o erro de acordo com o numero.
     switch (fault_number)
     {
-	    //EXCEPTION
-		case 1:
-		case 3:
-		    printf ("EXCEPTION \n");
-			break;
-		
-		//DOUBLE FAULT
-	    case 8:
-			printf ("DOUBLE FAULT \n");
-		    break;
+        // EXCEPTION
+        case 1:
+        case 3:
+            printf("EXCEPTION \n");
+            break;
 
-	    //STACK
-	    case 12:
-			printf ("STACK FAULT \n");
-		    break;
+        // DOUBLE FAULT
+        case 8:
+            printf("DOUBLE FAULT \n");
+            break;
 
-	    //GP
-	    case 13:
-		    printf ("GP \n");
-		    break;
-		
-		//PAGE FAULT
-	    case 14:
-		    printf ("PAGE FAULT \n");
-		    break;
-	    
-	    default:
-			printf ("Default number\n");
-			break;
+        // STACK
+        case 12:
+            printf("STACK FAULT \n");
+            break;
+
+        // GP
+        case 13:
+            printf("GP \n");
+            break;
+
+        // PAGE FAULT
+        case 14:
+            printf("PAGE FAULT \n");
+            break;
+
+        default:
+            printf("Default number\n");
+            break;
     };
 
 // More ?! 
-// Tratamento, informa��es.
+// Tratamento, informacoes.
 
 //done:
     faultsShowRegisters();
@@ -90,7 +88,6 @@ void faultsShowRegisters()
 {
     //#todo
 }
-
 
 //
 // End
