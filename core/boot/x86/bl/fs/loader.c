@@ -36,10 +36,10 @@ void updateProgressBar();
 // Address.
 // pa = 0x00100000.
 // va = 0xC0000000.
-// Called by newOSLoadKernelImage() in main.c
-
 int elfLoadKernelImage (const char *file_name)
 {
+// Called by blLoadKernelImage() in main.c.
+
     int Status = -1;
     unsigned long kernel_pa = KERNEL_ADDRESS;
     unsigned long kernel_va = KERNEL_VA;
@@ -66,11 +66,11 @@ int elfLoadKernelImage (const char *file_name)
 
 // Building a pathname.
 // The name given by function parameter.
-    strcpy (Path, "/GRAMADO");
-    strcat (Path, "/");
-    strcat (Path, kernel_name );
+    strcpy(Path, "/GRAMADO");
+    strcat(Path, "/");
+    strcat(Path, kernel_name );
 // Default pathname.
-    strcpy (DefaultPath, "/GRAMADO/KERNEL.BIN");
+    strcpy(DefaultPath, "/GRAMADO/KERNEL.BIN");
 
 // Load KERNEL.BIN on a physical address.
 // Search the file in the /LANDOS/ and /BOOT/ subdirectories
@@ -96,7 +96,7 @@ int elfLoadKernelImage (const char *file_name)
     if ( kernel[0] != 0x7F || 
          kernel[1] != 'E' || kernel[2] != 'L' || kernel[3] != 'F' )
     {
-        printf ("elfLoadKernelImage: %s ELF image validation\n", 
+        printf("elfLoadKernelImage: %s ELF image validation\n", 
             kernel_name ); 
         goto fail;
     }
@@ -140,7 +140,7 @@ int elfLoadKernelImage (const char *file_name)
 // =================================
 // Fail: Couldn1t load the kernel image.
 fail:
-    printf ("elfLoadKernelImage: Fail\n");
+    printf("elfLoadKernelImage: Fail\n");
     refresh_screen();
 // #test
 // Vamos retornar para dar a chace ao rescue shell.

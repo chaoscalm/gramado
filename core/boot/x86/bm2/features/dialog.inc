@@ -1,4 +1,5 @@
 
+; dialog.inc
 
 ; ------------------------------------------------------------------
 ; os_dialog_box -- Print dialog box in middle of screen, with button(s)
@@ -11,8 +12,8 @@ os_dialog_box:
 
 	pusha
 	mov [.tmp], dx
-	call Cursor.Hide  ;os_hide_cursor
-	mov dh, 9			; First, draw red background box
+	call Cursor.Hide  ; os_hide_cursor
+	mov dh, 9         ; First, draw red background box
 	mov dl, 19
 
 .redbox:				; Loop to draw all lines of box
@@ -31,7 +32,6 @@ os_dialog_box:
 	cmp dh, 16
 	je .boxdone
 	jmp .redbox
-
 
 .boxdone:
 
@@ -96,11 +96,10 @@ os_dialog_box:
 
     ; Vamos esperar por input pois 
     ; nesse dialogo só tem um botão.
-	jmp .one_button_wait
-
+    jmp .one_button_wait
 
 .two_button:
-	mov bl, 11110000b		; Black on white
+	mov bl, 11110000b  ; Black on white
 	mov dh, 14
 	mov dl, 27
 	mov si, 8
@@ -125,7 +124,7 @@ os_dialog_box:
 
 	; Depois de desenharmos 2 botões,
 	; agora vamos esperar por input.
-	jmp .two_button_wait
+    jmp .two_button_wait
 
 ; -----------
 ; Esperando input no caso do diálogo só ter 1 botão.
@@ -141,14 +140,14 @@ os_dialog_box:
 	popa
     ; [enter]
     ; Sim, foi enter.
-	ret
+    ret
 
 ; -----------
 ; Esperando input no caso do diálogo ter 2 botões.
 .two_button_wait:
 
     ; Wait for input.
-	call Io.WaitKey  ;os_wait_for_key
+    call Io.WaitKey  ;os_wait_for_key
 
     ; Left cursor key pressed?
     ; Se não foi o 'left', então vamos ver quem foi.
@@ -186,8 +185,8 @@ os_dialog_box:
     ; sim, foi left.
     ; RESULT: '0'
     ; And update result we'll return
-	mov cx, 0
-	jmp .two_button_wait
+    mov cx, 0
+    jmp .two_button_wait
 
 ; Se não foi o 'left', então vamos ver quem foi.
 ; E se foi?
@@ -247,13 +246,16 @@ os_dialog_box:
     ; Sim, foi o 'enter'.
     ; Então 'ax' contem o resultado.
     ; Put the result into the 'ax'
-	mov ax, [.tmp]
-	ret
+    mov ax, [.tmp]
+    ret
 
-	.ok_button_string	db 'OK', 0
-	.cancel_button_string	db 'Cancel', 0
-	.ok_button_noselect	db '   OK   ', 0
-	.cancel_button_noselect	db '   Cancel   ', 0
+; Local strings.
+.ok_button_string       db 'OK', 0
+.cancel_button_string   db 'Cancel', 0
+.ok_button_noselect     db '   OK   ', 0
+.cancel_button_noselect db '   Cancel   ', 0
+; Local data.
+.tmp dw 0
 
-	.tmp dw 0
+
 

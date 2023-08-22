@@ -10,7 +10,7 @@ bl/
 bm/
     Boot manager with an embedded shell.
 bm2/
-    Boot manager with that fancy dialog.
+    Boot manager with that fancy dialog box.
 setup/
    ?
 

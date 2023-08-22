@@ -109,6 +109,7 @@ static int blLoadKernelImage(void);
 static void blShowMenu(void);
 static void blMenu(void);
 
+static void no_x86_64_was_found(void);
 // =========================================
 
 //================================================================
@@ -310,10 +311,10 @@ __clean_memory(
 // if the provide name fail.
 // This routine will build the pathname
 // to search in the default folder.
-// Called by OS_Loader_Main().
-
 static int blLoadKernelImage(void)
 {
+// Called by bl_main().
+
     int Status = -1;
 // Standard name.
 // #todo: Maybe we need some options, some config file.
@@ -423,6 +424,58 @@ static void blMenu(void)
 
 ____go:
     return;
+}
+
+
+// blAbort:
+// Rotina para abortar o bootloader em caso de erro grave.
+void blAbort()
+{
+//@todo: 
+//Talvez poderia ter uma interface antes de chamar a rotina abort().
+//ex:
+    //checks()
+    abort(); 
+}
+
+// die:
+// CLI HLT routine.
+// No return!
+// See: bootloader.h
+void die(void)
+{
+    printf("BL.BIN: [DIE] System Halted\n");
+    refresh_screen();
+    while (1){
+        asm ("cli");
+        asm ("hlt");
+    };
+}
+
+
+static void no_x86_64_was_found(void)
+{
+// We probe the info and detected that the x86)64 instructions
+// are not supported.
+// We can hang, or load some 32bit funny stuff.
+
+    printf("bl_main: Sorry!\n");
+    printf("It seems that the processor\n");
+    printf("does not support x86_64 instructions.\n");
+
+// #todo
+// Maybe, in this case, we can load a 32bit version of Gramado,
+// or another funny stuff.
+
+    printf("The boot loader will not execute the kernel.\n");
+
+done:
+    refresh_screen();
+    die();
+    while (1){
+        asm ("cli");
+        asm ("hlt");
+    };
 }
 
 // --------------------------------
@@ -612,9 +665,14 @@ See: https://wiki.osdev.org/X86-64
     }
 */
 
+//
 // x86_64 is not supported.
-    if ((data & 1) == 0){
-        printf("bl_main: [ERROR] x86_64 hardware not supported\n");
+//
+
+    if ((data & 1) == 0)
+    {
+        no_x86_64_was_found();
+        printf("bl_main: No x86_64\n");
         refresh_screen();
         while (1){
             asm ("cli");
@@ -662,32 +720,6 @@ See: https://wiki.osdev.org/X86-64
     while (1){
         asm("cli");
         asm("hlt");
-    };
-}
-
-// blAbort:
-// Rotina para abortar o bootloader em caso de erro grave.
-void blAbort()
-{
-//@todo: 
-//Talvez poderia ter uma interface antes de chamar a rotina abort().
-//ex:
-    //checks()
-    abort(); 
-}
-
-// die:
-// CLI HLT routine.
-// No return!
-// See: bootloader.h
-
-void die(void)
-{
-    printf("BL.BIN: [DIE] System Halted\n");
-    refresh_screen();
-    while (1){
-        asm ("cli");
-        asm ("hlt");
     };
 }
 

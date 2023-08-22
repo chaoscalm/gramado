@@ -287,6 +287,7 @@ restart_loop:
     call os_draw_background
 
 ; Draw the dialog box.
+; See: dialog.inc
     mov ax, dialog_string_1  ; Ask if user wants app selector or command-line
     mov bx, dialog_string_2
     mov cx, dialog_string_3
@@ -302,6 +303,7 @@ restart_loop:
 ; O right foi selecionado?
 ; Se não foi o right então carregue a imagem.
 ; usaremos a opçao de boot default.
+; Load the BL.BIN image.
     cmp ax, 1 
     jne near load_stuff  ;app_selector
 
@@ -320,6 +322,8 @@ restart_loop:
 ; Load stuff --------------------------
 ;
 load_stuff:
+; Load the BL.BIN image.
+
     call Window.ClearScreen
     
 ; IN:
