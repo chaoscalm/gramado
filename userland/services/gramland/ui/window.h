@@ -728,6 +728,8 @@ struct gws_window_d
     int background_style;
     int backgroundUsed;
 
+    unsigned int bg_color_when_mousehover;
+
 // 3
 // Titlebar
 
@@ -1416,7 +1418,7 @@ struct gws_window_d *wmCreateRootWindow(unsigned int bg_color);
 // Controls
 //
 
-void do_create_controls(struct gws_window_d *window);
+void do_create_controls(struct gws_window_d *w_titlebar);
 
 // Create titlebar and controls.
 struct gws_window_d *do_create_titlebar(

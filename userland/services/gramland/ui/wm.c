@@ -1681,12 +1681,17 @@ void __update_fps(void)
 //tbWindow->Controls.minimize = NULL;
 //tbWindow->Controls.maximize = NULL;
 //tbWindow->Controls.close = NULL;
+// IN:
+// Titlebar window pointer.
 
-void do_create_controls(struct gws_window_d *window)
+void do_create_controls(struct gws_window_d *w_titlebar)
 {
-    struct gws_window_d *minimize;
-    struct gws_window_d *maximize;
-    struct gws_window_d *close;
+
+// Windows
+    struct gws_window_d *w_minimize;
+    struct gws_window_d *w_maximize;
+    struct gws_window_d *w_close;
+
     int id=-1;
 
 // Colors for the button
@@ -1696,19 +1701,19 @@ void do_create_controls(struct gws_window_d *window)
     //    (unsigned int) get_color(csiButton);
 
 
-    if ( (void*)window == NULL ){
+    if ((void*)w_titlebar == NULL){
         return;
     }
-    if (window->magic != 1234){
+    if (w_titlebar->magic != 1234){
         return;
     }
     //if(window->isTitleBar!=TRUE)
     //    return;
 
-    window->Controls.minimize_wid = -1;
-    window->Controls.maximize_wid = -1;
-    window->Controls.close_wid    = -1;
-    window->Controls.initialized = FALSE;
+    w_titlebar->Controls.minimize_wid = -1;
+    w_titlebar->Controls.maximize_wid = -1;
+    w_titlebar->Controls.close_wid    = -1;
+    w_titlebar->Controls.initialized = FALSE;
 
 // Buttons
     unsigned long ButtonWidth = 
@@ -1726,19 +1731,19 @@ void do_create_controls(struct gws_window_d *window)
 // #test
 // #bugbug
     //Top=1;
-    //ButtonWidth  = (unsigned long) (window->width -4);
-    //ButtonHeight = (unsigned long) (window->height -4);
+    //ButtonWidth  = (unsigned long) (w_titlebar->width -4);
+    //ButtonHeight = (unsigned long) (w_titlebar->height -4);
 
 // ================================================
 // minimize
     LastLeft = 
         (unsigned long)( 
-            window->width - 
+            w_titlebar->width - 
             (3*ButtonWidth) - 
             (2*SeparatorWidth) - 
             RightPadding );
 
-    minimize = 
+    w_minimize = 
         (struct gws_window_d *) CreateWindow ( 
             WT_BUTTON, 0, 1, 1, 
             "_",  //string  
@@ -1746,39 +1751,41 @@ void do_create_controls(struct gws_window_d *window)
             TopPadding, //t 
             ButtonWidth, 
             ButtonHeight,   
-            window, 0, bg_color, bg_color );
+            w_titlebar, 0, bg_color, bg_color );
 
-    if ( (void *) minimize == NULL ){
+    if ( (void *) w_minimize == NULL ){
         //gwssrv_debug_print ("xx: minimize fail \n");
         return;
     }
-    if (minimize->magic!=1234){
+    if (w_minimize->magic!=1234){
         return;
     }
 
-    minimize->left_offset = 
-        (unsigned long) (window->width - LastLeft);
+    w_minimize->left_offset = 
+        (unsigned long) (w_titlebar->width - LastLeft);
 
-    minimize->type = WT_BUTTON;
-    minimize->isMinimizeControl = TRUE;
+    w_minimize->type = WT_BUTTON;
+    w_minimize->isMinimizeControl = TRUE;
+    w_minimize->bg_color_when_mousehover = 
+        (unsigned int) get_color(csiWhenMouseHoverMinimizeControl);
 
-    id = RegisterWindow(minimize);
+    id = RegisterWindow(w_minimize);
     if (id<0){
-        gwssrv_debug_print ("xxx: Couldn't register minimize\n");
+        gwssrv_debug_print("xxx: Couldn't register w_minimize\n");
         return;
     }
-    window->Controls.minimize_wid = (int) id;
+    w_titlebar->Controls.minimize_wid = (int) id;
 
 // ================================================
 // maximize
     LastLeft = 
         (unsigned long)(
-        window->width - 
+        w_titlebar->width - 
         (2*ButtonWidth) - 
         (1*SeparatorWidth) - 
         RightPadding );
 
-    maximize = 
+    w_maximize = 
         (struct gws_window_d *) CreateWindow ( 
             WT_BUTTON, 0, 1, 1, 
             "M",  //string  
@@ -1786,38 +1793,40 @@ void do_create_controls(struct gws_window_d *window)
             TopPadding, //t 
             ButtonWidth, 
             ButtonHeight,   
-            window, 0, bg_color, bg_color );
+            w_titlebar, 0, bg_color, bg_color );
 
-    if ( (void *) maximize == NULL ){
-        //gwssrv_debug_print ("xx: maximize fail \n");
+    if ( (void *) w_maximize == NULL ){
+        //gwssrv_debug_print ("xx: w_maximize fail \n");
         return;
     }
-    if (maximize->magic!=1234){
+    if (w_maximize->magic!=1234){
         return;
     }
 
-    maximize->left_offset = 
-        (unsigned long) (window->width - LastLeft);
+    w_maximize->left_offset = 
+        (unsigned long) (w_titlebar->width - LastLeft);
 
-    maximize->type = WT_BUTTON;
-    maximize->isMaximizeControl = TRUE;
-    
-    id = RegisterWindow(maximize);
+    w_maximize->type = WT_BUTTON;
+    w_maximize->isMaximizeControl = TRUE;
+    w_maximize->bg_color_when_mousehover = 
+        (unsigned int) get_color(csiWhenMouseHoverMaximizeControl);
+
+    id = RegisterWindow(w_maximize);
     if (id<0){
-        gwssrv_debug_print ("xxx: Couldn't register maximize\n");
+        gwssrv_debug_print ("xxx: Couldn't register w_maximize\n");
         return;
     }
-    window->Controls.maximize_wid = (int) id;
+    w_titlebar->Controls.maximize_wid = (int) id;
 
 // ================================================
 // close
     LastLeft = 
         (unsigned long)(
-        window->width - 
+        w_titlebar->width - 
         (1*ButtonWidth)  - 
          RightPadding );
 
-    close = 
+    w_close = 
         (struct gws_window_d *) CreateWindow ( 
             WT_BUTTON, 0, 1, 1, 
             "X",       //string  
@@ -1825,30 +1834,32 @@ void do_create_controls(struct gws_window_d *window)
             TopPadding, //t 
             ButtonWidth, 
             ButtonHeight,   
-            window, 0, bg_color, bg_color );
+            w_titlebar, 0, bg_color, bg_color );
 
-    if ( (void *) close == NULL ){
-        //gwssrv_debug_print ("xx: close fail \n");
+    if ( (void *) w_close == NULL ){
+        //gwssrv_debug_print ("xx: w_close fail \n");
         return;
     }
-    if (close->magic!=1234){
+    if (w_close->magic!=1234){
         return;
     }
 
-    close->left_offset = 
-        (unsigned long) (window->width - LastLeft);
+    w_close->left_offset = 
+        (unsigned long) (w_titlebar->width - LastLeft);
 
-    close->type = WT_BUTTON;
-    close->isCloseControl = TRUE;
+    w_close->type = WT_BUTTON;
+    w_close->isCloseControl = TRUE;
+    w_close->bg_color_when_mousehover = 
+        (unsigned int) get_color(csiWhenMouseHoverCloseControl);
 
-    id = RegisterWindow(close);
+    id = RegisterWindow(w_close);
     if (id<0){
-        gwssrv_debug_print ("xxx: Couldn't register close\n");
+        gwssrv_debug_print ("xxx: Couldn't register w_close\n");
         return;
     }
-    window->Controls.close_wid = (int) id;
+    w_titlebar->Controls.close_wid = (int) id;
 
-    window->Controls.initialized = TRUE;
+    w_titlebar->Controls.initialized = TRUE;
 }
 
 // Create titlebar and controls.
@@ -4065,10 +4076,10 @@ static void on_mouse_leave(struct gws_window_d *window)
 }
 
 // local
-static void on_mouse_hover( struct gws_window_d *window )
+static void on_mouse_hover(struct gws_window_d *window)
 {
 
-    if ( (void*) window == NULL )
+    if ((void*) window == NULL)
         return;
     if (window->magic!=1234)
         return;
@@ -4076,8 +4087,10 @@ static void on_mouse_hover( struct gws_window_d *window )
 // visual efect
     if (window->type == WT_BUTTON)
     {
-        window->status = BS_HOVER;
-        window->bg_color = (unsigned int) get_color(csiWhenMouseHover);
+        window->status = BS_HOVER;     
+        // Using the color that belongs to this window.
+        window->bg_color = 
+            (unsigned int) window->bg_color_when_mousehover;
         redraw_window(window,TRUE);
     }
 
@@ -5068,6 +5081,7 @@ void destroy_window (struct gws_window_d *window)
 */
 
 
+// Color scheme
 int gwssrv_initialize_default_color_scheme(void)
 {
 // Initialize the default color scheme.
@@ -5079,8 +5093,8 @@ int gwssrv_initialize_default_color_scheme(void)
 // Criando o esquema de cores humility. (cinza)
 
     cs = (void *) malloc( sizeof(struct gws_color_scheme_d) );
-
-    if ( (void *) cs == NULL ){
+    if ((void *) cs == NULL)
+    {
         gwssrv_debug_print ("gwssrv_initialize_color_schemes: cs\n");
         printf             ("gwssrv_initialize_color_schemes: cs\n"); 
         goto fail;
@@ -5088,11 +5102,13 @@ int gwssrv_initialize_default_color_scheme(void)
 
     cs->initialized=FALSE;
     cs->id = 0;
-    cs->name  = "Humility";
+    cs->name = "Humility";
     cs->style = 0;
 
 // Colors
 // see: ws.h
+
+// size: 32 elements.
 
 // 0
     cs->elements[csiNull] = 0;
@@ -5100,6 +5116,8 @@ int gwssrv_initialize_default_color_scheme(void)
 // 1 - Screen background. (Wallpaper)
     cs->elements[csiDesktop] = 
         HUMILITY_COLOR_BACKGROUND;  
+
+//----
 
 // 2 - Window
     cs->elements[csiWindow] = 
@@ -5116,6 +5134,8 @@ int gwssrv_initialize_default_color_scheme(void)
 // 5 - Border for inactive window.
     cs->elements[csiInactiveWindowBorder] = 
         HUMILITY_COLOR_INACTIVE_WINDOW_BORDER;
+
+//----
 
 // 6 - Titlebar for active window.
     cs->elements[csiActiveWindowTitleBar] = 
@@ -5141,7 +5161,7 @@ int gwssrv_initialize_default_color_scheme(void)
     cs->elements[csiTaskBar] = 
         HUMILITY_COLOR_TASKBAR;
 
-// ...
+//----
 
 // 12 - Messagebox
     cs->elements[csiMessageBox] = 
@@ -5159,19 +5179,37 @@ int gwssrv_initialize_default_color_scheme(void)
     cs->elements[csiButton] = 
         HUMILITY_COLOR_BUTTON;
 
+// 16 - Window border.
     cs->elements[csiWindowBorder] = 
         HUMILITY_COLOR_WINDOW_BORDER;
 
+// 17 - wwf border
     cs->elements[csiWWFBorder] = 
         HUMILITY_COLOR_WWF_BORDER;
 
+// 18 - Titlebar text color.
     cs->elements[csiTitleBarTextColor] = 
         HUMILITY_COLOR_TITLEBAR_TEXT;
 
+//
+// Mouse hover
+//
+
+// 19 - When mousehover. (default color)
     cs->elements[csiWhenMouseHover] = 
         HUMILITY_COLOR_BG_ONMOUSEHOVER;
+// 20 -
+    cs->elements[csiWhenMouseHoverMinimizeControl] = 
+        HUMILITY_COLOR_BG_ONMOUSEHOVER_MIN_CONTROL;
+// 21 -
+    cs->elements[csiWhenMouseHoverMaximizeControl] = 
+        HUMILITY_COLOR_BG_ONMOUSEHOVER_MAX_CONTROL;
+// 22 -
+    cs->elements[csiWhenMouseHoverCloseControl] = 
+        HUMILITY_COLOR_BG_ONMOUSEHOVER_CLO_CONTROL;
 
 
+// 23 - Textbar text color
     cs->elements[csiTaskBarTextColor] = 
         xCOLOR_GRAY2;
 

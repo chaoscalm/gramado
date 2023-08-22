@@ -158,11 +158,13 @@ extern int current_mode;
 // Window with focus border
 #define HUMILITY_COLOR_WWF_BORDER  COLOR_BLUE
 #define HUMILITY_COLOR_TITLEBAR_TEXT  COLOR_WHITE
+// When mouse hover.
 #define HUMILITY_COLOR_BG_ONMOUSEHOVER  xCOLOR_GRAY3
+#define HUMILITY_COLOR_BG_ONMOUSEHOVER_MIN_CONTROL  COLOR_BLUE
+#define HUMILITY_COLOR_BG_ONMOUSEHOVER_MAX_CONTROL  COLOR_BLUE
+#define HUMILITY_COLOR_BG_ONMOUSEHOVER_CLO_CONTROL  COLOR_RED
 //...
 // --------------------
-
-
 
 /*
 // --------------------
@@ -235,9 +237,15 @@ typedef enum {
     csiWWFBorder,     // 17 window with focus border.
 
     csiTitleBarTextColor,  // 18
+
+// Mouse hover
+
     csiWhenMouseHover,     // 19 bg when mouse hover
+    csiWhenMouseHoverMinimizeControl, // 20
+    csiWhenMouseHoverMaximizeControl, // 21
+    csiWhenMouseHoverCloseControl, //22
     
-    csiTaskBarTextColor   // 20: Color for text in the taskbar.
+    csiTaskBarTextColor   // 23: Color for text in the taskbar.
 
     //...
     //@todo: focus,
@@ -252,7 +260,6 @@ typedef enum {
  *     O esquema de cores se aplica ao servidor 
  * de recursos gráficos. GWS.
  */ 
-
 struct gws_color_scheme_d
 {
     int used;

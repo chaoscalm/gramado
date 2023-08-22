@@ -547,6 +547,10 @@ void *doCreateWindow (
     window->bg_color = (unsigned int) frame_color;
     window->clientrect_bg_color = (unsigned int) client_color;
 
+    // Default color for 'when mouse hover'.
+    window->bg_color_when_mousehover = 
+        (unsigned int) get_color(csiWhenMouseHover);
+
 // buffers
     window->dedicated_buf = NULL;
     window->back_buf = NULL;
