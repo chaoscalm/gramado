@@ -546,9 +546,15 @@ static inline void do_cli(void)
     asm ("cli");
 }
 
-// try execute the filename in the prompt.
+// Try to execute the command line in the prompt[].
 static void __try_execute(int fd)
 {
+
+// Limits:
+// + The prompt[] limit is BUFSIZ = 1024;
+// + The limit for the write() operation is 512 for now.
+    size_t WriteLimit = 512;
+
     if (fd<0){
         return;
     }
@@ -615,74 +621,129 @@ static void __try_execute(int fd)
     char *p;
     p = prompt;
 
-    while(1)
+    while (1)
     {
         // Se tem tamanho o suficiente ou sobra.
-        if(ii >= 12){
+        if (ii >= 12){
             filename_buffer[ii] = 0;  //finalize
             break;
         }
-        
+
         // Se o tamanho esta no limite.
         
         // 0, space or tab.
-        if( *p == 0 || 
-            *p == ' ' ||
-            *p == '\t' )
+        // Nao pode haver espace no nome do programa.
+        // Depois do nome vem os parametros.
+        if ( *p == 0 || 
+             *p == ' ' ||
+             *p == '\t' )
         {
-            filename_buffer[ii] = 0;  //finalize
+            // Finalize the buffer that contain the image name.
+            filename_buffer[ii] = 0;
             break;
         }
-        
+
         // Printable.
         // Put the char into the buffer.
+        // What are these chars? It includes symbols? Or just letters?
         if ( *p >= 0x20 && *p <= 0x7F )
         {
             filename_buffer[ii] = (char) *p;
         }
-        
+
         p++;    // next char in the command line.
         ii++;   // next byte into the filename buffer.
     };
 
-    register int i=0;
-    int isInvalidExt=FALSE;   // Pois podemos executar sem extensão.
+//
+// Parse the filename inside its local buffer.
+//
 
+    register int i=0;
+// Is it a valid extension?
+// Pois podemos executar sem extensão.
+    int isInvalidExt = FALSE;
+    int dotWasFound = FALSE;
+
+// Look up for the first occorence of '.'.
+// 12345678.123 = (8+1+3) = 12
     for (i=0; i<=12; i++)
     {
+        // The command name can't have these chars.
+        // It means that we reached the end of the command name.
+        // Maybe we have parameters after the name, maybe not.
+        if ( filename_buffer[i] == 0 || 
+             filename_buffer[i] == ' ' ||
+             filename_buffer[i] == '\t' )
+        {
+            break;
+        }        
+
         if ( filename_buffer[i] == '.' )
-            break; 
+        {
+            dotWasFound = TRUE;
+            isInvalidExt = FALSE;
+            break;
+        }
     };
 
-// Se temos um ponto e 
-// o que segue o ponto não é 'bin' ou 'BIN'.
-
-    if ( filename_buffer[i] == '.' )
+// ----------------
+// '.' was NOT found, but the filename is bigger than 8 bytes.
+    if (dotWasFound != TRUE)
     {
-        // Encontrams um ponto,
-        // mas ainda não sabemos se a extensão é valida
-        // ou não.
-        isInvalidExt = TRUE;
-        
-        if ( filename_buffer[i+1] == 'b' ||
-             filename_buffer[i+2] == 'i' ||
-             filename_buffer[i+3] == 'n'  )
-        {
-            isInvalidExt = FALSE;
-        }
-
-        if ( filename_buffer[i+1] == 'B' ||
-             filename_buffer[i+2] == 'I' ||
-             filename_buffer[i+3] == 'N'  )
-        {
-            isInvalidExt = FALSE;
+        if (i > 8){
+            printf("terminal: Long command name\n");
+            goto fail;
         }
     }
 
-// clone and execute
+// ----------------
+// '.' was found.
+// Se temos um ponto e 
+// o que segue o ponto não é 'bin' ou 'BIN',
+// entao a estencao e' invalida.
 
-    if (isInvalidExt == TRUE)
-        goto fail;
+    if (dotWasFound == TRUE){
+    if ( filename_buffer[i] == '.' )
+    {
+        // Ainda nao temos uma extensao valida.
+        // Encontramos um ponto,
+        // mas ainda não sabemos se a extensão é valida
+        // ou não.
+        // isInvalidExt = TRUE;
+        
+        // Valida a extensao se os proximos chars forem "bin".
+        if ( filename_buffer[i+1] == 'b' &&
+             filename_buffer[i+2] == 'i' &&
+             filename_buffer[i+3] == 'n'  )
+        {
+            isInvalidExt = TRUE;
+        }
+
+        // Valida a extensao se os proximos chars forem "BIN".
+        if ( filename_buffer[i+1] == 'B' &&
+             filename_buffer[i+2] == 'I' &&
+             filename_buffer[i+3] == 'N'  )
+        {
+            isInvalidExt = TRUE;
+        }
+    }
+    }
+
+// No extension
+// The dot was found, but the extension is invalid.
+// Invalid extension.
+    if (dotWasFound == TRUE)
+    {
+        if (isInvalidExt == FALSE){
+            printf("terminal: Invalid extension in command name\n");
+            goto fail;
+        }
+    }
+
+//
+// Clone and execute.
+//
 
 
 //#todo
@@ -699,20 +760,31 @@ static void __try_execute(int fd)
     //    asm("int $3");
     //}
 
-    prompt[511]=0;
+// Finalize the command line.
+// Nao pode ser maior que o buffer.
+    if (WriteLimit > PROMPT_MAX_DEFAULT){
+        WriteLimit = PROMPT_MAX_DEFAULT;
+    }
+    int __LastChar = (int) (WriteLimit-1);
+    prompt[__LastChar]=0;
 
     // #debug
     // OK!
     //printf("promt: {%s}\n",prompt);
     //asm ("int $3");
 
-    // #bugbug: A cmdline ja estava dentro do arquivo
-    // antes de escrevermos. Isso porque pegamos mensagens de
-    // teclado de dentro do sdtin.
-    // Tambem significa que rewind() não funcionou.
+// #bugbug: 
+// A cmdline ja estava dentro do arquivo
+// antes de escrevermos. Isso porque pegamos mensagens de
+// teclado de dentro do sdtin.
+// Tambem significa que rewind() não funcionou.
+// #test
+// Nao pode ser maior que o limite atual para operaçoes de escrita.
+    if (WriteLimit > 512){
+        WriteLimit = 512;
+    }
     //write(fileno(stdin), "dirty", 5);
-    write(fileno(stdin), prompt, 512);
-
+    write(fileno(stdin), prompt, WriteLimit);
 
     //rtl_clone_and_execute(filename_buffer);
     //rtl_clone_and_execute(prompt);
@@ -1119,9 +1191,10 @@ static void compareStrings(int fd)
 //
 
 // #todo
-// The kernel is gonna crash is the file was no found.
+// The kernel is gonna crash if the file was no found.
 
-    __try_execute(fd);
+    //__try_execute(fd);  // Local worker
+    gws_clone_and_execute_from_prompt(fd);  // libgws.
 
 exit_cmp:
     return;

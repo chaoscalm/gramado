@@ -349,6 +349,8 @@ gws_clone_and_execute2 (
     unsigned long arg4,
     char *string );
 
+void gws_clone_and_execute_from_prompt(int fd);
+
 //
 // System support.
 //

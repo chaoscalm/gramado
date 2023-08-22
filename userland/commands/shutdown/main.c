@@ -14,36 +14,17 @@
 #include <stdbool.h>
 #include <libio.h>
 
-// #test
-// Finding the size of a disk.
-
-#define DRDY  0x40
-#define BSY   0x80
-#define HOB   0x80
-
-#define Sector_Count    2
-
-#define LBA_Low         3
-#define LBA_Mid         4
-#define LBA_High        5
-#define Device          6
-
-#define Status          7
-#define Command         7
-
-#define Device_Control  2
-
 #define is_qemu  rtl_is_qemu
 
+static int shutdown_verbose = FALSE;
 
 //
 // private functions: prototypes ==============
 //
 
-static void __serial_write_char (unsigned char data);
-static void test_disk_size(void);
+static void __serial_write_char(unsigned char data);
 void do_via_qemu(void);
-  
+
 // ===================================
 
 // Vai escrever em uma porta ja inicializada pelo kernel.
@@ -54,82 +35,6 @@ static void __serial_write_char (unsigned char data)
     };
 
     libio_outport8 ( 0x3F8, (unsigned char) data );
-}
-
-
-// #
-// Essa rotina funcionou no qemu, mas não em minha máquina real.
-// Devemos mover ela para dentro do driver em ring0
-// e testar novamente.
-
-static void test_disk_size(void)
-{
-    unsigned int d=0x1F0;   //for example
-    unsigned int dd=0x3F4;
-    // 0-Master 1-Slave
-    char Dev=0; 
-    char LBA48=0;
-    unsigned long Max_LBA=0;
-
-// ====================================
-
-// Select Device and set LBA.
-
-    libio_outport8(
-        (unsigned short) (d+6), 
-        (unsigned char) (Dev << 4) + (1 << 6) ); 
-
-// Test device is ready to do comand.
-    while (libio_inport8(d+Status) &  DRDY == 0)
-    {
-    };
-
-    if (LBA48 != 0)
-    {
-        // READ NATIVE MAX ADDRESS EXT.
-        libio_outport8(
-            (unsigned short) d+Command, 
-            (unsigned char) 0x27 ); 
-
-        // wait command completed
-        while (libio_inport8(d+Status) &  BSY != 0)
-        {
-        };
-
-        Max_LBA =  (unsigned long )libio_inport8(d+LBA_Low);
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_Mid)  << 8;
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_High) << 16;
-
-        // Set HOB to 1
-        libio_outport8(
-            dd+Device_Control, 
-            HOB ); 
-
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_Low)  << 24;
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_Mid)  << 32;
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_High) << 40;
-
-    }
-    else
-    {
-        // READ NATIVE MAX ADDRESS
-        libio_outport8(
-            d+Command, 
-            0xF8 ); 
-        
-        // wait command completed
-        while (libio_inport8 (d+Status) &  BSY != 0)
-        {
-        };
-
-        Max_LBA  = (unsigned long )libio_inport8(d+LBA_Low);
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_Mid)  << 8;
-        Max_LBA += (unsigned long )libio_inport8(d+LBA_High) << 16;
-
-        Max_LBA += ((unsigned long )libio_inport8(d+Device) & 0xF) <<24;
-    }
-
-    printf ("Size {%d}\n",Max_LBA);
 }
 
 
@@ -146,10 +51,12 @@ void do_via_qemu(void)
 
     //#test
     //save fat
-    printf("saving fat...\n");
+    if (shutdown_verbose == TRUE)
+        printf("saving fat...\n");
     sc82( 10008, 0, 0, 0);
 
-    printf("poweroff via qemu\n");
+    if (shutdown_verbose == TRUE)
+        printf("poweroff via qemu\n");
     libio_outport16(
         (unsigned short) 0x604, 
         (unsigned short) 0x2000 );
@@ -161,39 +68,51 @@ void do_via_qemu(void)
 // #todo:
 // We can ask the system if we are in qemu or not.
 // See: https://wiki.osdev.org/Shutdown
-
-int main ( int argc, char *argv[] )
-{
-
 // #todo: parameters.
 // Or maybe we need a application called poweroff.bin.
-
-/*
- // #test: disk size.
-    printf("shutdown:\n");
-    test_disk_size();
-    printf("done\n");
-    while(1){}
-*/
-
 // Na verdade essa rotina precisa ser em ring0.
 // Pois tem que checar a permissão de superuser,
 // acionar os locks, sincronizar os sistemas de arquivo
 // montados, etc ...
-
 // #todo
 // Podemos testar para outros hv, como kvm ...
-
+int main(int argc, char *argv[])
+{
     static int isQEMU = FALSE;
     //int isVirtualBox = FALSE;
     //int isBochs      = FALSE;
-    
+    register int i=0;
+    int fSilent = FALSE;
+
+
+    for (i=1; i<argc; i++)
+    {
+        if ( strncmp(argv[i],"--silent",8) == 0 )
+            fSilent=TRUE;
+        //if ( strncmp(argv[i],"--silent",8) == 0 )
+            //fSilent=TRUE;
+    };
+
+//
+// Flags
+//
+
+    shutdown_verbose = TRUE;
+    if (fSilent == TRUE)
+    {
+        shutdown_verbose = FALSE;
+        
+        //#debug
+        //printf("verbose\n");
+        //exit(0);
+    }
 
 // ==============================
 // qemu
 // In newer versions of QEMU, you can do shutdown with:
     isQEMU = (int) is_qemu();
-    if (isQEMU == TRUE){
+    if (isQEMU == TRUE)
+    {
         do_via_qemu();
     }
 
@@ -211,7 +130,10 @@ int main ( int argc, char *argv[] )
     //}
 
 fail:
-    printf ("shutdown: [FAIL] Not running on qemu.\n");
+    printf ("shutdown: FAIL\n");
+    if (isQEMU != TRUE){
+        printf ("Not running on qemu.\n");
+    }
     exit(0);
     return (int) (-1);
 }

@@ -2505,6 +2505,303 @@ gws_clone_and_execute2 (
     return (int) response;
 }
 
+// ========================================================
+// Try to execute the command line in the prompt[] buffer.
+void gws_clone_and_execute_from_prompt(int fd)
+{
+
+// Limits:
+// + The prompt[] limit is BUFSIZ = 1024;
+// + The limit for the write() operation is 512 for now.
+    size_t WriteLimit = 512;
+
+    if (fd<0){
+        return;
+    }
+// Empty buffer
+   if (*prompt == 0){
+       goto fail;
+   }
+
+// Clone.
+// #important:
+// For now the system will crash if the
+// command is not found.
+// #bugbug
+// We are using the whole 'command line' as an argument.
+// We need to work on that routine of passing
+// the arguments to the child process.
+// See: rtl.c
+// Stop using the embedded shell.
+
+// rebubina o arquivo de input.
+    //rewind(__terminal_input_fp);
+    
+// ==================================
+
+//
+// Send commandline via stdin.
+//
+
+// Write it into stdin.
+// It's working
+// See: crt0.c
+
+    //rewind(stdin);
+    //prompt[511]=0;
+    //write(fileno(stdin), prompt, 512);
+
+    //fail
+    //fprintf(stdin,"One Two Three ...");
+    //fflush(stdin);
+
+/*
+// it's working
+    char *shared_buffer = (char *) 0x30E00000;  //extra heap 3.
+    sprintf(shared_buffer,"One Two Three ...");
+    shared_buffer[511] = 0;
+*/
+
+// ==================================
+
+//
+// Get filename
+//
+
+// #bugbug
+// The command line accepts only one word
+// and the command line has too many words.
+
+//#todo
+//Create a method.
+//int rtl_get_first_word_in_a_string(char *buffer_pointer, char *string);
+
+    register int ii=0;
+    char filename_buffer[12]; //8+3+1
+    char *p;
+    p = prompt;
+
+    while (1)
+    {
+        // Se tem tamanho o suficiente ou sobra.
+        if (ii >= 12){
+            filename_buffer[ii] = 0;  //finalize
+            break;
+        }
+
+        // Se o tamanho esta no limite.
+        
+        // 0, space or tab.
+        // Nao pode haver espace no nome do programa.
+        // Depois do nome vem os parametros.
+        if ( *p == 0 || 
+             *p == ' ' ||
+             *p == '\t' )
+        {
+            // Finalize the buffer that contain the image name.
+            filename_buffer[ii] = 0;
+            break;
+        }
+
+        // Printable.
+        // Put the char into the buffer.
+        // What are these chars? It includes symbols? Or just letters?
+        if ( *p >= 0x20 && *p <= 0x7F )
+        {
+            filename_buffer[ii] = (char) *p;
+        }
+
+        p++;    // next char in the command line.
+        ii++;   // next byte into the filename buffer.
+    };
+
+//
+// Parse the filename inside its local buffer.
+//
+
+    register int i=0;
+// Is it a valid extension?
+// Pois podemos executar sem extensão.
+    int isInvalidExt = FALSE;
+    int dotWasFound = FALSE;
+
+// Look up for the first occorence of '.'.
+// 12345678.123 = (8+1+3) = 12
+    for (i=0; i<=12; i++)
+    {
+        // The command name can't have these chars.
+        // It means that we reached the end of the command name.
+        // Maybe we have parameters after the name, maybe not.
+        if ( filename_buffer[i] == 0 || 
+             filename_buffer[i] == ' ' ||
+             filename_buffer[i] == '\t' )
+        {
+            break;
+        }        
+
+        if ( filename_buffer[i] == '.' )
+        {
+            dotWasFound = TRUE;
+            isInvalidExt = FALSE;
+            break;
+        }
+    };
+
+// ----------------
+// '.' was NOT found, but the filename is bigger than 8 bytes.
+    if (dotWasFound != TRUE)
+    {
+        if (i > 8){
+            printf("libgws: Long command name\n");
+            goto fail;
+        }
+    }
+
+// ----------------
+// '.' was found.
+// Se temos um ponto e 
+// o que segue o ponto não é 'bin' ou 'BIN',
+// entao a estencao e' invalida.
+
+    if (dotWasFound == TRUE){
+    if ( filename_buffer[i] == '.' )
+    {
+        // Ainda nao temos uma extensao valida.
+        // Encontramos um ponto,
+        // mas ainda não sabemos se a extensão é valida
+        // ou não.
+        // isInvalidExt = TRUE;
+        
+        // Valida a extensao se os proximos chars forem "bin".
+        if ( filename_buffer[i+1] == 'b' &&
+             filename_buffer[i+2] == 'i' &&
+             filename_buffer[i+3] == 'n'  )
+        {
+            isInvalidExt = TRUE;
+        }
+
+        // Valida a extensao se os proximos chars forem "BIN".
+        if ( filename_buffer[i+1] == 'B' &&
+             filename_buffer[i+2] == 'I' &&
+             filename_buffer[i+3] == 'N'  )
+        {
+            isInvalidExt = TRUE;
+        }
+    }
+    }
+
+// No extension
+// The dot was found, but the extension is invalid.
+// Invalid extension.
+    if (dotWasFound == TRUE)
+    {
+        if (isInvalidExt == FALSE){
+            printf("libgws: Invalid extension in command name\n");
+            goto fail;
+        }
+    }
+
+//
+// Clone and execute.
+//
+
+
+//#todo
+// Tem que limpar o buffer do arquivo em ring0, 
+// antes de escrever no arquivo.
+
+// cmdline:
+// Only if the name is a valid name.
+    rewind(stdin);
+    //off_t v=-1;
+    //v=lseek( fileno(stdin), 0, SEEK_SET );
+    //if (v!=0){
+    //    printf("testing lseek: %d\n",v);
+    //    asm("int $3");
+    //}
+
+// Finalize the command line.
+// Nao pode ser maior que o buffer.
+    if (WriteLimit > PROMPT_MAX_DEFAULT){
+        WriteLimit = PROMPT_MAX_DEFAULT;
+    }
+    int __LastChar = (int) (WriteLimit-1);
+    prompt[__LastChar]=0;
+
+    // #debug
+    // OK!
+    //printf("promt: {%s}\n",prompt);
+    //asm ("int $3");
+
+// #bugbug: 
+// A cmdline ja estava dentro do arquivo
+// antes de escrevermos. Isso porque pegamos mensagens de
+// teclado de dentro do sdtin.
+// Tambem significa que rewind() não funcionou.
+// #test
+// Nao pode ser maior que o limite atual para operaçoes de escrita.
+    if (WriteLimit > 512){
+        WriteLimit = 512;
+    }
+    //write(fileno(stdin), "dirty", 5);
+    write(fileno(stdin), prompt, WriteLimit);
+
+    //rtl_clone_and_execute(filename_buffer);
+    //rtl_clone_and_execute(prompt);
+    //rtl_clone_and_execute("shutdown.bin");
+    // while(1){}
+        
+    // #todo #test
+    // This is a method for the whole routine above.
+    // rtl_execute_cmdline(prompt);
+
+// clone and execute via ws.
+// four arguments and a string pointer.
+
+    int res = -1;
+
+    //gws_clone_and_execute2(
+    //    fd,
+    //    0,0,0,0,
+    //    "reboot.bin" );
+
+    res = 
+        (int) gws_clone_and_execute2(
+                  fd,
+                  0,0,0,0,
+                  filename_buffer );
+
+   if (res<0){
+       //#debug #todo: do not use printf.
+       //printf("gws_clone_and_execute2: fail\n");
+   }
+
+// #bugbug
+// breakpoint
+// something is wrong when we return here.
+    
+    //printf("terminal: breakpoint\n");
+    //while(1){}
+
+// #bugbug: 
+// Se não estamos usando então
+// o terminal vai sair do loop de input e fechar o programa.
+    
+    //isUsingEmbeddedShell = FALSE;
+    //return;
+
+    //printf("Command not found\n");
+done:
+    return;
+fail:
+    return;
+}
+
+
+
+
+
+
 /*
 // #todo
 // Services.
