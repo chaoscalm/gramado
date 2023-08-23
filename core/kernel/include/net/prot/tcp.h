@@ -5,21 +5,72 @@
 #define __NET_TCP_H    1
 
 // Control flags:
+/*
 #define TCP_ACK  16
 #define TCP_PSH  8
 #define TCP_RST  4
 #define TCP_SYN  2
 #define TCP_FIN  1
+*/
 
-//#define	TH_FIN    0x01		/* Final: Set on the last segment */
-//#define	TH_SYN    0x02		/* Synchronization: New conn with dst port */
-//#define	TH_RST    0x04		/* Reset: Announce to peer conn terminated */
-//#define	TH_PUSH   0x08		/* Push: Immediately send, don't buffer seg */
-//#define	TH_ACK    0x10		/* Acknowledge: Part of connection establish */
-//#define	TH_URG    0x20		/* Urgent: send special marked segment now */
+//
+// Control bits:
+//
+
+// bit 0
+/* Final: Set on the last segment */
+// Sender has reached the end of its byte stream.
+#define TH_FIN    0x01
+
+// bit 1
+/* Synchronization: New conn with dst port */
+// Synchronizes the sequence numbers.
+#define TH_SYN    0x02
+
+// bit 2
+/* Reset: Announce to peer conn terminated */
+// Resets the connection.
+#define TH_RST    0x04
+
+// bit 3
+/* Push: Immediately send, don't buffer seg */
+// Segment requests a PUSH.
+#define TH_PUSH   0x08
+
+// bit 4
+/* Acknowledge: Part of connection establish */
+// Acknowledgement field is valid.
+#define TH_ACK    0x10
+
+// bit 5
+/* Urgent: send special marked segment now */
+// Urgent pointer field is valid.
+#define TH_URG    0x20
+
 //#define	TH_ECE    0x40		/* ECN Echo */
 //#define	TH_CWR    0x80		/* Congestion Window Reduced */
 
+/*
+Control Flag Bits
+The control flag bit is 6 bits. 
+The control flag field is basically divided into 
+the following felids that are as follows:
+
+    If the URG(Urgent pointer)=1, then the urgent pointer is in use otherwise, it is not in use.
+    IF ACK = 1 means the acknowledgement number is valid, and if ACK = 0 means the segment does not contain acknowledgement.
+    If PSH(Push the data without buffering) = 1 means the request to forward the data to the application layer without buffering it.
+    If RST = 1 means it abruptly resets the connection whenever there is a host crash or is sometimes used to reject a segment.
+    SYN: Synchronize sequence numbers during connection establishment
+    
+    >> Connection request: 
+       SYN=1, ACK=0
+    
+    >> Reply: 
+       SYN=1, ACK=1
+    
+    FIN: 
+       Terminate the connection
+*/
 
 // When sending
 // without a payload:  
@@ -53,6 +104,15 @@ struct tcp_d
 
 // 4,6,6
 // data offset (4) | reserved (6) | control_flags (6)
+// -----------------------------
+// data offset (4): 
+//  + Specifies the size of the TCP header in 32-bit words. 
+// reserved (4): 
+// + ?
+// Control bits (6):  
+//  + We use them to establish connections, 
+//  + send data and 
+//  + terminate connections.
     uint16_t do_res_flags;
 
 // 16

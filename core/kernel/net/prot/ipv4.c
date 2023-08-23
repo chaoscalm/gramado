@@ -12,6 +12,7 @@ network_handle_ipv4(
     const unsigned char *buffer, 
     ssize_t size )
 {
+// Network layer.
 // Called by network_on_receiving() in network.c.
 // 0x0800
 
@@ -110,9 +111,12 @@ network_handle_ipv4(
 // TCP
     if (Protocol == PROTOCOL_IP_TCP)
     {
-        //printf("IP: TCP Protocol\n");
-        //network_handle_tcp(..);
-        goto drop0;
+        //printf("IP: TCP Protocol\n");        
+        network_handle_tcp(
+            (buffer + IP_HEADER_LENGHT),
+            (ip->ip_len - IP_HEADER_LENGHT) );
+        
+        return;
     }
 
     // #debug

@@ -13,9 +13,8 @@ struct udp_d
 {
 
 // Source port number
-    uint16_t uh_sport;
-
 // Destination port number
+    uint16_t uh_sport;
     uint16_t uh_dport;
 
 // Length

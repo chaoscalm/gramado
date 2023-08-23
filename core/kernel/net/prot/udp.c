@@ -41,6 +41,7 @@ network_handle_udp(
     const unsigned char *buffer, 
     ssize_t size )
 {
+// Transport layer.
 
 // The buffer
     struct udp_d *udp;
@@ -50,7 +51,7 @@ network_handle_udp(
     //printf ("UDP: Received\n");
 
     if ((void*) udp == NULL){
-        printf("network_handle_ipv4: udp\n");
+        printf("network_handle_udp: udp\n");
         return;
     }
 
@@ -75,9 +76,13 @@ network_handle_udp(
 
 // Clean the payload local buffer.
     memset(udp_payload,0,sizeof(udp_payload));
+
+//
 // Create a local copy of the payload.
+//
+
     char *p2; 
-    p2 = buffer + UDP_HEADER_LENGHT;
+    p2 = (buffer + UDP_HEADER_LENGHT);
     size_t p_size = strlen(p2);
     if (p_size <= 512)
     {
@@ -88,7 +93,6 @@ network_handle_udp(
         udp_payload[p_size] = 0;
         udp_payload[p_size +1] = 0;
     }
-    
     /*
     strncpy(
         udp_payload,
@@ -97,6 +101,10 @@ network_handle_udp(
     */
     udp_payload[1021] = 0;
 
+    //#debug
+    printf("UDP: dport{%d}   #debug\n",dport);
+
+
 // Don't print every message.
 // Is it a valid port?
 // Hang if the port is valid.
@@ -104,9 +112,6 @@ network_handle_udp(
     char *p;
     p = udp_payload;
     int mFlag=0;
-
-    //#debug
-    printf("UDP: dport{%d}   #debug\n",dport);
 
 // #test
 // DHCP dialog
