@@ -33,7 +33,6 @@ unsigned char saved_mac[6] = {
 
 //---------------------
 
-
 // IN:
 // buffer = udp header base address.
 // size     = udp packet size. (header + data)
@@ -46,7 +45,7 @@ network_handle_udp(
 // The buffer
     struct udp_d *udp;
     udp = (struct udp_d *) buffer;
-    int PushIntoTheQueue = TRUE;
+    register int i=0;
 
     //printf ("UDP: Received\n");
 
@@ -77,10 +76,25 @@ network_handle_udp(
 // Clean the payload local buffer.
     memset(udp_payload,0,sizeof(udp_payload));
 // Create a local copy of the payload.
+    char *p2; 
+    p2 = buffer + UDP_HEADER_LENGHT;
+    size_t p_size = strlen(p2);
+    if (p_size <= 512)
+    {
+        strncpy(
+            udp_payload,
+            p2,
+            p_size );
+        udp_payload[p_size] = 0;
+        udp_payload[p_size +1] = 0;
+    }
+    
+    /*
     strncpy(
         udp_payload,
         (buffer + UDP_HEADER_LENGHT),
         1020 );
+    */
     udp_payload[1021] = 0;
 
 // Don't print every message.
@@ -109,39 +123,9 @@ network_handle_udp(
         return;
     }
 
-// TEST dialog.
-    if (dport == 34884 || dport == 11888)
-    {
-        //printf("UDP: dport{%d}\n",dport);
-        printf("UDP: MESSAGE: {%s}\n", udp_payload );
-        //die();
-
-        /*
-        // Mini-parser.
-        // #todo: Create a worker.
-        if ( p[0] == '#' && 
-             p[1] == ':')
-        {
-            // Switch:
-            if (p[2] == '1'){
-                //post_message_to_ws(NULL,MSG_CLOSE,0,0);
-            }
-            // Update desktop
-            if (p[2] == '2'){
-                //post_message_to_ws(NULL,9092,0,0);
-            }
-            if (p[2] == '3'){
-                //post_message_to_ws(NULL,MSG_CLOSE,0,0);
-            }
-        }
-        */
-    }
-
-// TEST dialog
-    if (dport == 22888){
-        printf ("UDP: Message{%s}\n", udp_payload );
-        //die();
-    }
+//
+// Ports
+//
 
 // --------------
 // #test
@@ -151,8 +135,29 @@ network_handle_udp(
 // What kind of data we're pushing into these buffers?
 // Is it the raw frame only? Or only UDP?
 // see: network.c
-    //if (PushIntoTheQueue==TRUE)
-        network_push_packet( udp_payload, 512 );
+    //int PushIntoTheQueue = TRUE;
+    int PushIntoTheQueue = FALSE;
+
+    if ( dport == 11888 ||
+         dport == 22888 ||
+         dport == 34884 )
+    {
+        // Print the message for these ports.
+        if (PushIntoTheQueue == TRUE){
+            // #bugbug
+            // This is just a test. Actually we're gonna put
+            // into the queue all kind of frames, not just
+            // the udp's payloads.
+            network_push_packet( udp_payload, 512 );
+        } else {
+            printf("UDP: MESSAGE: {%s}\n", udp_payload );
+        };
+        // Clear UDP local buffer.
+        memset(udp_payload,0,sizeof(udp_payload));
+        //for (i=0; i<1024; i++){
+        //    udp_payload[i]=0;
+        //};
+    }
 }
 
 // -----------------

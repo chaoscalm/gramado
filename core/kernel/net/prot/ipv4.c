@@ -51,7 +51,7 @@ network_handle_ipv4(
     //printf("IP Version: {%d}\n", Version);
     //printf("Header lenght: {%d}\n", Lenght);
 
-    if (Version!=4){
+    if (Version != 4){
         printf("IP: Not version 4\n");
         goto fail;
     }

@@ -4,12 +4,12 @@
 import socket
 
 # Send to the server on localhost.
-# UDP_IP = "127.0.0.1"
+#UDP_IP = "127.0.0.1"
 # Send to Gramado on virtualbox.
-UDP_IP = "192.168.1.12"
-UDP_PORT = 34884
+UDP_IP = "192.168.1.11"
+#UDP_IP = "192.168.1.255"
+UDP_PORT = 11888
 MESSAGE = b"Hey Gramado!"
-#MESSAGE = b"[pHey Gramado!]p" 
 
 print("UDP target IP:   %s" % UDP_IP)
 print("UDP target port: %s" % UDP_PORT)
