@@ -50,6 +50,45 @@ struct initialization_d
 extern struct initialization_d  Initialization;
 
 
+struct server_profiler_d
+{
+    int initialized;
+    unsigned long dispatch_counter;
+// Windows
+// (create window) counters.
+    unsigned long cw_simple;
+    unsigned long cw_editbox_single_line;
+    unsigned long cw_overlapped;
+    unsigned long cw_popup;
+    unsigned long cw_checkbox;
+    unsigned long cw_scrollbar;
+    unsigned long cw_editbox_multiple_lines;
+    unsigned long cw_button;
+    unsigned long cw_statusbar;
+    unsigned long cw_icon;
+    unsigned long cw_titlebar;
+    //unsigned long cw_default;   // for error
+    // ...
+};
+extern struct server_profiler_d  ServerProfiler;
+
+// Server states
+#define SERVER_STATE_NULL  0
+#define SERVER_STATE_BOOTING  1
+#define SERVER_STATE_RUNNING  2
+#define SERVER_STATE_SHUTTINGDOWN  3
+
+struct server_state_d
+{
+// Struct initialization.
+    int initialized;
+// Server state.
+    int state;
+    // ...
+};
+extern struct server_state_d ServerState;
+
+
 // Host Operating System
 #define OS_OTHER    0
 #define OS_NATIVE   1

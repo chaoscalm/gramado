@@ -119,6 +119,9 @@ See: https://wiki.osdev.org/Graphics_stack
 
 // see: globals.h
 struct initialization_d  Initialization;
+struct server_profiler_d  ServerProfiler;
+struct server_state_d ServerState;
+
 
 //see: gws.h
 struct gws_d  *window_server;
@@ -156,6 +159,8 @@ static int initGUI(void);
 static void dispacher(int fd);
 
 static void __init_ws_structure(void);
+static void __initialize_server_profiler(void);
+static void __initialize_server_state(void);
 
 static int
 gwsProcedure (
@@ -630,7 +635,8 @@ static void dispacher(int fd)
     int Status = -1;
     int SendErrorResponse=FALSE;
 
-    dispatch_counter++;
+    dispatch_counter++;  //#todo: Delete this.
+    ServerProfiler.dispatch_counter++;
 
 // #todo:
 // No loop precisamos de accept() read() e write();
@@ -2136,6 +2142,48 @@ int serviceCreateWindow(int client_fd)
         exit(1);
     }
 
+
+// --------------------------------
+// Server profiler
+
+    switch (type){
+    case WT_SIMPLE: 
+        ServerProfiler.cw_simple++; 
+        break;
+    case WT_EDITBOX_SINGLE_LINE:
+        ServerProfiler.cw_editbox_single_line++;
+        break;
+    case WT_OVERLAPPED:
+        ServerProfiler.cw_overlapped++;
+        break;
+    case WT_POPUP:
+        ServerProfiler.cw_popup++;
+        break;
+    case WT_CHECKBOX:
+        ServerProfiler.cw_checkbox++;
+        break;
+    case WT_SCROLLBAR:
+        ServerProfiler.cw_scrollbar++;
+        break;
+    case WT_EDITBOX_MULTIPLE_LINES:
+        ServerProfiler.cw_editbox_multiple_lines++;
+        break;
+    case WT_BUTTON:
+        ServerProfiler.cw_button++;
+        break;
+    case WT_STATUSBAR: 
+        ServerProfiler.cw_statusbar++;
+        break;
+    case WT_ICON:
+        ServerProfiler.cw_icon++;
+        break;
+    case WT_TITLEBAR:
+        ServerProfiler.cw_titlebar++;
+        break;
+    default:
+        break;
+    };
+
 // --------------------------------
 
 // Draw
@@ -3255,6 +3303,38 @@ static void __init_ws_structure(void)
 }
 
 
+static void __initialize_server_profiler(void)
+{
+    ServerProfiler.initialized = FALSE;
+    ServerProfiler.dispatch_counter = 0;
+
+// Windows
+// (create window) counters.
+    ServerProfiler.cw_simple = 0;
+    ServerProfiler.cw_editbox_single_line = 0;
+    ServerProfiler.cw_overlapped = 0;
+    ServerProfiler.cw_popup = 0;
+    ServerProfiler.cw_checkbox = 0;
+    ServerProfiler.cw_scrollbar = 0;
+    ServerProfiler.cw_editbox_multiple_lines = 0;
+    ServerProfiler.cw_button = 0;
+    ServerProfiler.cw_statusbar = 0;
+    ServerProfiler.cw_icon = 0;
+    ServerProfiler.cw_titlebar = 0;
+    // ...
+    ServerProfiler.initialized = TRUE;
+}
+
+static void __initialize_server_state(void)
+{
+    ServerProfiler.initialized = FALSE;
+    ServerState.state = SERVER_STATE_BOOTING;
+    // ...
+    ServerProfiler.initialized = TRUE;
+}
+
+
+
 // ========================================
 // initGUI:
 //     Initialize the graphics user interface.
@@ -3373,6 +3453,11 @@ static int ServerInitialization(int dm)
     gws_disable_transparence();
 // Window server structure
     __init_ws_structure();
+// Server profiler initialization.
+    __initialize_server_profiler();
+// Server state initialization.
+    __initialize_server_state();
+
 // Window manager
     wmInitializeGlobals();
     wmInitializeStructure();
@@ -3710,6 +3795,9 @@ static int ServerInitialization(int dm)
     demoCurve();
     */
 
+// Server state
+    ServerState.state = SERVER_STATE_RUNNING;
+
     while (running == TRUE){
 
         if (IsTimeToQuit == TRUE){ break; };
@@ -3762,6 +3850,9 @@ static int ServerInitialization(int dm)
     };
 
 // =======================================
+
+// Server state
+    ServerState.state = SERVER_STATE_SHUTTINGDOWN;
 
     if (IsTimeToQuit != TRUE){
         debug_print ("gwssrv: [ERROR] Invalid IsTimeToQuit\n");
@@ -3915,6 +4006,7 @@ int main (int argc, char **argv)
     Initialization.setup_connection_checkpoint = FALSE;
     Initialization.setup_graphics_interface_checkpoint = FALSE;
     Initialization.inloop_checkpoint = FALSE;
+    
 
     // ##
     // Sincronizaçao provisoria.
