@@ -3865,6 +3865,8 @@ fsSaveFile (
 // For now we are using a local buffer to handle
 // the target directory entry.
 // Use the entry structure (fat16_directory_entry_d) found in fat.h.
+// >>> Used to save/create a file or a directory,
+// depending on the flag.
 
     int Status = 0;
 
@@ -3916,15 +3918,16 @@ fsSaveFile (
         panic("fsSaveFile: [FIXME] We only support ONE fat address for now!\n");
     }
 
-    if ( (void *) file_name == NULL ){
-        debug_print ("fsSaveFile: [ERROR] file_name\n");
-        printf      ("fsSaveFile: [ERROR] file_name\n"); 
+// Filename
+
+    if ((void *) file_name == NULL){
+        debug_print("fsSaveFile: [ERROR] file_name\n");
+        printf     ("fsSaveFile: [ERROR] file_name\n"); 
         goto fail;
     }
-
-    if ( *file_name == 0 ){
-        debug_print ("fsSaveFile: [ERROR] *file_name\n");
-        printf      ("fsSaveFile: [ERROR] *file_name\n"); 
+    if (*file_name == 0){
+        debug_print("fsSaveFile: [ERROR] *file_name\n");
+        printf     ("fsSaveFile: [ERROR] *file_name\n"); 
         goto fail;
     }
 
@@ -3941,7 +3944,9 @@ fsSaveFile (
     printf ("entries = %d \n", dir_entries );
  */
 
-    if ( dir_entries == 0 || dir_entries > FAT16_ROOT_ENTRIES )
+// How name direntries this directory have?
+    if ( dir_entries == 0 || 
+         dir_entries > FAT16_ROOT_ENTRIES )
     {
         panic ("fsSaveFile: [FAIL] max dir entries");
     }
@@ -3951,12 +3956,13 @@ fsSaveFile (
 // precisamos implementar um limite para o tamanho do arquivo,
 // principamente nessa fase de teste.
 
-    // #bugbug
-    // Limite provisorio
-    if ( file_size > 16 )
+// #bugbug
+// Limite provisorio
+// Size in sectors.
+    if (file_size > 16)
     {
-        debug_print ("fsSaveFile: [FIXME] Size in sectors\n");
-        printf      ("fsSaveFile: [FIXME] Size in sectors = %d \n", 
+        debug_print("fsSaveFile: [FIXME] Size in sectors\n");
+        printf     ("fsSaveFile: [FIXME] Size in sectors = %d \n", 
             file_size ); 
         goto fail;
     }
@@ -4065,17 +4071,34 @@ save_file:
     DirEntry[5]  = (char) file_name[5];
     DirEntry[6]  = (char) file_name[6];
     DirEntry[7]  = (char) file_name[7];
+// extension.
+    // Use extension or files.
     DirEntry[8]  = (char) file_name[8];
     DirEntry[9]  = (char) file_name[9];
     DirEntry[10] = (char) file_name[10];
+    // No extension for directories. Using spaces. I guess. 
+    if (flag == 0x10)
+    {
+        DirEntry[8]  = (char) 0x20;
+        DirEntry[9]  = (char) 0x20;
+        DirEntry[10] = (char) 0x20;
+    }
+
+    /*
+    printf ("flag=%x \n",flag);
+    printf ("%c\n",DirEntry[8]);
+    printf ("%c\n",DirEntry[9]);
+    printf ("%c\n",DirEntry[10]);
+    */
+
 
 // Flag. (attributes ?)
 // 0x01: read only
 // 0x02: hidden
 // 0x04: system
 // 0x08: volume label
-// 0x10: * Directory
-// 0x20: * Archive
+// 0x10: >>>> Directory <<<<
+// 0x20: >>>> Archive <<<<
     DirEntry[11] = flag; 
 
 // Reserved
@@ -4148,6 +4171,11 @@ save_file:
         goto fail;
     }
 
+
+//
+// Write entry into the directory buffer.
+//
+
 // 32/2 = 16 words.
 // Offset:
 // Deslocamento dentro do diretório.
@@ -4211,7 +4239,7 @@ save_file:
 
         next = fat16ClustersToSave[i];
 
-        // #debug.
+        // #debug
         printf ("fsSaveFile: [DEBUG] next={%x}\n", next);
 
         // O next é o marcador de fim de lista.
@@ -4236,6 +4264,8 @@ save_file:
             //#debug 
             //printf("write_lba\n");
             //refresh_screen();
+            
+            // Wait and write!
             
             // ata_get_current_ide_port_index()
             disk_ata_wait_irq(__IDE_PORT);
@@ -4311,8 +4341,8 @@ do_save_dir_and_fat:
     return 0;
 
 fail:
-    debug_print ("fsSaveFile: Fail\n");
-    printf      ("fsSaveFile: Fail\n");
+    debug_print("fsSaveFile: Fail\n");
+    printf     ("fsSaveFile: Fail\n");
     //refresh_screen ();
     return (int) 1;  // Why 1?
     //return -1;
@@ -4514,19 +4544,20 @@ sys_read_file_from_disk (
         //refresh_screen();
 
         // Create a new one.
-        // #todo: Use sys_crete_empty_file.
+        // #todo: Use sys_create_empty_file.
         if (flags & O_CREAT)
         {
             debug_print ("sys_read_file_from_disk: [O_CREAT] Creating a new file\n"); 
 
             // #todo:
             // Define the default value for this case.
-            buff = (void*) kmalloc(1024);
-            if ((void*)buff==NULL){
+            buff = (void*) kmalloc(BUFSIZ);
+            if ((void*) buff == NULL)
+            {
                 printf("sys_read_file_from_disk: buff\n");
                 goto fail;
             }
-            memset(buff,0,1024);
+            memset(buff,0,BUFSIZ);
             sprintf(buff,"This is a new file.");
 
             //++
@@ -4923,9 +4954,9 @@ fail:
 
 // ==============================
 // Service 43
-// See: fs_create_empty_file()
+// See: see sci.c
 
-int sys_create_empty_file( char *file_name )
+int sys_create_empty_file(char *file_name)
 {
     int __ret = -1;
     //char *FileName;
@@ -4933,7 +4964,7 @@ int sys_create_empty_file( char *file_name )
 // #bugbug: 
 // We need a buffer in another place.
 // #todo: Allocate space for a new file.
-    char buffer[512];
+    char buffer[BUFSIZ];
     //char *buf;
 // How many bytes.
     int FileSizeInBytes = 512;
@@ -4942,9 +4973,9 @@ int sys_create_empty_file( char *file_name )
     int NumberOfSectors = 1;
 
     debug_print ("sys_create_empty_file:\n");
+    printf("sys_create_empty_file:\n");
 
-
-    if ( (void*) file_name == NULL ){
+    if ((void*) file_name == NULL){
         return (int) (-EINVAL);
     }
     if (*file_name == 0){
@@ -4954,9 +4985,14 @@ int sys_create_empty_file( char *file_name )
 // Change the string format.
     fs_fntos( (char *) file_name );
 
+// #test
+// Not empty file.
+    memset(buffer,0,BUFSIZ);
+    sprintf(buffer,"This is a new file.");
 
 // 0x20 = file.
 // See: write.c
+    printf ("0x20 \n");
     __ret = 
         (int) fsSaveFile ( 
                   VOLUME1_FAT_ADDRESS, 
@@ -4984,31 +5020,33 @@ int sys_create_empty_file( char *file_name )
 // ================================
 // Service 44
 // See: fs_create_empty_directory
-int sys_create_empty_directory ( char *dir_name )
+int sys_create_empty_directory(char *dir_name)
 {
     int __ret=0;
 
 // #bugbug: 
 // We need a buffer in another place.
-
-    char buffer[512];
+    char buffer[BUFSIZ];
     int size_in_bytes = 512; 
     int number_of_sectors = 1;
 
-
     debug_print ("sys_create_empty_directory:\n");
-
-    if ( (void*) dir_name == NULL ){
+    printf("sys_create_empty_directory:\n");
+    
+    if ((void*) dir_name == NULL){
         return (int) (-EINVAL);
     }
-    if ( *dir_name == 0 ){
+    if (*dir_name == 0){
         return (int) (-EINVAL);
     }
 
-    fs_fntos ( (char *) dir_name );
+    fs_fntos((char *) dir_name);
+
+    memset(buffer,0,BUFSIZ);
 
 // See: write.c
 // 0x10 = directory. 
+    printf ("0x10 \n");
     __ret = 
         (int) fsSaveFile ( 
                   VOLUME1_FAT_ADDRESS, 

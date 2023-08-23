@@ -203,6 +203,7 @@ static void __try_execute(int fd);
 
 static void doHelp(int fd);
 static void doAbout(int fd);
+static libc_test(int fd);
 
 static void clear_terminal_client_window(int fd);
 static void __send_to_child (void);
@@ -837,6 +838,55 @@ fail:
     return;
 }
 
+static libc_test(int fd)
+{
+    int NumberOfFilesToCreate = 8;
+    int file_index=0;
+    char tmp_file_name[64];
+    char index_string_buffer[64];
+
+        //close(0); 
+        //close(1); 
+        //close(2);
+        //#remember: stderr was redirected to stdout.
+        //fclose(stdin); 
+        //fclose(stdout); 
+        //fclose(stderr); 
+
+        //creat( "newfile.txt", 0666 );  // fcntl.c
+        //mkdir( "newdir", 0666 );       // unistd.c
+
+// #test: Cria n files.
+// stress test:
+// O rootdir tem 512 entradas,
+// vai acabar as entradas ou o heap do kernel.
+// # OK. It is working.
+
+    printf ("Creating {%d} files ...\n",NumberOfFilesToCreate);
+
+    for ( file_index = 0; 
+          file_index < NumberOfFilesToCreate; 
+          file_index++ )
+    {
+        // #debug
+        //printf ("Creating file number {%d}\n",file_index);
+
+        // Crear the buffer for the next name.
+        memset(tmp_file_name,0,64);
+
+        // Set up a custom filename.
+        sprintf( tmp_file_name, "new" );
+        itoa( (int) file_index, index_string_buffer );
+        strcat(tmp_file_name,index_string_buffer);
+        strcat(tmp_file_name,".txt");
+
+        // Create next file using libc.
+        // call open() with the flag O_CREAT.
+        // see: fcntl.c
+        creat( tmp_file_name, 0666 );
+    };
+}
+
 // Compare the string typed into the terminal.
 // Remember, we have an embedded command interpreter.
 static void compareStrings(int fd)
@@ -845,16 +895,70 @@ static void compareStrings(int fd)
         return;
     }
 
+// Enable network
+    if ( strncmp(prompt,"net-on",6) == 0 ){
+        sc82 ( 22001, 
+        1,  // ON 
+        0, 0 );
+        goto exit_cmp;
+    }
+// Disable network
+    if ( strncmp(prompt,"net-off",7) == 0 ){
+        sc82 ( 22001, 
+        0,  // OFF
+         0, 0 );
+        goto exit_cmp;
+    }
+
+//
+// start-xxx section
+//
+
 // Quit embedded shell, 
 // launch #shell.bin
 // and start listening to stderr.
     if ( strncmp(prompt, "start-shell", 11) == 0 )
     {
+        // #todo: Create a worker for that.
         printf("Quit embedded shell.\n");
         printf("Start listening to stderr.\n");
         isUsingEmbeddedShell = FALSE;
         goto exit_cmp;
     } 
+// Start the network server.
+// Maybe we're gonna connect to this server to get information
+// about our network.
+    int netd_res = -1;
+    if ( strncmp(prompt,"start-netd", 10) == 0 )
+    {
+        netd_res = 
+            (int) gws_clone_and_execute2(
+                      fd, 0,0,0,0,
+                      "gnssrv.bin" );
+        goto exit_cmp;
+    }
+
+
+// #libc
+// Testing libc components.
+    if ( strncmp(prompt,"libc",4) == 0 )
+    {
+        libc_test(fd);        
+        goto exit_cmp; 
+    }
+
+// Create file using rtl implementation, not posix.
+    if ( strncmp(prompt,"create-file",11) == 0 )
+    {
+        rtl_create_empty_file("newfil.txt");
+        goto exit_cmp; 
+    }
+// Create directory using rtl implementation, not posix.
+    if ( strncmp(prompt,"create-dir",10) == 0 )
+    {
+        rtl_create_empty_directory("newdir");
+        goto exit_cmp; 
+    }
 
 // exit: Exit the terminal application.
     if ( strncmp(prompt,"exit",4) == 0 ){
@@ -877,21 +981,6 @@ static void compareStrings(int fd)
 // IN: ms.
     if ( strncmp(prompt,"sleep",5) == 0 ){
         rtl_sleep(2000);
-        goto exit_cmp;
-    }
-
-// Enable network
-    if ( strncmp(prompt,"net-on",6) == 0 ){
-        sc82 ( 22001, 
-        1,  // ON 
-        0, 0 );
-        goto exit_cmp;
-    }
-// Disable network
-    if ( strncmp(prompt,"net-off",7) == 0 ){
-        sc82 ( 22001, 
-        0,  // OFF
-         0, 0 );
         goto exit_cmp;
     }
 
@@ -968,47 +1057,6 @@ static void compareStrings(int fd)
     if ( strncmp(prompt,"poweroff",8) == 0 ){
         gws_shutdown(fd);
         goto exit_cmp;
-    }
-
-    int file_index=0;
-    char tmp_file_name[64];
-    char index_string_buffer[64];
-
-    // #libc
-    // Testing libc components.
-    if ( strncmp(prompt,"libc",4) == 0 )
-    {
-        //close(0); 
-        //close(1); 
-        //close(2);
-        //#remember: stderr was redirected to stdout.
-        //fclose(stdin); 
-        //fclose(stdout); 
-        //fclose(stderr); 
-
-        //creat( "newfile.txt", 0666 );  // fcntl.c
-        //mkdir( "newdir", 0666 );       // unistd.c
-
-        // #test: Cria n files.
-        // stress test:
-        // O rootdir tem 512 entradas,
-        // vai acabar as entradas ou o heap do kernel.
-        // # OK. It is working.
-        for (file_index=0; file_index<16; file_index++)
-        {
-            printf ("Creating file number {%d}\n",file_index);
-
-            // Set up a custom filename.
-            memset(tmp_file_name,0,64);
-            sprintf( tmp_file_name, "new" );
-            itoa ( (int) file_index, index_string_buffer );
-            strcat(tmp_file_name,index_string_buffer);
-            strcat(tmp_file_name,".txt");
-
-            creat( tmp_file_name, 0666 );
-        };
-        
-        goto exit_cmp; 
     }
 
 // Get window info: main window

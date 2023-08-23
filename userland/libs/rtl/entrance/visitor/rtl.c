@@ -582,6 +582,68 @@ void rtl_exit_critical_section (void)
         0 );
 }
 
+// Create empty file.
+// #todo: Change parameter type to const char 
+int rtl_create_empty_file(char *file_name)
+{
+    unsigned long Value=0;
+
+    if ((void*) file_name == NULL){
+        debug_print("rtl_create_empty_file: [FAIL] file_name\n");
+        return (int) -1;
+    }
+    if ( *file_name == 0 ){
+        debug_print("rtl_create_empty_file: [FAIL] *file_name\n");
+        return (int) -1;
+    }
+
+    Value = 
+        (unsigned long) gramado_system_call ( 
+                            43, 
+                            (unsigned long) file_name, 
+                            0, 
+                            0 );
+
+// #todo
+// Error message.
+
+    return (int) (Value & 0xF);
+}
+
+// Create empty directory.
+// #todo: Change parameter type to const char 
+int rtl_create_empty_directory(char *dir_name)
+{
+    unsigned long Value=0;
+
+    if ((void*) dir_name == NULL){
+        debug_print("rtl_create_empty_directory: [FAIL] dir_name\n");
+        return (int)(-1);
+    }
+    if (*dir_name == 0){
+        debug_print("rtl_create_empty_directory: [FAIL] *dir_name\n");
+        return (int)(-1);
+    }
+
+// #todo
+// Quais são os valores de retorno.
+// TRUE or FALSE ?
+
+    Value = 
+        (unsigned long) gramado_system_call ( 
+                            44, 
+                            (unsigned long) dir_name, 
+                            0, 
+                            0 );
+
+// #todo
+// Error message
+
+    return (int) (Value & 0xF);
+}
+
+
+
 void *rtl_create_process( const char *file_name )
 {
     char pName[32];

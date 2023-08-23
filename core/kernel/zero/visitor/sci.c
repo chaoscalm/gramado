@@ -1366,33 +1366,34 @@ void *sci0 (
         // Business Logic:
         // 38 - get host name  
         case SYS_GETHOSTNAME:
-            return (void *) __gethostname ( (char *) arg2 );
+            return (void *) __gethostname ((char *) arg2);
             break;
         
         // Business Logic:
         // 39 - set host name 
         // #todo: This operation needs permition?
         case SYS_SETHOSTNAME:
-            return (void *) __sethostname ( (const char *) arg2 ); 
+            return (void *) __sethostname((const char *) arg2); 
             break;
 
         // Business Logic:
         // 40 - get user name 
         case SYS_GETUSERNAME:
-            return (void *) __getusername ( (char *) arg2 );
+            return (void *) __getusername((char *) arg2);
             break;
 
         // Business Logic:
         // 41 - Set user name 
         // #todo: This operation needs permition?
         case SYS_SETUSERNAME:
-            return (void *) __setusername ( (const char *) arg2 ); 
+            return (void *) __setusername((const char *) arg2); 
             break;
 
         // 42 - #deprecated
 
         // Business Logic:
         // 43 - Create an empty file.
+        // Called by libgws.
         // See: fs.c
         case 43:
             return (void *) sys_create_empty_file( (char *) arg2 );
@@ -1400,9 +1401,10 @@ void *sci0 (
 
         // Business Logic:
         // 44 - Create an empty directory.
+        // Called by libgws.
         // See: fs.c
         case 44:
-            return (void *) sys_create_empty_directory ( (char *) arg2 );
+            return (void *) sys_create_empty_directory( (char *) arg2 );
             break;
 
         // 45 - livre

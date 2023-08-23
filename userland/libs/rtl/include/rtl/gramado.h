@@ -189,9 +189,15 @@ void rtl_exit_critical_section(void);
 void rtl_show_heap_info(void);
 
 //
-// == process ===============================
+// Create file or directory.
 //
 
+int rtl_create_empty_file(char *file_name);
+int rtl_create_empty_directory(char *dir_name);
+
+//
+// == process ===============================
+//
 
 void *rtl_create_process( const char *file_name );
 int rtl_start_process( void *process );
