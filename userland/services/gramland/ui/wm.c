@@ -130,8 +130,8 @@ on_mouse_event(
 static void on_control_clicked_by_wid(int wid);
 static void on_control_clicked(struct gws_window_d *window);
 
-static void on_mouse_pressed(void);
-static void on_mouse_released(void);
+static void on_mouse_pressed(unsigned long pointer_x, unsigned long  pointer_y);
+static void on_mouse_released(unsigned long  pointer_x, unsigned long  pointer_y);
 static void on_mouse_leave(struct gws_window_d *window);
 static void on_mouse_hover(struct gws_window_d *window);
 
@@ -240,9 +240,9 @@ on_keyboard_event(
     {
         // We need the keyboard_owner.
         window = (struct gws_window_d *) get_focus();
-        if ((void*) window == NULL )
+        if ((void*) window == NULL)
             return 0;
-        if (window->magic!=1234)
+        if (window->magic != 1234)
             return 0;
 
         // Print a char into the window with focus.
@@ -462,11 +462,13 @@ on_mouse_event(
         return;
     }
 
-// Error. Nothing to do.
-    //if (event_type<0){
-    //    return;
-    //}
+// Error. 
+// Nothing to do.
+    if (event_type<0){
+        return;
+    }
 
+// --------------------------------
 // Move:
 // Process but do not send message for now.
 // #todo
@@ -503,139 +505,33 @@ on_mouse_event(
         return;
     }
 
+// --------------------------------
 // Pressed:
 // Process but do not send message for now.
-    if (event_type == GWS_MousePressed)
-    {
-        on_mouse_pressed();
-        //goto post_message;
+    if (event_type == GWS_MousePressed){
+        on_mouse_pressed(saved_x,saved_y);
         return;
     }
 
-// Release:
+// --------------------------------
+// Released:
 // Process and send message.
-    if (event_type == GWS_MouseReleased)
-    {
-        on_mouse_released();
-        //...
-        // #test
-        // Change the event_type and send another message?
-        goto post_message;
+    if (event_type == GWS_MouseReleased){
+        on_mouse_released(saved_x,saved_y);
+        return;
     }
+
+    // ...
 
 // Not valid event type
 not_valid:
     return;
-
-// Post message to the window.
-// Enviamos o evento para a janela mouse_hover.
-// O aplicativo vai ler, caso ela seja a janela com 
-// foco de entrada.
-// #bugbug:
-// Na verdade o aplicativo precisa ler o evento que chega pra ele
-// e o evento conterá o id da janela em questão.
-// #bugbug
-// Na verdade o aplicativo esta pegando eventos apenas em uma janela,
-// a main window.
-post_message:
-
-    // #debug
-    // printf("send_message:\n");
-
-// Get mouse hover
-
-    //w = (struct gws_window_d *) mouse_hover;
-    w = (struct gws_window_d *) get_mousehover();
-    if ((void*) w==NULL){
-        printf("on_mouse_event: w\n");
-        return;
-    }
-    if (w->magic != 1234){
-        printf("on_mouse_event: w magic\n");
-        return;
-    }
-
-//
-// Manda a mensagem para a hover window.
-//
-
-// Pega os valores que foram configurados 
-// no último evento mouse move.
-    saved_x = comp_get_mouse_x_position();
-    saved_y = comp_get_mouse_y_position();
-
-// Check if we are inside the mouse hover.
-    if ( saved_x >= w->absolute_x &&
-         saved_x <= w->absolute_right &&
-         saved_y >= w->absolute_y &&
-         saved_y <= w->absolute_bottom )
-    {
-        // #debug
-        // printf("Inside mouse hover window :)\n");
-    
-        // Values inside the window.
-        in_x = (unsigned long) (saved_x - w->absolute_x);
-        in_y = (unsigned long) (saved_y - w->absolute_y);
-
-        // Change the input pointer
-        // inside the window editbox.
-        if ( w->type == WT_EDITBOX || 
-             w->type == WT_EDITBOX_MULTIPLE_LINES)
-        {
-            // Se o evento for released,
-            // então mudamos o input pointer.
-            if (event_type == GWS_MouseReleased)
-            {
-                if (in_x>0){
-                    w->ip_x = (int) (in_x/8);
-                }
-                if (in_y>0){
-                    w->ip_y = (int) (in_y/8);
-                }
-                
-                // Se essa editbox não é a keyboard owner,
-                // então ela passa a ser.
-                if (w != keyboard_owner)
-                {
-                    // #todo:
-                    // Nessa função podemos mudar algumas características da janela
-                    // antes de repintarmos.
-                    set_focus(w);
-                }
-            }
-        }
-
-        // data
-        
-        // No more single events
-        //w->single_event.wid   = (int) w->id;
-        //w->single_event.msg   = (int) event_type;
-        //w->single_event.long1 = (unsigned long) in_x;
-        //w->single_event.long2 = (unsigned long) in_y;
-        //w->single_event.has_event = TRUE;
-        w->single_event.has_event = FALSE;
-        
-        // Post message to the target window.
-        // #remember:
-        // The app get events only for the main window.
-        // This way the app can close the main window.
-        // #todo: 
-        // So, we need to post a message to the main window,
-        // telling that that message affects the client window.
-        window_post_message( w->id, event_type, in_x, in_y );
-        //------------------
-
-        return;
-    }
-
-    // #debug
-    // printf("Outside mouse hover window\n");
-
-//fail
-    w->single_event.has_event = FALSE;
 }
 
-static void on_mouse_pressed(void)
+static void 
+on_mouse_pressed(
+    unsigned long  pointer_x, 
+    unsigned long  pointer_y )
 {
 // #todo
 // When the mouse was pressed over en editbox window.
@@ -664,6 +560,22 @@ static void on_mouse_pressed(void)
     //mouse_owner->mouse_x = 0;
     //mouse_owner->mouse_y = 0;
 
+// -------------------------
+// #test
+// Regular button. 
+// Not a control, not the start menu, not the menuitem.
+    if (mouse_hover->type == WT_BUTTON)
+    {
+        if ( mouse_hover->isControl != TRUE &&
+             mouse_hover->id != StartMenu.wid &&
+             mouse_hover->isMenuItem != TRUE )
+        {
+            __button_pressed(ButtonID);
+            return;
+        }
+    }
+
+// -------------------------
 //#test
 // Start menu button.
     if (mouse_hover->id == StartMenu.wid)
@@ -854,13 +766,13 @@ static void on_control_clicked(struct gws_window_d *window)
 // Minimize control
     if (window->isMinimizeControl == TRUE)
     {
-        // Title bar?
+        // The parent of the controle is the titlebar.
         w1 = (void*) window->parent;
         if ((void*) w1 != NULL)
         {
             if (w1->magic == 1234)
             {
-                // Overlapped?
+                // The parent of the titlebar is the main window.
                 w2 = (void*) w1->parent;
                 if ((void*) w2 != NULL)
                 {
@@ -889,13 +801,13 @@ static void on_control_clicked(struct gws_window_d *window)
 // Maximize control
     if (window->isMaximizeControl == TRUE)
     {
-        // Title bar?
+        // The parent of the controle is the titlebar.
         w1 = (void*) window->parent;
         if ((void*) w1 != NULL)
         {
             if (w1->magic == 1234)
             {
-                // Overlapped?
+                // The parent of the titlebar is the main window.
                 w2 = (void*) w1->parent;
                 if ((void*) w2 != NULL)
                 {
@@ -925,13 +837,13 @@ static void on_control_clicked(struct gws_window_d *window)
 // A close control was cliked.
     if (window->isCloseControl == TRUE)
     {
-        // Title bar?
+        // The parent of the controle is the titlebar.
         w1 = (void*) window->parent;
         if ((void*) w1 != NULL)
         {
             if (w1->magic == 1234)
             {
-                // Overlapped?
+                // The parent of the titlebar is the main window.
                 w2 = (void*) w1->parent;
                 if ((void*) w2 != NULL)
                 {
@@ -956,7 +868,10 @@ static void on_control_clicked(struct gws_window_d *window)
     }
 }
 
-static void on_mouse_released(void)
+static void 
+on_mouse_released(
+    unsigned long  pointer_x, 
+    unsigned long  pointer_y )
 {
     int ButtonID = -1;
 
@@ -965,6 +880,13 @@ static void on_mouse_released(void)
     struct gws_window_d *wgrab;
     long x=0;
     long y=0;
+    unsigned long saved_x = pointer_x;
+    unsigned long saved_y = pointer_y;
+    unsigned long in_x=0;
+    unsigned long in_y=0;
+
+    // #hackhack
+    int event_type = GWS_MouseReleased;
 
     // button number
     //if(long1==1){ yellow_status("R1"); }
@@ -994,8 +916,101 @@ static void on_mouse_released(void)
     if (mouse_hover->magic != 1234)
         return;
 
+// #todo
+// Se clicamos em um botao.
     ButtonID = (int) mouse_hover->id;
 
+
+
+// -------------------
+// Se clicamos em uma janela editbox.
+
+    saved_x = comp_get_mouse_x_position();
+    saved_y = comp_get_mouse_y_position();
+
+// Check if we are inside the mouse hover.
+    if ( saved_x >= mouse_hover->absolute_x &&
+         saved_x <= mouse_hover->absolute_right &&
+         saved_y >= mouse_hover->absolute_y &&
+         saved_y <= mouse_hover->absolute_bottom )
+    {
+        // #debug
+        // printf("Inside mouse hover window :)\n");
+    
+        // Values inside the window.
+        in_x = (unsigned long) (saved_x - mouse_hover->absolute_x);
+        in_y = (unsigned long) (saved_y - mouse_hover->absolute_y);
+
+        // Change the input pointer
+        // inside the window editbox.
+        if ( mouse_hover->type == WT_EDITBOX || 
+             mouse_hover->type == WT_EDITBOX_MULTIPLE_LINES)
+        {
+            // Se o evento for released,
+            // então mudamos o input pointer.
+            if (event_type == GWS_MouseReleased)
+            {
+                if (in_x>0){
+                    mouse_hover->ip_x = (int) (in_x/8);
+                }
+                if (in_y>0){
+                    mouse_hover->ip_y = (int) (in_y/8);
+                }
+                
+                // Se essa editbox não é a keyboard owner,
+                // então ela passa a ser.
+                if (mouse_hover != keyboard_owner)
+                {
+                    // #todo:
+                    // Nessa função podemos mudar algumas características da janela
+                    // antes de repintarmos.
+                    set_focus(mouse_hover);
+                }
+            }
+            
+            mouse_hover->single_event.has_event = FALSE;            
+
+            // Post message to the target window.
+            // #remember:
+            // The app get events only for the main window.
+            // This way the app can close the main window.
+            // #todo: 
+            // So, we need to post a message to the main window,
+            // telling that that message affects the client window.
+        
+            // #bugbug
+            // Na verdade o app so le a main window.
+            window_post_message( mouse_hover->id, event_type, in_x, in_y );
+            //------------------
+            // done for editbox. return
+            return;
+        }
+        //fail
+        mouse_hover->single_event.has_event = FALSE;
+    }
+
+    // #debug
+    // printf("Outside mouse hover window\n");
+
+
+
+// -------------------------
+// #test
+// Regular button. 
+// Not a control, not the start menu, not the menuitem.
+    if (mouse_hover->type == WT_BUTTON)
+    {
+        if ( mouse_hover->isControl != TRUE &&
+             mouse_hover->id != StartMenu.wid &&
+             mouse_hover->isMenuItem != TRUE )
+        {
+            __button_released(ButtonID);
+            return;
+        }
+    }
+
+
+//------------------------------------------------------
 //
 // Start menu button.
 //
@@ -1760,6 +1775,7 @@ void do_create_controls(struct gws_window_d *w_titlebar)
     if (w_minimize->magic!=1234){
         return;
     }
+    w_minimize->isControl = TRUE;
 
     w_minimize->left_offset = 
         (unsigned long) (w_titlebar->width - LastLeft);
@@ -1802,7 +1818,8 @@ void do_create_controls(struct gws_window_d *w_titlebar)
     if (w_maximize->magic!=1234){
         return;
     }
-
+    w_maximize->isControl = TRUE;
+    
     w_maximize->left_offset = 
         (unsigned long) (w_titlebar->width - LastLeft);
 
@@ -1843,7 +1860,8 @@ void do_create_controls(struct gws_window_d *w_titlebar)
     if (w_close->magic!=1234){
         return;
     }
-
+    w_close->isControl = TRUE;
+    
     w_close->left_offset = 
         (unsigned long) (w_titlebar->width - LastLeft);
 
