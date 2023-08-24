@@ -46,8 +46,6 @@ struct quick_launch_d
     int buttons_count;
 // List of buttons. (wid)
     int buttons[QL_BUTTON_MAX];
-// list of PIDs associated with the buttons.
-    int pids[QL_BUTTON_MAX];
 };
 extern struct quick_launch_d QuickLaunch;
 

@@ -335,39 +335,28 @@ on_keyboard_event(
             __button_released(QuickLaunch.buttons[0]);
             memset(name_buffer,0,64-1);
             strcpy(name_buffer,app1_string);
-            if (QuickLaunch.pids[0] == 0){
-                QuickLaunch.pids[0] = (int) rtl_clone_and_execute(name_buffer);
-            }
+            rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F2){
             __button_released(QuickLaunch.buttons[1]);
             memset(name_buffer,0,64-1);
             strcpy(name_buffer,app2_string);
-            if (QuickLaunch.pids[1] == 0){
-                QuickLaunch.pids[1] = (int) rtl_clone_and_execute(name_buffer);
-            }
+            rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F3){
             __button_released(QuickLaunch.buttons[2]);
             memset(name_buffer,0,64-1);
             strcpy(name_buffer,app3_string);
-            if (QuickLaunch.pids[2] == 0){
-                QuickLaunch.pids[2] = (int) rtl_clone_and_execute(name_buffer);
-            }
+            rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F4){
             __button_released(QuickLaunch.buttons[3]);
             memset(name_buffer,0,64-1);
             strcpy(name_buffer,app4_string);
-            if (QuickLaunch.pids[3] == 0){
-                QuickLaunch.pids[3] = (int) rtl_clone_and_execute(name_buffer);
-            }
-            // #test: ps2 full initialization.
-            // sc80(350,1,1,1);
-            // gUseMouse = TRUE;
+            rtl_clone_and_execute(name_buffer);
             return 0;
         }
 
@@ -562,7 +551,7 @@ on_mouse_pressed(
 
 // -------------------------
 // #test
-// Regular button. 
+// Regular button and quick launch button.
 // Not a control, not the start menu, not the menuitem.
     if (mouse_hover->type == WT_BUTTON)
     {
@@ -660,6 +649,9 @@ on_mouse_pressed(
 // Em qual botão da taskbar?
 // Se for igual à um dos botões da tb.
 
+    /*
+    // #bugbug
+    // We don't need this anymore.
     if ( ButtonID == QuickLaunch.buttons[0] ||
          ButtonID == QuickLaunch.buttons[1] ||
          ButtonID == QuickLaunch.buttons[2] ||
@@ -689,6 +681,7 @@ on_mouse_pressed(
         __button_pressed(ButtonID);
         return;
     }
+    */
 
     // #todo #maybe
     // Clicamos e o ponteiro esta sobre a janela ativa.
@@ -854,6 +847,7 @@ static void on_control_clicked(struct gws_window_d *window)
                         // of the client app.
                         if (w2->type == WT_OVERLAPPED)
                         {
+                            printf("Close wid={%d}\n",w2->id);
                             window_post_message ( 
                                 w2->id,
                                 GWS_Close,
@@ -1204,39 +1198,38 @@ on_mouse_released(
 // Quick launch buttons.
 //
 
+    /*
+    // We dont need this anymore.
 //tb_button[0]
     if (ButtonID == QuickLaunch.buttons[0])
     {
         __button_released(ButtonID);
         //wm_update_active_window();
         //yellow_status("0: Min");
-        //QuickLaunch.pids[0] = (int) rtl_clone_and_execute("terminal.bin");
         return;
     }
 //tb_button[1]
     if (ButtonID == QuickLaunch.buttons[1])
     {
         __button_released(ButtonID);
-        //QuickLaunch.pids[1] = (int) rtl_clone_and_execute("editor.bin");
         return;
     }
 //tb_button[2]
     if (ButtonID == QuickLaunch.buttons[2])
     {
         __button_released(ButtonID);
-        //QuickLaunch.pids[2] = (int) rtl_clone_and_execute("gdm.bin");
         return;
     }
 //tb_button[3]
     if (ButtonID == QuickLaunch.buttons[3])
     {
-        __button_released(ButtonID); 
-        //QuickLaunch.pids[3] = (int) rtl_clone_and_execute("browser.bin");
+        __button_released(ButtonID);
         // mostra o cliente se ele faz parte da tag 3.
         //show_client(first_client->next,3);
         //show_client_list(3);  //#todo: notworking
         return;
     }
+    */
 }
 
 // Post a message into the window with focus message queue.
@@ -1315,12 +1308,21 @@ int control_action(int msg, unsigned long long1)
 // Get the active window.
 //
 
+// #bugbug
+// Maybe it is not working when we
+// are trying to close a lot of windows with 
+// 5 windows ot more.
 
     aw = (void*) get_active_window();
-    if ((void*) aw == NULL){
+    if ((void*) aw == NULL)
+    {
+        //#debug
+        //printf("control_action: No aw\n");
+        //exit(0);
         goto fail;
     }
-    if (aw->magic != 1234){
+    if (aw->magic != 1234)
+    {
         goto fail;
     }
     // Overlapped window?
@@ -2710,7 +2712,7 @@ static void wm_tile(void)
 // Starting with the first window of the list,
 // create a stack of windows in the top/left corner of the screen.
     w = (struct gws_window_d *) first_window;
-    if ((void*)w==NULL){ 
+    if ((void*) w == NULL){
         debug_print("wm_tile: w==NULL\n");
         return; 
     }
@@ -2726,12 +2728,13 @@ static void wm_tile(void)
 
 // Initializing
 
-    // Working Area.
+    // Working Area
     unsigned long Left   = WindowManager.wa.left;
     unsigned long Top    = WindowManager.wa.top;
     unsigned long Width  = WindowManager.wa.width;
     unsigned long Height = WindowManager.wa.height;
 
+    // Window stuff
     unsigned long l2=0;
     unsigned long t2=0;
     unsigned long w2=0;
@@ -2935,7 +2938,6 @@ void wm_update_desktop(int tile, int show)
 // Redraw root window, but do not shot it yet.
     redraw_window(__root_window,FALSE);
 
-
 // #test
 // Testing zoom.
 // ======================================
@@ -2979,13 +2981,14 @@ void wm_update_desktop(int tile, int show)
 // The first is the last valid window.
     l = (struct gws_window_d *) w;
 
-    while(1){
+// Loop to redraw the linked list.
+    while (1){
 
         if ((void*)w==NULL){ 
             break; 
         }
 
-        if ( (void*) w != NULL )
+        if ((void*) w != NULL)
         {
             // Only overlapped windows.
             if (w->type == WT_OVERLAPPED)
@@ -3024,7 +3027,7 @@ void wm_update_desktop(int tile, int show)
 void wm_update_active_window(void)
 {
     int wid = -1;
-    if ( (void*) active_window == NULL ){
+    if ((void*) active_window == NULL){
         return;
     }
     if (active_window->magic != 1234){
@@ -3049,9 +3052,9 @@ void wm_update_desktop3(struct gws_window_d *top_window)
 // #todo
 // We need to redraw a lot of windows.
 
-    if ( (void*) __root_window == NULL )
+    if ((void*) __root_window == NULL)
         return;
-    if ( (void*) top_window == NULL )
+    if ((void*) top_window == NULL)
         return;
     if (top_window->magic != 1234)
         return;
@@ -3092,9 +3095,9 @@ void wm_update_window_by_id(int wid)
 
 // Window structure
     w = (struct gws_window_d *) windowList[wid];
-    if ( (void*)w==NULL )  { return; }
-    if ( w->used != TRUE ) { return; }
-    if ( w->magic != 1234 ){ return; }
+    if ((void*)w==NULL)  { return; }
+    if (w->used != TRUE) { return; }
+    if (w->magic != 1234){ return; }
 
     if (w->type != WT_OVERLAPPED){
         return;
@@ -3474,7 +3477,7 @@ void wm_add_window_into_the_list(struct gws_window_d *window)
 // ========================
 
 // Structure validation
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return;
     }
     if (window->used != TRUE){
@@ -3491,14 +3494,21 @@ void wm_add_window_into_the_list(struct gws_window_d *window)
 // =====================================
 // Se não existe uma 'primeira da fila'.
 // Então somos a primeira e a última.
-    if ( (void*) first_window == NULL ){
+    if ((void*) first_window == NULL)
+    {
         first_window = window;
         last_window = window;
         goto done;
     }
-
 // Invalid first window.
-    if ( first_window->magic != 1234 ){
+    if ( first_window->used != TRUE )
+    {
+        first_window = window;
+        last_window = window;
+        goto done;
+    }
+    if ( first_window->magic != 1234 )
+    {
         first_window = window;
         last_window = window;
         goto done;
@@ -3507,7 +3517,8 @@ void wm_add_window_into_the_list(struct gws_window_d *window)
 // ===================================
 // Se exite uma 'primeira da fila'.
     Next = first_window;
-    while ( (void*) Next->next != NULL ){
+    while ( (void*) Next->next != NULL )
+    {
         Next = Next->next;
     };
 
@@ -3527,7 +3538,7 @@ void wm_rebuild_list(void)
     for (i=0; i<WINDOW_COUNT_MAX; i++)
     {
         window = (struct gws_window_d *) windowList[i];
-        if ( (void*) window != NULL )
+        if ((void*) window != NULL)
         {
             if (window->magic == 1234)
             {
@@ -5407,7 +5418,7 @@ void __create_quick_launch_area(void)
     for (b=0; b<QL_BUTTON_MAX; b++)
     {
         QuickLaunch.buttons[b]=0;
-        QuickLaunch.pids[b]=0;
+        // ...
     };
     QuickLaunch.buttons_count=0;
 

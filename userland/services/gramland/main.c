@@ -1429,10 +1429,19 @@ int serviceNextEvent(void)
     struct gws_window_d *w;
     register int Head=0;
 
+//
+// The window
+//
+
     // Get the window id
     int wid = (int) ( message_address[0] & 0xFFFFFFFF );
     if (wid<0 || wid>=WINDOW_COUNT_MAX)
+    {
+        //#debug
+        //printf("Invalid wid\n");
+        //exit(0);
         goto fail;
+    }
     // Get the pointer
     //#old focus_w = (struct gws_window_d *) get_focus();    
     w = (void *) windowList[wid];
@@ -1481,6 +1490,7 @@ fail:
 // IN: long1=index, long2=restart index or not.
 int serviceNextEvent2(void)
 {
+// # Not used!
 // Business Logic:
 // Get an event from a queue of a given window, and queue index.
 

@@ -140,6 +140,10 @@ window_post_message(
 
     struct gws_window_d *w;
 
+//
+// Parameters
+//
+
     if (wid < 0)
         goto fail;
     if (wid >= WINDOW_COUNT_MAX)
@@ -147,11 +151,19 @@ window_post_message(
     if (event_type<0)
         goto fail;
 
+//
+// Window
+//
+
     w = (void*) windowList[wid];
     if ((void*) w == NULL)
         goto fail;
     if (w->magic != 1234)
         goto fail;
+
+//
+// Event
+//
 
 // Get offset.
     register int Tail = (int) w->ev_tail;
@@ -167,6 +179,10 @@ window_post_message(
     if (w->ev_tail >= 32){
         w->ev_tail=0;
     }
+
+// OK
+   //printf("Message OK\n");
+   return 0;
 
 fail:
     return -1;
@@ -2016,7 +2032,7 @@ draw_frame:
 // Porém tem algumas coisas que o window server faz,
 // como as bordas de um editbox.
 
-    if ( (void*) __w == NULL ){
+    if ((void*) __w == NULL){
         gwssrv_debug_print ("CreateWindow.draw_frame: __w\n");
         goto fail;
     }
@@ -2047,7 +2063,7 @@ draw_frame:
          type == WT_BUTTON ||
          type == WT_ICON )
     {
-        if ( (void*) __w != NULL )
+        if ((void*) __w != NULL)
         {
             wmCreateWindowFrame ( 
                 (struct gws_window_d *) pWindow,
@@ -2084,10 +2100,10 @@ draw_frame:
 // #test
     //gwssrv_debug_print ("CreateWindow.draw_frame: level stuff \n");    
 
-    if ( (void*) pWindow != NULL ){
+    if ((void*) pWindow != NULL){
         __w->level = (pWindow->level + 1);
     }
-    if ( (void*) pWindow == NULL ){
+    if ((void*) pWindow == NULL){
         __w->level = 0;
     }
 

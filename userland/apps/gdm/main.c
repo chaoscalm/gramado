@@ -307,11 +307,10 @@ static void destroy_windows(int fd)
         return;
     gws_destroy_window(fd,button1_window);
     gws_destroy_window(fd,button2_window);
-    // #todo: 
-    // The window server need to destroy all the child windows
-    // when we close the application window.
+// #todo: 
+// The window server need to destroy all the child windows
+// when we close the application window.
     gws_destroy_window(fd,main_window);
-    //gws_destroy_window(fd,main_window);
 }
 
 static int 
