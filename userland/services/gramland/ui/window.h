@@ -512,9 +512,19 @@ struct gws_window_d
 {
     int id;
     //int wid;
+
 // Structure validation
     int used;
     int magic;
+
+    // In the window stack we have two major components:
+    // + The frame (top frame and bottom frame).
+    // + The Client area.
+
+// The frame.
+// Top frame has: title bar, tool bar, menu bar ...
+// Not a pointer.
+    struct windowframe_d frame;
 
 // The frame's rectangle.
     struct gws_rect_d  rcWindow;
@@ -522,12 +532,14 @@ struct gws_window_d
 // This is the viewport for some applications, just like browsers.
     struct gws_rect_d  rcClient;
 
+// Absolute
 // Relativo a tela.
     unsigned long absolute_x;
     unsigned long absolute_y;
     unsigned long absolute_right;
     unsigned long absolute_bottom;
 
+// Relative
 // This is the window rectangle. (rcWindow)
 // Relativo a parent.
     unsigned long left;
@@ -535,24 +547,42 @@ struct gws_window_d
     unsigned long width;
     unsigned long height;
 
+// Margins and dimensions when this window is in fullscreen mode.
+// #todo: Maybe we can use a sctructure for that.
+    unsigned long full_left;
+    unsigned long full_top;
+    unsigned long full_right; 
+    unsigned long full_bottom;
+    unsigned long full_width;
+    unsigned long full_height;
+
+    // #todo    
+    //unsigned long border_color;
+    //unsigned long border_width;
+
+    // Cliente area in chars.
+    //unsigned long client_area_width;
+    //unsigned long client_area_height;
+
+
+// tipo? ... (editbox, normal, ...) 
+// Isso pode ser 'int'
+    unsigned long type;
+
+// Window style
+    unsigned long style;
+
 // Controls
     struct windowcontrols_d  Controls;
-// Single event
-    struct gws_event_d  single_event;
-// Event list.
-    int ev_head;
-    int ev_tail;
-    unsigned long ev_wid[32];
-    unsigned long ev_msg[32];
-    unsigned long ev_long1[32];
-    unsigned long ev_long2[32];
-    // ...
 
-// #todo
-// Event queue.
-     //struct gws_event_d *event_queue;
+// ===================================
+// Name/label support.
+    char *name;
+// Label: If the window is a button.
+    unsigned int label_color_when_selected;
+    unsigned int label_color_when_not_selected;
+    //unsigned int label_color_when_disabled;
 
-    unsigned long style;
 // Uma janela de aplicativo
 // poderá ter janelas de aplicativo dentro de sua área de cliente.
     int multiple;
@@ -566,12 +596,6 @@ struct gws_window_d
 // Isso faz a janela ser pintada ou repintada 
 // contendo o indicador de foco.
     int focus;
-
-    char *name;
-
-// tipo? ... (editbox, normal, ...) 
-// Isso pode ser 'int'
-    unsigned long type;
 
 // 1=solid | 0=transparent
 // Solid means that the color is opaque, 
@@ -621,57 +645,10 @@ struct gws_window_d
 // Active, inactive.
     int status;
 
-//
-// Margins and dimensions.
-//
-
-// Margins and dimensions when this window is in fullscreen mode.
-// #todo: Maybe we can use a sctructure for that.
-    unsigned long full_left;
-    unsigned long full_top;
-    unsigned long full_right; 
-    unsigned long full_bottom;
-    unsigned long full_width;
-    unsigned long full_height;
-
-    // #todo    
-    //unsigned long border_color;
-    //unsigned long border_width;
-
-    // Cliente area in chars.
-    //unsigned long client_area_width;
-    //unsigned long client_area_height;
-
-//
-// == input pointer =========================================
-//
-
-    // Valido apenas para essa janela.
-
-    // Esta ligado?
-    int ip_on;
-
-// Qual eh o dispositivo de input.
-    gws_ip_device_t ip_device;
-
-// Para input do tipo teclado
-
-    int ip_x;
-    int ip_y;
-    unsigned int ip_color;
-    unsigned long width_in_chars;
-    unsigned long height_in_chars;
-
-    //unsigned long ip_type; //?? algum estilo especifico de cursor?
-    //unsigned long ip_style;
-    // ...
-
-// para input do tipo teclado
-    unsigned long ip_pixel_x;
-    unsigned long ip_pixel_y;
-
 // ======================================
-// The text for this input devices.
+// The text support.
+// Used by input devices or just to show the text
+// when we dont have input support.
 
     char *window_text;
     size_t textbuffer_size_in_bytes;
@@ -685,27 +662,12 @@ struct gws_window_d
 
     // ...
 
-// 
 //==================================================
-
-// Not a pointer.
-    struct windowframe_d frame;
-
-    // In the window stack we have two major components:
-    // + The frame (top frame and bottom frame).
-    // + The Client area.
-
-    // Top frame has: title bar, tool bar, menu bar ...
-    
-    unsigned long top_frame_Height;
-    unsigned long client_area_Height;
-    unsigned long bottom_frame_Height;
 
 // #todo
     struct dc_d  *window_dc;
 // Maybe we can have a device context only for the client area.
     struct dc_d  *client_dc;
-
 
 //
 // == window stack ================================
@@ -725,25 +687,27 @@ struct gws_window_d
 // Background
 
     unsigned int bg_color; 
+    unsigned int bg_color_when_mousehover;
+    //unsigned int bg_color_when_mousepressed;
     int background_style;
     int backgroundUsed;
-
-    unsigned int bg_color_when_mousehover;
 
 // 3
 // Titlebar
 
     struct gws_window_d  *titlebar;
-
     unsigned int titlebar_color;
+    //unsigned int titlebar_color_when_active;
+    //unsigned int titlebar_color_when_secondplane;
     unsigned int titlebar_ornament_color;
-    
+
+    //#todo:
+    //The 'left' needs to change when the titlebar has an icon.
     // Text properties.
     //int titlebar_has_string; //#todo: Create this flag.
     unsigned long titlebar_text_left;
     unsigned long titlebar_text_top;
     unsigned int titlebar_text_color;
-
 
     int isMinimizeControl;
     int isMaximizeControl;
@@ -765,8 +729,10 @@ struct gws_window_d
     int minimizebuttonUsed;
     int maximizebuttonUsed;
     int closebuttonUsed;
+
     int controls_style;
     int controlsUsed;
+
 
 // =========================================================
 // 5
@@ -841,19 +807,6 @@ struct gws_window_d
     // ...
 
 // =========================================================
-// 11 
-// Navigation windows:
-
-// The owner
-    struct gws_window_d  *parent;
-// We need to redraw all the child windows.
-    struct gws_window_d  *child_list;
-// Brother or sister with at least 'one' parent in common.
-    struct gws_window_d *subling_list;
-
-// We have an associated window when we are iconic.
-    //struct gws_window_d *assoc_wind;
-// =========================================================
 // 12
 
 // Menu da janela.
@@ -885,21 +838,11 @@ struct gws_window_d
     int isTitleBar; 
     // ...
 
-// ======================================================
-// Um alerta de que exite uma mensagem para essa janela.
-
-    int msgAlert;
-
-// ======================================================
-// #todo
-// Window procedure.
-// Ok. Se isso for um endereço em ring3, dentro do cliente,
-// então precisamos de um método para chamá-lo daqui do window server
-// que está em ring0.
-
-    unsigned long procedure;
-
 //==================================================	
+
+//
+// == Buffers =========================================
+//
 
    // #test
    // This is a test. Not implemented yet.
@@ -926,16 +869,14 @@ struct gws_window_d
     unsigned int *depth_buf;
 
 //==================================================
-
 // Desktop support.
 // A que desktop a janela pertence??
 // Temos um estrutura de desktop dentro do kernel,
 // faz parte do subsistema de segurança e gerenciamento de memoria.
-
     int desktop_id;
 
 //
-// TERMINAL SUPPORT
+// == Terminal =========================================
 //
 
 // Obs: 
@@ -979,41 +920,24 @@ struct gws_window_d
     unsigned long teminal_right;
     unsigned long teminal_bottom;
 
-// Is this a message list?
-    //struct msg_d *msg;
-
-// Características dessa janela..
-// full screen mode = modo tela cheia. 
-// ( utiliza a resolução atual do dispositivo )
-// deve ser a janela em primeiro plano. acima de todas as outras.
-// mas podemos configurar para que uma jenela esteja em full screen 
-// enquanto outra janela é a janela ativa e ainda outra tenha o foco de entrada.
-// uma janela em modo full screen pode conter barras de rolagem.
-// embedded mode = dentro de uma janela ou de um navegador. 
-
-// ??
-    // unsigned long status;                
-
 // Seu status de relacionamento com outras janelas.
     unsigned long relationship_status;   
 
 //
-// z-order.
+// == z-order ==========================
 //
 
 // Ordem na pilha de janelas do eixo z.
 // A janela mais ao topo é a janela foreground.
-
     int zIndex;
 
 //z-order global.
 //Sua ordem em relação a janela gui->main.    
 // suspenso .... isso é muito importante.
-    
     // struct zorder_d *zorder;
 
 //
-// Buffers support.
+// == Text buffers support =========================
 //
 
 // Um ponteiro para um array de ponteiros de estruturas de linhas
@@ -1029,18 +953,6 @@ struct gws_window_d
     int LineArrayTopLineIndex;  //Indice para a linha que ficará no topo da página.
     int LineArrayPointerX;      //Em qual linha o ponteiro está. 	
     int LineArrayPointerY;      //em qual coluna o ponteiro está.
-
-// #importante
-// Estrutura de process e estrutura de thread
-// pertencem a api. Isso justifica a inclusão da api.
-
-// suspenso
-// #importante: thread de input
-    //struct thread_d *InputThread;
-
-// suspenso
-// Process support. A que processo a janela pertence??
-    //struct process_d *process;
 
     // ...
 
@@ -1060,21 +972,73 @@ struct gws_window_d
     
     //struct cursor_d	*cursor;
 
-    //unsigned long bgcolor;		// Background color.
-    //unsigned long fgcolor;		// Foreground color. 
-
     //struct button_d *current_button;  //Botão atual.      
     //struct button_d *buttonList;      //Lista encadeada de botões em uma janela.
-
 
 // Mouse cursor support ???
 // Abaixo ficam os elementos referenciados com menor frequência.
 
+// #deprecated
 // ?? rever isso 
 // Status do puxador da janela.
 // Se está aberta ou não.
 // HANDLE_STATUS_OPEN ou HANDLE_STATUS_CLOSE
-    int handle_status;
+    //int handle_status;
+
+
+//
+// == Input pointer =========================================
+//
+
+    // Valido apenas para essa janela.
+
+    // Esta ligado?
+    int ip_on;
+
+// Qual eh o dispositivo de input.
+    gws_ip_device_t ip_device;
+
+// Para input do tipo teclado
+
+    // #todo:
+    // Use chars, or use only asterisk for password, etc ...
+    //int input_glyph_style;
+
+    int ip_x;
+    int ip_y;
+    unsigned int ip_color;
+    unsigned long width_in_chars;
+    unsigned long height_in_chars;
+
+    //unsigned long ip_type; //?? algum estilo especifico de cursor?
+    //unsigned long ip_style;
+    // ...
+
+// para input do tipo teclado
+    unsigned long ip_pixel_x;
+    unsigned long ip_pixel_y;
+
+//
+// == Events =========================================
+//
+
+
+// Single event
+    struct gws_event_d  single_event;
+// Event list.
+    int ev_head;
+    int ev_tail;
+    unsigned long ev_wid[32];
+    unsigned long ev_msg[32];
+    unsigned long ev_long1[32];
+    unsigned long ev_long2[32];
+    // ...
+// #todo
+// Event queue.
+     //struct gws_event_d *event_queue;
+
+// Um alerta de que exite uma mensagem para essa janela.
+    int msgAlert;  //#todo: int ev_alert;
 
 // Locked
 // We can't resize or move the window.
@@ -1083,8 +1047,29 @@ struct gws_window_d
 // It must affect the input events for the specified window.
     int locked; 
 
+
+//==================================================	
+// #todo:
+// Maybe every windle is gonna have a server side
+// window procedure and a client side window procedure.
+    unsigned long procedure;
+
+// =========================================================
 // Window Class support.
     struct gws_window_class_d *window_class;
+
+// =========================================================
+// Navigation windows:
+
+// The owner
+    struct gws_window_d  *parent;
+// We need to redraw all the child windows.
+    struct gws_window_d  *child_list;
+// Brother or sister with at least 'one' parent in common.
+    struct gws_window_d *subling_list;
+
+// We have an associated window when we are iconic.
+    //struct gws_window_d *assoc_wind;
 
 // Navigation
     struct gws_window_d  *prev;

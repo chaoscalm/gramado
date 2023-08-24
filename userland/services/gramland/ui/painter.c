@@ -697,6 +697,8 @@ redraw_window (
     int Selected=0;
     unsigned int border1=0;
     unsigned int border2=0;
+    
+    unsigned int label_color = COLOR_BLACK;
 
     if (window->type == WT_BUTTON)
     {
@@ -747,10 +749,13 @@ redraw_window (
         };
 
         // name support.
-        size_t tmp_size = (size_t) strlen ( (const char *) window->name );
-        if (tmp_size>64){
+        size_t tmp_size = (size_t) strlen((const char *) window->name);
+        // #bugbug: It also depends of the windows size.
+        if (tmp_size > 64)
+        {
             tmp_size=64;
         }
+        // Center.
         unsigned long offset = 
         ( ( (unsigned long) window->width - ( (unsigned long) tmp_size * (unsigned long) gcharWidth) ) / 2 );
 
@@ -769,18 +774,17 @@ redraw_window (
         //gwssrv_debug_print ("redraw_window: [FIXME] Button label\n"); 
 
         if (Selected == TRUE){
-            grDrawString ( 
-                (window->absolute_x) +offset, 
-                (window->absolute_y) +8, 
-                COLOR_WHITE, window->name );
+            label_color = window->label_color_when_selected;
         }
-
         if (Selected == FALSE){
-            grDrawString ( 
-                (window->absolute_x) +offset, 
-                (window->absolute_y) +8, 
-                COLOR_BLACK, window->name );
+            label_color = window->label_color_when_not_selected;
         }
+        // Redraw the label's string.
+        // The label is the window's name.
+        grDrawString ( 
+            (window->absolute_x + offset), 
+            (window->absolute_y + 8), 
+            label_color, window->name );
 
         // ok, repintamos o botao que eh um caso especial
         // nao precisamos das rotinas abaixo,

@@ -829,14 +829,14 @@ void *doCreateWindow (
 // Isso só não será válido, se uma flag especial 
 // permitir criar uma janela fora da área de cliente.
 
-    if ( (void*) window->parent == NULL )
+    if ((void*) window->parent == NULL)
     {
         window->absolute_x = WindowX;
         window->absolute_y = WindowY;
     }
 
 // Calcula o absoluto
-    if ( (void*) window->parent != NULL )
+    if ((void*) window->parent != NULL)
     {
         // A parent não é uma title bar,
         // Então vamos usar o posicionamento absoluto da
@@ -1486,6 +1486,9 @@ void *doCreateWindow (
 // caso o botão tenha algum frame, será alguma borda extra.
 // border color:
 
+    unsigned int label_color = COLOR_BLACK; // default
+
+
     if ((unsigned long) type == WT_BUTTON)
     {
         // #ps: ButtonState = window status.
@@ -1540,24 +1543,39 @@ void *doCreateWindow (
                 break;
         };
 
-        // Label support.
+        //
+        // Label support
+        //
+        
+        // #todo
+        // It depends on the string style.
+        // If the buttton's window has an icon,
+        // the string goes after the icon are.
+        // If it doesn't have an icon, so the buttons goes
+        // in the center.
+        
         size_t tmp_size = 
             (size_t) strlen( (const char *) window->name );
-        if (tmp_size>64){
+        // #bugbug
+        // The max size also need to respect 
+        // the size of the button's window.
+        if (tmp_size > 64)
+        {
             tmp_size=64;
         }
+        // It goes in the center.
         unsigned long offset = 
             ( ( (unsigned long) window->width - ( (unsigned long) tmp_size * (unsigned long) gcharWidth) ) >> 1 );
 
         // #debug: 
         // Se o botão não tem uma parent window.
-        if ( (void*) Parent == NULL ){
+        if ((void*) Parent == NULL){
             gwssrv_debug_print ("doCreateWindow: [WT_BUTTON] Parent NULL\n"); 
         }
 
         // Se o botão tem uma parent window.
         // Paint button
-        if ( (void*) Parent != NULL )
+        if ((void*) Parent != NULL)
         {
             // #todo
             // Esses valores precisam estar na estrutura para
@@ -1568,6 +1586,8 @@ void *doCreateWindow (
             // color2: right/bottom
             // #check
             // This routine is calling the kernel to paint the rectangle.
+            // #todo
+            // We can register these colors inside the windows structure.
             __draw_button_borders(
                 (struct gws_window_d *) window,
                 (unsigned int) buttonBorderColor1,
@@ -1575,21 +1595,24 @@ void *doCreateWindow (
                 (unsigned int) buttonBorderColor2_light,
                 (unsigned int) buttonBorder_outercolor );
 
-            // Button label
+            //#todo: Use the color scheme.
+            window->label_color_when_selected = xCOLOR_GRAY1;
+            window->label_color_when_not_selected = xCOLOR_BLACK;
+
+            // Setup the label's properties.
             if (buttonSelected == TRUE){
-                grDrawString ( 
-                    (window->absolute_x) + offset, 
-                    (window->absolute_y) + 8, 
-                    COLOR_WHITE, 
-                    window->name );
+                label_color = window->label_color_when_selected;  
             }
             if (buttonSelected == FALSE){
-                grDrawString ( 
-                    (window->absolute_x) + offset,  
-                    (window->absolute_y) + 8,  
-                    COLOR_BLACK, 
-                    window->name );
+                label_color = window->label_color_when_not_selected;  
             }
+            // Draw the label's string.
+            // The label is the window's name.
+            grDrawString ( 
+                (window->absolute_x + offset), 
+                (window->absolute_y + 8), 
+                (unsigned int) label_color, 
+                window->name );
         }
 
       //todo

@@ -8,7 +8,6 @@
 #define MI_TYPE_SEPARATOR  1000
 #define MI_TYPE_TEXT       2000
 
-
 #define MAINMENU_BUTTONS_MAX  5
 extern int mainmenu_buttons_count;  
 extern int mainmenu_buttons[MAINMENU_BUTTONS_MAX];
@@ -28,6 +27,7 @@ struct gws_menu_item_d
     unsigned long width;
     unsigned long height;
     struct gws_window_d *bg_window;
+
     struct gws_menu_item_d *next;
 };
 
@@ -60,9 +60,8 @@ extern struct gws_menu_d *main_menu;
 // == Prototypes ==============================================
 //
 
-
 // checa se o mouse esta passando sobre o menu.
-int __is_inside_menu(struct gws_menu_d *menu, int x, int y);
+int is_inside_menu(struct gws_menu_d *menu, int x, int y);
 
 int gwssrv_get_number_of_itens (struct gws_menu_d *menu);
 
