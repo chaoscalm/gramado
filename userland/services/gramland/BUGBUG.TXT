@@ -1,6 +1,9 @@
 
 	When closing the last application window in a lot of 5 windows.
 
+    Quando lança o quinto aplicativo, entao 
+    o primeiro deles para de receber eventos.
+
 	When we launch 5 windows, we're unable to close the last one.
 	+ The woutine is sending the CLOSE message to the window.
 	but nothing is happening, and the app can't get the message.

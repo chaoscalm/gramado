@@ -1288,6 +1288,7 @@ static void on_update_window(int event_type)
 // Um evento afeta os controles de janela.
 // Vamos pressionar ou liberar um dos botoes de controle
 // que estao na barra de titulos.
+// IN: event, key
 int control_action(int msg, unsigned long long1)
 {
 // #todo
@@ -3022,6 +3023,21 @@ void wm_update_desktop(int tile, int show)
     if (show){
         flush_window(__root_window);
     }
+
+
+// #test
+// #debug
+// envia paint pra todo mundo.
+// naquela janela assim saberemos quais janelas estao pegando input ainda.
+// #bugbug: segunda mensagem de paint.
+// >>> Isso eh muito legal.
+//     pois atualiza todas janelas quando em tile mode
+//     e mostra qual nao esta pegando eventos.
+    window_post_message_broadcast( 
+        0,           // wid = Ignored
+        GWS_Paint,   // msg = msg code
+        0,        // long1 = 
+        0 );      // long2 = 
 }
 
 void wm_update_active_window(void)
@@ -3194,6 +3210,7 @@ void set_focus(struct gws_window_d *window)
     if ( window->used != TRUE ) { return; }
     if ( window->magic != 1234 ){ return; }
 
+/*
 // #test
 // parent
 // Activate the parent window if it is an application window.
@@ -3210,6 +3227,7 @@ void set_focus(struct gws_window_d *window)
             }
         }
     }
+*/
 
 // #todo
 // Pegar a antiga janela com o foco de entra.
