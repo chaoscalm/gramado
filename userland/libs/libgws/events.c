@@ -40,15 +40,21 @@ gws_send_event (
     int window, 
     struct gws_event_d *event )
 {
+// Send event.
+// #todo:
+// Maybe we can return the number of sent bytes.
 
 // Isso permite ler a mensagem na forma de longs.
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_events_message_buffer[0];
 
-    int n_writes = 0;   // For sending requests.
+// For sending requests.
+    register int n_writes = 0;
+    //int counter = 0;
 
-    int wid=-1;
-    int msg=-1;
+// Message data.
+    int wid = -1;
+    int msg = -1;
     unsigned long long1=0;
     unsigned long long2=0;
 
@@ -96,10 +102,13 @@ gws_send_event (
         }
     }
 
+// #todo:
+// Maybe we can return the number of sent bytes.
+    //return (int) n_writes;
     //return;
 }
 
-// let's manage the input inside a window.
+// Let's manage the input inside a window.
 // the client gets some keyboard event
 // and change the position of the input pointer
 // inside the window

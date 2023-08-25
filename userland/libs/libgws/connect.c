@@ -35,6 +35,9 @@ char ____gws_io_buffer[512];  // buffer
 
 int gws_connect(void)
 {
+// Using AF_GRAMADO and 'ws' address.
+// maybe we can accept some parameters.
+
     int fd=0;
     int Status=0;
 
