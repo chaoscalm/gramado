@@ -1,8 +1,15 @@
 
-	When closing the last application window in a lot of 5 windows.
 
     Quando lança o quinto aplicativo, entao 
     o primeiro deles para de receber eventos.
+    Mesmo quando as aplicaçoes nao sao todas graficas.
+    5 + init + ws. = 7.
+    Quando lança 5, a primeira lançada nao consegue
+    pegar eventos no servidor.
+
+---------
+
+	When closing the last application window in a lot of 5 windows.
 
 	When we launch 5 windows, we're unable to close the last one.
 	+ The woutine is sending the CLOSE message to the window.

@@ -650,6 +650,7 @@ void *doCreateWindow (
 
 // Id
 // We will get an id when we register the window.
+// #bugbug: So, we can't use the id in this routine yet.
     window->id = -1;
 
 // ===================================
@@ -666,21 +667,30 @@ void *doCreateWindow (
     };
 
 // ===================================
-// Parent and child.
+// Parent
 
     if ((void*) pWindow == NULL){
         window->parent = NULL;
-        Parent = NULL;
-        window->subling_list = NULL;
     }
     if ((void*) pWindow != NULL){
         window->parent = (struct gws_window_d *) pWindow;
-        Parent = (struct gws_window_d *) pWindow;
-        //window->subling_list = ?;
     }
+    Parent = (struct gws_window_d *) window->parent;
+
+// Navigation
+// #todo: Put these at the end of the routine.
+    window->prev = (void *) Parent;
+    window->next = NULL;
+
+// ===================================
+// Sublings
+    //window->subling_list = NULL;
+
+// ===================================
+// Childs
     window->child_list = NULL;
 
-
+// ===================================
 // #todo: 
 // é importante definir o procedimento de janela desde já.
 // senão dá problemas quando chamá-lo e ele naõ estiver pronto.
@@ -703,7 +713,7 @@ void *doCreateWindow (
 // Window status - (Not a button)
 // 
 
-    if ( window->type == WT_OVERLAPPED )
+    if (window->type == WT_OVERLAPPED)
     {
         // Active 
         if (window->status == WINDOW_STATUS_ACTIVE)
@@ -1010,9 +1020,6 @@ void *doCreateWindow (
 // serão acionadas mais tarde, na hora da pintuda, 
 // de acordo com o tipo de janela à ser pintada.
 
-// The child list
-    window->child_list = NULL;
-
 // Client window 
 // (#important)
 // Client window support.
@@ -1068,14 +1075,6 @@ void *doCreateWindow (
 
     //window->desktop = NULL; //@todo: Definir à qual desktop a janela perence.
     //window->process = NULL; //@todo: Definir à qual processo a janela perence.
-
-// Linked list
-    //window->linkedlist = NULL;
-
-// Navigation
-// #todo: Put these at the end of the routine.
-    window->prev = (void *) Parent;
-    window->next = NULL;
 
 //==========
 
@@ -1638,9 +1637,6 @@ void *doCreateWindow (
     
     } //button
 
-    //#debug
-    //window->style = style;
-
 // Invalidate the window.
 // #todo: Only if it is not minimized.
     window->dirty = TRUE;
@@ -1819,6 +1815,10 @@ void *CreateWindow (
         if (width < OVERLAPPED_MIN_WIDTH)  { width=OVERLAPPED_MIN_WIDTH; }
         if (height < OVERLAPPED_MIN_HEIGHT){ height=OVERLAPPED_MIN_HEIGHT; }
 
+        // #debug:  Fake name: The parent id.
+        // #bugbug: 0 for everyone.
+        // itoa( (int) pWindow->id, _name );
+        
         __w = 
             (void *) doCreateWindow ( 
                          WT_SIMPLE, 

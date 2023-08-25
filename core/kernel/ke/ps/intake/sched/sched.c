@@ -103,17 +103,17 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
 // #todo: Por enquanto estamos usando o UP, mas usaremos
 // um dado processador para escalonar para ele.
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void*) Idle == NULL ){
-        panic ("__scheduler_rr: Idle\n");
+    if ((void*) Idle == NULL){
+        panic("__scheduler_rr: Idle\n");
     }
     if (Idle->used != TRUE || Idle->magic != 1234){
-        panic ("__scheduler_rr: Idle validation\n");
+        panic("__scheduler_rr: Idle validation\n");
     }
 
 // A idle thread precisa ser a 
 // thread de controle do processo init.
     if (Idle != InitThread){
-        panic ("__scheduler_rr: Idle != InitThread\n");
+        panic("__scheduler_rr: Idle != InitThread\n");
     }
 
 // Estabilize the priority.
@@ -138,7 +138,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
 // INIT_TID = SYSTEM_THRESHOLD_TID.
 
     if (FirstTID != SYSTEM_THRESHOLD_TID){
-        panic ("__scheduler_rr: FirstTID\n");
+        panic("__scheduler_rr: FirstTID\n");
     }
 
 
@@ -214,6 +214,18 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                 } 
             }
 
+            // #test
+            // ---------------------------
+            // :: zombie threads            
+            if ( TmpThread->used == TRUE && 
+                 TmpThread->magic == 1234 && 
+                 TmpThread->state == ZOMBIE )
+            {
+                TmpThread->used = FALSE;
+                TmpThread->magic = 0;
+                TmpThread = NULL;
+            }
+
             // ---------------------------
             // :: Ready threads.
             // Scheduler.
@@ -286,7 +298,6 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                         //TmpThread->quantum = QUANTUM_NORMAL_THRESHOLD +1;
                     }
                 }
-
             }
 
             // ---------------------------

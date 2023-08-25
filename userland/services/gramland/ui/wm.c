@@ -382,6 +382,15 @@ on_keyboard_event(
         // F6 = Entra ou sai do modo fullscreen.
         if (long1 == VK_F6)
         {
+            //#debug
+            wm_tile();
+            window_post_message_broadcast( 
+                0,           // wid = Ignored
+                GWS_Paint,   // msg = msg code
+                0,        // long1 = 
+                0 );      // long2 = 
+        
+            /*
             // Enter fullscreen mode.
             if (WindowManager.is_fullscreen != TRUE)
             {
@@ -398,6 +407,7 @@ on_keyboard_event(
                 //set_input_status(TRUE);
                 return 0;
             }
+            */
             return 0;
         }
 
@@ -5894,7 +5904,7 @@ void set_active_window (struct gws_window_d *window)
         return;
     }
 
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return;
     }
     if (window->magic!=1234){

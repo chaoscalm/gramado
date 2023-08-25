@@ -2064,24 +2064,24 @@ int serviceCreateWindow(int client_fd)
     y = (unsigned long) (r.ul5 & 0xFFFF);
     w = (unsigned long) (r.ul6 & 0xFFFF);
     h = (unsigned long) (r.ul7 & 0xFFFF);
-// Background color.
+// 8 = Background color.
     r.ul8 = message_address[8];
     color        = (unsigned int) (r.ul8 & 0x00FFFFFF);
     frame_color  = (unsigned int) color;
     client_color = (unsigned int) color;
-// type
+// 9 = type
     r.ul9 = message_address[9];
     type = (unsigned long) (r.ul9 & 0xFFFF);
-// Parent window ID.
+// 10 = Parent window ID.
     r.ul10 = message_address[10]; 
     pwid = (int) (r.ul10 & 0xFFFF);
-// Style
+// 11 = Style
     r.ul11 = message_address[11];  
     my_style = (unsigned long) r.ul11;  // 8 bytes
-// Client pid
+// 12 = Client pid
     r.ul12 = message_address[12];  // client pid
     ClientPID = (int) (r.ul12 & 0xFFFF);
-// Client caller tid
+// 13 = Client caller tid
     r.ul13 = message_address[13];  // client tid
     ClientTID = (int) (r.ul13 & 0xFFFF);
 
@@ -2135,23 +2135,43 @@ int serviceCreateWindow(int client_fd)
 // Parent window
 //
 
+// #bugbug
+// Isso pode ser um problema no caso da criçao 
+// da primeira janela da primeira aplicaçao grafica lançada.
+// Possivelmente essa primeira aplicaçao 
+// esta usando 'parent_wid = 0', que talvez seja a root window.
+
 // id limits.
-    if (pwid<0 || pwid>=WINDOW_COUNT_MAX){
+    if (pwid<0 || pwid>=WINDOW_COUNT_MAX)
+    {
         pwid=0;
+        // #debug
         printf("serviceCreateWindow: pwid\n");
         exit(1);
     }
 // Structure pointer
     Parent = (struct gws_window_d *) windowList[pwid];
-    if ( (void*) Parent == NULL ){
+    if ((void*) Parent == NULL)
+    {
+        // #debug
         printf("serviceCreateWindow: Parent\n");
         exit(1);
     }
-    if (Parent->magic != 1234){
+    if (Parent->magic != 1234)
+    {
+        // #debug
         printf("serviceCreateWindow: Parent validation\n");
         exit(1);
     }
 
+
+/*
+// #test #debug
+    if (Parent->id == 0){
+        printf("Parent->id = 0\n");
+        exit(0);
+    }
+*/
 
 // --------------------------------
 // Server profiler
@@ -2242,9 +2262,26 @@ int serviceCreateWindow(int client_fd)
     }
 
 //===============================================
+// Save the tid of the client.
+    Window->client_pid = (pid_t) ClientPID;
+    Window->client_tid = (int) ClientTID;
 
+//===============================================
 // The client fd.
     Window->client_fd = (int) client_fd;
+
+//===============================================
+
+//
+// Debug
+//
+
+/*
+    // #debug:  Fake name, client tid
+    // #bugbug: 0 for everyone.
+    if (Window->type == WT_OVERLAPPED)
+        itoa( (int) Window->client_tid, Window->titlebar->name );
+*/
 
 //
 // Input queue
@@ -2305,15 +2342,7 @@ int serviceCreateWindow(int client_fd)
         // Atualiza a barra de tarefas,
         // notificando a criaçao dessa janela.
         wm_Update_TaskBar((char *) w_name,TRUE);
-        // #test
-        // Activate
-        //set_active_window(Window);
     }
-
-// Save the tid of the client.
-// #test
-    Window->client_pid = (pid_t) ClientPID;
-    Window->client_tid = (int) ClientTID;
 
 // The client's fd.
 // #todo
@@ -2334,7 +2363,7 @@ int serviceCreateWindow(int client_fd)
 // We need a flag here. Came from parameters.
 
     // if( Show == TRUE )
-    gws_show_window_rect(Window);
+    //gws_show_window_rect(Window);
     
     //#debug
     //if (Window->type == WT_ICON)
@@ -2343,7 +2372,12 @@ int serviceCreateWindow(int client_fd)
     //Window->dirty = TRUE;
     return 0;
 fail:
-    gwssrv_debug_print ("serviceCreateWindow: FAIL\n");
+    gwssrv_debug_print("serviceCreateWindow: FAIL\n");
+    
+    //#debug
+    //printf("serviceCreateWindow: FAIL\n");
+    //exit(0);
+    
     return -1;
 }
 
