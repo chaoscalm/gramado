@@ -99,8 +99,9 @@ struct tcp_d
     uint16_t th_dport;  // destination port
 
 // 32,32
-    tcp_seq th_seq;    /* sequence number */
-    tcp_ack th_ack;    /* acknowledgement number */
+// (uint32_t)
+    tcp_seq th_seq;  // Sequence number
+    tcp_ack th_ack;  // Acknowledgement number
 
 // 4,6,6
 // data offset (4) | reserved (6) | control_flags (6)

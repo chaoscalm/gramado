@@ -950,10 +950,11 @@ static void *__extra_services (
                             (socklen_t) arg4 );
      }
 
-// listen()
-// fd, backlog
-    if ( number == 7004 ){
-        return (void *) sys_listen ( (int) arg2, (int) arg3 );  
+// listen() support.
+// IN: fd, backlog
+// see: 
+    if (number == 7004){
+        return (void *) sys_listen((int) arg2, (int) arg3);  
     }
 
 // Salvar um pid em uma das portas.

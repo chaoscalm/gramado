@@ -131,15 +131,22 @@ bind (
     return (int) value;
 }
 
-
+// IN:
+// + The socket descriptor.
+// + The maximum length for the queue of pending connections.
 int listen(int sockfd, int backlog)
 {
     int value = -1;
 
-    if (sockfd<0)
-    {
+// fd limits
+    if (sockfd<0){
         errno = EBADF;
-        return (int) (-1);
+        goto fail;
+    }
+// backlog limits
+    if (backlog <= 0 || backlog > SOMAXCONN){
+        errno = EBADF;
+        goto fail;
     }
 
     value = 
@@ -149,13 +156,25 @@ int listen(int sockfd, int backlog)
                   (unsigned long) backlog, 
                   (unsigned long) 0 );
 
+// Fail.
     if (value<0)
     {
         errno = (-value);
-        return (int) (-1);
+        goto fail;
     }
 
+// OK
+    if (value == 0)
+    {
+       errno = 0;
+       return 0;
+    }
+
+// Positive values.
+    errno = 0;  //?
     return (int) value;
+fail:
+    return (int) (-1);
 }
 
 

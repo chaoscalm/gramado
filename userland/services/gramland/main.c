@@ -137,6 +137,7 @@ static int IsTimeToQuit = FALSE;
 static int NoReply = FALSE;
 static int Notify_PongClient=FALSE;
 static int ____saved_server_fd = -1;
+#define SERVER_BACKLOG  8
 static int ____saved_wm_magic_pid = -1;  // ?? The wm sends us its pid
 static int __saved_sync_id = -1;
 
@@ -3641,8 +3642,7 @@ static int ServerInitialization(int dm)
 // Setup how many pending connections.
 // SOMAXCONN is the default limit on backlog.
 // see: sys/socket.h
-    //listen(server_fd,4);
-    listen(server_fd,8);
+    listen(server_fd,SERVER_BACKLOG);
 
     Initialization.setup_connection_checkpoint = TRUE;
 

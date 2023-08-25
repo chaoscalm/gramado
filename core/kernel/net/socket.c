@@ -2404,8 +2404,10 @@ sys_getsockname (
 // sockfd  = The fd of the server's socket.
 // backlog = The server indicates the 'size of the list'.
 
-int sys_listen (int sockfd, int backlog) 
+int sys_listen(int sockfd, int backlog) 
 {
+// Called by sci.c
+
     struct process_d  *p;
     file *f;
     struct socket_d  *s;
@@ -2431,6 +2433,8 @@ int sys_listen (int sockfd, int backlog)
 // Wrong n. Ajusting to default.
 // It can't be bigger than the size of the array.
 // #todo: Use SOCKET_MAX_PENDING_CONNECTIONS
+// SOMAXCONN
+
     Backlog = backlog;
 
     if (Backlog <= 0) { Backlog=1; }
@@ -2449,17 +2453,18 @@ int sys_listen (int sockfd, int backlog)
 
 // ==============================================
 
-    if (current_process < 0 || current_process >= PROCESS_COUNT_MAX )
+    if ( current_process < 0 || 
+         current_process >= PROCESS_COUNT_MAX )
     {
-        printf ("sys_listen: current_process\n");
+        printf("sys_listen: current_process\n");
         goto fail;
     }
 
 // process
     p = (struct process_d *) processList[current_process];
-    if ( (void *) p == NULL ){
-        debug_print ("sys_listen: p fail\n");
-        printf      ("sys_listen: p fail\n");
+    if ((void *) p == NULL){
+        debug_print("sys_listen: p fail\n");
+        printf     ("sys_listen: p fail\n");
         goto fail;
     }
 
@@ -2467,18 +2472,19 @@ int sys_listen (int sockfd, int backlog)
 // sender's file
 // Objeto do tipo socket.
     f = (file *) p->Objects[sockfd];
-    if ( (void *) f == NULL ){
-        debug_print ("sys_listen: f fail\n");
-        printf      ("sys_listen: f fail\n");
+    if ((void *) f == NULL){
+        debug_print("sys_listen: f fail\n");
+        printf     ("sys_listen: f fail\n");
         goto fail;
     }
 
 // Is it a socket object?
     int IsSocket = -1;
-    IsSocket = (int) is_socket( (file *) f );
+    IsSocket = (int) is_socket((file *) f);
     if (IsSocket != TRUE){
         debug_print ("sys_listen: f is not a socket\n");
         printf      ("sys_listen: f is not a socket\n");
+        //return (int) (-EINVAL);
         goto fail;
     }
 
@@ -2492,18 +2498,18 @@ int sys_listen (int sockfd, int backlog)
 
     //s = (struct socket_d *) p->priv; 
     s = (struct socket_d *) f->socket;
-    if ( (void *) s == NULL ){
-        debug_print ("sys_listen: s fail\n");
-        printf      ("sys_listen: s fail\n");
+    if ((void *) s == NULL){
+        debug_print("sys_listen: s fail\n");
+        printf     ("sys_listen: s fail\n");
         goto fail;
     }
 
-    if ( f->socket != p->priv ){
+    if (f->socket != p->priv){
         panic("sys_listen: [TEST] f->socket != p->priv\n");
     }
 
 // Updating the socket structure.
-    s->backlog_max = Backlog;
+    s->backlog_max = (int) Backlog;
 // This server is accepting new connections.
     s->AcceptingConnections = TRUE;
     // ...
@@ -2517,11 +2523,11 @@ int sys_listen (int sockfd, int backlog)
     return 0;
 // ==============================================
 fail:
-    debug_print ("sys_listen: [FAIL]\n");
-    printf      ("sys_listen: [FAIL]\n");
+    debug_print("sys_listen: [FAIL]\n");
+    printf     ("sys_listen: [FAIL]\n");
     //refresh_screen();
     //while(1){}
-    return -1;
+    return (int) -1;
 }
 
 // libc shutdown() function.

@@ -107,6 +107,7 @@
 #define PF_MAX      AF_MAX
 
 // Maximum queue length specifiable by listen().
+// Maximum backlog value.
 #define SOMAXCONN    32
 
 // Flags we can use with send/ and recv. 

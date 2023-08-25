@@ -28,6 +28,9 @@ network_handle_tcp(
     uint16_t sport = (uint16_t) FromNetByteOrder16(tcp->th_sport);
     uint16_t dport = (uint16_t) FromNetByteOrder16(tcp->th_dport);
 
+    tcp_seq _seq_number = (tcp_seq) FromNetByteOrder32(tcp->th_seq);
+    tcp_ack _ack_number = (tcp_ack) FromNetByteOrder32(tcp->th_ack);
+
 // Clean the payload local buffer.
     memset(tcp_payload,0,sizeof(tcp_payload));
 
@@ -64,23 +67,35 @@ network_handle_tcp(
 // Control fields
 //
     uint16_t flags = (uint16_t) FromNetByteOrder16(tcp->do_res_flags);
-
     //#debug
     //printf("Flags={%x}\n",flags);
 
-    uint16_t _fin=0;
-    if (flags & TH_FIN){ _fin = 1; }
-    uint16_t _syn=0;
-    if (flags & TH_SYN){ _syn = 1; }
-    uint16_t _rst=0;
-    if (flags & TH_RST){ _rst = 1; }
-    uint16_t _push=0;
-    if (flags & TH_PUSH){ _push = 1; }
+// Control flags (6 bits)
+    uint16_t fFIN=0;
+    uint16_t fSYN=0;  // SYN :)
+    uint16_t fRST=0;
+    uint16_t fPUSH=0;
+    uint16_t fACK=0;  // ACK :)
+    uint16_t fURG=0;
 
-    uint16_t _ack=0;
-    if (flags & TH_ACK){ _ack = 1; }
-    uint16_t _urg=0;
-    if (flags & TH_URG){ _urg = 1; }
+    if (flags & TH_FIN){
+        fFIN = 1;
+    }
+    if (flags & TH_SYN){
+        fSYN = 1;
+    }
+    if (flags & TH_RST){
+        fRST = 1;
+    }
+    if (flags & TH_PUSH){
+        fPUSH = 1;
+    }
+    if (flags & TH_ACK){
+        fACK = 1;
+    }
+    if (flags & TH_URG){
+        fURG = 1;
+    }
 
     // ex: 5014H
     // 0101 0000 0001 0100
@@ -102,16 +117,36 @@ network_handle_tcp(
         // >> Reply: 
         // SYN=1, ACK=1
 
-        printf("SYN={%d} ACK={%d}\n",_syn,_ack);
+        printf("SYN={%d} ACK={%d}\n",fSYN,fACK);
 
-        if ( _syn == 1 && _ack == 0 ){
-            printf(">>>> [TCP] Connection request\n");
+        // (1) SYN
+        if ( fSYN == 1 && fACK == 0 ){
+            printf("\n");
+            printf(">>>> [TCP] SYN     (1)\n");
+            printf("SEQ={%d} | ACK={%d}\n",
+                _seq_number, _ack_number);
+            // #todo
+            // Connect to the process that is listening at 11888.
         }
-        if ( _syn == 1 && _ack == 1 )
-        {
-            printf(">>>> [TCP] Reply\n");
-            //for (i=0; i<512; i++){ printf("%x",tcp_payload[i]); }
-            //printf("\n");
+        // (2) SYN/ACK
+        if ( fSYN == 1 && fACK == 1 ){
+            printf("\n");
+            printf(">>>> [TCP] SYN/ACK (2)\n");
+            printf("SEQ={%d} | ACK={%d}\n",
+                _seq_number, _ack_number);
+            // #todo
+            // We received a syn/ack as a response to
+            // our syn sent by a process in this machine.
+        }
+        // (3) ACK
+        if ( fSYN == 0 && fACK == 1 ){
+            printf("\n");
+            printf(">>>> [TCP] ACK     (3)\n");
+            printf("SEQ={%d} | ACK={%d}\n",
+                _seq_number, _ack_number);
+            // #todo
+            // We received an ack as a response to
+            // our syn/ack sent by a process in this machine.
         }
     }
 
