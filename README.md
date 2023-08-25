@@ -176,8 +176,8 @@ The source code uses the BSD license.
 
 ## Here are some screenshots of Gramado Operating System.
 
-![Screenshot](https://raw.githubusercontent.com/frednora/screenshots/main/gramado-7.png)
-![Screenshot](https://raw.githubusercontent.com/frednora/screenshots/main/gramado-3.png)
+![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-8.png)
+![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-3.png)
 
 
 ## Quotes:
