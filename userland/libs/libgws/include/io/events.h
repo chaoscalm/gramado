@@ -61,6 +61,8 @@ struct gws_event_d
     struct gws_event_d *next;
 };
 
+#define GWS_EVENT_SIZE  (sizeof(struct gws_event_d))
+
 //struct gws_event_d *CurrentEvent;
 extern struct gws_event_d *CurrentEvent;
 

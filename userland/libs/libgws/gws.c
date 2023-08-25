@@ -4157,6 +4157,7 @@ void gws_send_wm_magic( int fd, int pid )
 struct gws_display_d *gws_open_display(char *display_name)
 {
     struct gws_display_d *Display;
+    int DisplayID = 0; //?
     int client_fd = -1;
 
 // ??
@@ -4179,10 +4180,10 @@ struct gws_display_d *gws_open_display(char *display_name)
 // Create the display structure.
 
     Display = 
-        (struct gws_display_d *) gws_malloc( sizeof( struct gws_display_d ) );
+        (struct gws_display_d *) gws_malloc( sizeof(struct gws_display_d) );
 
     if ((void*) Display == NULL){
-        printf ("gws_open_display: Couldn't create display\n");
+        printf("gws_open_display: Couldn't create display\n");
         goto fail;
     }
 
@@ -4193,15 +4194,12 @@ struct gws_display_d *gws_open_display(char *display_name)
        printf ("gws_open_display: Couldn't create socket\n");
        goto fail;
     }
-
-// #todo: 
-// Colocar isso no fim da rotina.
-    //Display->used = TRUE;
-    //Display->magic = 1234;
-
-    Display->fd        = client_fd;
-    Display->lock      = FALSE;
+// Network socket.
+    Display->fd = (int) client_fd;
     Display->connected = FALSE;
+
+
+    Display->lock      = FALSE;
     // ...
 
 // Display name.
@@ -4230,12 +4228,34 @@ struct gws_display_d *gws_open_display(char *display_name)
         };
     };
 
+
+//
+// Screens
+//
+
+// #todo: 
+// This is a work in progress.
+    Display->default_screen = 0;  // Current screen.
+    Display->nscreens = 1;  // Number of screens.
+    Display->screens = NULL;  // Screen list.
+
+// ID
+    Display->id = (int) DisplayID;
+
+// Not running yet.
+// The application sets this flag 
+// when the server enters in a llop for requests.
+    Display->running = FALSE;
+
 // Flags
     Display->connected = TRUE;
     Display->used = TRUE;
     Display->magic = 1234;
 // Current display
     gws_set_current_display(Display);
+
+// Navigation.
+    Display->next = NULL;
 
 // Done
 // Return the display structure pointer.
@@ -4248,15 +4268,44 @@ fail:
 void gws_close_display(struct gws_display_d *display)
 {
     // #todo
-    
+ 
+// Invalid parameter.
     if ((void*) display == NULL){
         gws_debug_print("gws_close_display: display\n");
         return;
     }
+    if (display->used != TRUE)
+        return;
+    if (display->magic != 1234)
+        return;
+
+// #todo:
+// Maybe, destroy the screen structure.
+// ...
+
+
+    //display->lock=0;
+    display->connected = FALSE;
+    display->running = FALSE;
+    // ...
+
+// Show display name.
+    if ((void*) display->display_name != NULL)
+    {
+        // #bugbug: string size?
+        printf("Closing the %s display for GWS\n",
+            display->display_name );
+    }
+
+// #todo
+// Close network socket for this application.
+    // close(display->fd);
+
+// ...
+
+// Invalidate structure.
     display->used = FALSE;
     display->magic = 0;
-    // ??
-    // close(display->fd);
     display = NULL;
 }
 

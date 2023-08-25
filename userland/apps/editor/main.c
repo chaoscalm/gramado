@@ -52,6 +52,8 @@
 #define IP(a, b, c, d) (a << 24 | b << 16 | c << 8 | d)
 
 
+struct gws_display_d *Display;
+
 static int isTimeToQuit = FALSE;
 
 static int file_status=FALSE;
@@ -397,6 +399,11 @@ editorProcedure(
         gws_destroy_window(fd,savebutton_window);
         gws_destroy_window(fd,main_window);
         //isTimeToQuit = TRUE;
+        // #test
+        if ((void*) Display != NULL){
+            //gws_close_display(Display);
+        }
+        //while(1){}
         exit(0);
         break;
     
@@ -555,7 +562,6 @@ static void __test_load_file(int socket, int wid)
 
 int main( int argc, char *argv[] )
 {
-    struct gws_display_d *Display;
     int client_fd = -1;
 
     //debug_print ("EDITOR.BIN: Initializing\n");
@@ -583,17 +589,18 @@ int main( int argc, char *argv[] )
     Display = 
         (struct gws_display_d *) gws_open_display("display:name.0");
 
-    if ( (void*) Display == NULL ){
+    if ((void*) Display == NULL)
+    {
         debug_print ("editor: Couldn't open display\n");
         printf      ("editor: Couldn't open display\n");
         exit(1);
     }
 
     client_fd = (int) Display->fd;
-
-    if (client_fd <= 0){
-        debug_print ("editor: bad fd\n");
-        printf      ("editor: bad fd\n");
+    if (client_fd <= 0)
+    {
+        debug_print("editor: bad fd\n");
+        printf     ("editor: bad fd\n");
         exit(1);
     }
 

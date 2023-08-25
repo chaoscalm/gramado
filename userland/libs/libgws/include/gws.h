@@ -21,6 +21,11 @@ typedef int wid_t;
 
 #include "protocol.h"
 
+// #todo
+// #include "gwstypes.h"
+// #include "gwsdefs.h"
+
+
 //
 // window
 //
@@ -37,7 +42,7 @@ typedef int wid_t;
 #include "window/window.h"
 
 //
-// host
+// host/
 //
 
 //h:d.s

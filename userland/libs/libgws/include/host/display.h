@@ -18,33 +18,35 @@
 
 struct gws_display_d
 {
-    int id;
-    
+    int id;  // Display id.
+    // Structure validation
     int used;
     int magic;
 
-    // #test
-    //"host:display" string used on this connect
+// "host:display" string used on this connect.
     char *display_name;
 
     //int _device_fd;
 
 // Network socket. 
     int fd;
-    int lock;  // is someone in critical section?  
- 
+// Is someone in critical section? 
+    int lock;
     int connected;
-
     int running;
 
     //#test
     //char *buffer;  //Output buffer starting address. 
     //char *bufptr;  //Output buffer index pointer. 
     //char *bufmax;  //Output buffer maximum+1 address. 
-    
-    //#test
-    //only one screen for now.
-    //struct gws_screen_d *screen;
+
+//
+// Screen support.
+//
+
+    int default_screen;  // Current screen.
+    int nscreens;  // Number of screens.
+    struct gws_screen_d *screens;  // Screen list.
 
     // ...
 
