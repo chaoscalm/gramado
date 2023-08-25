@@ -3641,7 +3641,8 @@ static int ServerInitialization(int dm)
 // Setup how many pending connections.
 // SOMAXCONN is the default limit on backlog.
 // see: sys/socket.h
-    listen(server_fd,4);
+    //listen(server_fd,4);
+    listen(server_fd,8);
 
     Initialization.setup_connection_checkpoint = TRUE;
 

@@ -1,5 +1,10 @@
 
 
+   #bugfix
+   Changing the value in listen(.) from 4 to 8.
+
+--------------
+
     Quando lança o quinto aplicativo, entao 
     o primeiro deles para de receber eventos.
     Mesmo quando as aplicaçoes nao sao todas graficas.
