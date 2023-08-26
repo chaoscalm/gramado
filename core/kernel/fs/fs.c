@@ -4092,20 +4092,23 @@ save_file:
     */
 
 
-// Flag. (attributes ?)
+// Attribute byte.
 // 0x01: read only
 // 0x02: hidden
 // 0x04: system
 // 0x08: volume label
 // 0x10: >>>> Directory <<<<
 // 0x20: >>>> Archive <<<<
-    DirEntry[11] = flag; 
+// 0x40: Unused
+// 0x80: Unused
+
+    DirEntry[11] = (char) flag; 
 
 // Reserved
     DirEntry[12] = 0; 
 // Creation time. 14 15 16
-    DirEntry[13] = 0x08;
-    DirEntry[14] = 0x08;
+    DirEntry[13] = 0x08;  // Create Time (ms)
+    DirEntry[14] = 0x08;  // Create Time (Hrs/Mins/Secs)
     DirEntry[15] = 0xb6;
 // Creation date
     DirEntry[16] = 0xb6;
@@ -4114,10 +4117,10 @@ save_file:
     DirEntry[18] = 0xb8;
     DirEntry[19] = 0x4c;
 
-// ??
-// First cluster. 
+// First cluster. (16 bits)
+// Only used in FAT32 Systems
 // 0 para fat12 ou 16
-    DirEntry[20] = 0;
+    DirEntry[20] = 0;  // File/Folder Start Cluster (High)
     DirEntry[21] = 0;
 
 // Modifield time
@@ -4127,12 +4130,11 @@ save_file:
     DirEntry[24] = 0xb8;
     DirEntry[25] = 0x4c;
 
-// First cluster. Low word.
-// 0x1A and 0x1B
-    DirEntry[26] = (char) (first);
+// First cluster. (Low word)
+    DirEntry[26] = (char) (first);  // File/Folder Start Cluster (Low)
     DirEntry[27] = (char) (first >> 8);
 
-// size_in_bytes - File size in bytes.
+// File size in bytes.  (32 bits)
 // 4 bytes: (28,29,30,31)
     DirEntry[28] = (char) size_in_bytes;
     size_in_bytes = (size_in_bytes >> 8);
@@ -4141,6 +4143,16 @@ save_file:
     DirEntry[30] = (char) size_in_bytes;
     size_in_bytes = (size_in_bytes >> 8);
     DirEntry[31] = (char) size_in_bytes;
+// Folders will have a File Size of 0x0000
+    if (flag == 0x10)
+    {
+        DirEntry[28] = (char) 0;
+        DirEntry[29] = (char) 0;
+        DirEntry[30] = (char) 0;
+        DirEntry[31] = (char) 0;
+    }
+
+
 
 // #importante:
 // Vamos encontrar uma entrada livre no diretório para
