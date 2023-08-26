@@ -1348,9 +1348,13 @@ sys_open (
     mode_t mode )
 {
 // Open a file, or create if is doesn't exist.
+// creat chama open.
+// open tenta ler num arquivo que nao existe?
 
     int value = -1;
     file *fp;
+
+    //debug_print ("sys_open: $\n");
 
 // #todo:
 // check arguments.
@@ -1362,17 +1366,24 @@ sys_open (
         return (int) (-EINVAL);
     }
 
-// ??
-// creat chama open.
-// open tenta ler num arquivo que nao existe?
+//
+// Local copy
+//
 
-    //debug_print ("sys_open: $\n");
+    char pathname_local_copy[256];
+    memset(pathname_local_copy,0,256);
+    // Coping more than we need, 
+    // thia way we're coping the 0x00 byte at the and of string
+    // and some extra bytes.
+    strncpy(pathname_local_copy,pathname,256);
+
+//----------------------------
 
 // Searth for a device associated with this path
 // in the deviceList[]
 // See: devmgr.c
 
-    fp = (file *) devmgr_search_in_dev_list(pathname);
+    fp = (file *) devmgr_search_in_dev_list(pathname_local_copy);
     // Yes, we have a valid pointer 
     // found in the table.
     if ((void*) fp != NULL)
@@ -1395,7 +1406,7 @@ sys_open (
 
     value = 
         (int) sys_read_file_from_disk ( 
-                  (char *) pathname, 
+                  (char *) pathname_local_copy, 
                   flags, 
                   mode );
 
@@ -3386,7 +3397,8 @@ void fsUpdateWorkingDiretoryString ( char *string )
 }
 
 /*
- * fs_fntos:     
+ * fs_fntos:  
+ *     (Filename to string).   
  *     'file name to string'.
  *     rotina interna de support.
  *     isso deve ir para bibliotecas depois.
@@ -3398,19 +3410,27 @@ void fsUpdateWorkingDiretoryString ( char *string )
  // Isso modifica a string lá em ring3.
  // prejudicando uma segunda chamada com a mesma string
  // pois já virá formatada.
-
 // #bugbug
 // const char * tornaria esse endereço em apenas leitura.
-
+// Allowed in fat16: $ % ' - _ @ ~ ` ! ( ) { } ^ # &
 void fs_fntos(char *name)
 {
     int i=0;
     int ns = 0;
     char ext[4];
 
-    ext[0] = 0;  ext[1] = 0;  ext[2] = 0;  ext[3] = 0;
+    // #todo
+    int fAddNewExt = FALSE;
 
-    if ( (void*) name == NULL ){
+// No extension
+// 
+    ext[0] = 0;
+    ext[1] = 0;
+    ext[2] = 0;
+    ext[3] = 0;
+
+// Invalid parameter
+    if ((void*) name == NULL){
         return;
     }
     if (*name == 0){
@@ -3421,13 +3441,20 @@ void fs_fntos(char *name)
 // #bugbug: 
 // E se a string já vier maiúscula teremos problemas.
 
+// Transforma somente as letras e 
+// somente ate encontrarmos o ponto.
+    //int max = (8+1+3); 
+    //int max = (8); 
     while ( *name && *name != '.' )
     {
+        // Se a string eh muito grande.
+        //if (ns >= max)
+            //break;
+        
         if ( *name >= 'a' && *name <= 'z' )
         {
             *name -= 0x20;
         }
-
         name++;
         ns++;
     };
@@ -3435,34 +3462,72 @@ void fs_fntos(char *name)
 // #bugbug
 // Esse negócio de acrescentar a extensão
 // não é bom para todos os casos.
+// >> name[0] significa que na ultima posiçao do ponteiro *p,
+//    encontramos o valor 0x00.
+// >> Mas ainda somos menor ou igual a 8, que eh o campo
+//    para nome de 8 bytes.
 
     if ( name[0] == '\0' && ns <= 8 )
     {
-        ext[0] = 'B';  ext[1] = 'I';  ext[2] = 'N';  ext[3] = '\0';
-
-        goto CompleteWithSpaces;
+        // The flag says that 
+        // we're gonna have a new extension.
+        fAddNewExt = TRUE;
+        // Complete the DOS name with spaces. Until 8 bytes.
+        goto CompleteName8WithSpaces;
     }
 
     //if ( name[0] == '.' && ns < 8 )
 
-// Aqui name[0] é o ponto.
+// Aqui name[0] é o ponto. 
+// Mas o nome tem 8 bytes.
 // Então constrói a extensão colocando as letras na extensão.
 
-    for ( i=0; i < 3 && name[i+1]; i++ )
+    for ( i=0; 
+          i<3 && name[i+1]; 
+          i++ )
     {
+        // #ps: name[0] = '.'
+
         //Transforma uma letra da extensão em maiúscula.
- 
-        //if (name[i+1] >= 'a' && name[i+1] <= 'z')
-        //    name[i+1] -= 0x20;
 
-        //ext[i] = name[i+1];
-
-        //#testando
-        //Se não for letra então não colocamos no buffer de extensão;
-        if ( name[i+1] >= 'a' && name[i+1] <= 'z' )
+        // Letras na extensao: 
+        // Mudando as letras para maiusculo.
+        if ( name[i+1] >= 'a' && 
+             name[i+1] <= 'z' )
         {
-            name[i+1] -= 0x20;
-            ext[i] = name[i+1];
+            name[i+1] -= 0x20;   // Change
+            ext[i] = name[i+1];  // Save
+        }
+
+        // Bytes especiais na extensao: 
+        // Colocando os bytes, sem mudar.
+        // Allowed in fat16: $ % ' - _ @ ~ ` ! ( ) { } ^ # &
+                
+        if ( name[i+1] == '$' ||
+             name[i+1] == '%' ||
+             name[i+1] == '-' ||
+             name[i+1] == '_' ||
+             name[i+1] == '(' ||
+             name[i+1] == ')' ||
+             name[i+1] == '{' ||
+             name[i+1] == '}'  )
+        {
+            ext[i] = name[i+1];  // Save
+        }
+
+        // Se a extensao tiver numeros.
+        if  ( name[i+1] >= '0' &&
+              name[i+1] <= '9' ) 
+        {
+            ext[i] = name[i+1];  // Save
+        }
+        
+        // E se tiver um 0x00 entre os bytes da extensao?
+        // Mas a extensao tinha um ponto.
+        if ( name[i+1] == 0x00 )
+        {
+            fAddNewExt = FALSE;
+            goto CompleteName8WithSpaces;
         }
     };
 
@@ -3470,16 +3535,45 @@ void fs_fntos(char *name)
 // Acrescentamos a extensão
 // Finalizamos.
 
-CompleteWithSpaces:
- 
+CompleteName8WithSpaces:
+
+// Save some spaces in the name until 8 bytes.
     while (ns < 8)
     {
         *name++ = ' ';
         ns++;
     };
 
-    for (i=0; i < 3; i++){  
-        *name++ = ext[i];  
+// Add extension.
+AddExt:
+
+// Prepare a new extension if it is the case.
+    if (fAddNewExt == TRUE)
+    {
+        // Pre-load the new extension bytes.
+        ext[0] = 'B';  
+        ext[1] = 'I';  
+        ext[2] = 'N';  
+        ext[3] = '\0';
+    }
+
+// Save extension bytes.
+    for (i=0; i<3; i++)
+    {
+        // No caso de extensoes com 3 bytes
+        // copiamos todos os bytes.
+        if ( ext[i] != 0x00 )
+        {
+            *name++ = ext[i];  
+        }
+        
+        // No caso das extensoes com menos bytes,
+        // o buffer pode ter 0x00.
+        // No lugar no 0x00 colocaremos ' '.
+        if ( ext[i] == 0x00 )
+        {
+            *name++ = ' ';  
+        }
     };
 
     *name = '\0';

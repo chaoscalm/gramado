@@ -15,24 +15,24 @@ unsigned short file_cluster_list[MAX_CLUSTERS];
  * search_in_dir:
  *    Procura por um arquivo, dado o endereço do diretório, 
  * com o diretório já carregado na memória.
- *   file_name: Nome do arquivo.
- *     address: Endereço na memória onde o diretório está.
  * #todo: 
  *    Atender à especificações do sistemas de arquivos, como:
  *    +Tamanho do cluster
  *    +Tamanho do disco
  *    +Tipo de sistema de arquivos. 
- */ 
+ */
 // #todo
 // We need to search in the file table first of all.
 // The structure found there will give us the inode structure pointer.
-// IN:
-// File name. "12345678XYZ"
-// Address of the directory.
-// OUT:
-// 1 = Found.
 // #todo
 // Is it a virtual address? change to dir_va in this case.
+// ---------------
+// IN:
+// + File name. (Upper case, no point) "12345678XYZ"
+// + Address of the directory.
+// ---------------
+// OUT:
+// 1 = Found.
 
 int 
 search_in_dir ( 
@@ -218,8 +218,8 @@ search_in_dir (
     };
 
 fail:
-    debug_print("search_in_dir: Not found $\n");
-    printf("search_in_dir: File not found\n");
+    debug_print("search_in_dir: Not found\n");
+    printf     ("search_in_dir: Not found %s\n",Name_Desired);
     // return FALSE;
     return (int) -1;
 }
