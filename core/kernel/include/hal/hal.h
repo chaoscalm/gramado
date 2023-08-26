@@ -1,8 +1,8 @@
 
 // hal.h
 
-#ifndef ____HAL_H
-#define ____HAL_H    1
+#ifndef __HAL_HAL_H
+#define __HAL_HAL_H    1
 
 //#todo: This is a fs thing.
 #define PARTITION_BOOT_FLAG  0x80
@@ -33,25 +33,21 @@ extern unsigned long g_machine_type;
 //  VECTORS 
 //  (isr and irq address)
 
+// #todo: Oh boy, oh boy!
 // Endereços das rotinas básicas chamadas pelos vetores de interrupções.
 // Essas rotinas devem chamar seus handlers específicos.
 // 256 interrupções
 unsigned long VECTORS[256];
 
-
-//
 // HANDLERS 
 // (callbacks??) 
-//
 
-
+// #todo: Oh boy, oh boy!
 // Endereços para as rotinas em C que tratam as interrupções.
 // Essas rotinas rodam depois da rotina básica em assembly.
 // 256 interrupções
 // 8 extras para handlers default.
-
 unsigned long HANDLERS[256+8];
-
 
 /*
 // Estrutura para informações sobre a placa mãe.  
@@ -61,7 +57,6 @@ struct motherboard_d
     //...
 };  
 */
-
 
 /*
 // Estrutura de disco. 
@@ -132,8 +127,8 @@ void hal_speaker_off(void);
 // Testando o beep;
 void hal_test_speaker(void);
 
-int hal_hardware_detect (void);
-void init_cpu (void);
+int hal_hardware_detect(void);
+void init_cpu(void);
 
 int halInitialize(void);
 

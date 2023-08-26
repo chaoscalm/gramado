@@ -1,5 +1,9 @@
 
 // grinput.c - Gramado input.
+// This is an in-kernel input event handler.
+// PS2 keyboard, PS2 mouse and pit timer events goes here.
+// see: wmKeyEvent, wmMouseEvent and wmTimerEvent.
+
 // This is the interface for the keyboard and mouse devices.
 // The input events for these devices goes here
 // and then they are send to the event queue in the 
@@ -344,6 +348,7 @@ wmKeyEvent(
 
 //==============
 // [event block]
+    //struct input_block_d input_block;
     int           Event_Message       = 0;  //arg2 - message number
     unsigned long Event_LongASCIICode = 0;  //arg3 - ascii code (vk)
     unsigned long Event_LongRawByte   = 0;  //arg4 - raw byte

@@ -152,8 +152,6 @@ struct entry_processor_d
     //uint64_t reserved;
 };
 
-
-
 /*
 // # size: 8 bytes
 struct entry_io_apic_d 
@@ -167,7 +165,6 @@ struct entry_io_apic_d
 };
 */
 
-
 struct smp_info_d
 {
     int initialized;
@@ -178,7 +175,7 @@ struct smp_info_d
     unsigned int number_of_processors;
 };
 // see: x64.c
-extern struct smp_info_d smp_info;
+extern struct smp_info_d  smp_info;
 
 //
 // prototypes ==========
@@ -190,10 +187,8 @@ int x64_probe_smp_via_acpi(void);
 
 #endif   
 
-
-
 //
-// End.
+// End
 //
 
 

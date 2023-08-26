@@ -7,7 +7,6 @@
 // https://en.wikipedia.org/wiki/Uniprocessor_system
 // ...
 
-
 #ifndef ____UP_H
 #define ____UP_H    1
 
@@ -18,5 +17,4 @@ extern struct UPProcessorBlock_d  UPProcessorBlock;
 
 
 #endif   
-
 

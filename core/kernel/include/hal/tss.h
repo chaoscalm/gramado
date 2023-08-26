@@ -31,10 +31,11 @@ typedef struct tss_d {
     unsigned short reserved4;
     unsigned short IOPB_offset;
 
-}__attribute__((packed)) tagTSS;
+} __attribute__((packed)) tagTSS;
 
+// #todo
+// Put this in tss.c and put here an external reference.
 struct tss_d  *CurrentTSS;
-
 
 /*
  * I/O bitmap offset beyond TSS's segment limit means no bitmaps.
@@ -54,13 +55,11 @@ struct tss_d  *CurrentTSS;
 //
 
 void 
-tss_init ( 
+tss_init( 
     struct tss_d *tss, 
     void *stack_address );
 
-void x64_load_ltr (int tr);
+void x64_load_ltr(int tr);
 
 #endif    
-
-
 

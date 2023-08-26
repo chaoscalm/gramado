@@ -2,8 +2,8 @@
 // pci.h
 // pci bus support.
 
-#ifndef __PCI_H
-#define __PCI_H    1
+#ifndef __HAL_PCI_H
+#define __HAL_PCI_H    1
 
 /*
  * PCI Configuration Space Header:
@@ -102,8 +102,7 @@ The bottom two bits are reserved and should be masked before
 the Pointer is used to access the Configuration Space.
  
 */ 
- 
- 
+
 /*
     PCI i/o port:
     ============ 
@@ -117,12 +116,12 @@ the Pointer is used to access the Configuration Space.
     Most modern PCI devices will use memory-mapped I/O.  
 	MMIO address are mapped at boot-time by the BIOS, 
 	and are readable from PCI config space.
-	
+
 	PCI Address Domain:
 	==================
 	The PCI address domain consists of three distinct address spaces: 
 	configuration, memory, and I/O space.
-	
+
     Base address Registers (or BARs) can be used to 
 	hold memory addresses used by the device, or 
 	offsets for port addresses. 
@@ -130,8 +129,7 @@ the Pointer is used to access the Configuration Space.
 	while I/O space BARs can reside at any memory address 
 	(even beyond physical memory).`
  */
- 
- 
+
 //Find an AHCI controller:
 //========================
 //An AHCI controller can be found by enumerating the PCI bus. It has a 
@@ -148,15 +146,10 @@ the Pointer is used to access the Configuration Space.
 //registers act same as a traditional IDE controller. Some AHCI 
 //controller can be configured to simulate a legacy IDE one.
 
-
-
- 
-//
 // list: 
 // vendor 0x10EC Realtek Semiconductor Corp.
 // Vendor: pci 0x1969 "Atheros Communications Inc."
 // Device: pci 0xe0a1
-//
 //
 // 8086, 1237  //PCI & Memory.
 // 8086, 7000  //PIIX3 PCI-to-ISA Bridge (Triton II).
@@ -176,8 +169,6 @@ the Pointer is used to access the Configuration Space.
 // 0x106b	0x003f	"ohci-hcd"	"Apple Computer Inc.|KeyLargo/Intrepid USB"
 //  
 
-
-
 // VIA CN896 - North bridge.
 // 1106 c364 CN896/VN896/P4M900 PCI to PCI Bridge Controller
 // 1106 7364 CN896/VN896/P4M900 Host Bridge
@@ -192,8 +183,9 @@ the Pointer is used to access the Configuration Space.
 // 1106 5372  VT8237/8251 Serial ATA Controller
 // 1106 0591  VT8237A SATA 2-Port Controller
 
-//1106	VIA Technologies, Inc.	0571	VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE
-
+// 1106 VIA Technologies, 
+//      Inc. 0571 
+//      VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE
 
 //
 //0x27B9, Intel(R) ICH7M/U LPC Interface Controller	0x8086.
@@ -233,15 +225,13 @@ Class Description
 // Building a 32bit value given the elements.
 // Used in atapci.c
 #define __PCI_CONFIG_ADDR(bus,device,fn,offset)\
-                       (\
-                       (((uint32_t)(bus) &0xff) << 16)|\
-                       (((uint32_t)(device) &0x3f) << 11)|\
-                       (((uint32_t)(fn) &0x07) << 8)|\
-                       ((uint32_t)(offset) &0xfc)|0x80000000)
+            (\
+            (((uint32_t)(bus) &0xff) << 16)|\
+            (((uint32_t)(device) &0x3f) << 11)|\
+            (((uint32_t)(fn) &0x07) << 8)|\
+            ((uint32_t)(offset) &0xfc)|0x80000000)
 
 //------------------------------------------------------
-
-                       
 
 // Ports
 #define PCI_PORT_ADDR     0xCF8
@@ -250,15 +240,15 @@ Class Description
 #define PCI_DATA_PORT     0x0CFC
 
 // Header Type
-#define PCI_TYPE_MULTIFUNC         0x80
-#define PCI_TYPE_GENERIC           0x00
-#define PCI_TYPE_PCI_BRIDGE        0x01
-#define PCI_TYPE_CARDBUS_BRIDGE    0x02
+#define PCI_TYPE_GENERIC         0x00
+#define PCI_TYPE_PCI_BRIDGE      0x01
+#define PCI_TYPE_CARDBUS_BRIDGE  0x02
+#define PCI_TYPE_MULTIFUNC       0x80
 
 // BDF
-#define PCI_MAX_BUSES        0xFF
-#define PCI_MAX_DEVICES      32
-#define PCI_MAX_FUNCTIONS    8
+#define PCI_MAX_BUSES      0xFF
+#define PCI_MAX_DEVICES    32
+#define PCI_MAX_FUNCTIONS  8
 
 #define PCI_INVALID_VENDORID  0xFFFF
 
@@ -402,7 +392,6 @@ Class Code	Description
 //0x10de:0x0422:NVIDIA Corporation:G86 [GeForce 8400 GS]
 //0x2668	82801FB (ICH6) High Definition Audio Controller	0x8086	Intel Corporation
 
-
 // 
 // Class Codes
 //
@@ -429,7 +418,7 @@ Class Code	Description
 //#define PCI_CLASSCODE_MISC   0xFF //Device does not fit any of the defined class codes.
 
 // Class Code Register:
-//Class Code	            Sub-Class Code	        Prog. I/F
+//Class Code          Sub-Class Code            Prog. I/F
 //23..................16	15..................8	7..................0
 
 //
@@ -437,8 +426,8 @@ Class Code	Description
 //
 
 //0
-#define PCI_SUBCLASS_NONVGA 0    //Non-VGA unclassified device.
-#define PCI_SUBCLASS_VGA    1    //VGA compatible unclassified device.
+#define PCI_SUBCLASS_NONVGA  0  //Non-VGA unclassified device.
+#define PCI_SUBCLASS_VGA     1  //VGA compatible unclassified device.
 
 //1
 #define PCI_SUBCLASS_SCSI        0     //SCSI storage controller.
@@ -453,57 +442,57 @@ Class Code	Description
 #define PCI_SUBCLASS_MASS        0x80  //Mass storage controller.
 
 //2
-#define PCI_SUBCLASS_ETHERNET   0     //Ethernet controller.
-#define PCI_SUBCLASS_TRN        0x01  //Token ring network controller.
-#define PCI_SUBCLASS_FDDI       0x02  //FDDI network controller.
-#define PCI_SUBCLASS_ATM        0x03  //ATM network controller.
-#define PCI_SUBCLASS_ISDN       0x04  //ISDN controller.
-#define PCI_SUBCLASS_WF         0x05  //WorldFip controller.
-#define PCI_SUBCLASS_PICMG      0x06  //PICMG controller.
-#define PCI_SUBCLASS_INFINIBAND 0x07  //Infiniband controller.
-#define PCI_SUBCLASS_FABRIC     0x08  //Fabric controller.
-#define PCI_SUBCLASS_NETWORK    0x80  //Network controller.
+#define PCI_SUBCLASS_ETHERNET    0     //Ethernet controller
+#define PCI_SUBCLASS_TRN         0x01  //Token ring network controller
+#define PCI_SUBCLASS_FDDI        0x02  //FDDI network controller
+#define PCI_SUBCLASS_ATM         0x03  //ATM network controller
+#define PCI_SUBCLASS_ISDN        0x04  //ISDN controller
+#define PCI_SUBCLASS_WF          0x05  //WorldFip controller
+#define PCI_SUBCLASS_PICMG       0x06  //PICMG controller
+#define PCI_SUBCLASS_INFINIBAND  0x07  //Infiniband controller
+#define PCI_SUBCLASS_FABRIC      0x08  //Fabric controller
+#define PCI_SUBCLASS_NETWORK     0x80  //Network controller
 
 //3
-#define PCI_SUBCLASS_VGACOMPATIBLE 0     //VGA compatible controller.
-#define PCI_SUBCLASS_XGACOMPATIBLE 0x01  //XGA compatible controller.
-#define PCI_SUBCLASS_3D            0x02  //3D controller.
-#define PCI_SUBCLASS_DISPLAY       0x80  //Display controller.
+#define PCI_SUBCLASS_VGACOMPATIBLE  0     //VGA compatible controller
+#define PCI_SUBCLASS_XGACOMPATIBLE  0x01  //XGA compatible controller
+#define PCI_SUBCLASS_3D             0x02  //3D controller
+#define PCI_SUBCLASS_DISPLAY        0x80  //Display controller
 
 //4
-#define PCI_SUBCLASS_MVIDEO      0     //Multimedia video controller.
-#define PCI_SUBCLASS_MAUDIO      0x01   //Multimedia audio controller.
-#define PCI_SUBCLASS_TELEPHONY   0x02   //Computer telephony device.
-#define PCI_SUBCLASS_AUDIO       0x03   //Audio device. 
-#define PCI_SUBCLASS_MULTIMEDIA  0x80  //Multimedia controller.
+#define PCI_SUBCLASS_MVIDEO      0     //Multimedia video controller
+#define PCI_SUBCLASS_MAUDIO      0x01  //Multimedia audio controller
+#define PCI_SUBCLASS_TELEPHONY   0x02  //Computer telephony device
+#define PCI_SUBCLASS_AUDIO       0x03  //Audio device
+#define PCI_SUBCLASS_MULTIMEDIA  0x80  //Multimedia controller
 
 //5
-#define PCI_SUBCLASS_RAM       0     //RAM memory.
-#define PCI_SUBCLASS_FLASH     0x01  //FLASH memory.
-#define PCI_SUBCLASS_MEMORY    0x80  //Memory controller.
+#define PCI_SUBCLASS_RAM     0     //RAM memory
+#define PCI_SUBCLASS_FLASH   0x01  //FLASH memory
+#define PCI_SUBCLASS_MEMORY  0x80  //Memory controller
 
 //6
-#define PCI_SUBCLASS_HOST                0	//Host bridge.	
-#define PCI_SUBCLASS_ISA              0x01	//ISA bridge.	
-#define PCI_SUBCLASS_EISA             0x02	//EISA bridge.	
-#define PCI_SUBCLASS_MICROCHANNEL     0x03	//MicroChannel bridge.	
-#define PCI_SUBCLASS_PCI              0x04	//PCI bridge.	
-#define PCI_SUBCLASS_PCMCIA           0x05	//PCMCIA bridge.	
-#define PCI_SUBCLASS_NUBUS            0x06	//NuBus bridge.	
-#define PCI_SUBCLASS_CARDBUS          0x07	//CardBus bridge.	
-#define PCI_SUBCLASS_RACEWAY          0x08	//RACEway bridge.	
-#define PCI_SUBCLASS_PCITOPCI         0x09	//Semi-transparent PCI-to-PCI bridge.	
-#define PCI_SUBCLASS_INFINIBANDTOPCI  0x0A	//InfiniBand to PCI host bridge.	
-#define PCI_SUBCLASS_BRIDGE           0x80	//Bridge.
+#define PCI_SUBCLASS_HOST             0     //Host bridge
+#define PCI_SUBCLASS_ISA              0x01  //ISA bridge
+#define PCI_SUBCLASS_EISA             0x02  //EISA bridge
+#define PCI_SUBCLASS_MICROCHANNEL     0x03  //MicroChannel bridge
+#define PCI_SUBCLASS_PCI              0x04  //PCI bridge
+#define PCI_SUBCLASS_PCMCIA           0x05  //PCMCIA bridge
+#define PCI_SUBCLASS_NUBUS            0x06  //NuBus bridge
+#define PCI_SUBCLASS_CARDBUS          0x07  //CardBus bridge
+#define PCI_SUBCLASS_RACEWAY          0x08  //RACEway bridge
+#define PCI_SUBCLASS_PCITOPCI         0x09  //Semi-transparent PCI-to-PCI bridge
+#define PCI_SUBCLASS_INFINIBANDTOPCI  0x0A  //InfiniBand to PCI host bridge
+#define PCI_SUBCLASS_BRIDGE           0x80  //Bridge
 
 //7
-#define PCI_SUBCLASS_SERIAL       0       //Serial controller.	
-#define PCI_SUBCLASS_PARALLEL     0x01    //Parallel controller.	
-#define PCI_SUBCLASS_MULTIPORT    0x02	  //Multiport serial controller.	
-#define PCI_SUBCLASS_MODEM        0x03	  //Modem.	
-#define PCI_SUBCLASS_GPIB         0x04	  //GPIB controller.	
-#define PCI_SUBCLASS_SMARDCARD        0x05    //Smard Card controller.	
-#define PCI_SUBCLASS_COMMUNICATION    0x80	  //Communication controller.
+#define PCI_SUBCLASS_SERIAL         0     // Serial controller
+#define PCI_SUBCLASS_PARALLEL       0x01  // Parallel controller
+#define PCI_SUBCLASS_MULTIPORT      0x02  // Multiport serial controller
+#define PCI_SUBCLASS_MODEM          0x03  // Modem
+#define PCI_SUBCLASS_GPIB           0x04  // GPIB controller
+#define PCI_SUBCLASS_SMARDCARD      0x05  // Smard Card controller
+#define PCI_SUBCLASS_COMMUNICATION  0x80  // Communication controller
 
 //8
 #define PCI_SUBCLASS_PIC          0x00
@@ -515,71 +504,71 @@ Class Code	Description
 #define PCI_SUBCLASS_IOMMU        0x06
 
 //9
-#define PCI_SUBCLASS_KEYBOARD     0	      //Keyboard controller.	
-#define PCI_SUBCLASS_DIGPEN       0x01	  //Digitizer Pen.	
-#define PCI_SUBCLASS_MOUSE        0x02	  //Mouse controller.	
-#define PCI_SUBCLASS_SCANNER      0x03	  //Scanner controller.	
-#define PCI_SUBCLASS_GAMEPORT     0x04	  //Gameport controller.	
-#define PCI_SUBCLASS_INPUT        0x80    //Input device controller.
+#define PCI_SUBCLASS_KEYBOARD  0     // Keyboard controller
+#define PCI_SUBCLASS_DIGPEN    0x01  // Digitizer Pen
+#define PCI_SUBCLASS_MOUSE     0x02  // Mouse controller
+#define PCI_SUBCLASS_SCANNER   0x03  // Scanner controller
+#define PCI_SUBCLASS_GAMEPORT  0x04  // Gameport controller
+#define PCI_SUBCLASS_INPUT     0x80  // Input device controller
 
 //A
-#define PCI_SUBCLASS_GDS  0	      //Generic Docking Station.	
-#define PCI_SUBCLASS_DS   0x80    //Docking Station.
+#define PCI_SUBCLASS_GDS  0     // Generic Docking Station
+#define PCI_SUBCLASS_DS   0x80  // Docking Station
 
 //B
-#define PCI_SUBCLASS_386        0       //386.	
-#define PCI_SUBCLASS_486        0x01    //486.	
-#define PCI_SUBCLASS_PENTIUM    0x02	//Pentium.	
-#define PCI_SUBCLASS_ALPHA      0x10	//Alpha.	
-#define PCI_SUBCLASS_POWERPC    0x20	//Power PC.	
-#define PCI_SUBCLASS_MIPS       0x30    //MIPS.	
-#define PCI_SUBCLASS_COPROCESSOR    0x40	//Co-processor.
+#define PCI_SUBCLASS_386          0     // 386
+#define PCI_SUBCLASS_486          0x01  // 486
+#define PCI_SUBCLASS_PENTIUM      0x02  // Pentium
+#define PCI_SUBCLASS_ALPHA        0x10  // Alpha
+#define PCI_SUBCLASS_POWERPC      0x20  // Power PC
+#define PCI_SUBCLASS_MIPS         0x30  // MIPS
+#define PCI_SUBCLASS_COPROCESSOR  0x40  // Co-processor
 
 //C
-#define PCI_SUBCLASS_FW        0	   //FireWire (IEEE 1394).	
-#define PCI_SUBCLASS_ACCESS    0x01    //ACCESS Bus.
-#define PCI_SUBCLASS_SSA       0x02	   //SSA.	
-#define PCI_SUBCLASS_USB       0x03	   //USB controller.	
-#define PCI_SUBCLASS_FIBRE     0x04	   //Fibre Channel.	
-#define PCI_SUBCLASS_SMBUS     0x05	   //SMBus.	
-#define PCI_SUBCLASS_INFINIBAND2   0x06    //InfiniBand.	
-#define PCI_SUBCLASS_IPMI     0x07	  //IPMI SMIC interface.	
-#define PCI_SUBCLASS_SERCOS   0x08	  //SERCOS interface.	
-#define PCI_SUBCLASS_CANBUS   0x09    //CANBUS.
+#define PCI_SUBCLASS_FW           0     // FireWire (IEEE 1394)
+#define PCI_SUBCLASS_ACCESS       0x01  // ACCESS Bus
+#define PCI_SUBCLASS_SSA          0x02  // SSA
+#define PCI_SUBCLASS_USB          0x03  // USB controller
+#define PCI_SUBCLASS_FIBRE        0x04  // Fibre Channel
+#define PCI_SUBCLASS_SMBUS        0x05  // SMBus
+#define PCI_SUBCLASS_INFINIBAND2  0x06  // InfiniBand
+#define PCI_SUBCLASS_IPMI         0x07  // IPMI SMIC interface
+#define PCI_SUBCLASS_SERCOS       0x08  // SERCOS interface
+#define PCI_SUBCLASS_CANBUS       0x09  // CANBUS
 
 //D
-#define PCI_SUBCLASS_IRDA    0	     //IRDA controller.	
-#define PCI_SUBCLASS_CIR     0x01	 //Consumer IR controller.	
-#define PCI_SUBCLASS_RF      0x10    //RF controller.	
-#define PCI_SUBCLASS_BLUETOOTH    0x11    //Bluetooth.	
-#define PCI_SUBCLASS_BROADBAND    0x12	  //Broadband.	
-#define PCI_SUBCLASS_8021A        0x20	  //802.1a controller.	
-#define PCI_SUBCLASS_8021B        0x21	  //802.1b controller.	
-#define PCI_SUBCLASS_WIRELESS     0x80	  //Wireless controller.
+#define PCI_SUBCLASS_IRDA       0     // IRDA controller
+#define PCI_SUBCLASS_CIR        0x01  // Consumer IR controller
+#define PCI_SUBCLASS_RF         0x10  // RF controller
+#define PCI_SUBCLASS_BLUETOOTH  0x11  // Bluetooth
+#define PCI_SUBCLASS_BROADBAND  0x12  // Broadband
+#define PCI_SUBCLASS_8021A      0x20  // 802.1a controller
+#define PCI_SUBCLASS_8021B      0x21  // 802.1b controller
+#define PCI_SUBCLASS_WIRELESS   0x80  // Wireless controller
 
 //E
-#define PCI_SUBCLASS_I2O    0    //I2O.
+#define PCI_SUBCLASS_I2O  0  //I2O.
 
 //F
-#define PCI_SUBCLASS_STV       0x01    //Satellite TV controller.	
-#define PCI_SUBCLASS_SAUDIO    0x02	   //Satellite audio communication controller.	
-#define PCI_SUBCLASS_SVOICE    0x03	   //Satellite voice communication controller.	
-#define PCI_SUBCLASS_SDATACOMMUNICATION    0x04  //Satellite data communication controller.
+#define PCI_SUBCLASS_STV     0x01  // Satellite TV controller.
+#define PCI_SUBCLASS_SAUDIO  0x02  // Satellite audio communication controller.	
+#define PCI_SUBCLASS_SVOICE  0x03  // Satellite voice communication controller.	
+#define PCI_SUBCLASS_SDATACOMMUNICATION  0x04  //Satellite data communication controller.
 
 //0x10
-#define PCI_SUBCLASS_NCENCRYPTION    0	     //Network and computing encryption device.	
-#define PCI_SUBCLASS_EENCRYPTION     0x10	 //Entertainment encryption device.	
-#define PCI_SUBCLASS_ENCRYPTION      0x80    //Encryption controller.
+#define PCI_SUBCLASS_NCENCRYPTION  0     // Network and computing encryption device.	
+#define PCI_SUBCLASS_EENCRYPTION   0x10  // Entertainment encryption device.	
+#define PCI_SUBCLASS_ENCRYPTION    0x80  // Encryption controller.
 
 //0x11
-#define PCI_SUBCLASS_DPIO         0	      //DPIO module.	
-#define PCI_SUBCLASS_PCOUNTERS    0x01    //Performance counters.	
-#define PCI_SUBCLASS_CSYNC  0x10	//Communication synchronizer.	
-#define PCI_SUBCLASS_SPM    0x20	//Signal processing management.	
-#define PCI_SUBCLASS_SPC    0x80	//Signal processing controller.
+#define PCI_SUBCLASS_DPIO       0     // DPIO module.
+#define PCI_SUBCLASS_PCOUNTERS  0x01  // Performance counters.
+#define PCI_SUBCLASS_CSYNC  0x10      // Communication synchronizer.
+#define PCI_SUBCLASS_SPM    0x20      // Signal processing management.
+#define PCI_SUBCLASS_SPC    0x80      // Signal processing controller.
 
 //0x12
-#define PCI_SUBCLASS_PACCEL    0    //Processing accelerators.
+#define PCI_SUBCLASS_PACCEL  0  // Processing accelerators.
 
 //...
 
@@ -625,14 +614,12 @@ Class Code	Description
 // PCI class struct
 //
 /*
-typedef struct pci_class_d pci_class_t;
 struct pci_class_d
 {
-	unsigned long pci_class;
-	unsigned long pci_subclass;
-    char *name;	
+    unsigned long pci_class;
+    unsigned long pci_subclass;
+    char *name;
 };
-pci_class_t *PciClass;
 //
 */
 
@@ -717,6 +704,8 @@ struct pci_device_d
     struct pci_device_d  *next;
 };
 
+// #todo: 
+// Put this in pci.c and create an external refrence here.
 struct pci_device_d  *pci_device;
 struct pci_device_d  *current_pci_device;    //Current.
 //...
@@ -735,25 +724,25 @@ struct pci_d
     struct pci_device_d  *device_list;
 };
 
+// #todo: 
+// Put this in pci.c and create an external refrence here.
 struct pci_d  PCI;
 
 // PCI device list.
 
 #define PCI_DEVICE_LIST_SIZE  128
-
+// #todo: 
+// Put this in pci.c and create an external refrence here.
 unsigned long pcideviceList[PCI_DEVICE_LIST_SIZE];   
 
-
 //
-// DRIVER.
+// DRIVER
 //
 
 /*
  * pci_driver_d:
  *     Estrutura para drivers de dispositivos pci.     
  */
-
-//typedef struct pci_driver_d pci_driver_t;
 struct pci_driver_d
 {
     object_type_t  objectType;
@@ -768,12 +757,11 @@ struct pci_driver_d
 //status do driver de dispositivo.
 //Initialized, ... @todo: Criar enum. pci_device_status_t;
 	//int status;
-	
-	//Nome do driver do dispositivo PCI.
-    const char *name;
 
-	//Pathname para a imagem do driver.
-    const char *pathname;	
+//Nome do driver do dispositivo PCI.
+    const char *name;
+//Pathname para a imagem do driver.
+    const char *pathname;
 	
 	//unsigned long driver_version;
 	
@@ -781,14 +769,12 @@ struct pci_driver_d
 	//unsigned long irq_handler;
 	
 	//
-	// Buffers !!!
+	// Buffers!
 	//
-	
-	//
+
 	// Os endereços de memória encontrados na configuração
 	// de PCI poderão ser salvos aqui.
-	//
-	
+
 	//unsigned long io_buffer_address1;
 	//unsigned long io_buffer_address2;
 	//unsigned long io_buffer_address3;
@@ -809,8 +795,6 @@ struct pci_driver_d
 //Lista de drivers de dispositivos pci.
 //unsigned long pcidriversList[32];
 
-
-
 /*
  * The PCI interface treats multi-function devices as independent
  * devices.  The slot/function address of each device is encoded
@@ -828,8 +812,7 @@ struct pci_driver_d
 
 /* return bus from PCI devid = ((u16)bus_number) << 8) | devfn */
 
-//#define PCI_BUS_NUM(x) (((x) >> 8) & 0xff)
-
+//#define PCI_BUS_NUM(x)  (((x) >> 8) & 0xff)
 
 
 //
@@ -843,7 +826,6 @@ pciConfigReadByte (
     unsigned char slot, 
     unsigned char func, 
     unsigned char offset );
-
 
 // read 16 bits.
 unsigned short 
@@ -880,7 +862,6 @@ pciGetInterruptLine (
     unsigned char bus, 
     unsigned char slot );
 
-
 unsigned char 
 pciGetInterruptPin ( 
     unsigned char bus, 
@@ -916,19 +897,4 @@ pciHandleDevice (
     unsigned char fun );
 
 #endif    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

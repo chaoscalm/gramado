@@ -5,12 +5,10 @@
 #define ____X64GDT_H    1
 
 
-
-
 //#bugbug
 //sei que existe um máximo, mas não sei se existe mínimo.
-//#define	MINGDTSIZ	512
-//#define	MAXGDTSIZ	8192 //??8191 ??? e a NULL ???
+//#define MINGDTSIZ  512
+//#define MAXGDTSIZ  8192 //??8191 ??? e a NULL ???
 //#define MINGDTSIZ       PAGE_SIZE
 //#define MAXGDTSIZ 65536
 //??
@@ -76,7 +74,6 @@
 #define GSEL(s,r)  (((s) << 3) | r)
 
 //---------------------------------------------
-
 
 /*
 // ---------------------------
@@ -161,10 +158,7 @@ extern struct gdt_ptr_d  xxx_gdt_ptr;
 #define SEG_CODE_EXRDC     0x0E // Execute/Read, conforming
 #define SEG_CODE_EXRDCA    0x0F // Execute/Read, conforming, accessed
 
-
-
 // ======================
-
 
 /* 
  * Special pointer which includes the limit: The max bytes
@@ -226,7 +220,6 @@ union descriptor_d {
 } __attribute__((packed));
 */
 
-
 /*
  * region descriptors, 
  * used to load gdt/idt tables before segments yet exist.
@@ -241,15 +234,12 @@ struct region_descriptor_d
 } __attribute__((packed));
 */
 
-
-
-
 //
 // == prototypes ==============
 //
 
 void
-set_gdt_entry ( 
+set_gdt_entry( 
     struct segment_descriptor_d *sd, 
     unsigned int limit,
     unsigned int base,
@@ -262,12 +252,12 @@ set_gdt_entry (
     unsigned char db,   //Sz 
     unsigned char g );
 
-static inline void native_load_gdt (struct gdt_ptr_d *dtr)
+static inline void native_load_gdt(struct gdt_ptr_d *dtr)
 {
     asm volatile ("lgdt %0"::"m" (*dtr));
 }
 
-static inline void native_store_gdt (struct gdt_ptr_d *dtr)
+static inline void native_store_gdt(struct gdt_ptr_d *dtr)
 {
     asm volatile ("sgdt %0":"=m" (*dtr));
 }

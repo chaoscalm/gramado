@@ -1,18 +1,16 @@
 
 // cpu.h
 
-#ifndef ____CPU_H
-#define ____CPU_H    1
+#ifndef __HAL_CPU_H
+#define __HAL_CPU_H    1
 
 // Supported brands.
 #define Processor_NULL   0 
 #define Processor_INTEL  1
 #define Processor_AMD    2
-// ...
-
 // #todo:
 // More brands.
-// #define Processor_ARM   3
+// #define Processor_ARM  3
 //...
 
 // Intel modes.
@@ -27,7 +25,7 @@
 #define IA32_APIC_BASE_MSR_BSP      0x100  // Processor is a BSP
 #define IA32_APIC_BASE_MSR_ENABLE   0x800
 
-#define PROCESSORS_MAX_COUNT 32
+#define PROCESSORS_MAX_COUNT  32
 
 // see: hal.c
 extern int processors_count;
@@ -46,9 +44,10 @@ struct processor_d
 {
     object_type_t   objectType;
     object_class_t  objectClass;
+
+    int id;
     int used;
     int magic;
-    int id;
 
 // #todo: 
 // Processor State ???
@@ -171,7 +170,6 @@ struct processor_d
     unsigned long Idt;
     unsigned long Tss;
 
-
 //
 // Threads
 //
@@ -196,7 +194,6 @@ extern struct processor_d  *processor;
 
 // List of processors.
 //unsigned long processorsList[PROCESSORS_MAX_COUNT];
-
 
 
 /*
@@ -247,10 +244,9 @@ extern struct UPProcessorBlock_d  UPProcessorBlock;
 // == prototypes ===========================================
 //
 
-
 // MSR support.
 
-int cpuHasMSR (void);
+int cpuHasMSR(void);
 void cpuGetMSR(unsigned int msr, unsigned int *lo, unsigned int *hi);
 void cpuSetMSR(unsigned int msr, unsigned int lo, unsigned int hi);
 

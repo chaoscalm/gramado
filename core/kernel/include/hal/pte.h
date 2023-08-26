@@ -177,11 +177,11 @@
  * here we define the data types for PDEs and PTEs
  */
 #ifdef PAE
-typedef uint64_t pd_entry_t;		/* PDE */
-typedef uint64_t pt_entry_t;		/* PTE */
+typedef uint64_t  pd_entry_t;  /* PDE */
+typedef uint64_t  pt_entry_t;  /* PTE */
 #else
-typedef uint32_t pd_entry_t;		/* PDE */
-typedef uint32_t pt_entry_t;		/* PTE */
+typedef uint32_t  pd_entry_t;  /* PDE */
+typedef uint32_t  pt_entry_t;  /* PTE */
 #endif
 
 #endif
@@ -211,8 +211,8 @@ typedef uint32_t pt_entry_t;		/* PTE */
 #define	PG_LGFRAME	0x000fffffffe00000ULL /* large (2MB) page frame mask */
 
 /* macros to get real L2 and L3 index, from our "extended" L2 index */
-#define l2tol3(idx)	((idx) >> (L3_SHIFT - L2_SHIFT))
-#define l2tol2(idx)	((idx) & (L2_REALMASK >>  L2_SHIFT))
+#define l2tol3(idx)  ((idx) >> (L3_SHIFT - L2_SHIFT))
+#define l2tol2(idx)  ((idx) & (L2_REALMASK >>  L2_SHIFT))
 
 #else /* PAE */
 
@@ -221,14 +221,14 @@ typedef uint32_t pt_entry_t;		/* PTE */
 #define	NBPD_L1		(1UL << L1_SHIFT) /* # bytes mapped by L1 ent (4K) */
 #define	NBPD_L2		(1UL << L2_SHIFT) /* # bytes mapped by L2 ent (4MB) */
 
-#define L2_MASK		0xffc00000
-#define L1_MASK		0x003ff000
+#define L2_MASK  0xffc00000
+#define L1_MASK  0x003ff000
 
-#define L2_FRAME	(L2_MASK)
-#define L1_FRAME	(L2_FRAME|L1_MASK)
+#define L2_FRAME  (L2_MASK)
+#define L1_FRAME  (L2_FRAME|L1_MASK)
 
-#define	PG_FRAME	0xfffff000	/* page frame mask */
-#define	PG_LGFRAME	0xffc00000	/* large (4MB) page frame mask */
+#define PG_FRAME    0xfffff000  /* page frame mask */
+#define PG_LGFRAME  0xffc00000  /* large (4MB) page frame mask */
 
 #endif /* PAE */
 /*
@@ -237,15 +237,15 @@ typedef uint32_t pt_entry_t;		/* PTE */
  * XXXCDC: need to rename these (PG_u == ugly).
  */
 
-#define	PG_V		0x00000001	/* valid entry */
-#define	PG_RO		0x00000000	/* read-only page */
-#define	PG_RW		0x00000002	/* read-write page */
-#define	PG_u		0x00000004	/* user accessible page */
-#define	PG_PROT		0x00000806	/* all protection bits */
+#define PG_V		0x00000001	/* valid entry */
+#define PG_RO		0x00000000	/* read-only page */
+#define PG_RW		0x00000002	/* read-write page */
+#define PG_u		0x00000004	/* user accessible page */
+#define PG_PROT		0x00000806	/* all protection bits */
 #define PG_WT		0x00000008	/* write through */
-#define	PG_N		0x00000010	/* non-cacheable */
-#define	PG_U		0x00000020	/* has been used */
-#define	PG_M		0x00000040	/* has been modified */
+#define PG_N		0x00000010	/* non-cacheable */
+#define PG_U		0x00000020	/* has been used */
+#define PG_M		0x00000040	/* has been modified */
 #define PG_PAT		0x00000080	/* PAT (on pte) */
 #define PG_PS		0x00000080	/* 4MB page size (2MB for PAE) */
 #define PG_G		0x00000100	/* global, don't TLB flush */
@@ -258,20 +258,17 @@ typedef uint32_t pt_entry_t;		/* PTE */
  * various short-hand protection codes
  */
 
-#define	PG_KR		0x00000000	/* kernel read-only */
-#define	PG_KW		0x00000002	/* kernel read-write */
+#define PG_KR  0x00000000	/* kernel read-only */
+#define PG_KW  0x00000002	/* kernel read-write */
 
 #ifdef PAE
-#define	PG_NX		0x8000000000000000ULL /* No-execute */
+#define PG_NX  0x8000000000000000ULL /* No-execute */
 #else
-#define	PG_NX		0		/* dummy */
+#define PG_NX  0		/* dummy */
 #endif
 
 //parceira.
 //#include <kernel/gramado/hal/arch/x86/pte.h>
 
 #endif /* _I386_PTE_H_ */
-
-
-
 

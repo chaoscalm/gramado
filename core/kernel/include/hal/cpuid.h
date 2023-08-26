@@ -4,21 +4,22 @@
 // https://en.wikipedia.org/wiki/CPUID
 // https://wiki.osdev.org/CPUID
 
-#ifndef ____CPUID_H
-#define ____CPUID_H    1
+#ifndef __HAL_CPUID_H
+#define __HAL_CPUID_H    1
 
-
-// cpuid.
+// cpuid macro.
 #define cpuid( in, a, b, c, d)\
     asm ("cpuid": "=a" (a), "=b" (b), "=c" (c), "=d" (d) : "a" (in));
 
+//#define CPUID  cpuid
+
 
 // Vendor Strings. 
-#define CPUID_VENDOR_INTEL         "GenuineIntel"  // Intel.
-#define CPUID_VENDOR_AMD           "AuthenticAMD"  // AMD.
-#define CPUID_VENDOR_OLDAMD        "AMDisbetter!"  // AMD.
-#define CPUID_VENDOR_VIA           "CentaurHauls"  // VIA.
-#define CPUID_VENDOR_SIS           "SiS SiS SiS "  // SIS.
+#define CPUID_VENDOR_INTEL         "GenuineIntel"  // Intel
+#define CPUID_VENDOR_AMD           "AuthenticAMD"  // AMD
+#define CPUID_VENDOR_OLDAMD        "AMDisbetter!"  // AMD
+#define CPUID_VENDOR_VIA           "CentaurHauls"  // VIA
+#define CPUID_VENDOR_SIS           "SiS SiS SiS "  // SIS
 #define CPUID_VENDOR_OLDTRANSMETA  "TransmetaCPU"
 #define CPUID_VENDOR_TRANSMETA     "GenuineTMx86"
 #define CPUID_VENDOR_CYRIX         "CyrixInstead"
@@ -165,6 +166,6 @@ enum {
 #define  CPUID_FEAT_EDX_IA64         (1 << 30)
 #define  CPUID_FEAT_EDX_PBE          (1 << 31)
 
-#endif    // ____CPUID_H 
+#endif    // __HAL_CPUID_H 
 
 

@@ -27,8 +27,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____CPUTYPES_H
-#define ____CPUTYPES_H    1
+#ifndef __HAL_CPUTYPES_H
+#define __HAL_CPUTYPES_H    1
 
 /*
  * Classes of Processor. CPU identification code depends on
@@ -46,14 +46,14 @@
  * that might not have a cpuid instruction.
  */
 
-#define	CPU_386SX	0	/* Intel 80386SX */
-#define	CPU_386		1	/* Intel 80386DX */
-#define	CPU_486SX	2	/* Intel 80486SX */
-#define	CPU_486		3	/* Intel 80486DX */
-#define	CPU_486DLC	4	/* Cyrix 486DLC */
+#define CPU_386SX	0	/* Intel 80386SX */
+#define CPU_386		1	/* Intel 80386DX */
+#define CPU_486SX	2	/* Intel 80486SX */
+#define CPU_486		3	/* Intel 80486DX */
+#define CPU_486DLC	4	/* Cyrix 486DLC */
 #define CPU_6x86	5	/* Cyrix/IBM 6x86 */
 #define CPU_NX586	6	/* NexGen 586 */
-#define	CPU_586		7	/* Intel P.....m (I hate lawyers; it's TM) */
+#define CPU_586		7	/* Intel P.....m (I hate lawyers; it's TM) */
 #define CPU_AM586	8	/* AMD Am486 and Am5x86 */
 #define CPU_K5		9	/* AMD K5 */
 #define CPU_K6		10	/* NexGen 686 aka AMD K6 */
@@ -78,9 +78,9 @@
  * Some other defines, dealing with values returned by cpuid.
  */
 
-#define  CPU_MINFAMILY   4  /* Lowest that cpuid can return (486) */
-#define  CPU_MAXFAMILY   7  /* Highest consecutive # we know (fake P4) */
-#define  CPU_FAMILY_P4  15  /* Family number for Pentium 4 */
+#define CPU_MINFAMILY   4  /* Lowest that cpuid can return (486) */
+#define CPU_MAXFAMILY   7  /* Highest consecutive # we know (fake P4) */
+#define CPU_FAMILY_P4  15  /* Family number for Pentium 4 */
 
 #endif   
 
