@@ -626,6 +626,37 @@ fsSaveFile (
     char *file_address,
     char flag );
 
+
+//
+// Read from disk.
+//
+
+// Worker
+int 
+do_read_file_from_disk ( 
+    char *file_name, 
+    int flags, 
+    mode_t mode );
+// Wrapper
+int 
+sys_read_file_from_disk ( 
+    char *file_name, 
+    int flags, 
+    mode_t mode );
+
+//
+// Write to file.
+//
+
+// Worker
+int
+do_write_file_to_disk ( 
+    char *file_name, 
+    unsigned long file_size,
+    unsigned long size_in_bytes,
+    char *file_address,
+    char flag );
+// Wrapper
 int
 sys_write_file_to_disk ( 
     char *file_name, 
@@ -634,11 +665,6 @@ sys_write_file_to_disk (
     char *file_address,
     char flag );
 
-int 
-sys_read_file_from_disk ( 
-    char *file_name, 
-    int flags, 
-    mode_t mode );
 
 int sys_create_empty_file ( char *file_name );
 int sys_create_empty_directory ( char *dir_name );

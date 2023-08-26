@@ -1373,7 +1373,7 @@ sys_open (
     char pathname_local_copy[256];
     memset(pathname_local_copy,0,256);
     // Coping more than we need, 
-    // thia way we're coping the 0x00 byte at the and of string
+    // this way we're coping the 0x00 byte at the and of string
     // and some extra bytes.
     strncpy(pathname_local_copy,pathname,256);
 
@@ -1405,7 +1405,7 @@ sys_open (
 // OUT: fd
 
     value = 
-        (int) sys_read_file_from_disk ( 
+        (int) do_read_file_from_disk ( 
                   (char *) pathname_local_copy, 
                   flags, 
                   mode );
@@ -4454,90 +4454,34 @@ fail:
     //return -1;
 }
 
-/*
- * sys_write_file_to_disk:
- *     Interface para salvar arquivo ou diretório.
- *     Isso pode ser usado para criar um diretório ou 
- * copiar um diretório. 
- */
-// #todo:
-// vamos fazer igual ao sys_read_file 
-// e criarmos opções ... se possível.
-// IN: 
-// name, size in sectors, size in bytes, adress, flag.
-
-int
-sys_write_file_to_disk ( 
-    char *file_name, 
-    unsigned long file_size,
-    unsigned long size_in_bytes,
-    char *file_address,
-    char flag )  
-{
-    int __ret = -1;
-
-    debug_print ("sys_write_file_to_disk:\n");
-
-    if ( (void*) file_name == NULL ){
-        return (int) (-EINVAL);
-    }
-    if ( *file_name == 0 ){
-        return (int) (-EINVAL);
-    }
-
-//++
-// See: sci/fs/write.c
-    //taskswitch_lock ();
-    //scheduler_lock ();
-
-    __ret = 
-        (int) fsSaveFile ( 
-                  VOLUME1_FAT_ADDRESS, 
-                  VOLUME1_ROOTDIR_ADDRESS, 
-                  FAT16_ROOT_ENTRIES,
-                  (char *) file_name,
-                  (unsigned long) file_size,
-                  (unsigned long) size_in_bytes,
-                  (char *) file_address,
-                  (char) flag );
-
-    //scheduler_unlock ();
-    //taskswitch_unlock ();
-//--
-
-    return (int) __ret;
-}
 
 
 /*
- * sys_read_file_from_disk: 
- *     This is called by sys_open().
+ * do_read_file_from_disk: 
+ *     This is called by sys_open() and sys_read_file_from_disk().
  */
-// usada por open()
-// tem que retornar o fd e colocar o ponteiro na lista de arquivos
-// abertos.
+// Usada por open().
+// Tem que retornar o fd e colocar o ponteiro na lista de arquivos abertos.
 // Carrega um arquivo do disco para a memoria.
-// funcionou.
 // #bugbug
-// Na minha m�quina real, �s vezes d� problemas no tamanho do arquivo.
+// Na minha maquina real, as vezes da problema no tamanho do arquivo.
 // #bugbug
-// Estamos alocando mem�ria em ring para carregar o arquivo
-// e depois estamos usando o buffer em ring3 passado pelo usu�rio.
-// >>> vamos confiar no usu�rio e usarmos
-// #bugbug
-// precisamos colocar os arquivos também na lista
-// global de arquivos abertos. file_table[]
+// Precisamos colocar os arquivos também na 
+// lista global de arquivos abertos. file_table[]
 // E na lista de inodes. inode_table[]
-// See: fs.c
 // #bugbug
-// Nao seria o read() usado para ler um arquivo ja aberto ??
-// sim. a rotina de suporte para read esta em sys_read e 
-// nao chama essa aqui.
-// essa aqui poderia ter outro nome, pois ela carrega um arquivo
-// poderia chamar-se load.
-
+// Nao seria o read() usado para ler um arquivo ja aberto?
+// Sim, a rotina de suporte para read esta em sys_read e 
+// nao chama esse worker aqui.
+// #todo:
+// Essa aqui poderia ter outro nome, pois ela carrega um arquivo
+// poderia chamar-se loadxxxx().
+// See: fs.c
+// IN:
+//   + #todo
+// Worker
 int 
-sys_read_file_from_disk ( 
+do_read_file_from_disk ( 
     char *file_name, 
     int flags, 
     mode_t mode )
@@ -4550,7 +4494,7 @@ sys_read_file_from_disk (
 
     size_t FileSize = -1;
     struct process_d *p;
-    int __slot = -1;  // ofd.
+    int __slot = -1;  // o fd.
     void *buff;
 
 // For now we're just able to get files and info
@@ -4559,7 +4503,7 @@ sys_read_file_from_disk (
     unsigned long TargetDirAddress = VOLUME1_ROOTDIR_ADDRESS;
     unsigned long NumberOfEntries = FAT16_ROOT_ENTRIES;
 
-    // debug_print ("sys_read_file_from_disk: $\n");
+    // debug_print ("do_read_file_from_disk: $\n");
 
 // filename
     if ((void*) file_name == NULL){
@@ -4596,11 +4540,11 @@ sys_read_file_from_disk (
     if (*file_name == '#')
     {
         if (sdPROGRAMS.initialized != TRUE){
-            printf("sys_read_file_from_disk: sdPROGRAMS.initialized\n");
+            printf("do_read_file_from_disk: sdPROGRAMS.initialized\n");
             goto fail;
         }
         if (sdPROGRAMS.address == 0){
-            printf("sys_read_file_from_disk: sdPROGRAMS.address\n");
+            printf("do_read_file_from_disk: sdPROGRAMS.address\n");
             goto fail;
         }
         TargetDirAddress = sdPROGRAMS.address;
@@ -4617,7 +4561,7 @@ sys_read_file_from_disk (
 
 // #debug
 
-    //printf ("sys_read_file_from_disk: FILE={%s}\n",
+    //printf ("do_read_file_from_disk: FILE={%s}\n",
     //    file_name);
     //refresh_screen();
 
@@ -4646,21 +4590,21 @@ sys_read_file_from_disk (
     if (Status != TRUE)
     {
          //#debug
-        printf ("sys_read_file_from_disk: [FIXME] File not found!\n");
+        printf ("do_read_file_from_disk: [FIXME] File not found!\n");
         //refresh_screen();
 
         // Create a new one.
         // #todo: Use sys_create_empty_file.
         if (flags & O_CREAT)
         {
-            debug_print ("sys_read_file_from_disk: [O_CREAT] Creating a new file\n"); 
+            debug_print ("do_read_file_from_disk: [O_CREAT] Creating a new file\n"); 
 
             // #todo:
             // Define the default value for this case.
             buff = (void*) kmalloc(BUFSIZ);
             if ((void*) buff == NULL)
             {
-                printf("sys_read_file_from_disk: buff\n");
+                printf("do_read_file_from_disk: buff\n");
                 goto fail;
             }
             memset(buff,0,BUFSIZ);
@@ -4682,13 +4626,13 @@ sys_read_file_from_disk (
 
               // Ok
               if (__ret == 0){
-                  debug_print("sys_read_file_from_disk: Created new file\n");
+                  debug_print("do_read_file_from_disk: Created new file\n");
                   //refresh_screen();
                   goto __go;
               }
          }
 
-         printf("sys_read_file_from_disk: [FIXME] Can't create new file\n");
+         printf("do_read_file_from_disk: [FIXME] Can't create new file\n");
          goto fail;
     }
 
@@ -4697,11 +4641,11 @@ __go:
 // Process
     p = (struct process_d *) get_current_process_pointer();
     if ( (void *) p == NULL ){
-        printf("sys_read_file_from_disk: p\n");
+        printf("do_read_file_from_disk: p\n");
         goto fail;
     }
     if ( p->used != TRUE || p->magic != 1234 ){
-        printf("sys_read_file_from_disk: p validation\n");
+        printf("do_read_file_from_disk: p validation\n");
         goto fail;
     }
 
@@ -4712,22 +4656,22 @@ __go:
     };
 
 // fail
-    //panic ("sys_read_file_from_disk: No slots!\n");
-    printf("sys_read_file_from_disk: No slots!\n");
+    //panic ("do_read_file_from_disk: No slots!\n");
+    printf("do_read_file_from_disk: No slots!\n");
     goto fail;
 
 // Slot found.
 __OK:
 
     if ( __slot < 0 || __slot >= 32 ){
-        printf ("sys_read_file_from_disk: Slot fail\n");
+        printf ("do_read_file_from_disk: Slot fail\n");
         goto fail;
     }
 
 // File struct
     fp = (file *) kmalloc( sizeof(file) );
     if ( (void *) fp == NULL ){
-        printf ("sys_read_file_from_disk: fp\n");
+        printf ("do_read_file_from_disk: fp\n");
         goto fail;
     }
 
@@ -4800,7 +4744,7 @@ __OK:
 
     fp->_base = (char *) kmalloc(BUFSIZ);
     if ( (void *) fp->_base == NULL ){
-        printf ("sys_read_file_from_disk: fp->_base\n");
+        printf ("do_read_file_from_disk: fp->_base\n");
         goto fail;
     }
     //#test provisório
@@ -4820,7 +4764,7 @@ __OK:
                       (unsigned long) TargetDirAddress );
 
     if (FileSize <= 0){
-        printf ("sys_read_file_from_disk: FileSize\n");
+        printf ("do_read_file_from_disk: FileSize\n");
         goto fail;
     }
 // Structure field for file size.
@@ -4841,7 +4785,7 @@ __OK:
     if (FileSize >= fp->_lbfsize)
     {
         // #debug
-        printf("sys_read_file_from_disk: [todo] File size out of limits\n");
+        printf("do_read_file_from_disk: [todo] File size out of limits\n");
         //printf("Size {%d}\n",FileSize);
         //goto fail;
 
@@ -4850,7 +4794,7 @@ __OK:
         //if (FileSize > 1024*1024)
         if (FileSize > 8*1024)  //8KB
         {
-            printf ("sys_read_file_from_disk: File size out of limits\n");
+            printf ("do_read_file_from_disk: File size out of limits\n");
             printf ("%d bytes \n",FileSize);
             //refresh_screen();
             return (-1);
@@ -4862,7 +4806,7 @@ __OK:
         fp->_base = (char *) kmalloc(buflen);
         
         if ( (void *) fp->_base == NULL ){
-            printf ("sys_read_file_from_disk: Couldn't create a new buffer\n");
+            printf ("do_read_file_from_disk: Couldn't create a new buffer\n");
             //refresh_screen();
             return -1;             
         }
@@ -4877,7 +4821,7 @@ __OK:
 // Limits - 1MB
     //if (FileSize > 1024*1024)
     //{
-    //    printf ("sys_read_file_from_disk: File size out of limits\n");
+    //    printf ("do_read_file_from_disk: File size out of limits\n");
     //    refresh_screen();
     //    return -1;
     //}
@@ -4886,7 +4830,7 @@ __OK:
 // Checando base novamente.
 
     if ( (void *) fp->_base == NULL ){
-        printf("sys_read_file_from_disk: fp->_base (again)\n");
+        printf("do_read_file_from_disk: fp->_base (again)\n");
         goto fail;
     }
 
@@ -4918,7 +4862,7 @@ __OK:
     //if ( FileSize >= BUFSIZ )
     if (fp->_fsize >= fp->_lbfsize)
     {
-        printf ("sys_read_file_from_disk: the file is larger than the buffer\n");
+        printf ("do_read_file_from_disk: the file is larger than the buffer\n");
         //refresh_screen();
         fp->_r = fp->_lbfsize;
         fp->_w = fp->_lbfsize;
@@ -4942,7 +4886,7 @@ __OK:
                   fp->_lbfsize );
 
     if (Status != 0){
-        printf ("sys_read_file_from_disk: fsLoadFile fail\n");
+        printf ("do_read_file_from_disk: fsLoadFile fail\n");
         goto fail;
     }
     //printf("Loaded ....\n");
@@ -4984,7 +4928,7 @@ __OK:
 
     //if (mode == 0)
     //{
-          debug_print ("sys_read_file_from_disk: default mode\n");
+          debug_print ("do_read_file_from_disk: default mode\n");
           fp->_p = fp->_base;
     //}
 
@@ -5010,12 +4954,12 @@ __OK:
 // The file is opened in append mode. 
 // O offset fica no fim do arquivo.
     if (mode & O_APPEND){
-        debug_print ("sys_read_file_from_disk: O_APPEND\n");
+        debug_print ("do_read_file_from_disk: O_APPEND\n");
         //fp->_p = fp->_base + s;
     }
 
     if (mode & O_ASYNC){
-         debug_print ("sys_read_file_from_disk: O_ASYNC\n");
+         debug_print ("do_read_file_from_disk: O_ASYNC\n");
     }
 
 /* 
@@ -5026,7 +4970,7 @@ __OK:
  */
 
     if (mode & O_CREAT){
-         debug_print ("sys_read_file_from_disk: O_CREAT\n");
+         debug_print ("do_read_file_from_disk: O_CREAT\n");
     }
 
 // #importante
@@ -5046,7 +4990,7 @@ __OK:
     //#debug
     //printf ("process name: %s\n",p->__processname);
     //printf ("fd %d\n",fp->_file);
-    //printf("sys_read_file_from_disk-OUTPUT: %s \n",fp->_base);
+    //printf("do_read_file_from_disk-OUTPUT: %s \n",fp->_base);
     //refresh_screen();
 
 done:
@@ -5057,6 +5001,138 @@ fail:
     //refresh_screen();
     return -1;
 }
+
+// Wrapper
+int 
+sys_read_file_from_disk ( 
+    char *file_name, 
+    int flags, 
+    mode_t mode )
+{
+
+// Check validation
+    if ((void*) file_name == NULL){
+        return (int) (-EINVAL);
+    }
+    if (*file_name == 0){
+        return (int) (-EINVAL);
+    }
+
+
+//
+// Local copy
+//
+
+    char pathname_local_copy[256];
+    memset(pathname_local_copy,0,256);
+    // Coping more than we need, 
+    // this way we're coping the 0x00 byte at the and of string
+    // and some extra bytes.
+    strncpy(pathname_local_copy,file_name,256);
+
+
+    return (int) do_read_file_from_disk(
+                    (char *) pathname_local_copy,
+                    (int) flags, 
+                    (mode_t) mode );
+}
+
+
+/*
+ * do_write_file_to_disk:
+ *     This is called by sys_write_file_to_disk().
+ *     Interface para salvar arquivo ou diretório.
+ *     Isso pode ser usado para criar um diretório ou 
+ * copiar um diretório. 
+ */
+// #todo:
+// vamos fazer igual ao sys_read_file 
+// e criarmos opções ... se possível.
+// IN: 
+// name, size in sectors, size in bytes, adress, flag.
+
+// Worker
+int
+do_write_file_to_disk ( 
+    char *file_name, 
+    unsigned long file_size,
+    unsigned long size_in_bytes,
+    char *file_address,
+    char flag )  
+{
+    int __ret = -1;
+
+    debug_print ("do_write_file_to_disk:\n");
+
+    if ( (void*) file_name == NULL ){
+        return (int) (-EINVAL);
+    }
+    if ( *file_name == 0 ){
+        return (int) (-EINVAL);
+    }
+
+//++
+// See: sci/fs/write.c
+    //taskswitch_lock ();
+    //scheduler_lock ();
+
+    __ret = 
+        (int) fsSaveFile ( 
+                  VOLUME1_FAT_ADDRESS, 
+                  VOLUME1_ROOTDIR_ADDRESS, 
+                  FAT16_ROOT_ENTRIES,
+                  (char *) file_name,
+                  (unsigned long) file_size,
+                  (unsigned long) size_in_bytes,
+                  (char *) file_address,
+                  (char) flag );
+
+    //scheduler_unlock ();
+    //taskswitch_unlock ();
+//--
+
+    return (int) __ret;
+}
+
+// Wrapper
+int
+sys_write_file_to_disk ( 
+    char *file_name, 
+    unsigned long file_size,
+    unsigned long size_in_bytes,
+    char *file_address,
+    char flag )
+{
+
+// Check validation
+    if ((void*) file_name == NULL){
+        return (int) (-EINVAL);
+    }
+    if (*file_name == 0){
+        return (int) (-EINVAL);
+    }
+
+//
+// Local copy
+//
+
+    char pathname_local_copy[256];
+    memset(pathname_local_copy,0,256);
+    // Coping more than we need, 
+    // this way we're coping the 0x00 byte at the and of string
+    // and some extra bytes.
+    strncpy(pathname_local_copy,file_name,256);
+
+
+    return (int) do_write_file_to_disk(
+                     (char *) pathname_local_copy,
+                     (unsigned long) file_size,
+                     (unsigned long) size_in_bytes,
+                     (char *) file_address,
+                     (char) flag );
+                     
+}
+
 
 // ==============================
 // Service 43
