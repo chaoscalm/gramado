@@ -129,14 +129,14 @@ build-gramado-os:
 	sudo cp kernel/KERNEL.BIN  ../base/GRAMADO
 
 # ::Build the ring0 module image.
-	$(Q)$(MAKE) -C newm0/
+	$(Q)$(MAKE) -C hals/newm0/
 # Copy the ring0 module image.
-	sudo cp newm0/MOD0.BIN  ../base/
+	sudo cp hals/newm0/MOD0.BIN  ../base/
 
 # ::Build the ring0 module image.
-	$(Q)$(MAKE) -C newm1/
+	$(Q)$(MAKE) -C hals/newm1/
 # Copy the ring0 module image.
-	sudo cp newm1/MOD1.BIN  ../base/
+	sudo cp hals/newm1/MOD1.BIN  ../base/
 
 #todo
 # ::Build the ring0 module image.
@@ -295,8 +295,8 @@ clean-all: clean
 # Clear newos kernel image
 	-rm -rf kernel/KERNEL.BIN
 # Clear the ring0 module images
-	-rm -rf newm0/MOD0.BIN
-	-rm -rf newm1/MOD1.BIN
+	-rm -rf hals/newm0/MOD0.BIN
+	-rm -rf hals/newm1/MOD1.BIN
 # Clear the disk cache
 	-rm -rf ../base/*.BIN 
 	-rm -rf ../base/*.BMP
