@@ -3856,7 +3856,6 @@ static int ServerInitialization(int dm)
 
         if (IsAcceptingConnections == TRUE)
         {
-            // (Input port)
             newconn = accept ( 
                 ____saved_server_fd,
                 (struct sockaddr *) &server_address, 
