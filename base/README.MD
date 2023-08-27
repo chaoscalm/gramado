@@ -18,7 +18,10 @@
 
 ## system partition:
 
-    We will create the system partition, it will be formated in the ext2 file system format and it will use lowercase names.
+```
+    We will create the system partition, it will be formated 
+    in the ext2 file system format and it will use lowercase names.
+```
 
 ## Quote
 
