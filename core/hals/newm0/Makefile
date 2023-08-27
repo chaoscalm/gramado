@@ -74,17 +74,17 @@ LIBCOBJ           = ../../../comtier/lib/rtl/obj
 WS_INCLUDES       = include/ 
 WS_INCLUDES_LOCAL = .
 
-
 # Objects
-myObjects = crt0.o main.o    
-
+myObjects = crt0.o ports64.o main.o    
 
 .PHONY: all all-c gws-link finalize clean
 
-all: crt0.o main.o all-c gws-link finalize clean
+all: crt0.o ports64.o main.o all-c gws-link finalize clean
 	@echo "Ok?"
 crt0.o:
 	$(CC)  -c  crt0.c  $(user_ccflags) -I . -o crt0.o
+ports64.o:
+	$(CC)  -c  ports64.c  $(user_ccflags) -I . -o ports64.o
 main.o:
 	$(CC)  -c  main.c  $(user_ccflags) -I . -o main.o
 all-c:

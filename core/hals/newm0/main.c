@@ -31,6 +31,7 @@ caller1(
 
 static inline void do_int3(void);
 static inline void do_hlt(void);
+static void do_reboot(void);
 
 int module_strlen(const char *s);
 void *memset ( void *ptr, int value, int size );
@@ -378,6 +379,29 @@ static inline void do_hlt(void)
     asm ("hlt");
 }
 
+static void do_reboot(void)
+{
+    unsigned char good=0;
+
+    printf ("newm0: do_reboot\n");
+
+// Wait
+    good = 0x02;
+    while (good & 0x02){
+        good = in8(0x64);
+    };
+
+    printf ("newm0: Go!\n");
+    out8(0x64, 0xFE);
+
+//fail:
+    printf ("newm0: Fail\n");
+    while (1){
+        asm (" cli ");
+        do_hlt();
+    };
+}
+
 static void caller0(unsigned long function_address)
 {
     asm ("call *%0" : : "r"(function_address));
@@ -498,6 +522,11 @@ static int newm0_1001(void)
     int value=1234;
     printf("mod0.bin: {%d} Testing printf :)\n",value);
 
+// #testing reboot.
+// ok, it's working.
+    //printf("mod0.bin: Testing reboot via ports\n");
+    //do_reboot();
+
 // Done
     return 0;
 }
@@ -517,6 +546,13 @@ int main( int arc, char *argv[], int reason )
         case 1001:
             return (int) newm0_1001();
             break;
+
+        // #test
+        case 2000:
+            //printf("mod0.bin: Testing reboot via ports\n");
+            //do_reboot();
+            break;
+
         default:
             return -1;
             break;

@@ -9,6 +9,7 @@
 #include "ktypes2.h"
 #include "kstddef.h"
 #include "kstdarg.h"
+#include "ports64.h"
 
 struct module_initialization_d
 {
