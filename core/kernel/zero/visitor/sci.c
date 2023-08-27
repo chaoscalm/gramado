@@ -42,6 +42,114 @@ static void __maximize_ws_priority(pid_t pid);
 
 // =============================
 
+/*
+ * __servicePutChar:
+ * Movendo para terminal/output.c 
+ * Coloca um char usando o 'terminal mode' de stdio selecionado em _outbyte.
+ * stdio_terminalmode_flag = nao transparente.
+ */
+static void __servicePutChar(int c)
+{
+// Put char into the fg console.
+// Local worker.
+
+    if (fg_console < 0){
+        return;
+    }
+    console_putchar ( (int) c, fg_console );
+}
+
+// #todo: Return 'int'.
+void newos_reboot(unsigned long reboot_flags)
+{
+    sys_reboot(reboot_flags);
+}
+
+unsigned long newos_get_system_metrics(int index)
+{
+    if (index<0){
+        return 0;
+    }
+    return (unsigned long) doGetSystemMetrics ( (int) index );
+}
+
+pid_t newos_getpid(void)
+{
+    return (pid_t) sys_getpid();
+}
+
+// REAL (coloca a thread em standby para executar pela primeira vez.)
+// MOVEMENT 1 (Initialized --> Standby).
+int newos_start_thread(struct thread_d *thread)
+{
+
+// Validation
+    if ((void*) thread == NULL)
+        return (-1);
+    if (thread->used != TRUE)
+        return (-1);
+    if (thread->magic != 1234)
+        return (-1);
+
+    SelectForExecution( (struct thread_d *) thread );
+    return 0;
+}
+
+int newos_get_current_runlevel(void)
+{
+    return (int) current_runlevel;
+}
+
+unsigned long newos_get_memory_size_mb(void)
+{
+    unsigned long __mm_size_mb = 
+        (unsigned long) (memorysizeTotal/0x400);
+
+    return (unsigned long) __mm_size_mb;
+}
+
+// Usado pelo malloc em ring3.
+void *newos_alloc_shared_ring3_pages(pid_t pid, int number_of_bytes)
+{
+    int number_of_pages=0;
+
+// #todo
+// pid premission
+
+// #todo
+// Check max limit
+
+    if ( number_of_bytes < 0 )
+        number_of_bytes = 4096;
+
+    if ( number_of_bytes <= 4096 ){
+        return (void *) allocPages(1);
+    }
+
+// Alinhando para cima.
+    number_of_pages = (int) ((number_of_bytes/4096) + 1);
+
+    return (void *) allocPages(number_of_pages);
+}
+
+
+// 34 - Setup cursor for the current virtual console.
+// See: core/system.c
+// IN: x,y
+// #todo: Essa rotina dever pertencer ao user/
+void newos_set_cursor( unsigned long x, unsigned long y )
+{
+
+// #todo
+// Maybe check some limits.
+
+    set_up_cursor ( 
+        (unsigned long) x, 
+        (unsigned long) y );
+}
+
+// =====================================================
+
 // Setup WindowServerInfo global structure.
 static void __initialize_ws_info(pid_t pid)
 {
@@ -439,7 +547,7 @@ static void *__extra_services (
         debug_print("__extra_services: [377]\n");
         if ( (void*) arg2 == NULL )
             return NULL;
-        sys_uname ( (struct utsname *) arg2 );        
+        sys_uname ( (struct utsname *) arg2 );
         return NULL;
     }
 
@@ -499,23 +607,25 @@ static void *__extra_services (
 // #todo: 
 // We need a helper function for this.
 
-    if ( number == SYS_SET_WS_PID )
+    if (number == SYS_SET_WS_PID)
     {
         debug_print("__extra_services: SYS_SET_WS_PID\n");
         
         __desktop = ( struct desktop_d *) arg2;
 
-        if ( (void *) __desktop != NULL )
+        if ((void *) __desktop != NULL)
         {
             if ( __desktop->used  == TRUE && 
                  __desktop->magic == 1234 )
             {
-                if(arg3 != current_process){
-                    panic("sci.c: [SYS_SET_WS_PID] arg3 != current_process\n");
+                if (arg3 != current_process){
+                    panic("__extra_services: [SYS_SET_WS_PID] arg3 != current_process\n");
                 }
                 //register_ws_process(current_process);
                 __desktop->ws = (pid_t) current_process;
-                
+
+                // #todo
+                // Maybe this method belongs to the sys_bind() routine.
                 socket_set_gramado_port(
                     GRAMADO_PORT_WS,
                     (pid_t) current_process );
@@ -916,13 +1026,13 @@ static void *__extra_services (
 // socket() 
 // See: socket.c
 // family, type, protocol
-    if ( number == 7000 ){
+    if (number == 7000){
         return (void *) sys_socket ( (int) arg2, (int) arg3, (int) arg4 );
     }
 
 // connect()
 // fd, sockaddr struct pointer, addr len.
-    if ( number == 7001 ){
+    if (number == 7001){
         return (void *) sys_connect ( 
                             (int) arg2, 
                             (const struct sockaddr *) arg3,
@@ -934,7 +1044,7 @@ static void *__extra_services (
 // Our major goal is to return the fd for the client socket file.
 // #bugbug: Work in progress.
 // fd, sockaddr struct pointer, addr len pointer.
-    if ( number == 7002 ){
+    if (number == 7002){
         return (void *) sys_accept ( 
                             (int) arg2, 
                             (struct sockaddr *) arg3, 
@@ -1162,8 +1272,8 @@ void *sci0 (
 
     switch (number){
 
-        case SYS_NULL:  
-            return NULL;  
+        case SYS_NULL:
+            return NULL;
             break;
 
         // Business Logic:
@@ -1213,7 +1323,7 @@ void *sci0 (
                 (unsigned long) message_address[1],
                 (unsigned long) message_address[2],
                 (char *)        message_address[3],
-                (char)          message_address[4] ); 
+                (char)          message_address[4] );
             return NULL;
             break;
 
@@ -1237,7 +1347,7 @@ void *sci0 (
                 (unsigned long) a3,  // x
                 (unsigned long) a4,  // y
                 0 );                 // rop_flags
-            return NULL; 
+            return NULL;
             break;
 
         // Business Logic:
@@ -1250,7 +1360,7 @@ void *sci0 (
                 (unsigned long) a3, 
                 (unsigned long) a4, 
                 COLOR_WHITE,
-                0 );   // rop_flags 
+                0 );   // rop_flags
             return NULL;
             break;
 
@@ -1354,27 +1464,26 @@ void *sci0 (
         // 34
         // Setup cursor position for the current virtual console.
         case SYS_VIDEO_SETCURSOR: 
-            newos_set_cursor ( 
-                (unsigned long) arg2, 
-                (unsigned long) arg3 );
+            newos_set_cursor((unsigned long) arg2, (unsigned long) arg3);
             return NULL;
             break;
 
-        // 35 - free number.
+        // 35 - free number
+
         // 36 - #deprecated
         // 37 - #deprecated
 
         // Business Logic:
-        // 38 - get host name  
+        // 38 - get host name
         case SYS_GETHOSTNAME:
-            return (void *) __gethostname ((char *) arg2);
+            return (void *) __gethostname((char *) arg2);
             break;
         
         // Business Logic:
         // 39 - set host name 
         // #todo: This operation needs permition?
         case SYS_SETHOSTNAME:
-            return (void *) __sethostname((const char *) arg2); 
+            return (void *) __sethostname((const char *) arg2);
             break;
 
         // Business Logic:
@@ -1387,7 +1496,7 @@ void *sci0 (
         // 41 - Set user name 
         // #todo: This operation needs permition?
         case SYS_SETUSERNAME:
-            return (void *) __setusername((const char *) arg2); 
+            return (void *) __setusername((const char *) arg2);
             break;
 
         // 42 - #deprecated
@@ -1627,7 +1736,8 @@ void *sci0 (
             //if (arg2<0)
                 //return NULL;
             return (void *) sys_post_message_to_tid( 
-                (int) arg2, (unsigned long) arg3 );
+                                (int) arg2, 
+                                (unsigned long) arg3 );
             break;
 
         // 113~117: free
@@ -1637,7 +1747,9 @@ void *sci0 (
         // Pop data from network queue.
         case 118:
             // IN: user buffer, buffer lenght.
-            return (void*) network_pop_packet( (unsigned long) &message_address[0], (int) arg3 );
+            return (void*) network_pop_packet( 
+                               (unsigned long) &message_address[0], 
+                               (int) arg3 );
             break;
         // Push data into the network queue?
         //case 119:
@@ -1702,11 +1814,11 @@ void *sci0 (
         // IN: x, y, c, fg color, bg color
         case 132: 
             d_draw_char(
-                (unsigned long)  message_address[0],  //x
-                (unsigned long)  message_address[1],  //y 
-                (unsigned long)  message_address[2],  //c
-                (unsigned long)  message_address[3],  //fg
-                (unsigned long)  message_address[4] ); //bg
+                (unsigned long)  message_address[0],    // x
+                (unsigned long)  message_address[1],    // y 
+                (unsigned long)  message_address[2],    // c
+                (unsigned long)  message_address[3],    // fg
+                (unsigned long)  message_address[4] );  // bg
             return NULL;
             break;
 
@@ -1733,7 +1845,7 @@ void *sci0 (
         // 138 - Get key state.
         // IN: vk.
         case 138:
-            return (void *) keyboardGetKeyState( (unsigned char) arg2 );
+            return (void *) keyboardGetKeyState((unsigned char) arg2);
             break;
 
         // 150~156 User and group support.
@@ -1802,8 +1914,8 @@ void *sci0 (
             // Isso é um teste. Essa chamada não precisa disso.
             if (is_superuser() == TRUE)
             {
-                debug_print("sci0: [SYS_PWD] Yes, I'm the super user.\n");
-                printf     ("sci0: [SYS_PWD] Yes, I'm the super user.\n");
+                debug_print("sci0: [SYS_PWD] Yes, I'm the super user\n");
+                printf     ("sci0: [SYS_PWD] Yes, I'm the super user\n");
             }
             sys_pwd();
             return NULL;
@@ -1827,7 +1939,7 @@ void *sci0 (
         // args in: disk id, volume id, directory id
         // See: fs.c
         case SYS_LISTFILES:
-            fsListFiles ( arg2, arg3, arg4 );  
+            fsListFiles ( arg2, arg3, arg4 );
             return NULL;
             break;
 
@@ -1846,8 +1958,8 @@ void *sci0 (
         // +Carrega o arquivo referente ao diretório atual.
         // See: fs.c
         case 175:
-            debug_print ("sci0: 175\n");
-            sys_cd_command ( (char *) arg2 );
+            debug_print("sci0: 175\n");
+            sys_cd_command((char *) arg2);
             return NULL;
             break;
 
@@ -1856,11 +1968,10 @@ void *sci0 (
         // indicado no argumento.
         // Copia o nome para a string global.
         case 176:
-            debug_print ("sci0: 176\n");
-            fs_pathname_backup ( current_process, (int) arg3 );
+            debug_print("sci0: 176\n");
+            fs_pathname_backup( current_process, (int) arg3 );
             return NULL;
             break;
-
 
         // 177 -  'dir' command.
         // Comando dir no shell.
@@ -1868,8 +1979,8 @@ void *sci0 (
         // #bugbug: Talvez tenhamos que usr a sci2.
         // See: fs.c
         case 177:
-            debug_print ("sci0: [177]\n");
-            fsList ( (const char *) arg2 );
+            debug_print("sci0: [177]\n");
+            fsList((const char *) arg2);
             return NULL;
             break;
 
@@ -1887,7 +1998,7 @@ void *sci0 (
         // See: process.c
         case SYS_GETPROCESSHEAPPOINTER:
             debug_print("sci0: [184]\n");
-            return (void *) GetProcessHeapStart ( (int) arg2 );
+            return (void *) GetProcessHeapStart((int) arg2);
             break;
 
         //----------
@@ -1991,8 +2102,8 @@ void *sci0 (
         // Business Logic: Invalid request.
         default:
             __default_syscall_counter++;
-            debug_print ("sci0: [FIXME] Default\n");
-            printf      ("sci0: [FIXME] Default SYSCALL {%d}\n", number );
+            debug_print("sci0: [FIXME] Default\n");
+            printf     ("sci0: [FIXME] Default SYSCALL {%d}\n", number );
             invalidate_screen();
             return NULL;
             break;
@@ -2001,7 +2112,6 @@ void *sci0 (
 done:
     return NULL;
 }
-
 
 // Handler for the interrupt 0x81.
 void *sci1 ( 
@@ -2059,13 +2169,12 @@ void *sci1 (
         break;
     };
 
-    // #todo
-    // Maybe kill the caller.
+// #todo
+// Maybe kill the caller.
 
-    panic ("sci1: [FIXME] default syscall\n");
+    panic("sci1: [FIXME] default syscall\n");
     return NULL;
 }
-
 
 // Handler for the interrupt 0x82.
 void *sci2 ( 
@@ -2092,21 +2201,21 @@ void *sci2 (
     unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
     cpl = (int) (tmp_cpl & 3);
 
-    if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
+    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
     {
         panic("sci2: cpl");
     }
 
-    if(cpl == 0){
+    if (cpl == 0){
         panic("sci2: cpl 0\n");
     }
-    if(cpl == 1){
+    if (cpl == 1){
         panic("sci2: cpl 1\n");
     }
-    if(cpl == 2){
+    if (cpl == 2){
         panic("sci2: cpl 2\n");
     }
-    if(cpl == 3){
+    if (cpl == 3){
         // ok
     }
 
@@ -2131,6 +2240,8 @@ void *sci2 (
     }
 
 // Personality
+// #todo: 
+// We need to work on these options.
     if (p->personality != PERSONALITY_GRAMADO &&
         p->personality != PERSONALITY_GWS)
     {
@@ -2226,9 +2337,9 @@ void *sci2 (
     if (number == 266)
     {
         // #bugbug: ?
-        printf("sci2: [266] Sleep until\n");   
+        printf("sci2: [266] Sleep until\n");
         sleep( (tid_t) current_thread, (unsigned long) arg2 );
-        return NULL; 
+        return NULL;
     }
 
 // Business Logic: 
@@ -2279,10 +2390,10 @@ void *sci2 (
 // Business Logic: 
 // Clear the fg console background with a given color.
 // Do not change the colors.
-    unsigned int bg_color=0;
-    unsigned int fg_color=0;
+    unsigned int bg_color = COLOR_BLACK;
+    unsigned int fg_color = COLOR_WHITE;
     if (number == 8003)
-    { 
+    {
         if (fg_console<0 || fg_console > 3){
             return NULL;
         }
@@ -2343,12 +2454,12 @@ void *sci2 (
 // ============
 // See: sys.c
     // Business Logic: Set action.
-    if ( number == 10002 ){
+    if (number == 10002){
         sys_set_global_sync( (int) arg2, (int) arg3, (int) arg4 );
         return NULL;
     }
     // Business Logic: Get action.
-    if ( number == 10003 ){
+    if (number == 10003){
         return (void*) sys_get_global_sync( (int) arg2, (int) arg3 );
     }
     // Business Logic: Create sync.
@@ -2396,7 +2507,7 @@ void *sci2 (
         if ( savefat_Status < 0 || 
              fat_cache_saved != FAT_CACHE_SAVED )
         {
-            panic ("10008: couldn' save fat\n");
+            panic("sci2: [10008] Couldn't save FAT\n");
         }
         return NULL;
     }
@@ -2495,7 +2606,7 @@ void *sci2 (
             // qemu.
             if (HVInfo.type == HV_TYPE_QEMU)
             {
-                printf("[22011]: PS2 full initialization on qemu\n");
+                printf("sci2: [22011] PS2 full initialization on qemu\n");
                 PS2_initialization();
                 return NULL;
             }
@@ -2560,8 +2671,8 @@ void *sci2 (
  
         //arg4: desired ms
         if (arg4<1 || arg4>1000){
-            printf("[44000] Invalid ms\n");
-            panic("[44000] Invalid ms\n");
+            printf("sci2: [44000] Invalid ms\n");
+            panic ("sci2: [44000] Invalid ms\n");
         }
          //setup_callback( (unsigned long) r3_handler, 16 );
         setup_callback( (unsigned long) r3_handler, arg4 );
@@ -2577,116 +2688,6 @@ void *sci2 (
 
     panic("sci2: [FIXME] default syscall\n");
     return NULL;
-}
-
-/*
- * __servicePutChar:
- *     Movendo para terminal/output.c 
- *     Coloca um char usando o 'terminal mode' de stdio selecionado 
- * em _outbyte.
- * stdio_terminalmode_flag = n�o transparente.
- */
-
-// #bugbug
-// Where is the prototype?
-
-static void __servicePutChar(int c)
-{
-// Put char into the fg console.
-
-    if (fg_console < 0){
-        return;
-    }
-    console_putchar ( (int) c, fg_console );
-}
-
-// #todo: Return 'int'.
-void newos_reboot(unsigned long reboot_flags)
-{
-    sys_reboot(reboot_flags);
-}
-
-unsigned long newos_get_system_metrics(int index)
-{
-    if (index<0){
-        return 0;
-    }
-    return (unsigned long) doGetSystemMetrics ( (int) index );
-}
-
-pid_t newos_getpid(void)
-{
-    return (pid_t) sys_getpid();
-}
-
-// REAL (coloca a thread em standby para executar pela primeira vez.)
-// MOVEMENT 1 (Initialized --> Standby).
-int newos_start_thread(struct thread_d *thread)
-{
-
-// Validation
-    if ((void*) thread == NULL)
-        return (-1);
-    if (thread->used != TRUE)
-        return (-1);
-    if (thread->magic != 1234)
-        return (-1);
-
-    SelectForExecution( (struct thread_d *) thread );
-    return 0;
-}
-
-int newos_get_current_runlevel(void)
-{
-    return (int) current_runlevel;
-}
-
-unsigned long newos_get_memory_size_mb(void)
-{
-    unsigned long __mm_size_mb = 
-        (unsigned long) (memorysizeTotal/0x400);
-
-    return (unsigned long) __mm_size_mb;
-}
-
-// Usado pelo malloc em ring3.
-void *newos_alloc_shared_ring3_pages(pid_t pid, int number_of_bytes)
-{
-    int number_of_pages=0;
-
-// #todo
-// pid premission
-
-// #todo
-// Check max limit
-
-    if ( number_of_bytes < 0 )
-        number_of_bytes = 4096;
-
-    if ( number_of_bytes <= 4096 ){
-        return (void *) allocPages(1);
-    }
-
-// Alinhando para cima.
-    number_of_pages = (int) ((number_of_bytes/4096) + 1);
-
-    return (void *) allocPages(number_of_pages);
-}
-
-
-// 34 - Setup cursor for the current virtual console.
-// See: core/system.c
-// IN: x,y
-// #todo: Essa rotina dever pertencer ao user/
-void newos_set_cursor( unsigned long x, unsigned long y )
-{
-
-// #todo
-// Maybe check some limits.
-
-    set_up_cursor ( 
-        (unsigned long) x, 
-        (unsigned long) y );
 }
 
 //

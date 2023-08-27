@@ -5,6 +5,8 @@
 #ifndef __NET_SOCKET_H
 #define __NET_SOCKET_H    1
 
+
+//#define SOCKET_MAX_BACKLOG  32
 #define SOCKET_MAX_PENDING_CONNECTIONS   32
 
 
@@ -17,11 +19,17 @@
 
 
 // Ports
-#define PORTS_WS  4040
-#define PORTS_NS  4041
-#define PORTS_FS  4042
-#define PORTS_WM  4043
+#define PORTS_WS  4040  // Window server
+#define PORTS_NS  4041  // Network server
+#define PORTS_FS  4042  // Filesystem server
+#define PORTS_WM  4043  // Window manager service
+//#test
+#define PORTS_WE  4044  // Web server
+#define PORTS_FT  4045  // FTP server
+#define PORTS_TN  4046  // Telnet server
 // ...
+
+
 
 //=====================================================
 //++
@@ -33,10 +41,14 @@
 // AF_GRAMADO
 // ... gramado_ports[]
 // ...
-#define GRAMADO_PORT_WS  11  // window server
-#define GRAMADO_PORT_WM  12  // window manager
-#define GRAMADO_PORT_NS  14  // network server
-#define GRAMADO_PORT_FS  16  // file system
+#define GRAMADO_PORT_WS  11  // Window server
+#define GRAMADO_PORT_WM  12  // Window manager
+#define GRAMADO_PORT_NS  14  // Network server
+#define GRAMADO_PORT_FS  16  // File system
+// #test
+#define GRAMADO_PORT_WE  17  // Web server
+#define GRAMADO_PORT_FT  18  // FTP server
+#define GRAMADO_PORT_TN  19  // Telnet server
 // ...
 #define GRAMADO_PORT_MAX  32
 //--
