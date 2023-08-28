@@ -41,6 +41,7 @@ unsigned char __dhcp_target_mac[6] = {
 
 //---------------
 
+// When receving DHCP packet from NIC device.
 void 
 network_handle_dhcp( 
     const unsigned char *buffer, 

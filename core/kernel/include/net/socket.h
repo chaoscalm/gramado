@@ -497,11 +497,16 @@ struct socket_d
 {
     object_type_t  objectType;
     object_class_t objectClass;
+
     int used;
     int magic;
+
+    int id;
+
     int family;
     int type;
     int protocol;
+
 // process, user, group.
     pid_t pid;
     uid_t uid; 
@@ -521,6 +526,27 @@ struct socket_d
     unsigned long ip_ipv6;
     unsigned short port;
 
+//
+// Protocol flags
+//
+
+// #test
+// In the case of TCP connections, 
+//  we're gonna handle the control bits
+    // Data Offset (4bits) | Reserved (6bits) | Control bits (6bits).
+    uint16_t tcp__do_res_flags;
+
+//
+// Socket flags
+//
+
+// The flags that describe the state of this socket.
+    unsigned short flags; 
+
+//
+// Backlog
+//
+
 // The list of pending connections.
 // Updated by listen().
     int connections_count;
@@ -532,10 +558,11 @@ struct socket_d
 // Em que posiçao o ponteiro do socket de cliente esta
 // dentro da fila de conecxoes pendentes no socket do servidor.
     int client_backlog_pos;
+
 // It indicates that this socket is currently
 // accepting new connections.
 // Updated by listen().
-    int AcceptingConnections;
+    int isAcceptingConnections;
 // State: 
 // SOCKET_CONNECTED, SOCKET_NOT_CONNECTED
     int state;   
@@ -548,18 +575,20 @@ struct socket_d
 // The server finds a place in the server_process->Objects[i].
     int clientfd_on_server;
 // ====================================
+
 // Nosso arquivo.
 // Eh o objeto socket??
     file *private_file;
 // testing
     char magic_string[8];
-// se ele está ou não aceitando conexões. ...
-// ...
-    unsigned short flags; 
 
 // Local structures for address.
     struct sockaddr     addr;
     struct sockaddr_in  addr_in; 
+
+// #todo
+// Navegation
+    //struct socket_d *next;
 };
 
 // see: socket.c
@@ -578,6 +607,10 @@ extern unsigned long socketList[SOCKET_COUNT_MAX];
 //
 
 struct socket_d *create_socket_object(void);
+
+// Get the socket structure in the process list given the port number.
+struct socket_d *get_socket_in_process_list(unsigned short target_port);
+
 unsigned int getSocketIPV4(struct socket_d *socket);
 unsigned long getSocketIPV6(struct socket_d *socket);
 unsigned short getSocketPort(struct socket_d *socket);

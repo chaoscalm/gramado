@@ -3,6 +3,7 @@
 
 #include <kernel.h>
 
+// When receving IPV4 packet from NIC device.
 // handle ipv4 package
 // IN:
 // buffer = ip header base address.

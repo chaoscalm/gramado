@@ -304,7 +304,9 @@ unsigned long syncList[SYNC_COUNT_MAX];
 struct file_d
 {
 
+    // #todo: Change this to ____object_type.
     object_type_t ____object;
+
     int used;
     int magic;
     char *_tmpfname;  

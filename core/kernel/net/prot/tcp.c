@@ -5,6 +5,7 @@
 
 static char tcp_payload[1024];
 
+// When receiving tcp frame from NIC device.
 void 
 network_handle_tcp( 
     const unsigned char *buffer, 

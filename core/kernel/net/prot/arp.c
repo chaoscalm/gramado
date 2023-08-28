@@ -20,6 +20,8 @@ unsigned char __arp_gateway_default_ipv4[4] = {
     192, 168, 1, 1 
 };
 
+
+// When receving ARP packet from NIC device.
 // handle arp package
 // IN:
 // buffer = The address after the ethernet header.

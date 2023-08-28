@@ -67,6 +67,8 @@ struct socket_d *create_socket_object(void)
     //s->objectType =
     //s->objectClass =
 
+    s->id = 0;  //#todo
+
     s->pid = (pid_t) get_current_process();
     s->uid = (uid_t) current_user;
     s->gid = (gid_t) current_group;
@@ -101,7 +103,7 @@ struct socket_d *create_socket_object(void)
 
 // Not yet.
 // listen() will set this flag.
-    s->AcceptingConnections = FALSE;
+    s->isAcceptingConnections = FALSE;
 // The socket needs to be initialized 
 // in the disconnected state.
     s->state = SS_UNCONNECTED;
@@ -116,7 +118,14 @@ struct socket_d *create_socket_object(void)
 
     // ...
 
+// The flags used in TCP connections,
+// Data Offset (4bits) | Reserved (6bits) | Control bits (6bits).
+    s->tcp__do_res_flags = 0;
+
+// Socket flags
+// The flags that describe the state of this socket.
     s->flags = 0;
+
     s->used = TRUE;
     s->magic = 1234;
 
@@ -126,6 +135,48 @@ fail:
     //refresh_screen();
     return NULL;
 }
+
+// Get the socket structure in the process list given the port number.
+struct socket_d *get_socket_in_process_list(unsigned short target_port)
+{
+    struct socket_d *sock;
+    register int i=0;
+    struct process_d *process;
+
+    for (i=0; i<PROCESS_COUNT_MAX; i++)
+    {
+        // Get process
+        process = (struct process_d *) processList[i];
+        if ( (void*) process != NULL )
+        {
+            if (process->magic == 1234)
+            {
+                // Get the socket structure.
+                sock = (struct socket_d *) process->priv;
+                if ( (void*) sock != NULL )
+                {
+                    if (sock->magic == 1234)
+                    {
+                        // Is it a socket structure?
+                        if (sock->objectType == ObjectTypeSocket)
+                        {
+                            // OK, we have a valid socket structure.
+                            // Let's find out if this is socket we're
+                            // looking for.
+                            if (sock->port == target_port){
+                                return (struct socket_d *) sock;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+fail:
+    return NULL;
+}
+
 
 unsigned int getSocketIPV4(struct socket_d *socket)
 {
@@ -164,7 +215,7 @@ unsigned short getSocketPort(struct socket_d *socket)
 // given the fd.
 // OUT: Returning a pointer for a 
 // ring0 socket structure.
-struct socket_d *get_socket_from_fd (int fd)
+struct socket_d *get_socket_from_fd(int fd)
 {
     struct process_d *p;
     file *_file;
@@ -2547,7 +2598,7 @@ int sys_listen(int sockfd, int backlog)
 // Updating the socket structure.
     s->backlog_max = (int) Backlog;
 // This server is accepting new connections.
-    s->AcceptingConnections = TRUE;
+    s->isAcceptingConnections = TRUE;
     // ...
 
     //debug_print ("sys_listen: [TODO] continue...\n");

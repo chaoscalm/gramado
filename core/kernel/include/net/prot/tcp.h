@@ -14,16 +14,22 @@
 */
 
 //
-// Control bits:
+// Control bits
 //
+
+// Invalid.
+#define TH_NULL  0x00
 
 // bit 0
 /* Final: Set on the last segment */
+// It is used to request for connection termination.
 // Sender has reached the end of its byte stream.
 #define TH_FIN    0x01
 
 // bit 1
 /* Synchronization: New conn with dst port */
+// It is used in first step of connection establishment phase or 
+// 3-way handshake process between the two hosts. 
 // Synchronizes the sequence numbers.
 #define TH_SYN    0x02
 
@@ -34,21 +40,33 @@
 
 // bit 3
 /* Push: Immediately send, don't buffer seg */
+// Tells the receiver to process these packets as 
+// they are received instead of buffering them.
 // Segment requests a PUSH.
 #define TH_PUSH   0x08
 
 // bit 4
 /* Acknowledge: Part of connection establish */
 // Acknowledgement field is valid.
-#define TH_ACK    0x10
+#define TH_ACK  0x10
 
 // bit 5
 /* Urgent: send special marked segment now */
 // Urgent pointer field is valid.
-#define TH_URG    0x20
+#define TH_URG  0x20
 
-//#define	TH_ECE    0x40		/* ECN Echo */
-//#define	TH_CWR    0x80		/* Congestion Window Reduced */
+// bit 6
+/* ECN Echo */
+#define TH_ECE  0x40
+
+// bit 7
+/* Congestion Window Reduced */
+#define TH_CWR  0x80
+
+// ------------------
+
+#define TH_NS 0x100
+
 
 /*
 Control Flag Bits
@@ -108,7 +126,7 @@ struct tcp_d
 // -----------------------------
 // data offset (4): 
 //  + Specifies the size of the TCP header in 32-bit words. 
-// reserved (4): 
+// reserved (6): 
 // + ?
 // Control bits (6):  
 //  + We use them to establish connections, 

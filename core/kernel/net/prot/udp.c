@@ -33,6 +33,7 @@ unsigned char saved_mac[6] = {
 
 //---------------------
 
+// When receving UDP packet from NIC device.
 // IN:
 // buffer = udp header base address.
 // size     = udp packet size. (header + data)
