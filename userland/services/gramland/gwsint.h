@@ -121,13 +121,13 @@ extern struct engine_d  Engine;
 
 
 // MAIN STRUCTURE
-// This is the main data structure for the window server.
+// This is the main data structure for the display server.
 
-struct gws_d 
+struct display_server_d 
 {
     int initialized;
 
-// The name of the window server.
+// The name of the display server.
     char name[64];
     char edition_name[64];
 
@@ -139,10 +139,10 @@ struct gws_d
 // fd
     int socket;
 
-// flag: When to quit the window server.
+// flag: When to quit the display server.
     int quit;
 
-// window server status
+// display server status
     int status;
 
 // sinaliza que registramos o servidor no sistema.
@@ -162,9 +162,9 @@ struct gws_d
 };
 
 //see: main.c
-extern struct gws_d  *window_server;
+extern struct display_server_d  *display_server;
 
-#define STATUS_RUNNING    1   
+#define STATUS_RUNNING    1
 
 //
 // == Prototypes =============================

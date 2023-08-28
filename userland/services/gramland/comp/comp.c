@@ -319,9 +319,9 @@ void __display_mouse_cursor(void)
     unsigned long rWidth = 16;
     unsigned long rHeight = 16;
 
-    if ((void*) window_server == NULL)
+    if ((void*) display_server == NULL)
         return;
-    if (window_server->initialized != TRUE)
+    if (display_server->initialized != TRUE)
         return;
 
 // #todo Limits

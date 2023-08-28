@@ -44,10 +44,10 @@ static void callback_procedure(void)
 
     callback_counter++;
 
-    if ( (void*) window_server == NULL ){
+    if ( (void*) display_server == NULL ){
         goto restore;
     }
-    if (window_server->initialized != TRUE){
+    if (display_server->initialized != TRUE){
         goto restore;
     }
 
@@ -56,10 +56,10 @@ static void callback_procedure(void)
         goto restore;
     }
 // window server
-    if ( (void*) window_server == NULL ){
+    if ( (void*) display_server == NULL ){
         goto restore;
     }
-    if (window_server->graphics_initialization_status != TRUE){
+    if (display_server->graphics_initialization_status != TRUE){
         goto restore;
     }
 // window manager
