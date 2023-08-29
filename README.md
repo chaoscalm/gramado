@@ -27,18 +27,18 @@ The core features are:
 
 The desktop features are:
 
-> * Window Server. See: userland/services/gramland/.
-> * Window Manager. Embedded into the Window Server.
+> * Display Server. See: userland/services/gramland/.
+> * Window Manager. Embedded into the Display Server.
 > * Terminal. See: userland/apps/terminal/.
 > * Shell. See: userland/shell/.
 > * Display Manager. See: userpand/apps/gdm/
-> * Some few clients connected to the window server via unix-sockets.
+> * Some few clients connected to the display server via unix-sockets.
 > * Unix-like commands running in the virtual console not connected with the terminal application yet.
 
 The libraries are:
 
 > * unix-like library. (rtl)
-> * Lib for the window server's clients. (libgws)
+> * Lib for the client-side GUI applications. (libgws)
 
 ## The source code.
 
@@ -80,7 +80,7 @@ desktop/ is a place for the graphical user interface.
    * `games` - Games.
    * `libs` - Libraries.
    * `services` - Servers.
-     * `gramland` - Window server.
+     * `gramland` - Display server.
    * `shell` - The shell command.
 
 ## Who are the developers?

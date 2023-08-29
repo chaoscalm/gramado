@@ -31,17 +31,17 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 > * ps/2 mouse works fine only on qemu.
 > * Serial port. 
 > * IDE PATA. 
-> * Window Server. See: gramado/core/
+> * Display Server. See: userland/services/gramland/
 
 ## Userland features.
 
 > * Unix-like commands running in the virtual console.
-> * Some few clients connected to the window server via unix-sockets.
+> * Some few clients connected to the display server via unix-sockets.
 
 ## Libraries.
 
 > * unix-like library. (rtl)
-> * Lib for the window server's clients. (libgws)
+> * Lib for the client-side GUI applications (libgws)
 
 ## Fred's compilation on Linux.
 ```

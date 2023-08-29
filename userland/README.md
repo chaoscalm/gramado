@@ -1,12 +1,12 @@
 # userland
 
-## Where is the Window Server - (WS)?
+## Where is the Display Server?
 
-The window server is called Gramland. See services/gramland/.
+The display server is called Gramland. See services/gramland/.
 
 ## Where is the Window Manager - (WM)?
 
-The window manager is embedded inside the window server.
+The window manager is embedded inside the display server.
 
 ## Where is the Desktop Environment - (DE)?
 

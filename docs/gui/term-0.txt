@@ -1,8 +1,7 @@
 
-
     terminal.bin - Virtual terminal.
 
-    This is a ring3 client application for Gramado Window Server.
+    This is a ring3 client application for Window system.
     This application gets keyboard input from stdin and print the char into
     the client area of the application window.
     The final goal for this application is getting input from stdout.

@@ -1,9 +1,8 @@
 
-
-	The gui/ directory is the place for the window server
+	The gui/ directory is the place for the display server
 and the the main client applications.
 
-	The window server is found in burgundy/server.
+	The window server is found in userland/services/gramland/.
 	The client-side library is found in libs/libgws.
 	The libc is found in libs/rtl.
 

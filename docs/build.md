@@ -1,4 +1,4 @@
-## Gramado OS build instructions
+# Gramado OS build instructions
 
 ## Fred's host machine
 

@@ -1,5 +1,4 @@
 
-
 	The system will load these files:
 
 	APP.BMP

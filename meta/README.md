@@ -1,3 +1,3 @@
 #meta
 
-	?#todo: DEscribe this thing.
+	?#todo: Describe this thing.
