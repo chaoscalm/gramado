@@ -930,8 +930,8 @@ gwsProcedure (
                 dtextDrawText ( 
                     (struct gws_window_d *) gui->screen_window,
                     long1, long2, COLOR_GREEN,
-                    "gwssrv: Hello friend. This is the Gramado Window Server!");
-                
+                    "gramland.bin: Hello from Gramland!");
+
                 gws_show_backbuffer();
             //}
         }
@@ -1240,7 +1240,7 @@ static void initBackground(void)
 
 // initGraphics:
 // Initialize the graphics support.
-// Initialize the window server infrastructure.
+// Initialize the display server infrastructure.
 // The current display and the current screen.
 // Initialize the 3d support.
 
@@ -1325,7 +1325,7 @@ static void initClientSupport(void)
 // The server client
 
     serverClient = 
-        (struct gws_client_d *) malloc ( sizeof( struct gws_client_d ) );
+        (struct gws_client_d *) malloc ( sizeof(struct gws_client_d) );
     if ( (void *) serverClient == NULL ){
         gwssrv_debug_print ("initClientSupport: [FATAL] Couldn't create serverClient\n");
         printf             ("initClientSupport: [FATAL] Couldn't create serverClient\n");
@@ -1642,7 +1642,7 @@ fail:
 void serviceExitGWS(void)
 {
 // Business Logic:
-// Exit the window server.
+// Exit the display server.
 // For now we're exiting without any kind of notification.
 // Maybe we need to notify all the clients before exiting.
 
@@ -1822,7 +1822,7 @@ int serviceAsyncCommand(void)
     // 8
     // Window Manager requests. Power Trio.
     // As mensages aqui interessam somente ao window manager
-    // que esta dentro do window server.
+    // que esta dentro do display server.
     case 8:
         //gwssrv_debug_print ("serviceAsyncCommand: [8] \n");
         //printf ("serviceAsyncCommand: [8] \n");
@@ -2258,7 +2258,6 @@ int serviceCreateWindow(int client_fd)
         gwssrv_debug_print ("gwssrv: serviceCreateWindow Couldn't register window\n");
         next_response[1] = 0;  // msg code.
         goto fail;
-        //return -1;
     }
 
 //===============================================
@@ -2314,13 +2313,15 @@ int serviceCreateWindow(int client_fd)
 // Prepara o nome.
 // #test
     register int name_len=0;
-    name_len = (int) strlen(Window->name);
-    if (name_len > 32){
-        name_len = 32;
-    }
     char w_name[64];
-    sprintf(w_name,":: ");
-    strncat(w_name, Window->name, name_len);
+    name_len = (int) strlen(Window->name);
+    //if (name_len > 32){
+    //    name_len = 32;
+    //}
+    //sprintf(w_name,":: ");
+    //strncat(w_name, Window->name, name_len);
+    if (name_len <= 10)
+        sprintf(w_name,Window->name);
     w_name[63] = 0;
 
 // Coloca na fila
@@ -2341,6 +2342,7 @@ int serviceCreateWindow(int client_fd)
         }
         // Atualiza a barra de tarefas,
         // notificando a criaçao dessa janela.
+        // #obs: don't show yet.
         wm_Update_TaskBar((char *) w_name,TRUE);
     }
 
@@ -3320,10 +3322,10 @@ static void __init_ws_structure(void)
     // #todo: we need to finalize these strings?
 
 // name
-    sprintf( display_server->name, "Gramado Window Server" );
+    sprintf( display_server->name, "Gramland" );
     strcat(display_server->name,"\0");
 // edition name
-    sprintf( display_server->edition_name, "Presence" );
+    sprintf( display_server->edition_name, "Spirit" );
     strcat(display_server->edition_name,"\0");
 // version string
     sprintf( display_server->version_string, "0.1" );
@@ -3335,7 +3337,7 @@ static void __init_ws_structure(void)
 // Se devemos ou não lançarmos o primeiro client.
 // #todo: Pegaremos essa informação dos parâmetros.
     display_server->launch_first_client = TRUE;
-// When to quit the window server.
+// When to quit the display server.
     display_server->quit = FALSE;
  // #todo
     display_server->status = 0;
@@ -3397,7 +3399,7 @@ static int initGUI(void)
 //
 
 // gwsInit
-// Initialize the window server infrastructure.
+// Initialize the display server infrastructure.
 // The current display and the current screen.
 // It will create the root window.
 // See: gws.c
@@ -3446,7 +3448,7 @@ static int initGUI(void)
  *     + Initializes the gws infrastructure.
  *     + Create the background.
  *     + Create the taskbar.
- *     + Register window server as the current window server 
+ *     + Register display server as the current display server 
  *       for this desktop.
  *     + Create the server socket.
  *     + bind it.
@@ -3495,7 +3497,8 @@ static int ServerInitialization(int dm)
 // #test: Transparence.
     //gws_enable_transparence();
     gws_disable_transparence();
-// Window server structure
+// Display server structure
+// #todo: Change the name of this worker.
     __init_ws_structure();
 // Server profiler initialization.
     __initialize_server_profiler();
@@ -3562,13 +3565,13 @@ static int ServerInitialization(int dm)
 // I don't know if we can register more than one time.
 // We can fix it!
 // Register.
-// Register window server as the current window server 
+// Register display server as the current display server 
 // for this desktop.
 // #bugbug: 
 // Se tentarmos reiniciar o servidor, talvez
 // nao consigamos registrar novamente, pois ja tem um registrado.
 // Precisamos a opcao de desregistrar, para tentarmos 
-// mais de um window server.
+// mais de um display server.
 // See: connect.c
 
     _status = (int) register_ws();
@@ -3612,7 +3615,7 @@ static int ServerInitialization(int dm)
     }
 // Global variable.
     ____saved_server_fd   = (int) server_fd;
-// Window server structure.
+// Display server structure.
     display_server->socket = (int) server_fd;
 // The server itself has its own client structure.
     serverClient->fd      = (int) server_fd;
@@ -3903,10 +3906,10 @@ static int ServerInitialization(int dm)
     }
 
 // #todo
-// Now we will close the window server.  
+// Now we will close the display server.  
 // Free all the structure, one by one in cascade.
 // See: 'gws' structure in gws.h
-// We will call the kernel to unregister the window server.
+// We will call the kernel to unregister the display server.
 // We will close all the sockets.
 // ...
 
@@ -3929,8 +3932,8 @@ static void ServerShutdown(void)
     char shutdown_string[64];
     int times=0;
 
-    gwssrv_debug_print ("GWSSRV.BIN: ServerShutdown\n");
-    printf             ("GWSSRV.BIN: ServerShutdown\n");
+    gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
+    printf             ("GRAMLAND: ServerShutdown\n");
 
 // Clear root window.
 // Show final message.

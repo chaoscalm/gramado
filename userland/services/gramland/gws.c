@@ -1,6 +1,6 @@
 /*
  * File: gws.c
- *     Part of the Gramado Window Server.
+ *     Part of the display server.
  * History:
  *     2019 - Created by Fred Nora.
  */
@@ -356,11 +356,9 @@ int gwssrv_init_globals(void)
     return 0;
 }
 
-
 // gwsInitGUI:
-// Initialize the server. 
+// Initialize the display server's GUI. 
 // Called by initGUI() in main.c
-
 int gwsInitGUI(void)
 {
     debug_print("gwsInitGUI:\n");

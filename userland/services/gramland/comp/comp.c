@@ -6,7 +6,7 @@
 #include "gwsint.h"
 
 // The call back can't use the compose()
-// if the window server is using it at the moment.
+// if the display server is using it at the moment.
 int __compose_lock = FALSE;
 
 extern struct gws_window_d *mouse_hover;
@@ -36,7 +36,7 @@ static void draw_mouse_pointer(void);
 // Refresh screen via kernel.
 // Copy the backbuffer in the frontbuffer(lfb).
 // #??
-// It uses the embedded window server in the kernel.
+// It uses the embedded display server in the kernel.
 //#define	SYSTEMCALL_REFRESHSCREEN        11
 // #todo
 // trocar o nome dessa systemcall.

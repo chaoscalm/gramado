@@ -2,8 +2,9 @@
 // demos.c
 // A place for demos.
 // #remember:
-// This is the window server.
+// This is the display server.
 // This is not the right place for this thing.
+// But maybe it will be useful for effects.
 
 #include "gwsint.h"
 

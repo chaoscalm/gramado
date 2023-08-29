@@ -1,6 +1,7 @@
 /*
  * File: wm.c 
  *     The Window Manager.
+ *     The window manager is embedded into the display server.
  * History:
  *     2020 - Create by Fred Nora.
  */
@@ -31,7 +32,7 @@ struct gws_window_d *active_window;  // active
 struct gws_window_d *keyboard_owner;
 struct gws_window_d *mouse_owner;  // captured
 struct gws_window_d *mouse_hover;  // hover
-// If the window server has a taskbar.
+// If the display server has a taskbar.
 // maybe we don't need that.
 struct gws_window_d  *taskbar_window; 
 struct gws_window_d  *taskbar_startmenu_button_window; 
@@ -382,6 +383,8 @@ on_keyboard_event(
         // F6 = Entra ou sai do modo fullscreen.
         if (long1 == VK_F6)
         {
+
+            /*
             //#debug
             wm_tile();
             window_post_message_broadcast( 
@@ -389,8 +392,8 @@ on_keyboard_event(
                 GWS_Paint,   // msg = msg code
                 0,        // long1 = 
                 0 );      // long2 = 
-        
-            /*
+            */
+
             // Enter fullscreen mode.
             if (WindowManager.is_fullscreen != TRUE)
             {
@@ -407,7 +410,7 @@ on_keyboard_event(
                 //set_input_status(TRUE);
                 return 0;
             }
-            */
+
             return 0;
         }
 
@@ -2453,7 +2456,7 @@ wmCreateWindowFrame (
         // ornaments for this title bar.
         // #todo
         // Simple title bar.
-        // We're gonna have a wm inside the window server.
+        // We're gonna have a wm inside the display server.
         // The title bar will be very simple.
         // We're gonna have a client area.
         // #bugbug
@@ -3026,7 +3029,21 @@ void wm_update_desktop(int tile, int show)
 
 // Update the taskbar at the bottom of the screen,
 // but do not show it yet.
-    wm_Update_TaskBar("DESKTOP",FALSE);
+// Print the name of the active window.
+    char *aw_name;
+    //wm_Update_TaskBar("DESKTOP",FALSE);
+    if ((void*) l != NULL)
+    {
+        if (l->magic == 1234)
+        {
+            if ((void*) l->name != NULL)
+            {
+                aw_name = l->name;
+                wm_Update_TaskBar(aw_name,FALSE);
+            }
+        }
+    }
+
 // Invalidate the root window.
 // Shows the whole screen
     //invalidate_window(__root_window);
@@ -3088,13 +3105,32 @@ void wm_update_desktop3(struct gws_window_d *top_window)
     redraw_window(__root_window,FALSE);
 
     set_active_window(top_window);
-    set_focus(top_window);
+    set_focus(top_window); //#wrong: The focus goes to the child.
     redraw_window(top_window,FALSE);
     // Post message to the main window.
     // Paint the childs of the window with focus.
     on_update_window(GWS_Paint);
 
-    wm_Update_TaskBar("...",FALSE);
+//
+// String
+//
+
+// Show the window name .. that is the top widnow.
+
+    char *tw_name;
+    //wm_Update_TaskBar("...",FALSE);
+    if ((void*) top_window != NULL)
+    {
+        if (top_window->magic == 1234)
+        {
+            if ((void*) top_window->name != NULL)
+            {
+                tw_name = top_window->name;
+                wm_Update_TaskBar(tw_name,FALSE);
+            }
+        }
+    }
+
 
 // Flush the whole desktop.
     flush_window(__root_window);
@@ -4710,7 +4746,7 @@ new_event:
     //}
 
 // #test
-// Notificando o window server que a resolução mudou.
+// Notificando o display server que a resolução mudou.
 // #todo
 // Muidas estruturas aindapossuem valores que estão condizentes
 // com a resolução antiga e precisa ser atualizados.
@@ -4755,7 +4791,7 @@ fail:
 // for the Gramado OS when running the Gramado Window System.
 // This routine do not pump the messages from a file, just
 // like the traditional way. It just get messages in a queue
-// in the control thread of the window server process.
+// in the control thread of the display server process.
 // The kernel post all the input messages into this queue for us.
 // See: dev/tty in the kernel source code.
 // ------------------------------------------------
@@ -5536,7 +5572,7 @@ void __create_quick_launch_area(void)
 }
 
 // Taskbar
-// Window server's widget.
+// Display server's widget.
 // Cria a barra na parte de baixo da tela.
 // com 4 tags.
 // os aplicativos podem ser agrupados por tag.
@@ -6442,7 +6478,7 @@ int get_window_tid( struct gws_window_d *window)
 */
 
 // teremos mais argumentos
-void wm_Update_TaskBar( char *string, int flush )
+void wm_Update_TaskBar(char *string, int flush)
 {
     if ( WindowManager.is_fullscreen == TRUE ){
         return;
@@ -6491,37 +6527,75 @@ void wm_Update_TaskBar( char *string, int flush )
 // Strings
 //
 
-// String info.
+// String info
+
+    // fg color
     unsigned int string_color = 
         (unsigned int) get_color(csiTaskBarTextColor);
+
+    // String 1 left (Text)
     unsigned long string1_left = 
         (unsigned long) (taskbar_window->width - 100);
+
+    // String 2 left (Separator)
     unsigned long string2_left = 
-        (unsigned long) (string1_left - (8*4));
-    unsigned long string_top  = ((taskbar_window->height-8) >> 1);//8 
+        (unsigned long) (string1_left - (8*2));
+
+    // String top
+    unsigned long string_top = 
+        ((taskbar_window->height-8) >> 1);  //8 
+
+    // String size
     size_t string_size = (size_t) strlen(string);
 
+/*
+// #unused
+// Frame counter support
     char frame_counter_string[32];
     itoa(
         WindowManager.frame_counter,
         frame_counter_string );
+*/
 
-// Draw the text.
-// less than 10 chars.
-    if (string_size < 10){
-        // String 2. The separator '|'.
+/*
+// #todo
+//---------------------------------------------
+// String 3
+// 800x600
+    if (current_mode == GRAMADO_HOME)
+    {
         dtextDrawText(
-            taskbar_window, string2_left, string_top, string_color, "|" );
+            taskbar_window, 
+            (taskbar_window->width >> 1), 
+            string_top, 
+            string_color, 
+            "++Testing++" );
+    }
+*/
+
+// ----------------------------
+// String 2: The separator '|'.
+    dtextDrawText(
+        taskbar_window, 
+        string2_left, 
+        string_top, 
+        string_color, 
+        "|" );
+
+// ----------------------------
+// String 1: Draw the text.
+// Less than 10 chars. (8*10)=80, the left is -100.
+    if (string_size <= 10)
+    {
         // String 1
         dtextDrawText(
             taskbar_window,
             string1_left, string_top, string_color, string );
     }
 
-// Show the window.
-    if (flush==TRUE){
-        flush_window_by_id(taskbar_window->id);
-        //flush_window(taskbar_window);
+// Show the window
+    if (flush == TRUE){
+        flush_window(taskbar_window);
     }
 }
 

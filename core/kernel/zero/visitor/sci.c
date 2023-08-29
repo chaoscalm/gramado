@@ -597,9 +597,9 @@ static void *__extra_services (
     }
 
 // 513
-// Register the ring3 window server.
+// Register the ring3 display server.
 // Set ws PID for a given desktop
-// Register a window server.
+// Register a display server.
 // gramado_ports[11] = ws_pid
 // Called by the window server.
 // arg2 = desktop structure pointer.

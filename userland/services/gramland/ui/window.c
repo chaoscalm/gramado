@@ -38,7 +38,7 @@ int gUseFrame = TRUE;
 // Windows - (struct)
 extern struct gws_window_d  *__root_window; 
 extern struct gws_window_d *active_window;
-// If the window server has a taskbar.
+// If the display server has a taskbar.
 // maybe we don't need that.
 extern struct gws_window_d  *taskbar_window; 
 extern struct gws_window_d  *taskbar_startmenu_button_window; 
@@ -2029,7 +2029,7 @@ draw_frame:
 // These were created by doCreateWindow.
 // #todo:
 // Lembrando que frame é coisa do wm.
-// Porém tem algumas coisas que o window server faz,
+// Porém tem algumas coisas que o display server faz,
 // como as bordas de um editbox.
 
     if ((void*) __w == NULL){

@@ -1,11 +1,12 @@
 
+// grinput.c
+
 // #todo
 // Em kernel mode temos essas mesma rotinas só que aprimoradas.
 // corrigidos alguns problemas com tipagem e definições.
 // começe olhando para o código em ring0 e deixe esse igual ao que esta la.
 // nem seu se devemos colocar isso realmente aqui ...
 // mas precisamos ter rotinas como essas em algum lugar que não seja o kernel.
-
 
 // #test
 // Colocando aqui algumas rotinas de input.
@@ -437,12 +438,12 @@ void input_dummy(void)
 
 /*
 [ Input ]
-The Window Server has basically two kinds of input:
+The Display Server has basically two kinds of input:
 The first one is the hardware input that come from the kernel or from the device drivers.
 And the second one is the requests that come from the clients.
 ---
 The hardware input will affect the window with focus. So it will affect the client that this window belongs to. So, we need to put this kind of message into the client's queue.
-When a client  request the next event, the window server will check the queue that belong to this client.
+When a client  request the next event, the display server will check the queue that belong to this client.
 */
 
 // char __system_message_buffer[512];

@@ -25,7 +25,7 @@ struct desktop_d
     int name_lenght;
 
 // The window server and the window manager for this desktop.
-    pid_t ws;   // window server
+    pid_t ws;   // display server. #todo: Change this to 'ds'?
     pid_t wm;   // window manager
     pid_t ns;   // network server
     //pid_t fs;   // file system
