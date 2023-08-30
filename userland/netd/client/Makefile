@@ -28,8 +28,8 @@ CFLAGS = -m64 \
 LIBC      = ../../libs/rtl/include/
 LIBCOBJ   = ../../libs/rtl/obj
 #libgns
-LIBGNS    = ../libgns/include/
-LIBGNSOBJ = ../libgns/obj
+LIBGNS    = ../../libs/libgns/include/
+LIBGNSOBJ = ../../libs/libgns/obj
 
 # Objects
 myObjects = crt0.o main.o globals.o rtl.o \

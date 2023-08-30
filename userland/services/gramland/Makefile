@@ -180,7 +180,7 @@ grprim.o camera.o proj.o sprite.o demos.o
 gws-link:
 	$(LD) $(linkFlags) -o $(linkTarget) $(myObjects)
 finalize:
-	cp $(linkTarget) bin/
+	cp $(linkTarget) ../bin/
 clean:
 	-rm *.o
 	-rm $(linkTarget)

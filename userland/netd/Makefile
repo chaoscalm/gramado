@@ -1,8 +1,10 @@
 all:
 
-	make -C libgns
-	make -C server    
+# The Gramado Network Server
+	make -C server
+# First client for GNS.
 	make -C client    
+	
 
 
 

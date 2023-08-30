@@ -197,11 +197,11 @@ copy-extras:
 # Graphics engine
 	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
 # Window server
-	-sudo cp ../userland/services/gramland/bin/GRAMLAND.BIN  ../base/
+	-sudo cp ../userland/services/bin/GRAMLAND.BIN  ../base/
 
 # netd
-	-sudo cp ../userland/netd/bin/GNSSRV.BIN  ../base/
 	-sudo cp ../userland/netd/bin/GNS.BIN     ../base/
+	-sudo cp ../userland/netd/bin/GNSSRV.BIN  ../base/
 
 #
 # Shell
@@ -288,7 +288,6 @@ clean-all: clean
 	-rm *.ISO
 
 # ==================
-# os tier.
 
 # Clear boot images
 	-rm -rf boot/x86/bin/*.BIN
@@ -309,10 +308,8 @@ clean-all: clean
 # exposed tier.
 
 	-rm init/bin/*.BIN
-	-rm init/init/*.o
-	-rm indigo/bin/*.BIN
+	-rm init/*.o
 	-rm libs/fonts/bin/*.FON
-	-rm libs/libgns/obj/*.o
 	-rm libs/libio01/obj/*.o
 	-rm libs/rtl/obj/*.o
 

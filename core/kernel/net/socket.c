@@ -57,9 +57,9 @@ struct socket_d *create_socket_object(void)
     register int i=0;
 
 // Create and clean the structure.
-    s = (void *) kmalloc ( sizeof( struct socket_d ) );
+    s = (void *) kmalloc( sizeof(struct socket_d) );
     if ((void *) s ==  NULL){
-        printf ( "create_socket_object: s\n");
+        printf("create_socket_object: s\n");
         goto fail;
     }
     memset( s, 0, sizeof(struct socket_d) );
@@ -80,9 +80,24 @@ struct socket_d *create_socket_object(void)
     s->type = 0;   // (SOCK_STREAM, SOCK_DGRAM, SOCK_RAW ...)
     s->protocol = 0;
 
-    s->ip_ipv4 = (unsigned int) 0;
+// IP:Port
     s->ip_ipv6 = (unsigned long) 0;
+    s->ip_ipv4 = (unsigned int) 0;
     s->port = (unsigned short) 0;
+
+
+// The buffer.
+// The data goes into the stream.
+    s->private_file = (file *) 0;
+
+// Socket flags
+// The flags that describe the state of this socket.
+    s->flags = 0;
+
+// The flags used in TCP connections,
+// Data Offset (4bits) | Reserved (6bits) | Control bits (6bits).
+    s->tcp__do_res_flags = 0;
+
 
 // Initializing pointers.
 // We don't want this kinda crash in the real machine.
@@ -114,17 +129,8 @@ struct socket_d *create_socket_object(void)
 // The server finds a place in the server_process->Objects[i].
     s->clientfd_on_server = -1;
 
-    s->private_file = (file *) 0;
-
     // ...
 
-// The flags used in TCP connections,
-// Data Offset (4bits) | Reserved (6bits) | Control bits (6bits).
-    s->tcp__do_res_flags = 0;
-
-// Socket flags
-// The flags that describe the state of this socket.
-    s->flags = 0;
 
     s->used = TRUE;
     s->magic = 1234;

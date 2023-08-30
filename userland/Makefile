@@ -44,15 +44,22 @@ all:
 	make -C shell/
 
 clean-all:
+
 	-rm -f apps/bin/*.BIN
+
 	-rm -f commands/bin/*.BIN
+
 	-rm -f demos/eng/bin/*.BIN
+
 	-rm -f libs/libdisp/obj/*.o
+	-rm -f libs/libgns/obj/*.o
 	-rm -f libs/libgr/obj/*.o
 	-rm -f libs/libgr3d/obj/*.o
 	-rm -f libs/libgws/obj/*.o
 	-rm -f libs/libio01/obj/*.o
 	-rm -f libs/rtl/obj/*.o
+
 	-rm -f netd/bin/*.BIN
-	-rm -f services/gramland/bin/*.BIN
+
+	-rm -f services/bin/*.BIN
 	

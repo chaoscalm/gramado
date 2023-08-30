@@ -84,6 +84,7 @@
 // #todo
 // The buffer size limit depends on the configuration
 #define E1000_DEFAULT_BUFFER_SIZE  8192
+#define E1000_DEFAULT_RECEIVE_BUFFER_SIZE  E1000_DEFAULT_BUFFER_SIZE
 
 /*
 // Buffer Sizes
