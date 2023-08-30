@@ -4,30 +4,34 @@
 #ifndef ____CLIENT_H
 #define ____CLIENT_H    1
 
+// The client behavior
+struct gws_client_profile_d
+{
+
+// Packets
+    unsigned long received_count;
+    unsigned long sent_count;
+
+    // ...
+};
+
+
 // Nesse arquivo fica a estrutura de cliente.
 // Essa estrutura vai conter as informações
 // e características dos clientes.
+// nao eh dependente do os, pode sair de os/.
 
-//
-// Current
-//
+#define DEFAULT_CLIENT_NAME_SIZE  128
 
-// Mandaremos as mensages para a fila de mensagens do cliente atual
-// para isso o window server precisa constantemente ler sua fila de
-// mensagens.
-// O kernel alimenta a fila de mensagens do ws qunado tem um ws
-// instalado.
-
-// See: ____saved_current_client_fd in main.c
-// int current_client;
-
+// Client info.
+// We get this info with the application.
 struct gws_client_d
 {
     int used;
     int magic;
 
     int id;
-    char name[128];
+    char name[DEFAULT_CLIENT_NAME_SIZE];
 
 // The overlapped window for this client.
     int window;
@@ -50,33 +54,24 @@ struct gws_client_d
 // #todo
     unsigned long flags;
 
-// Para qual versão do Gramado esse aplicativo foi feito.
-// ex: 0x0101  (1.1)
-    unsigned short gramado_version;
-
-// Flags para gerenciamento de compatibilidade entre
-// versões
-    unsigned long compat_flags;
-
-// maybe
-// The main window of this client.
-// We can send messages to this window.
-    //struct gws_window_d *main_window;
-
-    int is_connected;
-
-    // host, display, screen
-    struct gws_host_d     host;
-    struct gws_display_d  display;
-    struct gws_screen_d   screen;
+//
+// Connection.
+//
 
     // Socket for this client.
     int fd;
+    int is_connected;
 
-// Client's PID and GID.
+// host, display, screen
+// Not pointers.
+    struct gws_host_d     host;
+    struct gws_display_d  display;
+    struct gws_screen_d   screen;
+ 
+// Client's PID, GID and TID.
+// In the case of local connections.
     pid_t pid;
     gid_t gid;
-
     int tid;
 
 // Spin
@@ -88,34 +83,35 @@ struct gws_client_d
 
     // ...
 
+// The client behavior
+    struct gws_client_profile_d  profile;
+
 // Um loop vai circular os clientes.
 // se ele fizer parte de uma tag, entao ele sera exibido.
     struct gws_client_d *next;
 };
 
-// #todo: 
-// Declare it in another place.
-// Use external reference here.
-struct gws_client_d  *serverClient;
-struct gws_client_d  *currentClient;
+extern struct gws_client_d  *serverClient;
+extern struct gws_client_d  *currentClient;
 // ...
 
-// #todo: 
-// Declare it in another place.
-// Use external reference here.
-// list
-struct gws_client_d  *first_client;
+// Linked list
+extern struct gws_client_d  *first_client;
 
-// #todo: 
-// Declare it in another place.
-// Use external reference here.
-#define SERVER_CLIENT_INDEX 0
-#define CLIENT_COUNT_MAX 32
-unsigned long connections[CLIENT_COUNT_MAX];
+//
+// Client list
+//
+
+#define SERVER_CLIENT_INDEX  0
+#define CLIENT_COUNT_MAX  32
+extern unsigned long clientList[CLIENT_COUNT_MAX];
 
 //
 // == prototypes =============================
 //
+
+void initClientSupport(void);
+void initClientStruct(struct gws_client_d *c);
 
 #endif    
 

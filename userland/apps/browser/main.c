@@ -376,7 +376,7 @@ int main( int argc, char *argv[] )
                   VIEW_NULL,             // view
                   "BROWSER",
                   viewwindowx, viewwindowy, w_width, w_height,
-                  0, 
+                  0,   // No parent.
                   0x0000,  
                   COLOR_GRAY, COLOR_GRAY );
 

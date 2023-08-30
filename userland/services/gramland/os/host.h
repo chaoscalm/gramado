@@ -10,8 +10,9 @@ struct gws_host_d
     int used;
     int magic;
 
-// #todo: Waste of memory.
-    char name[256];
+//
+    char name[256];  // host name
+    //char os_name[128];  // os name
     // ...
 };
 

@@ -26,7 +26,7 @@ void wm_Update_TaskBar( char *string, int flush );
 // Associa a estrutura de janela
 // com uma estrutura de cliente. 
 // see: wm.c
-int wmManageWindow(struct gws_window_d *w);
+int wmBindWindowToClient(struct gws_window_d *w);
 
 void wm_update_desktop(int tile, int show);
 void 

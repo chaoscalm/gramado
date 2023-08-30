@@ -171,8 +171,6 @@ gwsProcedure (
 
 static int initGraphics(void);
 static void initBackground(void);
-static void initClientSupport(void);
-static void initClientStruct( struct gws_client_d *c );
 
 
 // This way the module is able to know
@@ -1297,94 +1295,6 @@ fail:
     return (int) -1;
 }
 
-// Initialize the client list.
-// This is an array of connections.
-// See: clients.h
-static void initClientSupport(void)
-{
-    register int i=0;
-
-    //gwssrv_debug_print ("initClientSupport:\n");
-
-    for (i=0; i<CLIENT_COUNT_MAX; i++)
-    {
-        connections[i] = 0;
-    };
-
-//
-// The current client
-//
-
-// #todo
-// We need the information about the current client
-// And we need a list of the connected clientes.
-
-    //currentClient = (struct gws_client_d *) 0;
-    currentClient = NULL;
-
-// The server client
-
-    serverClient = 
-        (struct gws_client_d *) malloc ( sizeof(struct gws_client_d) );
-    if ( (void *) serverClient == NULL ){
-        gwssrv_debug_print ("initClientSupport: [FATAL] Couldn't create serverClient\n");
-        printf             ("initClientSupport: [FATAL] Couldn't create serverClient\n");
-        exit(1);
-    }
-
-// ID = 0.
-    serverClient->id = 0;
-    serverClient->is_connected = FALSE;
-// The fd of the server.
-// Nothing for now.
-    serverClient->fd = -1;
-// Server's PID and GID.
-    serverClient->pid = (pid_t) getpid();
-    serverClient->gid = (gid_t) getgid();
-// The server is not visible ... 
-    serverClient->is_visible = FALSE;
-    //serverClient->window = ?;
-    // ...
-    serverClient->used = TRUE;
-    serverClient->magic = 1234;
-
-// The first client and the next.
-    first_client = (struct gws_client_d *) serverClient;
-    first_client->next = NULL;
-// Save us in the list of connections.
-    connections[SERVER_CLIENT_INDEX] = (unsigned long) serverClient;
-}
-
-static void initClientStruct(struct gws_client_d *c)
-{
-    register int i=0;
-
-    if ( (void *) c == NULL ){
-        gwssrv_debug_print("initClientStruct: [FAIL] c\n");
-        return;
-    }
-// ID
-// #todo
-    c->id = -1;  //fail
-// Geometry
-    c->l = 0;
-    c->t = 0;
-    c->w = 50;
-    c->h = 50;
-    c->is_connected = FALSE;
-    c->fd  = -1;
-// Client's PID and GID.
-    c->pid = (pid_t) -1;
-    c->gid = (gid_t) -1;
-    c->is_visible = FALSE;
-// No tags yet.
-    for (i=0; i<4; i++){
-       c->tags[i] = FALSE;
-    };
-    c->used = TRUE;
-    c->magic = 1234;
-}
-
 /*
  //Send the message in the buffer to all the clients.
  //This is a great opportunity to shutdown the clients
@@ -2327,19 +2237,39 @@ int serviceCreateWindow(int client_fd)
 // Coloca na fila
 // #test: notifica na barra de tarefas
 
-    int manage_status = -1;
+//#test
+// A janela overlapped tambem pode ser uma cliente da janela ativa.
+// Entao somente a janela ativa sera a janela principal do cliente.
+// Quando um aplicativo cria uma janela sem indicar a a parent window
+// ainda nao significa que aquela eh a janela principal do aplicativo
+// pra isso o aplicativo precisa dizer que a janela overlapped eh
+// janela filha da janela root.
+// Mesmo assim podemos ter problemas, pois o aplicativo pode fazer
+// isso mais de uma vez.
+// #todo: Devemos encontrar uma modo para o aplicativo dizer
+// que a janela sendo criada eh a janela principal do aplicativo.
+// Dessa forma ele nao podera fazer isso duas vezes.
+// #bugbug: Por enquanto vamos registrar todas as janelas overlapped
+// como clientes ... e esperar que os aplicativo criem 
+// somente uma overlapped por enquanto.
 
+    int manage_status = -1;
     if (Window->type == WT_OVERLAPPED)
     {
         // Adiciona na lista de janelas
         wm_add_window_into_the_list(Window);
+        
+        // #bugbug
+        // Apenas uma janela deve ser associada com a estrutura de cliete.
+
         // Associa a janela com uma estrutura de cliente.
-        manage_status = wmManageWindow(Window);
+        manage_status = wmBindWindowToClient(Window);
         if (manage_status<0){
-            printf("serviceCreateWindow: wmManageWindow fail\n");
+            printf("serviceCreateWindow: wmBindWindowToClient fail\n");
             while (1){
             };
         }
+        
         // Atualiza a barra de tarefas,
         // notificando a criaçao dessa janela.
         // #obs: don't show yet.
@@ -3546,8 +3476,13 @@ static int ServerInitialization(int dm)
     // #debug
     gwssrv_debug_print ("GWSSRV.BIN: Initializing\n");
 
+//
+// Client support.
+//
+
 // Initialize the client list support.
     initClientSupport();
+
 // The server is also a client.
     if ( (void*) serverClient == NULL ){
         printf ("ws: serverClient\n");

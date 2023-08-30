@@ -92,6 +92,7 @@ ctype.o stdio.o stdlib.o string.o conio.o socket.o signal.o unistd.o \
 termios.o ioctl.o fcntl.o    
 
 myObjects += globals.o 
+myObjects += client.o 
 myObjects += libdisp.o
 myObjects += libgr.o
 
@@ -109,6 +110,7 @@ all: main.o all-c gws-link finalize clean
 main.o:
 	$(CC) -c  main.c      $(CFLAGS) $(CINCLUDES) -o main.o
 	$(CC) -c  globals.c   $(CFLAGS) $(CINCLUDES) -o globals.o
+	$(CC) -c  client.c    $(CFLAGS) $(CINCLUDES) -o client.o
 	$(CC) -c  callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
 all-c:
 

@@ -4,8 +4,6 @@
 #ifndef __OS_DISPLAY_H
 #define __OS_DISPLAY_H    1
 
-
-//
 //
 struct gws_display_d
 {

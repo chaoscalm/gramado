@@ -2912,10 +2912,14 @@ static void wm_tile(void)
 // por essa rotina.
 // Isso sera chamado de dentro do serviço que cria janelas.
 // OUT: 0 = ok | -1 = Fail
-int wmManageWindow(struct gws_window_d *w)
+int wmBindWindowToClient(struct gws_window_d *w)
 {
 // Associa a estrutura de janela
 // com uma estrutura de cliente. 
+
+// #todo
+// Change the name of this function.
+// It's causing confusion.
 
     struct gws_client_d *c;
     struct gws_client_d *tmp;
@@ -2979,8 +2983,8 @@ int wmManageWindow(struct gws_window_d *w)
     return 0;
 
 fail:
-    yellow_status("wmManageWindow");
-    printf("wmManageWindow: fail\n");
+    yellow_status("wmBindWindowToClient");
+    printf("wmBindWindowToClient: fail\n");
     return (int) (-1);
 }
 

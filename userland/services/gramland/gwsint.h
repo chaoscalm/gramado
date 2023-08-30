@@ -82,7 +82,7 @@ extern int current_mode;
 
 // Client structure.
 // O proprio servidor poderia ser o cliente 0??
-#include "os/client.h"
+#include "client.h"
 
 // Device Context.
 // This is the structure that is gonna be used by the
