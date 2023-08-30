@@ -108,6 +108,9 @@ static void __set_foreground_tid(int tid);
 static void animate_window( struct gws_window_d *window );
 static void wm_tile(void);
 
+static void on_quick_launch(int button_wid);
+static void launch_app_by_id(int id);
+
 //
 // Keyboard
 //
@@ -196,6 +199,89 @@ struct gws_window_d *get_parent(struct gws_window_d *w)
     return (struct gws_window_d *) p;
 }
 
+static void on_quick_launch(int button_wid)
+{
+    int ButtonWID = button_wid;
+    int DoLaunch = FALSE;
+    int AppID = -1;
+
+    if (ButtonWID < 0)
+        return;
+    if (QuickLaunch.initialized != TRUE)
+        return;
+     
+    if (ButtonWID == QuickLaunch.buttons[0])
+    {
+        DoLaunch = TRUE;
+        AppID = 1;
+        //launch_app_by_id(1);
+        //return;
+    }
+    if (ButtonWID == QuickLaunch.buttons[1])
+    {
+        DoLaunch = TRUE;
+        AppID = 2;
+        //launch_app_by_id(2);
+        //return;
+    }
+    if (ButtonWID == QuickLaunch.buttons[2])
+    {
+        DoLaunch = TRUE;
+        AppID = 3;
+        //launch_app_by_id(3);
+        //return;
+    }
+    if (ButtonWID == QuickLaunch.buttons[3])
+    {
+        DoLaunch = TRUE;
+        AppID = 4;
+        //launch_app_by_id(4);
+        //return;
+    }
+
+// Launch
+    if (DoLaunch == TRUE)
+        launch_app_by_id(AppID);
+}
+
+static void launch_app_by_id(int id)
+{
+    char name_buffer[64];
+
+// 4 apps only
+    if (id <= 0 || id > 4 )
+        goto fail;
+
+// Clear name buffer.
+    memset(name_buffer,0,64-1);
+
+    switch (id)
+    {
+        case 1:
+            strcpy(name_buffer,app1_string);
+            break;
+        case 2:
+            strcpy(name_buffer,app2_string);
+            break;
+        case 3:
+            strcpy(name_buffer,app3_string);
+            break;
+        case 4:
+            strcpy(name_buffer,app4_string);
+            break;
+        default:
+            goto fail;
+            break;
+    };
+
+// OK
+    rtl_clone_and_execute(name_buffer);
+    return;
+
+fail:
+    return;
+}
+
 // #todo: explain it
 static unsigned long 
 on_keyboard_event(
@@ -206,7 +292,7 @@ on_keyboard_event(
     struct gws_window_d *window;
     struct gws_window_d *tmp;
     unsigned long Result=0;
-    char name_buffer[64];
+    //char name_buffer[64];
 
 // #todo
     unsigned int fg_color = 
@@ -334,30 +420,34 @@ on_keyboard_event(
 
         if (long1 == VK_F1){
             __button_released(QuickLaunch.buttons[0]);
-            memset(name_buffer,0,64-1);
-            strcpy(name_buffer,app1_string);
-            rtl_clone_and_execute(name_buffer);
+            launch_app_by_id(1);
+            //memset(name_buffer,0,64-1);
+            //strcpy(name_buffer,app1_string);
+            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F2){
             __button_released(QuickLaunch.buttons[1]);
-            memset(name_buffer,0,64-1);
-            strcpy(name_buffer,app2_string);
-            rtl_clone_and_execute(name_buffer);
+            launch_app_by_id(2);
+            //memset(name_buffer,0,64-1);
+            //strcpy(name_buffer,app2_string);
+            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F3){
             __button_released(QuickLaunch.buttons[2]);
-            memset(name_buffer,0,64-1);
-            strcpy(name_buffer,app3_string);
-            rtl_clone_and_execute(name_buffer);
+            launch_app_by_id(3);
+            //memset(name_buffer,0,64-1);
+            //strcpy(name_buffer,app3_string);
+            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F4){
             __button_released(QuickLaunch.buttons[3]);
-            memset(name_buffer,0,64-1);
-            strcpy(name_buffer,app4_string);
-            rtl_clone_and_execute(name_buffer);
+            launch_app_by_id(4);
+            //memset(name_buffer,0,64-1);
+            //strcpy(name_buffer,app4_string);
+            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
 
@@ -880,7 +970,7 @@ on_mouse_released(
     unsigned long  pointer_x, 
     unsigned long  pointer_y )
 {
-    int ButtonID = -1;
+    int ButtonWID = -1;
 
     struct gws_window_d *tmp;
     struct gws_window_d *old_focus;
@@ -923,17 +1013,15 @@ on_mouse_released(
     if (mouse_hover->magic != 1234)
         return;
 
-// #todo
-// Se clicamos em um botao.
-    ButtonID = (int) mouse_hover->id;
 
-
+// If the mouse is hover a button.
+    ButtonWID = (int) mouse_hover->id;
+// If the mouse is hover an editbox.
+    saved_x = comp_get_mouse_x_position();
+    saved_y = comp_get_mouse_y_position();
 
 // -------------------
 // Se clicamos em uma janela editbox.
-
-    saved_x = comp_get_mouse_x_position();
-    saved_y = comp_get_mouse_y_position();
 
 // Check if we are inside the mouse hover.
     if ( saved_x >= mouse_hover->absolute_x &&
@@ -999,11 +1087,8 @@ on_mouse_released(
     // #debug
     // printf("Outside mouse hover window\n");
 
-
-
 // -------------------------
-// #test
-// Regular button. 
+// Regular button or quick launch button.
 // Not a control, not the start menu, not the menuitem.
     if (mouse_hover->type == WT_BUTTON)
     {
@@ -1011,11 +1096,20 @@ on_mouse_released(
              mouse_hover->id != StartMenu.wid &&
              mouse_hover->isMenuItem != TRUE )
         {
-            __button_released(ButtonID);
+            __button_released(ButtonWID);
+            
+            // Is a quick launch button?
+            // Se for um dos quatro botoes da quick launch.
+            if ( ButtonWID == QuickLaunch.buttons[0] || 
+                 ButtonWID == QuickLaunch.buttons[1] || 
+                 ButtonWID == QuickLaunch.buttons[2] || 
+                 ButtonWID == QuickLaunch.buttons[3] )
+            {
+                on_quick_launch(ButtonWID);
+            }
             return;
         }
     }
-
 
 //------------------------------------------------------
 //
@@ -1025,9 +1119,9 @@ on_mouse_released(
 // -------------------
 // #test
 // Start menu button was released.
-    if (ButtonID == StartMenu.wid)
+    if (ButtonWID == StartMenu.wid)
     {
-        __button_released(ButtonID);
+        __button_released(ButtonWID);
         on_menu_event();
         return;
     }
@@ -1143,7 +1237,7 @@ on_mouse_released(
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            __button_released(ButtonID);
+            __button_released(ButtonWID);
             //printf("Release on min control\n");
             on_control_clicked(mouse_hover);
             return;
@@ -1156,7 +1250,7 @@ on_mouse_released(
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            __button_released(ButtonID);
+            __button_released(ButtonWID);
             //printf("Release on max control\n");
             on_control_clicked(mouse_hover);
             return;
@@ -1169,7 +1263,7 @@ on_mouse_released(
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            __button_released(ButtonID);
+            __button_released(ButtonWID);
             //printf("Release on close control\n");
             // #test
             // On control clicked
@@ -1194,8 +1288,8 @@ on_mouse_released(
     {
         if (mouse_hover->type == WT_BUTTON)
         {
-            __button_released(ButtonID);
-            selected_item = (unsigned long) (ButtonID & 0xFFFF);
+            __button_released(ButtonWID);
+            selected_item = (unsigned long) (ButtonWID & 0xFFFF);
             menuProcedure(
                 NULL,
                 (int) 1,
@@ -1205,44 +1299,6 @@ on_mouse_released(
             return;
         }
     }
-
-
-//
-// Quick launch buttons.
-//
-
-    /*
-    // We dont need this anymore.
-//tb_button[0]
-    if (ButtonID == QuickLaunch.buttons[0])
-    {
-        __button_released(ButtonID);
-        //wm_update_active_window();
-        //yellow_status("0: Min");
-        return;
-    }
-//tb_button[1]
-    if (ButtonID == QuickLaunch.buttons[1])
-    {
-        __button_released(ButtonID);
-        return;
-    }
-//tb_button[2]
-    if (ButtonID == QuickLaunch.buttons[2])
-    {
-        __button_released(ButtonID);
-        return;
-    }
-//tb_button[3]
-    if (ButtonID == QuickLaunch.buttons[3])
-    {
-        __button_released(ButtonID);
-        // mostra o cliente se ele faz parte da tag 3.
-        //show_client(first_client->next,3);
-        //show_client_list(3);  //#todo: notworking
-        return;
-    }
-    */
 }
 
 // Post a message into the window with focus message queue.
@@ -4180,7 +4236,7 @@ static void on_mouse_hover(struct gws_window_d *window)
 // visual efect
     if (window->type == WT_BUTTON)
     {
-        window->status = BS_HOVER;     
+        window->status = BS_HOVER;
         // Using the color that belongs to this window.
         window->bg_color = 
             (unsigned int) window->bg_color_when_mousehover;
@@ -4482,21 +4538,21 @@ void on_menu_event(void)
 {
     if (StartMenu.is_created != TRUE)
     {
-        __button_pressed( StartMenu.wid );
+        //__button_pressed( StartMenu.wid );
         create_main_menu();
         return;
     }
 
     if (StartMenu.is_visible != TRUE)
     {
-        __button_pressed( StartMenu.wid );
+        //__button_pressed( StartMenu.wid );
         redraw_main_menu();
         return;
     }
 
     if (StartMenu.is_visible == TRUE)
     {
-        __button_released( StartMenu.wid );
+        //__button_released( StartMenu.wid );
         // Update desktop but don't show the menu.
         StartMenu.is_visible = FALSE;
         wm_update_desktop(TRUE,TRUE);
@@ -4512,15 +4568,15 @@ int on_combination(int msg_code)
         goto fail;
     }
 
-// Control + c
-    if (msg_code == GWS_Copy){
-        printf("ws: copy\n");
-        return 0;
-    }
+//
+// z, x, c, v
+//
 
-// Control + v
-    if (msg_code == GWS_Paste){
-        printf("ws: paste\n");
+// Control + z
+// Undo
+    if (msg_code == GWS_Undo)
+    {
+        printf("ws: undo\n");
         return 0;
     }
 
@@ -4534,9 +4590,15 @@ int on_combination(int msg_code)
         return 0;
     }
 
-// Undo
-    if (msg_code == GWS_Undo){
-        printf("ws: undo\n");
+// Control + c
+    if (msg_code == GWS_Copy){
+        printf("ws: copy\n");
+        return 0;
+    }
+
+// Control + v
+    if (msg_code == GWS_Paste){
+        printf("ws: paste\n");
         return 0;
     }
 
@@ -4565,13 +4627,18 @@ int on_combination(int msg_code)
         return 0;
     }
 
+
+// Control + s
 // #test
 // Creates a menu for the root window.
 // Only refresh if it is already created.
-    if (msg_code == GWS_Save){
+    if (msg_code == GWS_Save)
+    {
         on_menu_event();
         return 0;
     }
+
+// --------------
 
 // Control + Arrow keys.
     if (msg_code == GWS_ControlArrowUp){
