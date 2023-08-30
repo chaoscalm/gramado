@@ -761,7 +761,7 @@ void yield (tid_t tid)
 // cooperativo.
 // Muda o seu tempo executando para: Próximo de acabar.
 
-void sleep (tid_t tid, unsigned long ms)
+void sleep(tid_t tid, unsigned long ms)
 {
     struct thread_d  *t;
 
@@ -794,7 +794,38 @@ void sleep (tid_t tid, unsigned long ms)
     t->desired_sleep_ms = ms;
 }
 
+void sys_broken_vessels(tid_t tid)
+{
+    struct thread_d  *t;
 
+    // #todo
+    // Privilegies
+
+
+// tid
+    if (tid < 0 || tid >= THREAD_COUNT_MAX){
+        return;
+    }
+
+// structure
+    t = (void *) threadList[tid];
+    if ( (void *) t == NULL ){
+        return;
+    }
+    if ( t->used != TRUE || t->magic != 1234 ){
+        return;
+    }
+
+// Grace
+    if ( (t->quantum +1) <= t->quantum_limit_max )
+    {
+        t->quantum = (t->quantum +1);
+    }
+    if ( t->quantum > QUANTUM_MAX )
+    {
+        t->quantum = QUANTUM_MAX;
+    }
+}
 
 /*
 int 

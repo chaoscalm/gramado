@@ -92,8 +92,6 @@ void do_thread_blocked(tid_t tid);
 void do_thread_zombie(tid_t tid);
 void do_thread_dead(tid_t tid);
 
-void sleep_until (tid_t tid, unsigned long ms);
-
 void drop_quantum(struct thread_d *thread);
 
 int do_waitpid (pid_t pid, int *status, int options);
@@ -107,6 +105,9 @@ int wakeup_scan_thread_reason ( int reason );
 void wakeup_thread (int tid);
 void yield (tid_t tid);
 void sleep (tid_t tid, unsigned long ms);
+void sleep_until (tid_t tid, unsigned long ms);
+
+void sys_broken_vessels(tid_t tid);
 
 void check_for_standby (void);
 

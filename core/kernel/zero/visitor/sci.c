@@ -2342,6 +2342,12 @@ void *sci2 (
         return NULL;
     }
 
+    if (number == 777)
+    {
+        sys_broken_vessels(current_thread);
+        return NULL;   
+    }
+
 // Business Logic: 
 // Clona e executa o filho dado o nome do filho.
 // O filho inicia sua execução do início da imagem.

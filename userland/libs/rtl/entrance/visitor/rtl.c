@@ -1931,6 +1931,12 @@ ssize_t rtl_console_beep(void)
                          1 );
 }
 
+// Raising up the broken to life.
+void rtl_broken_vessels(void)
+{
+    sc82( 777, 0, 0, 0 );
+}
+
 // OUT: Child's PID.
 int rtl_clone_and_execute(char *name)
 {

@@ -3524,6 +3524,12 @@ int terminal_init(void)
     gws_set_active( client_fd, main_window );
 
 
+//
+// Be nice
+// 
+
+    //rtl_broken_vessels();
+
 // Input loop!
 // local routine.
     int InputStatus=-1;
