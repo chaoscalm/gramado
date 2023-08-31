@@ -13,7 +13,7 @@
 //extern unsigned long tss;
 
 
-extern void asm_reboot (void);
+extern void asm_reboot(void);
 
 // not used?
 // processors count

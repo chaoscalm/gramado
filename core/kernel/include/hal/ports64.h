@@ -4,8 +4,14 @@
 #ifndef __PORTS64_H
 #define __PORTS64_H    1
 
+// I/O ports.
+#define IO_MEMORY_BEGIN  0x0000
+#define IO_MEMORY_END    0xFFFF  
+
+
 // IO Delay
-#define io_delay()  asm("out %%al,$0x80"::);
+#define io_delay() \
+    asm ("out %%al,$0x80"::);
 
 //------------------------------------
 

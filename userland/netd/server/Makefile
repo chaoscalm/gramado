@@ -37,7 +37,7 @@ GWS_INCLUDES  = include/
 # Objects
 myObjects = crt0.o main.o rtl.o globals.o \
 ctype.o stdio.o stdlib.o string.o conio.o socket.o signal.o unistd.o \
-connect.o decode.o \
+connect.o decode.o client.o \
 termios.o ioctl.o fcntl.o    
 
 .PHONY: all all-c gws-link finalize clean
@@ -50,7 +50,8 @@ all-c:
 	gcc -c globals.c $(CFLAGS) -I $(LIBC) -I $(GWS_INCLUDES) -I . -o globals.o
 	gcc -c connect.c $(CFLAGS) -I $(LIBC) -I $(GWS_INCLUDES) -I . -o connect.o
 	gcc -c decode.c  $(CFLAGS) -I $(LIBC) -I $(GWS_INCLUDES) -I . -o decode.o
-
+	gcc -c client.c  $(CFLAGS) -I $(LIBC) -I $(GWS_INCLUDES) -I . -o client.o
+	
 # Grab the objects
 
 	cp $(LIBCOBJ)/crt0.o .

@@ -19,6 +19,12 @@
 #define PIC_SLAVE_IMR		0xa1
 */
 
+/* 8259A interrupt controller ports. */
+//#define INT_CTL         0x20	/* I/O port for interrupt controller */
+//#define INT_CTLMASK     0x21	/* setting bits in this port disables ints */
+//#define INT2_CTL        0xA0	/* I/O port for second interrupt controller */
+//#define INT2_CTLMASK    0xA1	/* setting bits in this port disables ints */
+
 
 // Estrutura para gerenciar as irqs do PIC.
 struct irq_d
