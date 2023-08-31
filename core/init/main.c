@@ -567,6 +567,8 @@ int main( int argc, char **argv)
 // Getting input from the message queue in the control thread.
 // When the command line exit or fail.
     int fRunEventLoop = TRUE;
+// Was it launched by the kernel?
+    int InvalidLauncher = FALSE;
 
     Init.initialized = FALSE;
     Init.argc = (int) argc;
@@ -575,6 +577,14 @@ int main( int argc, char **argv)
 
     //#todo
     //printf()
+
+// The kernel launches this process as pid=1.
+// No other process is allowed to relaunch this program.
+// see: GRAMADO_PID_INIT
+    if (Init.pid != 1){
+        InvalidLauncher = TRUE;
+        goto fail;
+    }
 
 //testando se esse codigo esta mesmo em ring3. 
 //#bugbug: this proces is running in ring0.
@@ -684,6 +694,12 @@ int main( int argc, char **argv)
     };
 
 // Not reached!
+    return 0;
+fail:
+    if (InvalidLauncher == TRUE){
+        printf ("init.bin: Not launched by the kernel\n");
+    }
+    exit(0);
     return 0;
 }
 
