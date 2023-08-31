@@ -284,25 +284,23 @@ static int I_x64CreateInitialProcess(void)
 // Struct, and struct validation.
 
     InitThread = (struct thread_d *) create_init_thread();
-
-    if ( (void *) InitThread == NULL ){
+    if ((void *) InitThread == NULL){
         printf ("I_x64CreateInitialProcess: InitThread\n");
         return FALSE;
     }
-
-    if ( InitThread->used != TRUE || 
-         InitThread->magic != 1234 )
+    if ( InitThread->used != TRUE || InitThread->magic != 1234 )
     {
-        printf ("I_x64CreateInitialProcess: InitThread validation\n");
+        printf("I_x64CreateInitialProcess: InitThread validation\n");
         return FALSE;
     }
-
-// tid : tem que ser a primeira thread
-    if ( InitThread->tid != 0 ){
-        printf ("I_x64CreateInitialProcess: INIT_TID\n");
+// Invalid TID.
+// Tem que ser a primeira thread.
+// INIT_TID
+    if (InitThread->tid != 0){
+        printf("I_x64CreateInitialProcess: InitThread->tid\n");
         return FALSE;
     }
-
+// Invalid PID.
 // owner pid
     if ( InitThread->owner_pid != GRAMADO_PID_INIT ){
         printf ("I_x64CreateInitialProcess: GRAMADO_PID_INIT\n");
@@ -388,28 +386,28 @@ void I_x64ExecuteInitialProcess (void)
         panic ("I_x64ExecuteInitialProcess: system_state\n");    
     }
 
-    if ( InitialProcessInitialized != TRUE ){
-        debug_print ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
-        panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
-    }
-
 // Se essa rotina foi chamada antes mesmo
 // do processo ter sido devidamente configurado.
-    if ( InitialProcessInitialized != TRUE ){
-        debug_print ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
-        panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
+    if (InitialProcessInitialized != TRUE){
+        debug_print("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
+        panic      ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
     }
+    //if (InitialProcessInitialized != TRUE){
+    //    debug_print ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
+    //    panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
+    //}
+
 
 // The first thread to run will the control thread 
 // of the init process. It is called InitThread.
 
     t = (struct thread_d *) InitThread; 
 
-    if ( (void *) t == NULL ){
-        panic ("I_x64ExecuteInitialProcess: t\n");
+    if ((void *) t == NULL){
+        panic("I_x64ExecuteInitialProcess: t\n");
     }
     if ( t->used != TRUE || t->magic != 1234 ){
-        panic ("I_x64ExecuteInitialProcess: t validation\n");
+        panic("I_x64ExecuteInitialProcess: t validation\n");
     }
     if ( t->tid < 0 || t->tid > THREAD_COUNT_MAX ){
         panic("I_x64ExecuteInitialProcess: tid\n");
@@ -539,13 +537,12 @@ void I_x64ExecuteInitialProcess (void)
 // >>> Mas logo acima, acabamos de mudar as tabelas.
 
     int elfStatus = -1;
-    elfStatus = (int) fsCheckELFFile ( (unsigned long) CONTROLTHREAD_BASE );
-    if ( elfStatus < 0 )
+    elfStatus = (int) fsCheckELFFile( (unsigned long) CONTROLTHREAD_BASE );
+    if (elfStatus < 0)
     {
-        debug_print ("I_x64ExecuteInitialProcess: .ELF signature\n");
-        panic       ("I_x64ExecuteInitialProcess: .ELF signature");
+        debug_print("I_x64ExecuteInitialProcess: .ELF signature\n");
+        panic      ("I_x64ExecuteInitialProcess: .ELF signature");
     }
-
 
 /*
 // ==============
