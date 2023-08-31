@@ -42,6 +42,10 @@ static const char *cmdline1 = "gramland -1 -2 -3";
 //static const char *cmdline1 = "gwnsrv -1 -2 -3 --dm";
 // ...
 
+
+struct init_d  Init;
+
+// -----------------------------------------------------------
 // private functions: prototypes;
 
 // Loops
@@ -552,6 +556,23 @@ static int __stdin_loop(void)
 
 int main( int argc, char **argv)
 {
+
+// #todo
+// Get the runlevel value.
+
+// Run the command line. 
+// Getting input from stdin.
+    int fRunCommandLine = TRUE;
+// Run the event loop. 
+// Getting input from the message queue in the control thread.
+// When the command line exit or fail.
+    int fRunEventLoop = TRUE;
+
+    Init.initialized = FALSE;
+    Init.argc = (int) argc;
+    //Init.runlevel = (int) ?;
+    Init.pid = (pid_t) getpid();
+
     //#todo
     //printf()
 
@@ -578,7 +599,9 @@ int main( int argc, char **argv)
     //gws_debug_print ("gws.bin: Unlock taskswitching and scheduler \n");
     //printf          ("gws.bin: Unlock taskswitching and scheduler \n");
     gramado_system_call (641,0,0,0);
+    Init.taskswitching_unlocked = TRUE;
     gramado_system_call (643,0,0,0);
+    Init.scheduler_unlocked = TRUE;
 
 /*
 //================================
@@ -622,19 +645,47 @@ int main( int argc, char **argv)
 //================================
 */
 
+//
+// Loop
+//
+
+    Init.initialized = TRUE;
+
 //================================
 // Get input from stdin.
-    __stdin_loop();
+
+    int cmdline_status = -1;
+    if (fRunCommandLine == TRUE)
+    {
+        cmdline_status = (int) __stdin_loop();
+    }
 
 //================================
 // Get input from idle thread.
 // Idle thread loop.
 // Now the init process enters in 'server mode'.
 // Getting system messages from it's queue in the control thread.
-    return (int) run_server();
+    int eventloop_status = -1;
+    if (fRunEventLoop == TRUE)
+    {
+        eventloop_status = (int) run_server();
+    }
+
+// ----------------------------------
+// Exit:
+// #bugbug
+// Maybe the init process will never return.
+// The worst case scenario is the reboot.
+// It depends on the runlevel.
+
+    printf("init.bin: Unexpected exit()\n");
+    while (1){
+        asm ("pause"); 
+    };
+
+// Not reached!
+    return 0;
 }
-
-
 
 
 

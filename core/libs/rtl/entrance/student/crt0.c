@@ -1,8 +1,7 @@
 /*
- * File: student/unit3/crt0.c
+ * File: student/crt0.c
  * Usado para inicializar a rt na libc for 64bit.
  */
-
 
 #include <types.h>
 #include <stddef.h>
@@ -12,9 +11,7 @@
 #include <unistd.h>
 #include <rtl/gramado.h>
 
-
-extern int main ( int argc, char *argv[] );
-
+extern int main(int argc, char *argv[]);
 
 #define LSH_TOK_DELIM  " \t\r\n\a" 
 #define SPACE  " "
@@ -30,7 +27,6 @@ const char *argv[] = {
     NULL 
 };
 
-
 /*
 	$USER:      Gives current user's name.
 	$PATH:      Gives search path for commands.
@@ -43,6 +39,10 @@ const char *argv[] = {
 	$SHELL:     Gives location of current user's shell program.
 */
 
+// #bugbug
+// Not used.
+// We're getting a command line from stdin and building
+// a new environment fro main().
 const char *my_environ[] = { 
 
     "DISPLAY=kgws-or-gwssrv",  //#todo
@@ -80,7 +80,6 @@ void crt0(unsigned long rdi)
 
     // #todo
     // We can get the command line from 'stdin'.
-
 
     int main_ret=0;
 
@@ -192,13 +191,11 @@ void crt0(unsigned long rdi)
 
     stdioInitialize();
 
-
 // #todo
 // Chamar esse ao invés de chamar os dois acima.
 //See: sysdeps/x86/x86start.c
 
-    //x86start ( ( token_count, tokenList, default_env );
-
+    //x86start( ( token_count, tokenList, default_env );
 
 /*
 #ifdef TEDITOR_VERBOSE
@@ -264,14 +261,16 @@ void crt0(unsigned long rdi)
 // Criando o ambiente.
 // Transferindo os ponteiros do vetor para o ambiente.
 
+// First word.
     //tokenList[0] = strtok ( &shared_info[0], LSH_TOK_DELIM );
-    tokenList[0] = strtok ( buffer, LSH_TOK_DELIM );
-    
+    tokenList[0] = strtok( buffer, LSH_TOK_DELIM );
+
 // Salva a primeira palavra digitada.
     token = (char *) tokenList[0];
     index=0; 
 
-    while ( token != NULL )
+// Enquanto o ponteiro for valido.
+    while (token != NULL)
     {
         // Coloca na lista.
         // Salva a primeira palavra digitada.
@@ -280,7 +279,8 @@ void crt0(unsigned long rdi)
         //#debug
         //printf("shellCompare: %s \n", tokenList[i] );
 
-        token = strtok ( NULL, LSH_TOK_DELIM );
+        // Pega a proxima, dada a lista de delimitadores.
+        token = strtok(NULL,LSH_TOK_DELIM);
 
         // Incrementa o índice da lista
         index++;
