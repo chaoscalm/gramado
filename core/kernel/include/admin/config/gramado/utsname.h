@@ -41,7 +41,7 @@ struct utsname_d
     char domainname[_UTSNAME_LENGTH]; 
     //#endif
 };
-#define utsname utsname_d
+#define utsname  utsname_d
 
 
 //The length of the arrays in a struct utsname is unspecified (see

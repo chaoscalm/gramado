@@ -1,54 +1,86 @@
 
 // kernel.h
 // Created by Fred Nora.
-
-// #todo
-// Reorganizar esses headers quando puder.
-
-#include "mode.h"
-#include "state.h"
-#include "io_ctrl.h"
-#include "bootinfo.h"
-
-// (NT)
 // Gramado OS headers.
 
+// Order:
+//   + (1) Configuration of product and version.
+//   + (2) Main supervisor configuration.
+//   + (3) Libc headers.
+//   + (4) Memory management.
+//   + (5) HAL.
+//   + (6) Devices.
+//   + (7) Network.
+//   + (8) File system.
+//   + (9) Process structures.
+//   + (10) User.
+//   + (11) Syscalls.
+//   + (12) API. (Wrappers).
+
+
+//
+// + (1) Configuration of product and version.
+//
+
+// Product and version.
 // ==================================
 #include "admin/product/product.h"  // Product type
 #include "admin/product/version.h"  // Product version
 // ==================================
-// Gramado Configuration
-#include "config/gramado/config.h"
-#include "config/gramado/u.h"          // User
-#include "config/gramado/system.h"
+#include "admin/bootinfo.h"
+#include "admin/mode.h"
+#include "admin/state.h"
 // ==================================
-#include "gramado/utsname.h"
+// Gramado Configuration
+#include "admin/config/gramado/config.h"
+// ==================================
+// utsname
+// Structure describing the system and machine
+#include "admin/config/gramado/u.h"          // User
+#include "admin/config/gramado/utsname.h"
+// ==================================
+// system
+#include "admin/config/gramado/system.h"
+// ==================================
+
+//
+// + (2) Main supervisor configuration.
+//
 
 // ==================================
+// Supervisor:
 // Kernel configuration.
 // Compiling.
-#include "config/superv/config.h"
-#include "config/superv/limits.h"
-#include "config/superv/limits2.h"
-#include "config/superv/gdef.h"
-#include "config/superv/gdevice.h"
-#include "config/superv/ginput.h"  // input manager support.
-#include "config/superv/gspin.h"
-#include "config/superv/gwd.h"     // whatch dogs.
-#include "config/superv/pints.h"   // profiler
+#include "admin/config/superv/config.h"
+#include "admin/config/superv/limits.h"
+#include "admin/config/superv/limits2.h"
+#include "admin/config/superv/gdef.h"
+#include "admin/config/superv/gdevice.h"
+#include "admin/config/superv/ginput.h"  // input manager support.
+#include "admin/config/superv/gspin.h"
+#include "admin/config/superv/gwd.h"     // whatch dogs.
+#include "admin/config/superv/pints.h"   // profiler
 // #todo: Move it from here.
 #include "request.h"
-#include "config/superv/info.h"    // last one?
-#include "config/superv/kinit.h"   // kernel initialization.
+#include "admin/config/superv/info.h"    // last one?
+#include "admin/config/superv/kinit.h"   // kernel initialization.
 
+// ===============================
+
+
+// Gramado configuration.
 #include "gramado/debug.h"
-
 #include "gramado/jiffies.h"
 
+// Setup input mode.
+#include "dev/io_ctrl.h"
+
+
 //
-// crt: Libc support.
+// + (3) Libc headers.
 //
 
+// crt: Libc support.
 #include "public/ktypes.h"
 #include "public/ktypes2.h"
 #include "kstdarg.h"
@@ -71,7 +103,11 @@
 #include "kttydef.h"
 
 // Globals. PIDs support.
-#include "config/superv/kpid.h"
+#include "admin/config/superv/kpid.h"
+
+//
+// + (4) Memory management.
+//
 
 // Memory management.
 #include "mm/x64gpa.h"
@@ -90,6 +126,10 @@
 // memory and libc
 #include "runtime.h"
 
+//
+// + (5) HAL.
+//
+
 // hal
 #include "hal/ports64.h"
 #include "hal/cpu.h"
@@ -100,7 +140,7 @@
 // hal pci
 #include "hal/bus/pci.h"  // PCI bus.
 // hv
-#include "config/hyperv/hv.h"
+#include "admin/config/hyperv/hv.h"
 // hal cpu
 #include "hal/cpuid.h"
 #include "hal/up.h"
@@ -117,6 +157,10 @@
 // hal global
 #include "hal/hal.h"     // last one.
 
+
+//
+// + (6) Devices.
+//
 
 //  primeiro char, depois block, depois network.
 
@@ -178,6 +222,9 @@
 #include "dev/disk.h"  
 #include "dev/storage.h" 
 
+//
+// + (7) Network.
+//
 
 //
 // Network devices ---------------------------
@@ -210,6 +257,10 @@
 // Device manager.
 #include "dev/devmgr.h"  
 
+//
+// + (8) File system.
+//
+
 // ----------------------
 // Depois de devices.
 
@@ -222,6 +273,10 @@
 #include "fs/pipe.h"
 #include "fs/fs.h"
 
+
+//
+// + (9) Process structures.
+//
 
 //
 // Kernel --------------------------
@@ -242,6 +297,11 @@
 #include "ps/msg.h"
 #include "ps/thread.h"
 #include "ps/process.h"
+
+
+//
+// + (10) User.
+//
 
 //
 // user/
@@ -267,6 +327,11 @@
 
 #include "gramado/mod.h"
 
+
+//
+// + (11) Syscalls.
+//
+
 // ==============================
 
 // sci - system call interface
@@ -280,6 +345,10 @@
 #include "gramado/syscalls/syscalls.h"
 
 // ==============================
+
+//
+// + (12) API. (Wrappers).
+//
 
 #include "zero.h"
 #include "newos.h"
