@@ -39,6 +39,8 @@
 // Default height
 // 24 = (16 +2+2 +2+2)
 #define METRICS_TITLEBAR_DEFAULT_HEIGHT  24
+// 40 = (32 +2+2 +2+2)
+#define METRICS_SUPERTITLEBAR_DEFAULT_HEIGHT  40
 
 // Control width.
 // #todo: Bigger will crash?

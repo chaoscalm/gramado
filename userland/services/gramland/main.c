@@ -3346,9 +3346,10 @@ static int initGUI(void)
 // Create and update the taskbar window.
     initBackground();
 
-// IN: height, flush.
+// IN: issuper, show.
 // See: wm.c
-    create_taskbar(METRICS_TASKBAR_DEFAULT_HEIGHT,FALSE);  
+    //create_taskbar(TRUE,FALSE);
+    create_taskbar(FALSE,FALSE);
     wm_Update_TaskBar("Welcome!",TRUE);
 
     //#debug

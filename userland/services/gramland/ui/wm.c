@@ -22,6 +22,8 @@ struct gws_windowmanager_d  WindowManager;
 // Default color scheme
 struct gws_color_scheme_d* GWSCurrentColorScheme;
 
+struct taskbar_d  TaskBar;
+
 // -------------------------------------
 
 // Windows - (struct)
@@ -5649,8 +5651,10 @@ void __create_quick_launch_area(void)
 // os aplicativos podem ser agrupados por tag.
 // quando uma tag eh acionada, o wm exibe 
 // todos os aplicativos que usam essa tag.
-void create_taskbar (unsigned long tb_height, int show)
+void create_taskbar(int issuper, int show)
 {
+// Called by initGUI() in main.c
+
     unsigned long w = gws_get_device_width();
     unsigned long h = gws_get_device_height();
     int wid = -1;
@@ -5659,14 +5663,30 @@ void create_taskbar (unsigned long tb_height, int show)
     unsigned int frame_color  = (unsigned int) get_color(csiTaskBar);
     unsigned int client_color = (unsigned int) get_color(csiTaskBar);
 
+    unsigned long tb_height = METRICS_TASKBAR_DEFAULT_HEIGHT;
+
     if (w==0 || h==0){
         gwssrv_debug_print ("create_taskbar: w h\n");
         printf             ("create_taskbar: w h\n");
         exit(1);
     }
 
+    TaskBar.initialized = FALSE;
+    //TaskBar.is_super = FALSE;
+    //TaskBar.is_super = TRUE;
+    TaskBar.is_super = (int) issuper;
+    if (TaskBar.is_super != TRUE && TaskBar.is_super != FALSE)
+    {
+        TaskBar.is_super = FALSE;
+    }
+
 // Taskbar.
 // Create  window.
+
+    tb_height = METRICS_TASKBAR_DEFAULT_HEIGHT;
+    if (TaskBar.is_super == TRUE){
+        tb_height = METRICS_SUPERTITLEBAR_DEFAULT_HEIGHT;
+    }
 
     //if (tb_height<40)
     if (tb_height<24){
@@ -5680,6 +5700,11 @@ void create_taskbar (unsigned long tb_height, int show)
     unsigned long wTop    = (unsigned long) (h-tb_height);
     unsigned long wWidth  = (unsigned long) w;
     unsigned long wHeight = (unsigned long) tb_height;  //40;
+
+    TaskBar.left   = (unsigned long) wLeft;
+    TaskBar.top    = (unsigned long) wTop;
+    TaskBar.width  = (unsigned long) wWidth;
+    TaskBar.height = (unsigned long) wHeight;
 
     taskbar_window = 
         (struct gws_window_d *) CreateWindow ( 
@@ -5722,6 +5747,8 @@ void create_taskbar (unsigned long tb_height, int show)
 // Show
     //flush_window(taskbar_window);
 
+    TaskBar.initialized = TRUE;
+
 // #debug
 
     /*
@@ -5735,8 +5762,17 @@ void create_taskbar (unsigned long tb_height, int show)
     //while(1){}
     */
 
+//
+// Start menu.
+//
+
 // Start menu.
     __create_start_menu();
+
+//
+// Quick launch area.
+//
+
 // Quick launch area.
     __create_quick_launch_area();
 // Show
@@ -6560,6 +6596,9 @@ void wm_Update_TaskBar(char *string, int flush)
     if (*string == 0){
         return;
     }
+// TaskBar
+    if (TaskBar.initialized != TRUE)
+        return;
 // Window
     if ( (void*) taskbar_window == NULL ){
         return;
