@@ -421,7 +421,7 @@ static void *__extra_services (
 
 
 // Outro numero fará esse trabalhao.
-    if ( number == 260 )
+    if (number == 260)
     {
         return (void *) sys_read ( 
                             (unsigned int) arg2, 
@@ -430,7 +430,7 @@ static void *__extra_services (
     }
 
 // Outro numero fará esse trabalho.
-    if ( number == 261 )
+    if (number == 261)
     {
         return (void *) sys_write ( 
                             (unsigned int) arg2, 
@@ -442,8 +442,8 @@ static void *__extra_services (
 // range: 0 ~ 3
 // chamado por read_VC em ring3.
 // IN: fd, buf, count
-    if ( number == 262 ){
-        return (void *) console_read ( (int) arg2, 
+    if (number == 262){
+        return (void *) console_read((int) arg2, 
                             (const void *) arg3, (size_t) arg4 );
     }
 
@@ -452,7 +452,7 @@ static void *__extra_services (
 // chamado por write_VC em ring3.
 // IN: fd, buf, count
     if ( number == 263 ){
-        return (void *) console_write ( (int) arg2, 
+        return (void *) console_write ((int) arg2, 
                             (const void *) arg3, (size_t) arg4 );
     }
 
@@ -462,7 +462,7 @@ static void *__extra_services (
 // IN: PID.
 // OUT: tty id.
     if (number == 266){
-        return (void *) process_get_tty ( (int) arg2 );
+        return (void *) process_get_tty((int) arg2);
     }
 
 // Ligar duas tty, dados os pids dos processos que possuem as tty.
@@ -495,19 +495,19 @@ static void *__extra_services (
     }
 
 // Get current virtual console.
-    if (number == 277 ){
+    if (number == 277){
         return (void *) console_get_current_virtual_console();
     }
 
 // Set current cirtual console.
 // #todo: precisa de privilégio. 
-    if (number == 278 ){
-        console_set_current_virtual_console ( (int) arg2 );
+    if (number == 278){
+        console_set_current_virtual_console((int) arg2);
         return NULL;
     }
 
 // Returns the current runlevel.
-    if ( number == 288 ){
+    if (number == 288){
         return (void *) newos_get_current_runlevel();
     }
 
@@ -580,7 +580,7 @@ static void *__extra_services (
 // Pega o wm de um dado desktop.
 // IN: Desktop structure pointer.
 // OUT: pid
-    if ( number == SYS_GET_WS_PID )
+    if (number == SYS_GET_WS_PID)
     {
         debug_print("__extra_services: SYS_GET_WS_PID\n");
         __desktop = ( struct desktop_d *) arg2;
@@ -733,8 +733,7 @@ static void *__extra_services (
 // 521 - set ns PID for a given desktop
 // Register a network server.
 // gramado_ports[11] = ws_pid
-
-    if ( number == 521 )
+    if (number == 521)
     {
         __desktop = ( struct desktop_d *) arg2;
         if ( (void *) __desktop != NULL )
@@ -766,7 +765,6 @@ static void *__extra_services (
     if (number == 602){
         return (void *) sys_dup3( (int) arg2, (int) arg3, (int) arg4 );
     }
-
 
 // 603 - lseek support.
 // See: klib/kunistd.c
@@ -822,8 +820,7 @@ static void *__extra_services (
         return NULL;
     }
 
-
-// Show device list.
+// 770 - Show device list.
     if (number == 770)
     {
         // #bugbug
@@ -832,28 +829,26 @@ static void *__extra_services (
         return NULL;
     }
 
-// cpu usage for idle thread.
+// 777 - cpu usage for idle thread.
     if (number == 777){
         return (void *) profiler_percentage_idle_thread;
     }
 
-// get host name
+// 801 - get host name
     if ( number == 801 ){
-        return (void *) __gethostname ( (char *) arg2);
+        return (void *) __gethostname((char *) arg2);
     }
-
-// set host name
+// 802 - set host name
     if ( number == 802 ){
-        return (void *) __sethostname ( (const char *) arg2); 
+        return (void *) __sethostname((const char *) arg2); 
     }
-
-// Get user name.
+// 803 - Get user name.
     if (number == 803){
-        return (void *) __getusername ( (char *) arg2 );
+        return (void *) __getusername((char *) arg2);
     }
-// Set user name.
+// 804 - Set user name.
     if (number == 804){
-        return (void *) __setusername ( (const char *) arg2 ); 
+        return (void *) __setusername((const char *) arg2); 
     }
 
 // #todo
@@ -861,11 +856,12 @@ static void *__extra_services (
 // get_ptsname
 // #todo: Change the name to sys_ptsname()
 // IN: fd do master, buffer em ring3 para o nome, buflen.
-    if ( number == 808 ){
-        return (void *) __ptsname ( (int) arg2, 
+    if (number == 808){
+        return (void *) __ptsname ((int) arg2, 
                             (char *) arg3, (size_t) arg4  ); 
     }
 
+// (#bugbug: The same as above?)
 //#todo
 //supporting ptsname_r libc function
 // #todo: Change the name to sys_ptsname()
@@ -875,43 +871,42 @@ static void *__extra_services (
                             (char *) arg3, (size_t) arg4  ); 
     } 
 
-// Get process stats given pid
+// 880 - Get process stats given pid
 // IN: pid, index
     if ( number == 880 ){
        return (void *) get_process_stats ( (pid_t) arg2, (int) arg3 );
     }
 
-// Get thread stats given tid
+// 881 - Get thread stats given tid
 // IN: tid, number
     if ( number == 881 ){
         return (void *) GetThreadStats ( (int) arg2, (int) arg3 );
     }
 
-// Get process name
+// 882 - Get process name
 // IN: PID, ubuffer.
     if ( number == 882 ){
         return (void *) getprocessname( (pid_t) arg2, (char *) arg3 );
     }
 
-// Get thread name
+// 883 - Get thread name
     if ( number == 883 ){
         return (void *) getthreadname ( (int) arg2, (char *) arg3 );
     }
 
-// alarm()
+// 884 - alarm()
 // See: sys.c
     if ( number == 884 ){
         return (unsigned long) sys_alarm( (unsigned long) arg2 );
     }
 
-// 891
-// Allocate shared ring3 pages.
+// 891 - Allocate shared ring3 pages.
     if ( number == 891 ){
         debug_print("__extra_services: 891, Allocate shared ring3 pages\n");
         return (void *) newos_alloc_shared_ring3_pages( (pid_t) current_process, (int) arg2 );
     }
 
-// Setup the thread's surface rectangle.
+// 892 - Setup the thread's surface rectangle.
     if (number == 892)
     {
         __setup_surface_rectangle( 
@@ -922,16 +917,14 @@ static void *__extra_services (
         return NULL;
     }
 
-// Invalidate the thread's surface rectangle.
-    if ( number == 893 )
+// 893 - Invalidate the thread's surface rectangle.
+    if (number == 893)
     {
         __invalidate_surface_rectangle();
         return NULL;
     }
 
-    // 896,895 ... window stuff.
-
-// Invalidate the whole screen
+// 896 - Invalidate the whole screen
     if ( number == 896 )
     {
         invalidate_screen();
@@ -939,15 +932,14 @@ static void *__extra_services (
         return NULL;
     }
 
-// Create a rectangle.
-// Testing compositor
+// 897 - Create a rectangle.
     if (number == 897)
     {
         __service897();
         return NULL;
     }
 
-// Enable prompt
+// 898 - Enable prompt
     if ( number == 898 )
     {
         printf ("Prompt ON: Type something\n");
@@ -956,7 +948,7 @@ static void *__extra_services (
         return NULL;
     }
 
-// Desable prompt
+// 899 - Desable prompt
     if ( number == 899 )
     {
         printf ("Prompt OFF: Bye\n");
@@ -965,7 +957,7 @@ static void *__extra_services (
         return NULL;
     }
 
-// is it full ?
+// is the socket full?
 // See: sys.c
 // IN: fd
 // OUT: -1= error; FALSE= nao pode ler; TRUE= pode ler.
@@ -1014,6 +1006,7 @@ static void *__extra_services (
     //    return (void *) k_fopen ( (const char *) arg2, "r+" );
     //}
 
+// 4444
 // Show root files system info.
 // Print into the raw kernel console.
     if (number == 4444){
@@ -1023,14 +1016,14 @@ static void *__extra_services (
 
     //7000 ~ 7020 for network sockets
 
-// socket() 
+// 7000 - socket() 
 // See: socket.c
 // family, type, protocol
     if (number == 7000){
         return (void *) sys_socket ( (int) arg2, (int) arg3, (int) arg4 );
     }
 
-// connect()
+// 7001 - connect()
 // fd, sockaddr struct pointer, addr len.
     if (number == 7001){
         return (void *) sys_connect ( 
@@ -1039,7 +1032,7 @@ static void *__extra_services (
                             (socklen_t) arg4 );
     }
 
-// accept()
+// 7002 - accept()
 // This is the unix standard method.
 // Our major goal is to return the fd for the client socket file.
 // #bugbug: Work in progress.
@@ -1051,7 +1044,7 @@ static void *__extra_services (
                             (socklen_t *) arg4 ); 
     }
 
-// bind()
+// 7003 - bind()
 // fd, sockaddr struct pointer, addr len.
     if ( number == 7003 ){
         return (void *) sys_bind ( 
@@ -1060,20 +1053,23 @@ static void *__extra_services (
                             (socklen_t) arg4 );
      }
 
-// listen() support.
+// 7004 - listen() support.
 // IN: fd, backlog
 // see: 
     if (number == 7004){
         return (void *) sys_listen((int) arg2, (int) arg3);  
     }
 
+// 7005
+
+// 7006
 // Salvar um pid em uma das portas.
 // IN: gramado port, PID
     if (number == 7006){
         return (void *) socket_set_gramado_port( (int) arg2, (int) arg3 );
     }
 
-// sys_getsockname()
+// 7007 - sys_getsockname()
 // fd, sockaddr struct pointer, addr len.
     if ( number == 7007 ){
         return (void *) sys_getsockname ( 
@@ -1082,20 +1078,20 @@ static void *__extra_services (
                             (socklen_t *) arg4 );
      }
 
-// socket info
+// 7008 - show socket info for a process.
 // IN: pid
     if ( number == 7008 ){
-        show_socket_for_a_process( (int) arg2 );
+        show_socket_for_a_process((int) arg2);
         return NULL;
     }
 
-// libc: shutdown() IN: fd, how
+// 7009 - libc: shutdown() IN: fd, how
     if ( number == 7009 ){
         sys_socket_shutdown( (int) arg2, (int) arg3 );
         return NULL;
     }
 
-// ioctl() implementation.
+// 8000 - ioctl() implementation.
 // See: fs.c
 // IN: fd, request, arg
     if (number == 8000){
@@ -1105,7 +1101,7 @@ static void *__extra_services (
                             (unsigned long) arg4 );
     }
 
-// fcntl()
+// 8001 - fcntl()
 // See: sys.c    
     if ( number == 8001 ){
         return (void *) sys_fcntl ( 
@@ -1130,7 +1126,7 @@ static void *__extra_services (
     if (number == 9100){
         if (arg2<0)
             return NULL;
-        return (void *) ui_get_system_icon ( (int) arg2 );
+        return (void *) ui_get_system_icon((int) arg2);
     }
 
     // ...
@@ -1350,6 +1346,8 @@ void *sci0 (
             return NULL;
             break;
 
+        // 7
+        
         // Business Logic:
         // 8 
         // #todo: #bugbug: 
@@ -1698,7 +1696,7 @@ void *sci0 (
         // 94
         case SYS_STARTTHREAD:
             debug_print("sci0: SYS_STARTTHREAD\n");
-            return (void *) newos_start_thread( (struct thread_d *) arg2 );
+            return (void *) newos_start_thread((struct thread_d *) arg2);
             break;
 
         // ------------------
@@ -1740,9 +1738,8 @@ void *sci0 (
                                 (unsigned long) arg3 );
             break;
 
-        // 113~117: free
-
-        // 118~119: network
+        // 113~117: 
+        // 118~119: 
 
         // Pop data from network queue.
         case 118:
@@ -1751,6 +1748,7 @@ void *sci0 (
                                (unsigned long) &message_address[0], 
                                (int) arg3 );
             break;
+
         // Push data into the network queue?
         //case 119:
             //break;
@@ -1764,6 +1762,8 @@ void *sci0 (
                 (unsigned long) &message_address[0], arg3, arg4 );
             break;
 
+        // 121,122,123
+
         // 124 (teste)
         // Defered system procedure call.
         // #todo: 
@@ -1773,6 +1773,8 @@ void *sci0 (
             kernel_request = KR_DEFERED_SYSTEMPROCEDURE;
             return NULL;
             break;
+
+        // 125
 
         // Business Logic:
         // 126
@@ -1806,7 +1808,11 @@ void *sci0 (
             return NULL;
             break;
 
-        // 128~131: free
+        // 128~129: free
+
+        // -------------
+        
+        // 130, 131
 
         // 132 - d_draw_char
         // Desenha um caractere e pinta o pano de fundo.
@@ -1847,6 +1853,12 @@ void *sci0 (
         case 138:
             return (void *) keyboardGetKeyState((unsigned char) arg2);
             break;
+
+        // 139
+        
+        // -----------------
+        // 140~149
+        // -----------------
 
         // 150~156 User and group support.
 
@@ -1987,11 +1999,14 @@ void *sci0 (
         // 178
         // See: sys.c
         case 178:
-            return (void *) sys_get_file_size ( (unsigned char *) arg2 );
+            return (void *) sys_get_file_size((unsigned char *) arg2);
             break;
+
+        // 179
 
         //----------
         // 180~189: memory support.
+        // (Privilegies)
 
         // 184
         // Pega o endereço do heap do processo dado seu id.
@@ -2069,6 +2084,8 @@ void *sci0 (
             process_open_gate(current_process);
             return NULL;
             break;
+
+        // 229
 
         //---------------------
         // 230~239: Reserved for tty support.
@@ -2256,24 +2273,23 @@ void *sci2 (
 // switch
 //
 
-//set magic
+// 1 - Set magic (in kernel console)
 // #todo: This operation needs permition?
     if (number == 1){
         //CONSOLE_TTYS[fg_console].magic = arg2;
         return NULL;
     }
-
-// Get magic
+// 2 - Get magic (in kernel console)
     if (number == 2){
         return (void*) CONSOLE_TTYS[fg_console].magic;
     }
 
-// Get system metrics
+// 3 - Get system metrics
     if (number == 3){
         return (void*) sys_get_system_metrics(arg2);
     }
 
-// ioctl() handler.
+// 4 - ioctl() handler.
 // See: fs.c
 // IN: fd, request, arg
     if (number == 4){
@@ -2283,14 +2299,14 @@ void *sci2 (
         return NULL;
     }
 
-// Business Logic: fcntl() implementation.
+// 5 - Business Logic: fcntl() implementation.
 // See: ?
     if (number == 5){
         debug_print("sci2: [5] fcntl\n");
         return (void*) sys_fcntl( (int) arg2, (int) arg3, (unsigned long) arg4 );
     }
 
-// Business Logic: read() implementation.
+// 18 - Business Logic: read() implementation.
 // See: fs.c
     if (number == 18){
         //debug_print("sci2: [18] read\n");
@@ -2300,7 +2316,7 @@ void *sci2 (
                             (int)          arg4 );
     }
 
-// Business Logic: write() implementation.
+// 19 - Business Logic: write() implementation.
 // See: fs.c
     if (number == 19){
         //debug_print("sci2: [19] write\n");
@@ -2312,6 +2328,7 @@ void *sci2 (
 
     // ...
 
+// 265 - yield
 // Business Logic: 
 //  + Yield 
 //  + Set a flag that this thread will be preempted.
@@ -2323,6 +2340,7 @@ void *sci2 (
         return NULL; 
     }
 
+// 266 - sleep
 // Business Logic: 
 // Sleep until.
 // #todo: Explaint it better here.
@@ -2342,12 +2360,14 @@ void *sci2 (
         return NULL;
     }
 
+// 777 - nice
     if (number == 777)
     {
         sys_broken_vessels(current_thread);
         return NULL;   
     }
 
+// 900 - copy process
 // Business Logic: 
 // Clona e executa o filho dado o nome do filho.
 // O filho inicia sua execução do início da imagem.
@@ -2368,7 +2388,7 @@ void *sci2 (
                             (unsigned long) arg3 );
     }
 
-// Business Logic: ioctl() implementation.
+// 8000 - Business Logic: ioctl() implementation.
 // See: fs.c
 // IN: fd, request, arg
     if (number == 8000)
@@ -2382,7 +2402,7 @@ void *sci2 (
     }
 
 
-// Business Logic: fcntl() implementation. 
+// 8001 - Business Logic: fcntl() implementation. 
 // (second time) see: number 5.
 // See: sys.c
     if (number == 8001){
@@ -2393,6 +2413,7 @@ void *sci2 (
                             (unsigned long) arg4 );
     }
 
+// 8003
 // Business Logic: 
 // Clear the fg console background with a given color.
 // Do not change the colors.
@@ -2410,6 +2431,7 @@ void *sci2 (
         return NULL;
     }
 
+// 8004
 // Business Logic: 
 // Change the foreground color of the current console.
     if (number == 8004)
@@ -2427,6 +2449,7 @@ void *sci2 (
         return NULL;
     }
 
+// 10000 - sys_set_file_sync
 // Business Logic: 
 // Configurando sincronização de leitura e escrita em arquivo.
 // principalmente socket.
@@ -2441,6 +2464,7 @@ void *sci2 (
         return NULL;
     }
 
+// 10001 - sys_get_file_sync
 // Business Logic: 
 // Pegando informação sobre sincronização de leitura e escrita de arquivos.
 // principalmente para socket.
@@ -2457,9 +2481,11 @@ void *sci2 (
 // Global sync
 //
 
+// Global sync - Not used anymore.
+
 // ============
 // See: sys.c
-    // Business Logic: Set action.
+// Business Logic: Set action.
     if (number == 10002){
         sys_set_global_sync( (int) arg2, (int) arg3, (int) arg4 );
         return NULL;
@@ -2501,6 +2527,7 @@ void *sci2 (
     }
 // ===============
 
+// 10008
 // Business Logic:
 // Save FAT cache into the disk.
 // FAT cache.
@@ -2518,13 +2545,14 @@ void *sci2 (
         return NULL;
     }
 
-// Business Logic: Get the tid of the current thread.
+// 10010 - Business Logic: Get the tid of the current thread.
     if (number == 10010){
         //debug_print("sci2: [10010] GetCurrentTID\n");
         return (void*) GetCurrentTID();
     }
 
 // -----------------------------
+// 10011
 // Business Logic: 
 // Set the foreground thread given it's tid.
 // #todo: We need a method for that.
@@ -2574,17 +2602,18 @@ void *sci2 (
 // We can put all the network services in a single dialog function.
 // Just like a procedure. networkProcesure(....);
 
-// Set network status.
+// 22001 - Set network status.
 // Enable or disable.
     if (number == 22001){
         networkSetStatus((int) arg2);
         return NULL;
     }
-// Get network status.
+// 22002 - Get network status.
     if (number == 22002){
         return (void*) networkGetStatus();
     }
-// Test some net component.
+
+// 22003 - Test some net component.
     if (number == 22003)
     {
         switch (arg2){
@@ -2603,6 +2632,7 @@ void *sci2 (
         return NULL;
     }
 
+// 22011
 // Business Logic:
 // PS2 full initialization.
     if (number == 22011)
@@ -2640,6 +2670,8 @@ void *sci2 (
         return NULL;
     }
 
+
+// 44000
 // Business Logic:
 // #important: We're avoiding the callback support.
 // Callback support.

@@ -1,18 +1,13 @@
 
-// syscalls.h
-// system call service routine numbers.
-// Valid only for the interrupt 0x80.
-// See sci0() in sci.c.
+// sci0.h
 
-// #todo
-// We can change these names,
-// Maybe startinng with Syscall_xxx
+#ifndef __SYSCALLS_SCI0_H
+#define __SYSCALLS_SCI0_H    1
 
-#ifndef  __GRAMADO_SYSCALLS_H
-#define  __GRAMADO_SYSCALLS_H    1
+// The handler is sci0().
 
-// NULL
 #define SYS_NULL  0
+#define SCI0_NULL  0  // <<<<<<--- #todo Use this pattern.
 
 // Disk
 #define SYS_READ_LBA    1
@@ -36,7 +31,7 @@
 #define SYS_REDE_R3    14
 #define SYS_REDE_R4    15
 
-// Unix
+// Posix
 #define SYS_OPEN     16  // open()
 #define SYS_CLOSE    17  // close()
 #define SYS_READ     18  // read()
@@ -54,6 +49,7 @@
 #define SYS_26  26
 #define SYS_27  27
 #define SYS_28  28
+
 
 // kgws - Print string on backbuffer.
 #define SYS_MY_BUFFER_PRINTSTRING  29
@@ -107,6 +103,7 @@
 // 48 - livre
 // 49 - Show system info.
 
+// ...
 
 // 65 - Put a char in the current virtual console.
 #define SYS_KGWS_PUTCHAR  65
@@ -116,13 +113,13 @@
 //#define SYS_68  68
 //#define SYS_69  69
 
-
 //
 //    Process and Thread 
 //
 
+
 // Process and thread support.
-#define  SYS_EXIT             70    // Um processo saiu.
+#define  SYS_EXIT             70    // Um thread saiu.
 #define  SYS_FORK             71    // fork.
 #define  SYS_CREATETHREAD     72    // Create thread and execute it.
 #define  SYS_CREATEPROCESS    73    // Create process and execute it. 
@@ -153,7 +150,6 @@
 
 // Not in use.
 #define SYS_86  86
-// Not in use.
 #define SYS_87  87
 
 // Test process validation.
@@ -178,6 +174,7 @@
 
 // 100~109: free
 
+//---------------
 // Reboot
 #define SYS_REBOOT  110
 
@@ -190,6 +187,8 @@
 #define SYS_112  112
 
 // 113~119: free
+
+//------------
 
 // 120
 // Get a message given the index.
@@ -210,11 +209,11 @@
 // i/o port support
 #define SYS_USERMODE_PORT_OUT  127
 
-// 128~131: free
+// 128~129: free
 
-//
-// Draw char.
-//
+// --------------------
+
+// 130,131
 
 // 132 - d_draw_char
 // Desenha um caractere e pinta o pano de fundo.
@@ -233,6 +232,9 @@
 #define	SYS_138           138
 
 #define	SYS_GETSCANCODE   139  
+
+// -------------------
+
 //keyboard responder
 #define	SYS_SET_CURRENT_KEYBOARD_RESPONDER 140
 #define	SYS_GET_CURRENT_KEYBOARD_RESPONDER 141
@@ -249,6 +251,8 @@
 #define	SYS_148 148 //create grid
 #define	SYS_149 149 //initialize grid.
 
+// -----------------
+
 // 150~156 User and group support.
 #define SYS_CREATEUSER         150
 #define SYS_SETCURRENTUSERID   151
@@ -258,59 +262,54 @@
 #define SYS_UPDATEUSERINFO     155
 #define SYS_SHOWUSERINFO       156
 
-//
-// Security
-//
-
+// Security (User session, room, desktop)
 #define SYS_GETCURRENTUSERSESSION    157 // user session
 #define SYS_GETCURRENTWINDOWSTATION  158 // room (window station)
 #define SYS_GETCURRENTDESKTOP        159 // desktop
 
-// 160~169: Reserved to network support.
-#define	SYS_160 160    //create socket (retorna o ponteiro para a estrutura)
-#define	SYS_161 161    //get socket IP
-#define	SYS_162 162    //get socket port
-#define	SYS_163 163    //update socket  
-#define	SYS_164 164    //netStream
-#define	SYS_165 165    //netSocket
-#define	SYS_166 166    //netBuffer
-#define  SYS_167  167
-#define  SYS_168  168
-#define  SYS_169  169 
+// ------------
 
+// 160~169: Reserved to network support.
+#define SYS_160  160    //create socket (retorna o ponteiro para a estrutura)
+#define SYS_161  161    //get socket IP
+#define SYS_162  162    //get socket port
+#define SYS_163  163    //update socket  
+#define SYS_164  164    //netStream
+#define SYS_165  165    //netSocket
+#define SYS_166  166    //netBuffer
+#define SYS_167  167
+#define SYS_168  168
+#define SYS_169  169 
+
+// -----------------
 
 // Print Working Directory.
 // Comand 'pwd'.
 #define SYS_PWD  170
-
 // Get current volume id.
 #define SYS_GETCURRENTVOLUMEID  171
 // Configura o id do volume atual.
 #define SYS_SETCURRENTVOLUMEID  172
-
 // Listar os arquivos do diretório. 
 // Dados ids de disco, volume e diretório.
 #define SYS_LISTFILES  173
 // Procurar arquivo. 
 #define SYS_SEARCHFILE  174
-
 // 175 - 'cd' command support.
 #define SYS_175  175
-
 // 176 - pathname backup string.
 #define SYS_176  176
-
 // 'dir' command.
 // Listando arquivos em um diretório dado o nome.
 #define SYS_177  177
-
 // Get file size.
 // Pegando o tamanho de um arquivo.
 // bufbug: isso está gastando memória carregando o diretório raiz.
 #define SYS_178  178
-
-// NOt in use.
+// Not in use.
 #define SYS_179   179
+
+// -----------------
 
 // 180~189: memory support.
 // Memory support.
@@ -327,9 +326,10 @@
 #define SYS_SETPROCESSDIRECTORY    189  // set process directory.
 
 // 190~199: free
+
 // 200~209: free
 
-
+// -------------------
 // 210~219: terminal/virtual console support.
 // #bugbug: 
 // Isso provavelmente são rotinas de console virtual
@@ -345,6 +345,8 @@
 #define SYS_GETTERMINALRECT         217
 #define SYS_SETTERMINALRECT         218
 #define SYS_DESTROYTERMINAL         219
+
+// -------------------
 
 // --------------
 
@@ -366,8 +368,10 @@
 #define SYS_OPEN_KERNELSEMAPHORE   228  // Open  (1).
 #define SYS_229  229  // #todo: use it for semaphore support.
 
+// -------------
 // 230~239: Reserved for tty support.
 
+// -------------
 // 240~249: Reserved for text editing support.
 
 #define SYS_GETCURSORX  240
@@ -381,6 +385,7 @@
 #define SYS_248  248
 #define SYS_249  249
 
+// -------------
 // (250 ~ 255) - Info support.
 
 // System info support.
@@ -392,84 +397,207 @@
 #define SYS_SHOWKERNELINFO    255    // Kernel info.
 
 //
-// Outros ...
+// == Extra ============================================
 //
 
+// The handler is the worker __extra_services(), 
+// called by sci0().
+
+// 260 read.
+// 261 write.
+// 262 console read
+// 263 console write
+// 266 process_get_tty
+// 272 tty read
+// 273 tty write
+// 277 console_get_current_virtual_console
+// 278 console_set_current_virtual_console
+// 288 Returns the current runlevel.
+// 289 Serial debug print string.
+// 292 newos_get_memory_size_mb
+// 293 info_get_boot_info
+
+/*
+ 350 sys_initialize_component:
+// Inicializar ou reinicializar componentes do sistema
+// depois da inicialização completa do kernel.
+// Isso poderá ser chamado pelo init.bin, pelo shell
+// ou qualquer outro.
+*/
+
+// 377 - Get info to fill the utsname structure.
+
+// 391 - backbuffer_draw_rectangle
+// #bugbug
+// Falha se tentamos pintar a tela toda.
+
+
 // ws and wm.
+
+// 512 - SYS_GET_WS_PID
+// 512 - Get ws PID for a given desktop.
+// Pega o wm de um dado desktop.
 #define  SYS_GET_WS_PID  512
+
+// 513 - SYS_SET_WS_PID
+// 513
+// Register the ring3 display server.
+// Set ws PID for a given desktop
+// Register a display server.
+// gramado_ports[11] = ws_pid
+// Called by the window server.
+// arg2 = desktop structure pointer.
+// arg3 = The window server PID.
+// #todo: 
+// We need a helper function for this.
 #define  SYS_SET_WS_PID  513
+
+// 514 - SYS_GET_WM_PID
+// 514 - get wm PID for a given desktop
+// IN: desktop
 #define  SYS_GET_WM_PID  514
+
+// 515 - SYS_SET_WM_PID
+// 515 - set wm PID for a given desktop
+// Register a ring3 wm.
+// IN: desktop, pid
 #define  SYS_SET_WM_PID  515
 
 // Ingo for ws and wm.
-#define	SYS_SHOW_X_SERVER_INFO  516  // show x server info	
-#define	SYS_SHOW_WM_INFO        517  // show wm info	
+#define SYS_SHOW_X_SERVER_INFO  516  // show x server info
+#define SYS_SHOW_WM_INFO        517  // show wm info
+
+// 519 - CurrentDesktop
+// #bugbug
+// This is a ring0 pointer.
+// A ring3 process can't handle this thing.
+// Get current desktop
+
+// 521
+// network server
+// 521 - set ns PID for a given desktop
+// Register a network server.
+// gramado_ports[11] = ws_pid
 
 
-//
-// == prototypes ====
-//
+// 600 - dup
+// 601 - dup2
+// 602 - dup3
 
-/* zero/visitor/sci.c */
-void *sci0 ( 
-    unsigned long number, 
-    unsigned long arg2, 
-    unsigned long arg3, 
-    unsigned long arg4 );
+// 603 - lseek support.
+// See: klib/kunistd.c
+// IN: fd, offset, whence.
 
-/* zero/visitor/sci.c */
-void *sci1 ( 
-    unsigned long number, 
-    unsigned long arg2, 
-    unsigned long arg3, 
-    unsigned long arg4 );
+// 640
+// Lock the taskswtiching.
+// Only the init thread can call this service.
 
-/* zero/visitor/sci.c */
-void *sci2 ( 
-    unsigned long number, 
-    unsigned long arg2, 
-    unsigned long arg3, 
-    unsigned long arg4 );
+// 641
+// Unlock taskswitching.
+// Only the init thread can call this service.
 
-// --------------------------------
+// 642
+// Lock the scheduler.
+// Only the init thread can call this service.
 
-/* zero/sys/sys.c */
-unsigned long sys_get_system_metrics(int n);
+// 643
+// Unlock scheduler.
+// Only the init thread can call this service.
 
-/* zero/sys/sys.c */
-void *sys_create_process ( 
-    struct room_d     *room,
-    struct desktop_d  *desktop,
-    unsigned long res1,          //nothing
-    unsigned long priority, 
-    int ppid, 
-    char *name,
-    unsigned long iopl );
+// 770 - Show device list.
 
-/* zero/sys/sys.c */
-void *sys_create_thread ( 
-    struct room_d     *room,
-    struct desktop_d  *desktop,
-    unsigned long init_rip, 
-    unsigned long priority, 
-    int ppid, 
-    char *name );
+// 777 - cpu usage for idle thread.
 
-/* zero/sys/sys.c */
-int sys_exit_thread (tid_t tid);
-int sys_fork(void);
-pid_t sys_getpid(void);
-pid_t sys_getppid(void);
-int sys_initialize_component(int n);
-int sys_serial_debug_printk ( char *s );
-void sys_show_system_info ( int n );
-int sys_uname (struct utsname *ubuf);
-void sys_vsync(void);
+// 801 - get host name
+// 802 - set host name
+// 803 - Get user name.
+// 804 - Set user name.
 
-/* zero/sys/sys.c */
-int sys_reboot(unsigned long flags);
-void sys_shutdown(unsigned long flags);
 
-#endif    
+// 808 - __ptsname
+// #todo
+// supporting ptsname libc function
+// get_ptsname
+// #todo: Change the name to sys_ptsname()
+// IN: fd do master, buffer em ring3 para o nome, buflen.
+
+// (#bugbug: The same as above?)
+// 809 - __ptsname
+//#todo
+//supporting ptsname_r libc function
+// #todo: Change the name to sys_ptsname()
+//IN: fd do master, buffer e buflen.
+
+// 880 - Get process stats given pid
+// 881 - Get thread stats given tid
+// 882 - Get process name
+// 883 - Get thread name
+
+// 884 - alarm()
+// See: sys.c
+
+// 891 - Allocate shared ring3 pages.
+
+// 892 - Setup the thread's surface rectangle.
+// 893 - Invalidate the thread's surface rectangle.
+
+// 896 - Invalidate the whole screen
+// 897 - Create a rectangle.
+
+// (The kernel console).
+// 898 - Enable prompt
+// 899 - Desable prompt
+
+// 913 - sys_sleep_if_socket_is_empty
+// is the socket full?
+
+// 4444
+// Show root files system info.
+// Print into the raw kernel console.
+
+// 7000 ~ 7020 for network sockets
+
+// 7000 - socket() 
+// 7001 - connect()
+// 7002 - accept()
+// 7003 - bind()
+// 7004 - listen() support.
+
+
+// 7006 - socket_set_gramado_port
+// Salvar um pid em uma das portas.
+// IN: gramado port, PID
+
+// 7007 - sys_getsockname()
+
+// 7008 - show socket info for a process.
+// 7009 - libc: shutdown() IN: fd, how
+
+// 8000 - ioctl() implementation.
+
+// 8001 - fcntl()
+
+// 8002 - sys_setup_stdin
+// ?? #bugbug
+// Setup stdin pointer
+// See: kstdio
+// IN: fd
+
+// 9100 - ui_get_system_icon
+// Pegando o endereço de um buffer de icone.
+// queremos saber se ele eh compartilhado.
+// shared_buffer_terminal_icon
+// #bugbug: Static size for the icons. Static buffer size.
+// See: wm.c
+
+
+
+#endif   
+
+
+
+
+
+
 
 

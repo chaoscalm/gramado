@@ -267,12 +267,19 @@
 
 #include "gramado/mod.h"
 
+// ==============================
+
 // sci - system call interface
 // All the functions in this folder can be called
 // by the ring3 apps via system call.
 // This is the last #include. :^)
 
-#include "gramado/syscalls.h"
+#include "gramado/syscalls/sci0.h"
+#include "gramado/syscalls/sci1.h"
+#include "gramado/syscalls/sci2.h"
+#include "gramado/syscalls/syscalls.h"
+
+// ==============================
 
 #include "zero.h"
 #include "newos.h"
