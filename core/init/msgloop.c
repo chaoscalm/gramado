@@ -7,7 +7,7 @@
 
 // The tid of the caller.
 // Sent us a system message.
-static int caller_tid = -1;
+struct endpoint_d  Caller;
 
 //-----------------------------------------
 
@@ -42,14 +42,23 @@ static void do_hello(int src_tid)
     if (dst_tid<0)
         return;
 
+//
+// Reply
+//
+
 // -------------
 // Reply: 
 // Sending response
 // Sending back the same message found into the buffer.
-// message back to caller.
+// Message back to caller.
+
+// The message buffer address.
+    unsigned long msg_buffer_address = 
+        (unsigned long) RTLEventBuffer;
+
     rtl_post_system_message( 
         (int) dst_tid,
-        (unsigned long) &RTLEventBuffer[0] );
+        (unsigned long) msg_buffer_address );
 }
 
 static void do_reboot(int src_tid)
@@ -125,10 +134,10 @@ __Procedure (
 
     // 'Hello' received. Let's respond.
     case 44888:
-        do_hello(caller_tid);
+        do_hello(Caller.tid);
         break;
     case 55888:
-        do_reboot(caller_tid);
+        do_reboot(Caller.tid);
         break;
 
     // #todo
@@ -163,7 +172,7 @@ static int __idlethread_loop(void)
         if ( rtl_get_event() == TRUE )
         {
             // Get caller's tid.
-            caller_tid = (int) ( RTLEventBuffer[8] & 0xFFFF );
+            Caller.tid = (int) ( RTLEventBuffer[8] & 0xFFFF );
             // Dispatch.
             __Procedure ( 
                 (void*) RTLEventBuffer[0], 
@@ -172,7 +181,7 @@ static int __idlethread_loop(void)
                 RTLEventBuffer[3] );
             //#test
             //rtl_yield();
-            caller_tid = -1;
+            Caller.tid = -1;
         }
     };
 
@@ -185,7 +194,10 @@ static int __idlethread_loop(void)
 int run_server(void)
 {
     int IdleLoopStatus = -1;
-    caller_tid = -1;
+
+    Caller.tid = -1;
+    Caller.initialized = TRUE;
+
     //# no focus!
     //rtl_focus_on_this_thread();
     IdleLoopStatus = (int) __idlethread_loop();

@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <rtl/gramado.h>
 
+#include "endpoint.h"
+
 struct init_d
 {
 // This structure is initialized.

@@ -35,7 +35,6 @@ void *gramado_system_call (
     return (void *) __Ret; 
 }
 
-
 // System call.
 // Interrupt 0x80.
 void *sc80 ( 
@@ -50,7 +49,6 @@ void *sc80 (
                  : "i"(0x80), "a"(a), "b"(b), "c"(c), "d"(d) );
     return (void *) __Ret; 
 }
-
 
 // System call.
 // Interrupt 0x81.
@@ -84,7 +82,6 @@ void *sc82 (
 
 // =============================================================
 
-
 // ==========================================
 // Exit on fail
 // Entry point
@@ -101,20 +98,17 @@ void rtl_elegant_exit_on_fail(void)
     exit(0);
 }
 
-
 // =============================================================
-
 int rtl_get_input_mode(void)
 {
     return (int) gramado_system_call(911,0,0,0);
 }
 
-
 // #todo:
 // Explain it better.
 void rtl_set_input_mode(int mode)
 {
-    if( mode < 0 )
+    if (mode < 0)
         return;
 
     gramado_system_call(
@@ -124,12 +118,9 @@ void rtl_set_input_mode(int mode)
         mode );
 }
 
-
 //
 // sync
 //
-
-
 
 //=====================================
 
@@ -157,7 +148,6 @@ int rtl_get_global_sync(int sync_id, int request)
 
 // ========================
 
-
 void rtl_set_file_sync(int fd, int request, int data)
 {
     if (fd<0)
@@ -169,7 +159,6 @@ void rtl_set_file_sync(int fd, int request, int data)
     sc82 (10006,fd,request,data);
 }
 
-
 int rtl_get_file_sync(int fd, int request)
 {
     //if(fd<0)
@@ -180,9 +169,6 @@ int rtl_get_file_sync(int fd, int request)
 
     return (int) sc82 (10007,fd,request,0);
 }
-
-
-
 
 unsigned char rtl_to_uchar (char ch)
 {
@@ -204,19 +190,18 @@ unsigned long rtl_to_ulong (long ch)
     return (unsigned long) ch;
 }
 
-
 // #todo
 // Explain it better.
 // We need a better return value.
 // Maybe a boolian 'int' for TRUE or FALSE.
 unsigned long rtl_get_system_message(unsigned long message_buffer)
 {
-    if( message_buffer == 0 )
-    {
+    if (message_buffer == 0){
         return 0;
     }
 
-    gramado_system_call ( 111,
+    gramado_system_call ( 
+        111,
         (unsigned long) message_buffer,
         (unsigned long) message_buffer,
         (unsigned long) message_buffer );
@@ -224,28 +209,31 @@ unsigned long rtl_get_system_message(unsigned long message_buffer)
     return 0;
 }
 
-
 // #todo
 // Explain it better.
 // We need a better return value.
 // Maybe a boolian 'int' for TRUE or FALSE.
 unsigned long 
 rtl_post_system_message( 
-    int tid, 
+    int dest_tid, 
     unsigned long message_buffer )
 {
+    //unsigned long return_value=0;
+    unsigned long tid=0;
 
-    if( tid < 0 ){
+    if (dest_tid < 0){
+        return 0;
+    }
+    tid = (unsigned long) (dest_tid & 0xFFFFFFFF);
+
+    if (message_buffer == 0){
         return 0;
     }
 
-    if( message_buffer == 0 ){
-        return 0;
-    }
-
+// #todo: Get return value in 'return_value'.
     gramado_system_call ( 
-        112,
-        (unsigned long) (tid & 0xFFFFFFFF),  //#fixme: We need a small mask.
+        (unsigned long) 112,
+        (unsigned long) tid,
         (unsigned long) message_buffer,
         (unsigned long) message_buffer );
 
@@ -320,7 +308,6 @@ int xxxScanApplicationQueue(void)
     return TRUE;
 }
 
-
 int rtl_get_event (void)
 {
     int Status = -1;
@@ -333,7 +320,6 @@ int rtl_get_event (void)
 
     return (int) Status;
 }
-
 
 struct rtl_event_d *rtl_next_event (void)
 {
@@ -358,7 +344,8 @@ struct rtl_event_d *rtl_next_event (void)
 // the limit of this structure. Only 8 elements.
 
     rtl_enter_critical_section(); 
-    gramado_system_call ( 111,
+    gramado_system_call ( 
+        111,
         (unsigned long) &rtlEvent,
         (unsigned long) &rtlEvent,
         (unsigned long) &rtlEvent );
@@ -387,7 +374,6 @@ struct rtl_event_d *rtl_next_event (void)
 // Yes, we have an event.
     return (struct rtl_event_d *) &rtlEvent;
 }
-
 
 // P (Proberen) testar.
 // Pega o valor do spinlock principal.
@@ -421,7 +407,7 @@ done:
 // #todo: 
 // Mudar o nome da systemcall porque isso não é
 // um semáforo e sim um spinlock não atômico.
-void rtl_exit_critical_section (void)
+void rtl_exit_critical_section(void)
 {
     gramado_system_call ( 
         SYSTEMCALL_OPEN_KERNELSEMAPHORE, 
@@ -452,13 +438,11 @@ void *rtl_create_process( const char *file_name )
         0 );
 }
 
-
 int rtl_start_process( void *process )
 {
     debug_print("rtl_start_process:\n #todo\n");
     return -1;
 }
-
 
 /*
 pid_t rtl_get_process_pid( void *process );
@@ -467,14 +451,12 @@ pid_t rtl_get_process_pid( void *process )
 }
 */
 
-
 /*
 int rtl_start_process_pid( pid_t pid );
 int rtl_start_process_pid( pid_t pid )
 {
 }
 */
-
 
 /*
  * rtl_create_thread:
@@ -483,14 +465,13 @@ int rtl_start_process_pid( pid_t pid )
  *     Precisamos uma função que envie mais argumentos.
  *     Essa será uma rotina de baixo nível para pthreads.
  */
-
 void *rtl_create_thread ( 
     unsigned long init_rip, 
     unsigned long init_stack, 
     char *name )
 {
     //#define	SYSTEMCALL_CREATETHREAD     72
-    debug_print ("rtl_create_thread:\n");
+    debug_print("rtl_create_thread:\n");
     return (void *) gramado_system_call ( 
                         72,    //SYSTEMCALL_CREATETHREAD, 
                         init_rip, 
@@ -498,23 +479,20 @@ void *rtl_create_thread (
                         (unsigned long) name );
 }
 
-
 /*
  * rtl_start_thread:
  *     Coloca no estado standby para executar pela primeira vez
  */
-
 // #todo: Change return to 'int'
 void rtl_start_thread (void *thread)
 {
-    debug_print ("rtl_create_thread:\n");
+    debug_print("rtl_create_thread:\n");
     gramado_system_call ( 
         SYSTEMCALL_STARTTHREAD, 
         (unsigned long) thread, 
         (unsigned long) thread, 
         (unsigned long) thread );
 }
-
 
 /*
 int rtl_get_thread_tid( void *thread);
@@ -523,7 +501,6 @@ int rtl_get_thread_tid( void *thread)
 }
 */
 
-
 /*
 int rtl_start_thread_tid(int tid);
 int rtl_start_thread_tid(int tid)
@@ -531,12 +508,11 @@ int rtl_start_thread_tid(int tid)
 }
 */
 
-
 // Vamos escrever em uma janela indefinida. NULL.
 // provavelmente a janela principal.
 // #todo: Change string to 'const char *'
-// #todo: Change the type for color parameter. Use 'unsigned int' instead.
-
+// #todo: Change the type for color parameter. 
+// Use 'unsigned int' instead.
 int 
 rtl_draw_text ( 
     unsigned long x, 
@@ -546,11 +522,10 @@ rtl_draw_text (
 {
     unsigned long msg[8];
 
-    if ( (void*) string == NULL ){
+    if ((void*) string == NULL){
         debug_print("rtl_draw_text: string\n");
         return -1;
     }
-
     if ( *string == 0 ){
         debug_print("rtl_draw_text: *string\n");
         return -1;
@@ -572,14 +547,12 @@ rtl_draw_text (
                     (unsigned long) &msg[0] );
 }
 
-
 /*
  * rtl_show_backbuffer:
  *     Refresh Screen.
  *     Passa o conteúdo do backbuffer para o lfb. 
  */
-
-void rtl_show_backbuffer (void)
+void rtl_show_backbuffer(void)
 {
 
 // #todo
@@ -589,14 +562,12 @@ void rtl_show_backbuffer (void)
     gramado_system_call ( SYSTEMCALL_REFRESHSCREEN, 0, 0, 0 );
 }
 
-
 /*
  * rtl_get_system_metrics:
  *     Obtem informações sobre dimensões e posicionamentos. 
  *     #importante
  */
-
-unsigned long rtl_get_system_metrics (int index)
+unsigned long rtl_get_system_metrics(int index)
 {
     //if (index<0){
         //gde_debug_print ("gde_get_system_metrics: fail\n");
@@ -610,30 +581,24 @@ unsigned long rtl_get_system_metrics (int index)
                                (unsigned long) index );
 }
 
-
 int rtl_is_qemu(void)
 {
-    int isQEMU=-1;
+    int isQEMU = -1;
     isQEMU = (int) rtl_get_system_metrics(300);
     //isVirtualBox = rtl_get_system_metrics(?);
     //isBochs      = rtl_get_system_metrics(?);
-
     return (int) (isQEMU & 0xFFFFFFFF);
 }
-
-
 
 pid_t rtl_current_process(void)
 {
     return (int) rtl_get_system_metrics(140);
 }
 
-
 int rtl_current_thread(void)
 {
     return (int) rtl_get_system_metrics(141);
 }
-
 
 // #todo: __pthread_self ?
 pthread_t pthread_self(void)
@@ -641,14 +606,12 @@ pthread_t pthread_self(void)
     return (pthread_t) rtl_current_thread();
 }
 
-
 // #bugbug: 118 is the current jiffie.
 unsigned long rtl_get_progress_time(void)
 {
     return (unsigned long) rtl_get_system_metrics (118);
     //return (unsigned long) rtl_get_system_metrics (?);
 }
-
 
 /*
 void XorSwap( int* x, int* y ); 
@@ -663,7 +626,6 @@ void XorSwap( int* x, int* y )
 }
 */
 
-
 /*
 void AddSwap( unsigned int* x, unsigned int* y );
 void AddSwap( unsigned int* x, unsigned int* y )
@@ -677,7 +639,6 @@ void AddSwap( unsigned int* x, unsigned int* y )
 }
 */
 
-
 /*
  * rtl_copy_text:
  *      Copy a string of bytes given the source, the destination,
@@ -685,10 +646,8 @@ void AddSwap( unsigned int* x, unsigned int* y )
  *      It copies in chuncks of 64 bytes.
  *    #?? doom style.
  */
-
 // #bugbug
 // Not tested yet.
-
 int 
 rtl_copy_text ( 
     unsigned long src, 
@@ -706,7 +665,6 @@ rtl_copy_text (
     int x=0;
     int y=0; 
 
-
     if ( (void *) src == NULL || 
          (void *) dest == NULL )
     {
@@ -719,7 +677,6 @@ rtl_copy_text (
         printf("rtl_copy_text: width height\n");
         return -1;
     }
-
 
     for ( y=0; y< __height; y++ ) 
     { 
@@ -746,8 +703,6 @@ char *johncarmack_strstr(const char *haystack, const char *needle)
 	// ...
 }
 */
-
-
 
 /*
 int rtl_file_length (FILE *f);
@@ -794,7 +749,7 @@ int rtl_reboot(void)
     debug_print ("rtl_reboot:\n");
 
     value = (int) gramado_system_call(110,0,0,0);
-    if(value<0)
+    if (value<0)
     {
         errno = (-value);
         return (int) -1;
@@ -802,8 +757,7 @@ int rtl_reboot(void)
     return (int) value;
 }
 
-
-// check if a file is full or not.
+// Check if a file is full or not.
 // whe can't read an empty file.
 // IN: fd
 // OUT: -1= error; FALSE= nao pode ler; TRUE= pode ler.
@@ -816,7 +770,6 @@ int rtl_sleep_if_socket_is_empty(int fd)
     return (int) gramado_system_call(913,fd,fd,fd);
 }
 
-
 /*
 void rtl_set_line_buffering(void);
 void rtl_set_line_buffering(void)
@@ -824,7 +777,6 @@ void rtl_set_line_buffering(void)
     setvbuf(stdout, NULL, _IOLBF, 0);
 }
 */
-
 
 /*
  credits: apple chameleon boot loader.
@@ -1610,7 +1562,7 @@ int rtl_vector_count (char **vector)
 
 
 
-void rtl_test_pipe (void)
+void rtl_test_pipe(void)
 {
     int pipefd[2];
     int res=0;
@@ -1618,30 +1570,29 @@ void rtl_test_pipe (void)
     int nwrite=0;
     int nread=0;
 
-
     printf ("rtl_test_pipe:\n");
 
-    //0 if no error.
-
-    res = pipe (pipefd);
-
+//0 if no error.
+    res = pipe(pipefd);
     if (res<0){
         printf("pipe() fail\n");
         return;
     }
 
     printf("PIPES: %d %d\n",pipefd[0], pipefd[1]);
-    
-    // write on pipe 1
-    nwrite = write (pipefd[1], "hello", sizeof ("hello"));
-    if(nwrite<=0){
+
+// ----------------------
+// Write on pipe 1.
+    nwrite = write(pipefd[1], "hello", sizeof ("hello"));
+    if (nwrite<=0){
         printf("write() fail\n");
         return;
     }
     // clear buffer.
-    memset (buf, 0, sizeof (buf));
+    memset(buf, 0, sizeof(buf));
 
-// Read pipe 0.
+// ----------------------
+// Read from pipe 0.
     nread = (int) read (
                       pipefd[0], 
                       buf, 
@@ -1664,37 +1615,38 @@ void rtl_test_pipe (void)
     return;
 }
 
-
 // =========================
 // path count
 // Credits: Sirius OS.
 // #todo: Change to 'const char *'
 
-size_t rtl_path_count (unsigned char *path)
+size_t rtl_path_count(unsigned char *path)
 {
-    size_t Value = 0;
-    int i=0;
+    register int i=0;
+    size_t Counter = 0;
     int max = (80*25);
 
-    if ( (void*) path == NULL ){
-        printf ("rtl_path_count: [FAIL] path\n");
+    if ((void*) path == NULL){
+        printf("rtl_path_count: [FAIL] path\n");
         return (size_t) -1;
     }
-
     if (*path == 0){
         printf ("rtl_path_count: [FAIL] *path\n");
         return (size_t) -1;
     }
 
-    for ( i=0; i < max; i++ )
+    for (i=0; i<max; i++)
     {
-        if (path[i] == '/') {  Value++;  }
-        if (path[i] == '\0'){  break;  }
+        if (path[i] == '/'){
+            Counter++;
+        }
+        if (path[i] == '\0'){
+            break;
+        }
     };
 
-    return (size_t) Value;
+    return (size_t) Counter;
 }
-
 
 int 
 rtl_load_path ( 
@@ -1704,16 +1656,14 @@ rtl_load_path (
 {
     int status = -1;
 
-    if ( (void*) path == NULL ){
-        printf ("rtl_load_path: [FAIL] path\n");
+    if ((void*) path == NULL){
+        printf("rtl_load_path: [FAIL] path\n");
         return (int) -1;
     }
-
     if (*path == 0){
-        printf ("rtl_load_path: [FAIL] *path\n");
+        printf("rtl_load_path: [FAIL] *path\n");
         return (int) -1;
     }
-
 
     //if ( buffer = 0 )
     //{
@@ -1721,35 +1671,37 @@ rtl_load_path (
     //    return -1;
     //}
 
-    status = (int) gramado_system_call ( 4004, 
-                       (unsigned long) path, 
-                       (unsigned long) buffer, 
-                       (unsigned long) buffer_len );
+    status = 
+        (int) gramado_system_call( 
+            4004, 
+            (unsigned long) path, 
+            (unsigned long) buffer, 
+            (unsigned long) buffer_len );
 
     return (int) status;
 }
 
-
 ssize_t rtl_console_beep(void)
 {
+    int fd = (int) fileno(stdout);
     char BeepChar = '\a';
+    
     return (ssize_t) write ( 
-                         fileno(stdout), 
+                         fd, 
                          (const void *) &BeepChar, 
                          1 );
 }
-
 
 // Launch a new process.
 // Clone and execute.
 int rtl_clone_and_execute(char *name)
 {
-    if ( (void *) name == NULL ){
-        printf ("rtl_clone_and_execute: name\n");
+    if ((void *) name == NULL){
+        printf("rtl_clone_and_execute: name\n");
         return (int) -1;
     }
-    if ( *name == 0 ){
-        printf ("rtl_clone_and_execute: *name\n");
+    if (*name == 0){
+        printf("rtl_clone_and_execute: *name\n");
         return (int) -1;
     }
 
@@ -1765,22 +1717,19 @@ int rtl_clone_and_execute(char *name)
     return (int) sc82( 900, (unsigned long) name, 0, 0 );
 }
 
-
-int rtl_spawn_process( const char *path )
+int rtl_spawn_process(const char *path)
 {
-    if ( (void *) path == NULL ){
-        printf ("rtl_spawn_process: [FAIL] name\n");
-        return -1;
+    if ((void *) path == NULL){
+        printf("rtl_spawn_process: [FAIL] name\n");
+        return (int) -1;
     }
-
-    if ( *path == 0 ){
-        printf ("rtl_spawn_process: [FAIL] *name\n");
-        return -1;
+    if (*path == 0){
+        printf("rtl_spawn_process: [FAIL] *name\n");
+        return (int) -1;
     }
 
     return (int) rtl_clone_and_execute((char*)path);
 }
-
 
 // get current thread
 // set foreground thread.
@@ -1792,7 +1741,6 @@ int rtl_focus_on_this_thread(void)
 
     return (int) tid;
 }
-
 
 int rtl_focus_on_me(void)
 {
@@ -1839,21 +1787,17 @@ extern unsigned long HEAP_END;
 // lib lobal heap.
 void rtl_show_heap_info(void)
 {
-    printf ("heap: Start=%x End=%x\n",
-        HEAP_START,
-        HEAP_END );
+    printf("heap: Start=%x End=%x\n", HEAP_START, HEAP_END );
 }
-
 
 // Use the kernel allocator for ring 3 shared memory.
-void *shAlloc( size_t size_in_bytes )
+void *shAlloc(size_t size_in_bytes)
 {
-    if(size_in_bytes==0){
+    if (size_in_bytes == 0){
         size_in_bytes++;
     }
-    return (void*) gramado_system_call (891,size_in_bytes,0,0); 
+    return (void*) gramado_system_call(891,size_in_bytes,0,0); 
 }
-
 
 /* compare two ASCII strings ignoring case */
 // #todo: toupper support.
@@ -1945,24 +1889,21 @@ uint32_t uipow (uint32_t base, uint32_t exp)
 }
 */
 
-
 unsigned long rtl_jiffies(void)
 {
-    return (unsigned long) rtl_get_system_metrics (118);
+    return (unsigned long) rtl_get_system_metrics(118);
 }
-
 
 unsigned long rtl_memory_size_in_kb(void)
 {
-    return (unsigned long) rtl_get_system_metrics (33);
+    return (unsigned long) rtl_get_system_metrics(33);
 }
-
 
 // #nottested
 // Send the command lint to stdin,
 // and execute a cloned process where it's name
 // is in the first word of the cmdline string.
-int rtl_execute_cmdline( char *cmdline )
+int rtl_execute_cmdline(char *cmdline)
 {
     char cmd[512];
     char filename_buffer[12]; //8+3+1

@@ -198,10 +198,13 @@ rtl_draw_text (
     unsigned long color, 
     char *string );
     
-void rtl_show_backbuffer (void);
+void rtl_show_backbuffer(void);
 
 unsigned long rtl_get_system_message(unsigned long message_buffer);
-unsigned long rtl_post_system_message( int tid, unsigned long message_buffer );
+unsigned long 
+rtl_post_system_message( 
+    int dest_tid, 
+    unsigned long message_buffer );
 
 unsigned long rtl_get_system_metrics(int index);
 int rtl_is_qemu(void);
