@@ -394,9 +394,6 @@ struct thread_d
 // ORDEM: 
 // O que segue é referenciado durante o processo de dispatch.
 
-// The context is already saved or not?
-    int saved;
-
 // Heap and Stack
 // #todo: Is it a virtual address?
     unsigned long HeapStart;
@@ -689,14 +686,17 @@ struct thread_d
 // Reason to close the thread.
     int exit_code;
 
+//
 // Context
+//
+
 // see: x64context.h
     struct x64_context_d  context;
-
+// The context is already saved or not?
+    int saved;
 // Para o kernel saltar para o novo processo.
     unsigned long ring0_rip;  //usado com o pd do kernel?
     unsigned long ripPA;
-
 // O endereço incial, para controle.
     unsigned long initial_rip;
 
