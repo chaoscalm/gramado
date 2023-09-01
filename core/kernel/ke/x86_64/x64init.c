@@ -178,18 +178,19 @@ static int I_x64CreateInitialProcess(void)
 
     void *init_pml4_va = (void *) CloneKernelPML4();
 
-    if ( init_pml4_va == 0 ){
-        printf ("I_x64CreateInitialProcess: init_pml4_va\n");
+    if (init_pml4_va == 0){
+        printf("I_x64CreateInitialProcess: init_pml4_va\n");
         return FALSE;
     }
 
     init_mm_data.pml4_va = init_pml4_va;  // #todo: type.
-    init_mm_data.pml4_pa = (unsigned long) virtual_to_physical ( 
-                                               init_pml4_va, 
-                                               gKernelPML4Address );
+    init_mm_data.pml4_pa = 
+        (unsigned long) virtual_to_physical( 
+                            init_pml4_va, 
+                            gKernelPML4Address );
 
-    if ( init_mm_data.pml4_pa == 0 ){
-        printf ("I_x64CreateInitialProcess: init_mm_data.pml4_pa\n");
+    if (init_mm_data.pml4_pa == 0){
+        printf("I_x64CreateInitialProcess: init_mm_data.pml4_pa\n");
         return FALSE;
     }
 
@@ -221,20 +222,17 @@ static int I_x64CreateInitialProcess(void)
                      (unsigned long) kernel_mm_data.pd0_va,
                      PERSONALITY_GRAMADO );
 
-    if ( (void *) InitProcess == NULL )
-    {
-        printf ("I_x64CreateInitialProcess: InitProcess\n");
+// validation
+    if ((void *) InitProcess == NULL){
+        printf("I_x64CreateInitialProcess: InitProcess\n");
         return FALSE;
     }
-
     if ( InitProcess->used != TRUE || 
          InitProcess->magic != 1234 )
     {
-        printf ("I_x64CreateInitialProcess: InitProcess validation\n");
+        printf("I_x64CreateInitialProcess: InitProcess validation\n");
         return FALSE;
     }
-
-
 
 // struct
     if ( InitProcess->pid != GRAMADO_PID_INIT )
@@ -275,7 +273,6 @@ static int I_x64CreateInitialProcess(void)
 
 //====================================================
 // Create thread
-
 
 // Criamos um thread em ring3.
 // O valor de eflags é 0x3200. The app is gonna change that.

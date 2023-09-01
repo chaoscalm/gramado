@@ -41,18 +41,18 @@
 #define BACKGROUND_THREAD  1 
 #define FOREGROUND_THREAD  2
 
-//#importante
-//razões para esperar
-	//#todo: isso precisa ser inicializado.
-	//@todo: tem que fazer um enum para enumerar as razões.
-	//o índice é o selecionador da razão pela 
-	//qual a thread está esperando.
-	//existem umas 20 razões pra esperar.
-	// 0 - esperando por mensagem.(presa num loop)
-	// 1 - esperando outra thread finalizar. wait4tid
-	// 2 - esperando um processo finalizar. wait4pid
-	// 3 - esperando um objeto. (BLOCKED)(espera genérica)
-	// ...
+// #importante
+// Razões para esperar
+// #todo: isso precisa ser inicializado.
+// #todo: tem que fazer um enum para enumerar as razões.
+// o índice é o selecionador da razão pela 
+// qual a thread está esperando.
+// existem umas 20 razões pra esperar.
+// 0 - esperando por mensagem.(presa num loop)
+// 1 - esperando outra thread finalizar. wait4tid
+// 2 - esperando um processo finalizar. wait4pid
+// 3 - esperando um objeto. (BLOCKED)(espera genérica)
+// ...
 
 // #importante
 // isso será usado na estrutura de thread em wait_reason[]
@@ -583,7 +583,28 @@ struct thread_d
 //
 
 // ID da tty usada.
-    int tty_id;
+    //int tty_id;
+    //struct tty_d *tty;
+
+//
+// link
+//
+
+// #test
+// 'Group of two threads'.
+// Copy when writing.
+// + The purpose here is connecting two threads
+// to post messages to two thread at the same time.
+// + If the thread is linked to another thread,
+// so, also post the same message to the linked thread.
+// + It can produce a kind of echo for 'debuggers'.
+// + Maybe some operations are only for connected threads.
+// ex: When can change the priority oof both threads at the same time.
+// >>> Se cada thread for encarada como se fosse um dispositivo serial,
+//     entao faz sentido enviarmos mensagens pequenas entre elas.
+//     Uma thread aduando como computador e outra como terminal.
+    struct thread_d *link;
+    int is_linked;
 
 //
 // Security
@@ -722,26 +743,18 @@ extern struct thread_d  *ClonedThread;
 extern struct thread_d  *Conductor;
 extern struct thread_d  *tmpConductor;
 
-
 extern struct thread_d *timeout_thread;
 
 
 // Maximum number of kernel threads in the system.
-#define THREAD_COUNT_MAX  1024 
-//#define THREAD_COUNT_MAX  4096
-
 // Cada lista poderá usasr uma prioridadr diferente,
 // um quantum diferente e talvez ter uma frequencia de timer diferente.
-
 // All the threads
 // see: thread.c
-extern unsigned long threadList[THREAD_COUNT_MAX];
-// Threads doing some kind of i/o operations.
-//unsigned long io_threadList[THREAD_COUNT_MAX];
-// Interactive threads.
-// Just like keyboard and windows with focus.
-//unsigned long interactive_threadList[THREAD_COUNT_MAX];
 
+#define THREAD_COUNT_MAX  1024 
+//#define THREAD_COUNT_MAX  4096
+extern unsigned long threadList[THREAD_COUNT_MAX];
 
 //
 // == prototypes ===========================
@@ -801,11 +814,21 @@ void show_thread_information (void);
 void thread_show_profiler_info(void);
 int thread_profiler(int service);
 
+int 
+link_two_threads( 
+    struct thread_d *primary,
+    struct thread_d *secondary );
+
+int 
+unlink_two_threads( 
+    struct thread_d *primary,
+    struct thread_d *secondary );
+
 //
 // Creation
 //
 
-struct thread_d *copy_thread_struct (struct thread_d *thread);
+struct thread_d *copy_thread_struct(struct thread_d *thread);
 
 struct thread_d *create_thread ( 
     struct room_d     *room,

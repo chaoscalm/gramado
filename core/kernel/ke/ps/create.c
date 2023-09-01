@@ -43,6 +43,9 @@ struct thread_d *create_init_thread(void)
 
     t->personality = (int) PERSONALITY_GRAMADO;
     t->exit_in_progress = FALSE;
+    
+    t->link = NULL;
+    t->is_linked = FALSE;
 
 // INIT process control thread.
 // type: system

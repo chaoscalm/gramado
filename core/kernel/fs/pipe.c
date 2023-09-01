@@ -1,6 +1,9 @@
 /*
  * File: pipe.c
  *    Pipe support.
+ *    A pipe uses the FILE structure.
+ *    #todo: So this maybe we can link two pipes.
+ *    This way the kernel can copy data when writing.
  * History:
  *     2019 -  Created by Fred Nora.
  */
@@ -45,13 +48,12 @@ int sys_dup(int oldfd)
     };
 
 // Get an empty slot.
-
     for ( i=3; i< NUMBER_OF_FILES; i++ )
     {
         if ( Process->Objects[i] == 0 )
         {
             // reserva.
-            Process->Objects[i] = 216;
+            //Process->Objects[i] = 216;
             slot = i;
             break;
         }
@@ -71,39 +73,37 @@ int sys_dup(int oldfd)
     // #todo: 
     // Filtrar oldfd
 
+// Old
     f_old = (file *) Process->Objects[oldfd];
-
     if ( (void *) f_old == NULL ){
         Process->Objects[i] = (unsigned long) 0;
         return -1;
-    }else{
+    }
 
-        f_new = (void *) kmalloc ( sizeof(file) );
+// New
+    f_new = (void *) kmalloc(sizeof(file));
+    if ((void *) f_new == NULL)
+    {
+        Process->Objects[i] = (unsigned long) 0;
+        // #todo
+        // We need a message here?
+        return -1;
+    }
+    f_new->used = TRUE;
+    f_new->magic = 1234;
 
-        if ( (void *) f_new == NULL )
-        {
-            Process->Objects[i] = (unsigned long) 0;
-            
-            // #todo
-            // We need a message here?
-            return -1;
-        }
+// Herdando
+// So this way they are sharing the same ring0 buffer.
+    f_new->____object = f_old->____object;
+    f_new->_base      = f_old->_base;
+    f_new->_p         = f_old->_p;
+    f_new->_tmpfname  = f_old->_tmpfname;
+    f_new->_lbfsize   = f_old->_lbfsize; 
+    f_new->_cnt       = f_old->_cnt; 
 
-        f_new->used = TRUE;
-        f_new->magic = 1234;
+    Process->Objects[slot] = (unsigned long) f_new;
 
-        // herdando.
-        f_new->____object = f_old->____object;
-        f_new->_base      = f_old->_base;
-        f_new->_p         = f_old->_p;
-        f_new->_tmpfname  = f_old->_tmpfname;
-        f_new->_lbfsize   = f_old->_lbfsize; 
-        f_new->_cnt       = f_old->_cnt; 
-
-        Process->Objects[slot] = (unsigned long) f_new;
-
-        return (int) slot;
-    };
+    return (int) slot;
 
 // On success, these system calls return the new file descriptor.  
 // On error, -1 is returned, and errno is set appropriately.
@@ -154,32 +154,33 @@ int sys_dup2(int oldfd, int newfd)
 
 //#todo: filtrar oldfd
 
-    f_old = (file *) Process->Objects[oldfd];
 
+// Old
+    f_old = (file *) Process->Objects[oldfd];
     if ( (void *) f_old == NULL ){
         Process->Objects[slot] = (unsigned long) 0;
         return -1;
-    }else{
+    }
 
-        f_new = (file *) Process->Objects[slot];
-        if ( (void *) f_new == NULL ){
-            Process->Objects[slot] = (unsigned long) 0;
-            return -1;
-        }
+// New
+    f_new = (file *) Process->Objects[slot];
+    if ( (void *) f_new == NULL ){
+        Process->Objects[slot] = (unsigned long) 0;
+        return -1;
+    }
+    f_new->used = TRUE;
+    f_new->magic = 1234;
 
-        f_new->used = TRUE;
-        f_new->magic = 1234;
+// Herdado
+// Sharing the same ring 0 buffer.
+    f_new->____object = f_old->____object;
+    f_new->_base      = f_old->_base;
+    f_new->_p         = f_old->_p;
+    f_new->_tmpfname  = f_old->_tmpfname;
+    f_new->_lbfsize   = f_old->_lbfsize; 
+    f_new->_cnt       = f_old->_cnt; 
 
-        // Herdado.
-        f_new->____object = f_old->____object;
-        f_new->_base      = f_old->_base;
-        f_new->_p         = f_old->_p;
-        f_new->_tmpfname  = f_old->_tmpfname;
-        f_new->_lbfsize   = f_old->_lbfsize; 
-        f_new->_cnt       = f_old->_cnt; 
-
-        return (int) slot;
-    };
+    return (int) slot;
 
 // On success, these system calls return the new file descriptor.  
 // On error, -1 is returned, and errno is set appropriately.
@@ -193,7 +194,7 @@ fail:
 // Here is not the place for this function.
 // Move it to rtl.
 
-int sys_dup3 (int oldfd, int newfd, int flags)
+int sys_dup3(int oldfd, int newfd, int flags)
 {
     //#todo: flags.
 
@@ -212,22 +213,15 @@ int sys_dup3 (int oldfd, int newfd, int flags)
     pid_t current_process = (pid_t) get_current_process();
 
     Process = (void *) processList[current_process];
-
-    // #todo
-    // Error messages
-
     if ((void *) Process == NULL){
         return -1;
-    }else{
-        if ( Process->used != TRUE || Process->magic != 1234 )
-        {
-            return -1;
-        }
-        //ok
-    };
+    }
+    if ( Process->used != TRUE || Process->magic != 1234 )
+    {
+        return -1;
+    }
 
     int slot = newfd;
-
     if ( slot == -1 ) {
         Process->Objects[slot] = (unsigned long) 0;
         return -1;
@@ -235,32 +229,32 @@ int sys_dup3 (int oldfd, int newfd, int flags)
 
 // #todo: filtrar oldfd
 
+// Old
     f_old = (file *) Process->Objects[oldfd];
-
     if ((void *) f_old == NULL){
         Process->Objects[slot] = (unsigned long) 0;
         return -1;
-    }else{
+    }
 
-        f_new = (file *) Process->Objects[slot];
-        if ((void *) f_new == NULL){
-            Process->Objects[slot] = (unsigned long) 0;
-            return -1;
-        }
+// New
+    f_new = (file *) Process->Objects[slot];
+    if ((void *) f_new == NULL){
+        Process->Objects[slot] = (unsigned long) 0;
+        return -1;
+    }
+    f_new->used = TRUE;
+    f_new->magic = 1234;
 
-        f_new->used = TRUE;
-        f_new->magic = 1234;
+// Herdado
+// Shearing the same ring 0 buffer.
+    f_new->____object = f_old->____object;
+    f_new->_base      = f_old->_base;
+    f_new->_p         = f_old->_p;
+    f_new->_tmpfname  = f_old->_tmpfname;
+    f_new->_lbfsize   = f_old->_lbfsize; 
+    f_new->_cnt       = f_old->_cnt; 
 
-        // Herdado
-        f_new->____object = f_old->____object;
-        f_new->_base      = f_old->_base;
-        f_new->_p         = f_old->_p;
-        f_new->_tmpfname  = f_old->_tmpfname;
-        f_new->_lbfsize   = f_old->_lbfsize; 
-        f_new->_cnt       = f_old->_cnt; 
-
-        return (int) slot;
-    };
+    return (int) slot;
 
 // On success, these system calls return the new file descriptor.  
 // On error, -1 is returned, and errno is set appropriately.	
@@ -303,24 +297,20 @@ int sys_pipe( int *pipefd, int flags )
     //    return -EINVAL;
 
     // unsigned long fd_flags = (flags & O_CLOEXEC) ? FD_CLOEXEC : 0;
-    
-    // Process.
+
+// Process
 
     Process = (void *) processList[current_process];
-
     if ((void *) Process == NULL){
-        debug_print("sys_pipe: Process\n");
+        //debug_print("sys_pipe: Process\n");
         //todo printf
-        return (int) (-1);
-    }else{
-
-        if ( Process->used != TRUE || Process->magic != 1234 ){
-            debug_print("sys_pipe: validation\n");
-            //todo printf
-            return (int) (-1);
-        }
-        //ok
-    };
+        goto fail;
+    }
+    if ( Process->used != TRUE || Process->magic != 1234 ){
+        //debug_print("sys_pipe: validation\n");
+        //todo printf
+        goto fail;
+    }
 
 //#todo
 //temos que criar uma rotina que procure slots em Process->Streams[]
@@ -341,7 +331,7 @@ int sys_pipe( int *pipefd, int flags )
     {
         if (Process->Objects[i] == 0)
         {
-            Process->Objects[i] = 216;
+            //Process->Objects[i] = 216;
             slot1 = i;
             break;
         }
@@ -352,7 +342,7 @@ int sys_pipe( int *pipefd, int flags )
     {
         if (Process->Objects[i] == 0)
         {
-            Process->Objects[i] = 216;
+            //Process->Objects[i] = 216;
             slot2 = i;
             break;
         }
@@ -368,9 +358,8 @@ int sys_pipe( int *pipefd, int flags )
 
 // buffer
 
+    //char *buff = (char *) newPage();
     char *buff = (char *) kmalloc(BUFSIZ);
-    //char *buff = (char *) newPage ();
-
     if ((void *) buff == NULL)
     {
         Process->Objects[slot1] = (unsigned long) 0;
@@ -379,111 +368,112 @@ int sys_pipe( int *pipefd, int flags )
         return (int) (-1);
     }
 
-// File structures.
+// File structures
      
-    f1 = (void *) kmalloc( sizeof(file) );
-    f2 = (void *) kmalloc( sizeof(file) );
-
-    if ( (void *) f1 == NULL || (void *) f2 == NULL )
+    f1 = (void *) kmalloc(sizeof(file));
+    f2 = (void *) kmalloc(sizeof(file));
+    if ( (void *) f1 == NULL || 
+         (void *) f2 == NULL )
     {
         Process->Objects[slot1] = (unsigned long) 0;
         Process->Objects[slot2] = (unsigned long) 0;
-
         debug_print("sys_pipe: structures fail\n");
         return (int) (-1);
+    }
 
-    // As duas estruturas compartilham o mesmo buffer.
-    }else{
-        
-        f1->used = TRUE;
-        f1->magic = 1234;
+// As duas estruturas compartilham o mesmo buffer.        
 
-        f2->used = TRUE;
-        f2->magic = 1234;
+    f1->used = TRUE;
+    f1->magic = 1234;
 
-        // File: object type.
-        f1->____object = ObjectTypePipe;
-        f2->____object = ObjectTypePipe;
+    f2->used = TRUE;
+    f2->magic = 1234;
 
-        f1->pid = (pid_t) current_process;
-        f1->uid = (uid_t) current_user;
-        f1->gid = (gid_t) current_group;
-        f2->pid = (pid_t) current_process;
-        f2->uid = (uid_t) current_user;
-        f2->gid = (gid_t) current_group;
+// File: object type.
+    f1->____object = ObjectTypePipe;
+    f2->____object = ObjectTypePipe;
 
-        // full duplex ?
+// pid, uid, gid.
+    f1->pid = (pid_t) current_process;
+    f1->uid = (uid_t) current_user;
+    f1->gid = (gid_t) current_group;
+    f2->pid = (pid_t) current_process;
+    f2->uid = (uid_t) current_user;
+    f2->gid = (gid_t) current_group;
 
-        // sync: 
-        f1->sync.sender_pid = (pid_t) -1;
-        f1->sync.receiver_pid = (pid_t) -1;
-        f1->sync.action = ACTION_NULL;
-        f1->sync.can_read = TRUE;
-        f1->sync.can_write = TRUE;
-        f1->sync.can_execute = FALSE;
-        f1->sync.can_accept = FALSE;
-        f1->sync.can_connect = FALSE;
+// full duplex ?
 
-        // sync:
-        f2->sync.sender_pid = (pid_t) -1;
-        f2->sync.receiver_pid = (pid_t) -1;
-        f2->sync.action = ACTION_NULL;
-        f2->sync.can_read = TRUE;
-        f2->sync.can_write = TRUE;
-        f2->sync.can_execute = FALSE;
-        f2->sync.can_accept = FALSE;
-        f2->sync.can_connect = FALSE;
+// sync: 
+    f1->sync.sender_pid = (pid_t) -1;
+    f1->sync.receiver_pid = (pid_t) -1;
+    f1->sync.action = ACTION_NULL;
+    f1->sync.can_read = TRUE;
+    f1->sync.can_write = TRUE;
+    f1->sync.can_execute = FALSE;
+    f1->sync.can_accept = FALSE;
+    f1->sync.can_connect = FALSE;
 
-        // No name for now.
-        f1->_tmpfname = NULL;
-        f2->_tmpfname = NULL;
+// sync:
+    f2->sync.sender_pid = (pid_t) -1;
+    f2->sync.receiver_pid = (pid_t) -1;
+    f2->sync.action = ACTION_NULL;
+    f2->sync.can_read = TRUE;
+    f2->sync.can_write = TRUE;
+    f2->sync.can_execute = FALSE;
+    f2->sync.can_accept = FALSE;
+    f2->sync.can_connect = FALSE;
 
-        // The same buffer
-        f1->_base = buff;
-        f2->_base = buff;
-        f1->_p    = buff;
-        f2->_p    = buff;
+// No name for now.
+    f1->_tmpfname = NULL;
+    f2->_tmpfname = NULL;
 
-        // Buffer size.
-        f1->_lbfsize = BUFSIZ; 
-        f2->_lbfsize = BUFSIZ; 
+// The same buffer
+    f1->_base = buff;
+    f2->_base = buff;
+    f1->_p    = buff;
+    f2->_p    = buff;
 
-        // Quanto falta.
-        f1->_cnt = f1->_lbfsize;   
-        f2->_cnt = f2->_lbfsize; 
+// Buffer size.
+    f1->_lbfsize = BUFSIZ; 
+    f2->_lbfsize = BUFSIZ; 
 
-        f1->_r =0;
-        f2->_r =0;
-        f1->_w =0;
-        f2->_w =0;
-        
-        //fd
-        f1->_file = slot1;
-        f2->_file = slot2;
-        
-        // Saving structure.
-        Process->Objects[slot1] = (unsigned long) f1;
-        Process->Objects[slot2] = (unsigned long) f2;
+// Quanto falta.
+    f1->_cnt = f1->_lbfsize;   
+    f2->_cnt = f2->_lbfsize; 
 
-        // #importante
-        // Esse é o retorno esperado.
-        // Esses índices representam 
-        // o número do slot na lista de arquivos abertos 
-        // na estrutura do processo atual.
+// Offsets
+    f1->_r = 0;
+    f2->_r = 0;
+    f1->_w = 0;
+    f2->_w = 0;
 
-        // Return
-        pipefd[0] = slot1;
-        pipefd[1] = slot2; 
+// fd
+    f1->_file = slot1;
+    f2->_file = slot2;
 
-        //#debug
-        //printf ("sys_pipe: %d %d\n",slot1,slot2);
-        //refresh_screen();
-        
-        //OK
-        debug_print("sys_pipe: done\n");
-        return 0;
-    };
+// Saving structure.
+    Process->Objects[slot1] = (unsigned long) f1;
+    Process->Objects[slot2] = (unsigned long) f2;
 
+// #importante
+// Esse é o retorno esperado.
+// Esses índices representam 
+// o número do slot na lista de arquivos abertos 
+// na estrutura do processo atual.
+
+// Return
+    pipefd[0] = slot1;
+    pipefd[1] = slot2; 
+
+    //#debug
+    //printf ("sys_pipe: %d %d\n",slot1,slot2);
+    //refresh_screen();
+
+// OK
+    debug_print("sys_pipe: done\n");
+    return 0;
+
+fail:
     debug_print("sys_pipe: fail\n");
     return (int) (-1);
 }

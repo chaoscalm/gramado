@@ -4,6 +4,68 @@
 
 #include <kernel.h>
 
+
+int 
+link_two_threads( 
+    struct thread_d *primary,
+    struct thread_d *secondary )
+{
+// Link two threads.
+
+    if ((void*) primary == NULL)
+        goto fail;
+    if (primary->magic != 1234)
+        goto fail;
+
+    if ((void*) secondary == NULL)
+        goto fail;
+    if (secondary->magic != 1234)
+        goto fail;
+
+// Link
+    primary->link = (struct thread_d *) secondary;
+    primary->is_linked = TRUE;
+// Link
+    secondary->link = (struct thread_d *) primary;
+    secondary->is_linked = TRUE;
+
+    return 0;
+fail:
+    return (int) -1;
+}
+
+int 
+unlink_two_threads( 
+    struct thread_d *primary,
+    struct thread_d *secondary )
+{
+// Link two threads.
+
+    if ((void*) primary == NULL)
+        goto fail;
+    if (primary->magic != 1234)
+        goto fail;
+
+    if ((void*) secondary == NULL)
+        goto fail;
+    if (secondary->magic != 1234)
+        goto fail;
+
+// Unlink
+    primary->link = NULL;
+    primary->is_linked = FALSE;
+// Unlink
+    secondary->link = NULL;
+    secondary->is_linked = FALSE;
+
+    return 0;
+fail:
+    return (int) -1;
+}
+
+
+
+
 // show_slot:
 // Show info about a thread.
 

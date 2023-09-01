@@ -958,11 +958,14 @@ struct thread_d *create_thread (
 // Alocando memória para a estrutura da thread.
 // Obs: Estamos alocando memória dentro do heap do kernel.
 
-    Thread = (void *) kmalloc ( sizeof(struct thread_d) );
-    if ( (void *) Thread == NULL ){
+    Thread = (void *) kmalloc(sizeof(struct thread_d));
+    if ((void *) Thread == NULL){
         panic ("create_thread: [FAIL] Thread\n");
     }
     memset( Thread, 0, sizeof(struct thread_d) );
+
+    Thread->link = NULL;
+    Thread->is_linked = FALSE;
 
     Thread->exit_in_progress = FALSE;
 

@@ -97,28 +97,28 @@ __ProcessExtendedKeyboardKeyStroke(
         //pois atrapalha as teclas de digitação.
 
         case 0x4D:  //right
-            if(ctrl_status==TRUE){
+            if (ctrl_status == TRUE){
                 post_message_to_ws( MSG_CONTROL_ARROW_RIGHT, VK_RIGHT, scancode );
                 return 0;
             }
             //post_message_to_ws( MSG_KEYDOWN, VK_RIGHT, scancode );
             break;
         case 0x48:  //up
-            if(ctrl_status==TRUE){
+            if (ctrl_status == TRUE){
                 post_message_to_ws( MSG_CONTROL_ARROW_UP, VK_UP, scancode );
                 return 0;
             }
             //post_message_to_ws( MSG_KEYDOWN, VK_UP, scancode );
             break;
         case 0x50:  //down
-            if(ctrl_status==TRUE){
+            if (ctrl_status == TRUE){
                 post_message_to_ws( MSG_CONTROL_ARROW_DOWN, VK_DOWN, scancode );
                 return 0;
             }
             //post_message_to_ws( MSG_KEYDOWN, VK_DOWN, scancode );
             break;
         case 0x4B:  //left
-            if(ctrl_status==TRUE){
+            if (ctrl_status == TRUE){
                 post_message_to_ws( MSG_CONTROL_ARROW_LEFT, VK_LEFT, scancode );
                 return 0;
             }
@@ -137,7 +137,6 @@ __ProcessExtendedKeyboardKeyStroke(
 
     return 0;
 }
-
 
 // ----------------------------------------------
 // wmMouseEvent:
@@ -846,6 +845,7 @@ done:
                 Event_Message, 
                 Event_LongASCIICode,
                 Event_LongRawByte );
+
             return 0;
         }
     }
@@ -906,7 +906,7 @@ int wmTimerEvent(int signature)
 // Acho que o assembly importa esses valores,
 // e é mais difícil importar de estruturas.
 
-    if ( ws_callback_info.initialized == TRUE )
+    if (ws_callback_info.initialized == TRUE)
     {
         if ( ws_callback_info.each_n_ms < 1 ||
               ws_callback_info.each_n_ms > JIFFY_FREQ )
