@@ -818,6 +818,15 @@ done:
                 // Maybe we're gonna return here depending on
                 // the input mode. 'Cause we don't wanna send
                 // the data to multiple targets.
+            
+                // #todo
+                // Maybe in this case we can write into the tty.
+                // Using tty_write() or __tty_write().
+                // The function __tty_write() is gonna copy 
+                // the raw buffer to the tty slave.
+                // This way the terminal sends data to the command
+                // connected to him.
+                
             }
         }
 

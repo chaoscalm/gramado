@@ -359,6 +359,7 @@ struct tty_d
 
 // == prototypes ===============================================
 
+int tty_copy_raw_buffer( struct tty_d *tty_to, struct tty_d *tty_from );
 
 int 
 __tty_read ( 

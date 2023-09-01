@@ -3,7 +3,53 @@
 
 #include <kernel.h>  
 
+// #todo
+// We need a wrapper to write a single byte into a tty.
+// tty_read_byte()
+// We need a wrapper to read a single byte from a tty.
+// tty_write_byte()
+
 static int new_tty_index=0;
+
+
+/*
+// #todo
+int tty_read_byte(struct tty_d *tty);
+int tty_read_byte(struct tty_d *tty)
+{
+    return 0;
+}
+*/
+
+/*
+// #todo
+int tty_write_byte(struct tty_d *tty);
+int tty_write_byte(struct tty_d *tty)
+{
+    return 0;
+}
+*/
+
+
+int tty_copy_raw_buffer( struct tty_d *tty_to, struct tty_d *tty_from )
+{
+    register int i=0;
+
+    if ( (void*) tty_to == NULL )
+        return -1;
+    if ( (void*) tty_from == NULL )
+        return -1;
+    if (tty_to->magic != 1234)
+        return -1;
+    if (tty_from->magic != 1234)
+        return -1;
+
+    for (i=0; i<TTY_BUF_SIZE; i++){
+        tty_to->raw_queue.buf[i] = (char) tty_from->raw_queue.buf[i]; 
+    };
+
+    return (int) i;
+}
 
 /*
  * __tty_read:
@@ -32,7 +78,7 @@ __tty_read (
     printf("__tty_read:\n");
 
 // tty structure.
-    if ( (void *) tty == NULL ){
+    if ((void *) tty == NULL){
         printf ("__tty_read: tty\n");
         goto fail;
     }
@@ -73,19 +119,25 @@ __tty_read (
         rbytes=TTY_BUF_SIZE;
     }
 
+
+    i=0;
     while (rbytes > 0)
     {
         // Empty
         // Isso acontece também quando a fila esta vazia.
-        if ( tty->raw_queue.head == tty->raw_queue.tail ){
+        if ( tty->raw_queue.head == tty->raw_queue.tail )
+        {
             printf("__tty_read: tty->raw_queue.head == tty->raw_queue.tail\n");
-            return 0;
+            //return 0;
+            return (int) i;  // Quantos bytes conseguimos ler.
         }
 
         // Acabou a fila.
-        if ( tty->raw_queue.tail > TTY_BUF_SIZE ){
+        if ( tty->raw_queue.tail > TTY_BUF_SIZE )
+        {
             printf("__tty_read: tty->raw_queue.tail > TTY_BUF_SIZE\n");
-            return 0;
+            //return 0;
+            return (int) i;  // Quantos bytes conseguimos ler.
         }
 
         // get one char
@@ -103,7 +155,7 @@ __tty_read (
 // Quantidade de bytes no buffer local.
     if (i <= 0){
         printf("__tty_read: i <= 0\n");
-        return 0;
+        return 0;  // 0 byes lidos.
     }
 
     if (i > TTY_BUF_SIZE){
@@ -113,13 +165,19 @@ __tty_read (
 // Send
 // Copiando os bytes de nosso buffer local para
 // o buffer de usuário.
-    memcpy( (void *) b, (const void *) data, i ); 
+    memcpy( 
+        (void *) b,          // To (user buffer)
+        (const void *) data, // from (local buffer)
+        i );                 // n bytes lidos
 
     // #debug
-    //printf("__tty_read: done\n");
+    printf("__tty_read: [DONE] %d bytes read\n",i);
+    printf("TAIL %d\n",tty->raw_queue.tail);
 
-// Retornamos a quantidade de bytes que tinha em nosso buffer local.
+// Retornamos a quantidade de bytes 
+//  que conseguimos ler da buffer raw da tty.
     return (int) i;
+
 fail:
     refresh_screen();
     return (int) (-1);
@@ -148,27 +206,28 @@ __tty_write (
     char c=0;
     char *b;
 
+// From this buffer.
     b = buffer;
 
     // #debug
     printf("__tty_write:\n");
 
 // tty
-    if ( (void *) tty == NULL ){
-        debug_print ("__tty_write: tty\n");
+    if ((void *) tty == NULL){
+        debug_print("__tty_write: tty\n");
         goto fail;
     }
     if ( tty->used != TRUE || tty->magic != 1234 ){
-        printf ("__tty_write: tty validation\n");
+        printf("__tty_write: tty validation\n");
         goto fail;
     }
-// buffer
-    if ( (char *) buffer == NULL ){
-         panic ("__tty_write: Invalid buffer\n");
+// buffer (From)
+    if ((char *) buffer == NULL){
+         panic("__tty_write: Invalid buffer\n");
     }
 // nr
     if (nr <= 0){
-        printf ("__tty_write: nr\n");
+        printf("__tty_write: nr\n");
         goto fail;
     }
 
@@ -176,67 +235,108 @@ __tty_write (
         //return -1;
 
 // Queue 
-// A escrita nas filas vai depender do modo
-// configurado.
+// A escrita nas filas vai depender do modo configurado.
 // Temos basicamente os 'raw' e 'canonical'.
 // ??
-// Lembrando que no modo canônico teremos algum tipo de edição.
-// então o usuário receberá uma fila somente depois que ele digitar
-// [enter]
+// Lembrando que no modo canônico teremos algum tipo de edição,
+// então o usuário receberá uma fila somente 
+// depois que ele digitar [enter].
 // Get data from the queue.
-// Isso tem o mesmo tamanho
-// da fila de tty.
+// Isso tem o mesmo tamanho da fila de tty.
 
-    int wbytes=nr;
-    if (wbytes<=0){
+// Quantos bytes escrever.
+    int wbytes = nr;
+    if (wbytes <= 0){
         return 0;
     }
 
-// não se pode escrever mais que o limite.
-    if (wbytes>TTY_BUF_SIZE){
-        wbytes=TTY_BUF_SIZE;
+// Não se pode escrever mais que o limite.
+    if (wbytes > TTY_BUF_SIZE){
+        wbytes = TTY_BUF_SIZE;
     }
+
+//
+// Copy to local buffer
+//
 
 // Receive
 // Copiando bytes do buffer do usuário para nosso buffer local.
-    memcpy( (void *) data, (const void *) b, wbytes ); 
+    memcpy( 
+        (void *) data,      // To (Local buffer).
+        (const void *) b,   // From
+        wbytes ); 
 
-//buffer local
+//
+// Write
+//
+
+// Pegando bytes do buffer local e
+// colocando na fila 'raw'.
+
     i=0;
-
     while (wbytes > 0)
     {
         // Acabou a fila.
+        // #todo: O que faremos nesse caso?
+        // Deixaremos de escrever?
         if ( tty->raw_queue.head >= TTY_BUF_SIZE ){
             break;
         }
 
-        //pega um char do buffer local
+        // Pega um char do buffer local.
         c = data[i];
-        // grava um char na fila do tty
+
+        // Salva um char na fila do tty
         tty->raw_queue.buf[ tty->raw_queue.head ] = c;
-        //avança na fila
+
+        // Avança na fila.
         tty->raw_queue.head++;
+
         // Incrementa a quantidade que foi gravada.
         i++;
+
         // Quantos faltam.
         wbytes--;
-        if (wbytes<=0){
+        if (wbytes <= 0){
             break;
         }
     };
 
+//
+// Copy to slave?
+// 
+
+// #test
+// Precisamos copiar para a tty slave se
+// essa tty esta conectada.
+    int nbytes_copied = 0;
+    struct tty_d *tty_slave;
+    tty_slave = (struct tty_d *) tty->link;
+    if ( (void*) tty_slave != NULL )
+    {
+        if (tty_slave->magic == 1234)
+        {
+            // #todo
+            // Copy from master to slave.
+            nbytes_copied = (int) tty_copy_raw_buffer(tty,tty_slave);
+            // #debug
+            printf("%d bytes copied to slave\n",nbytes_copied);
+        }
+    }
+ 
+
 done:
     
     //#debug
-    printf("__tty_write: done\n");
+    printf("__tty_write: [DONE] %d bytes written\n",i);
+    printf("HEAD %d\n",tty->raw_queue.head);
 
-// Quantidade de bytes que gravamos na tty
+// Quantidade de bytes que gravamos na tty.
     if (i <= 0){
         return 0;
     }
     if (i > TTY_BUF_SIZE){
-        i=TTY_BUF_SIZE;
+        i = TTY_BUF_SIZE;
     }
 // Retornamos a quantidade que gravamos na fila da tty.
     return (int) i;

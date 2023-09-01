@@ -660,15 +660,19 @@ console_init_virtual_console(
     switch (ConsoleIndex){
     case 0:
         console0_tty = (struct tty_d *) &CONSOLE_TTYS[0];
+        console0_tty->link = NULL;  // Not linked yet.
         break;
     case 1:
         console1_tty = (struct tty_d *) &CONSOLE_TTYS[1];
+        console1_tty->link = NULL;  // Not linked yet.
         break;
     case 2:
         console2_tty = (struct tty_d *) &CONSOLE_TTYS[2];
+        console2_tty->link = NULL;  // Not linked yet.
         break;
     case 3:
         console3_tty = (struct tty_d *) &CONSOLE_TTYS[3];
+        console3_tty->link = NULL;  // Not linked yet.
         break;
     };
 
@@ -1748,25 +1752,34 @@ void __vga_test1(void)
     p++;
 }
 
-// Read and write from a tty device.
 static void __test_tty(void)
 {
+// + Write to the kernel's tty.
+// + Read from the kernel's tty.
+// + Print the buffer.
+
+//  From
     char data0[8];
     data0[0]='a';  data0[1]='b';  data0[2]='c';  data0[3]=0;
 
+// To (Dirty)
     char data1[8];
     data1[0]='x';  data1[1]='y';  data1[2]='z';  data1[3]=0; //dirty
 
-    if ( (void*) KernelProcess == NULL ){
+// Kernel process.
+    if ((void*) KernelProcess == NULL){
         return;
     }
     if (KernelProcess->magic != 1234){
         return;
     }
 
-    __tty_write(KernelProcess->tty,data0,3); //write
-    __tty_read (KernelProcess->tty,data1,3); //read
+// Write to the kernel's tty.
+    __tty_write(KernelProcess->tty,data0,3);
+// Read from the kernel's tty.
+    __tty_read (KernelProcess->tty,data1,3);
 
+// Print the buffer.
     printf("%c\n",data1[0]);
     printf("%c\n",data1[1]);
     printf("%c\n",data1[2]);
@@ -2096,8 +2109,12 @@ int consoleCompareStrings(void)
     }
 
 // tty: Read and write from tty device.
-    if ( strncmp( prompt, "tty", 3 ) == 0 ){
-        __test_tty();
+    if ( strncmp( prompt, "tty", 3 ) == 0 )
+    {
+        // Esgotando as filas.
+        //while (1){
+            __test_tty();
+        //};
         goto exit_cmp;
     }
 
