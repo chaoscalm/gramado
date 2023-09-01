@@ -563,12 +563,10 @@ struct socket_d
 // accepting new connections.
 // Updated by listen().
     int isAcceptingConnections;
-// State: 
-// SOCKET_CONNECTED, SOCKET_NOT_CONNECTED
-    int state;   
-// link
-// Current connection?
-    struct socket_d  *conn;
+// Link to the current connection.
+    struct socket_d *link;
+// States: SOCKET_CONNECTED, SOCKET_NOT_CONNECTED.
+    int state;
 // flag
 // write() copy the data to the connected socket.
     int conn_copy; 
@@ -653,7 +651,9 @@ int socket_write ( unsigned int fd, char *buf, int count );
 pid_t socket_get_gramado_port (int port);
 int socket_set_gramado_port (int port, pid_t pid);
 
-
+//
+// accept, bind, connect, listen.
+//
 
 int 
 sys_accept (

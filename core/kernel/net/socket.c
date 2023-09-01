@@ -102,9 +102,8 @@ struct socket_d *create_socket_object(void)
 // Initializing pointers.
 // We don't want this kinda crash in the real machine.
 
-// Connection ponter.
-// Its a pointer to another socket. Is it?
-    s->conn = (struct socket_d *) 0;
+// It's a pointer to another socket. 
+    s->link = NULL;
 
 // The counter
     s->connections_count = 0;
@@ -2305,8 +2304,8 @@ __OK_new_slot:
 
 // Linking:
 // Connecting
-    client_socket->conn = server_socket;
-    server_socket->conn = client_socket;
+    client_socket->link = (struct socket_d *) server_socket;
+    server_socket->link = (struct socket_d *) client_socket;
 // Flags:
 // State
     client_socket->state = SS_CONNECTING;
