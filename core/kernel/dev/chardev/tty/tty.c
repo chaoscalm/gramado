@@ -641,7 +641,8 @@ struct tty_d *tty_create(void)
 
 // Create structure.
     __tty = (struct tty_d *) kmalloc( sizeof(struct tty_d) );
-    if ( (void *) __tty == NULL ){
+    if ((void *) __tty == NULL)
+    {
         panic ("tty_create: __tty\n");   
     }
     memset( __tty, 0, sizeof(struct tty_d) );
@@ -654,11 +655,20 @@ struct tty_d *tty_create(void)
 // Index
     __tty->index = (int) (new_tty_index & 0xFFFF);
     new_tty_index++;
+
+//
+// Linked
+//
+
+    __tty->link = NULL;
+    __tty->is_linked = FALSE;
+
 // No thread for now.
 // ?? What thread we need to use here?
     __tty->control = NULL;
 // No user logged yet.
     __tty->user_info = NULL;
+
 // #bugbug
 // Security stuff.
 // Maybe it will change when a user login into a terminal.
@@ -713,16 +723,19 @@ struct tty_d *tty_create(void)
     __tty->raw_queue.cnt = 0;
     __tty->raw_queue.head = 0;
     __tty->raw_queue.tail = 0;
+    __tty->raw_queue.buffer_size = TTY_BUF_SIZE;
     for(i=0; i<TTY_BUF_SIZE; i++){ __tty->raw_queue.buf[i] = 0; }
 // canonical queue
     __tty->canonical_queue.cnt = 0;
     __tty->canonical_queue.head = 0;
     __tty->canonical_queue.tail = 0;
+    __tty->canonical_queue.buffer_size = TTY_BUF_SIZE;
     for(i=0; i<TTY_BUF_SIZE; i++){ __tty->canonical_queue.buf[i] = 0; }
 // output queue
     __tty->output_queue.cnt = 0;
     __tty->output_queue.head = 0;
     __tty->output_queue.tail = 0;
+    __tty->output_queue.buffer_size = TTY_BUF_SIZE;
     for(i=0; i<TTY_BUF_SIZE; i++){ __tty->output_queue.buf[i] = 0; }
 
 // system metrics.

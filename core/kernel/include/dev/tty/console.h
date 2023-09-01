@@ -10,26 +10,39 @@ extern struct tty_d  *console1_tty;
 extern struct tty_d  *console2_tty;
 extern struct tty_d  *console3_tty;
 
-
+// Enumerating them.
 #define CONSOLE0  0
 #define CONSOLE1  1
 #define CONSOLE2  2
 #define CONSOLE3  3
-
-#define DEFAULT_CONSOLE   CONSOLE0
-#define AUX_CONSOLE            CONSOLE1
+// Based on their colors.
+#define DEFAULT_CONSOLE  CONSOLE0
+#define AUX_CONSOLE      CONSOLE1
 #define WARNING_CONSOLE  CONSOLE2
-#define DANGER_CONSOLE    CONSOLE3
+#define DANGER_CONSOLE   CONSOLE3
+// Enumerating
+#define FIRST_CONSOLE  CONSOLE0
+#define LAST_CONSOLE   CONSOLE3
+
+
+//
+// The list of virtual consoles.
+//
 
 // Fullscreen kernel console.
 // Handmade by the kernel at the initialization.
 #define CONSOLETTYS_COUNT_MAX    4
-
 // see: console.c
 extern struct tty_d  CONSOLE_TTYS[CONSOLETTYS_COUNT_MAX];
 
+/* Address of a tty structure. */
+#define CONSOLE_GET_TTY_ADDRESS(n)  \
+    (&CONSOLE_TTYS[n])
+
+
 // Index
 extern int fg_console;
+#define DEFAULT_FG_DEFAULT_CONSOLE  DEFAULT_CONSOLE
 
 // Se o console esta atuando como um shell comparando palavras.
 // See: console.c and kgwm.c.
@@ -117,8 +130,11 @@ void console_scroll (int console_number);
 // Char
 //
 
-void console_outbyte (int c, int console_number);
-void console_outbyte2 (int c, int console_number);
+void console_outbyte(int c, int console_number);
+void console_outbyte2(int c, int console_number);
+
+void console_echo(int c, int console_number);
+
 
 void console_putchar ( int c, int console_number );
 void console_print_indent(int indent, int console_number);
@@ -175,7 +191,7 @@ console_ioctl (
     unsigned long request, 
     unsigned long arg );
 
-void REFRESH_STREAM ( file *f );
+void console_refresh_screen(file *f);
 
 int 
 clear_console (

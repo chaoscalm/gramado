@@ -20,7 +20,9 @@
 #define TTY_LDISC_MAGIC 1234
 
 
-struct ttyldisc_d {
+// (Virtual functions).
+struct ttyldisc_d 
+{
 
     int index;
     
@@ -47,7 +49,6 @@ struct ttyldisc_d {
     struct ttydrv_d *driver;
 };
 struct ttyldisc_d *CurrentTTYLDISC;
-
 
 #endif   
 

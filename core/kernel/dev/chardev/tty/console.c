@@ -1,8 +1,20 @@
 
 // console.c
+// This is the virtual console driver, embedded into the kernel base.
+// It handles the device-independent part of the console infrastructure.
+// + We receive bytes from the ps2 keyboard driver.
+// + We print bytes into the screen.
+
+// #todo
+// If this code is device independent, 
+// so we can move it to another place.
+// But at the same
 
 #include <kernel.h>
 
+// #todo
+// Why this thing is here.
+// Mot it to admin/
 #define GCC_VERSION ( __GNUC__ * 10000 \
             + __GNUC_MINOR__ * 100 \
             + __GNUC_PATCHLEVEL__ )
@@ -557,11 +569,33 @@ console_init_virtual_console(
 // remember: 
 // The virtual console is used only in the 'stdout' of a process.
     CONSOLE_TTYS[ConsoleIndex].nobuffers = TRUE;   // No buffers.
-    
-    //#bugbug: buffer não á mais arquivo.
-    //CONSOLE_TTYS[ConsoleIndex]._rbuffer = (file *) 0; 
-    //CONSOLE_TTYS[ConsoleIndex]._cbuffer = (file *) 0;
-    //CONSOLE_TTYS[ConsoleIndex]._obuffer = (file *) 0;
+
+
+//
+// Queues
+//
+
+
+// raw queue
+    CONSOLE_TTYS[ConsoleIndex].raw_queue.cnt = 0;
+    CONSOLE_TTYS[ConsoleIndex].raw_queue.head = 0;
+    CONSOLE_TTYS[ConsoleIndex].raw_queue.tail = 0;
+    CONSOLE_TTYS[ConsoleIndex].raw_queue.buffer_size = TTY_BUF_SIZE;
+    for(i=0; i<TTY_BUF_SIZE; i++){ CONSOLE_TTYS[ConsoleIndex].raw_queue.buf[i] = 0; }
+// canonical queue
+    CONSOLE_TTYS[ConsoleIndex].canonical_queue.cnt = 0;
+    CONSOLE_TTYS[ConsoleIndex].canonical_queue.head = 0;
+    CONSOLE_TTYS[ConsoleIndex].canonical_queue.tail = 0;
+    CONSOLE_TTYS[ConsoleIndex].canonical_queue.buffer_size = TTY_BUF_SIZE;
+    for(i=0; i<TTY_BUF_SIZE; i++){ CONSOLE_TTYS[ConsoleIndex].canonical_queue.buf[i] = 0; }
+// output queue
+    CONSOLE_TTYS[ConsoleIndex].output_queue.cnt = 0;
+    CONSOLE_TTYS[ConsoleIndex].output_queue.head = 0;
+    CONSOLE_TTYS[ConsoleIndex].output_queue.tail = 0;
+    CONSOLE_TTYS[ConsoleIndex].output_queue.buffer_size = TTY_BUF_SIZE;
+    for(i=0; i<TTY_BUF_SIZE; i++){ CONSOLE_TTYS[ConsoleIndex].output_queue.buf[i] = 0; }
+
+
 
 // Cursor dimentions in pixel.
 // #bugbug: determinado
@@ -626,10 +660,9 @@ console_init_virtual_console(
     CONSOLE_TTYS[ConsoleIndex].charset_size = 
         (size_t) ABNT2_CHARMAP_SIZE;
 
-// charset name
 
+// Charset name
     size_t name_size = (size_t) strlen(ABNT2_CHARMAP_NAME);
-
     memset(
         CONSOLE_TTYS[ConsoleIndex].charset_name,
         0,
@@ -638,7 +671,6 @@ console_init_virtual_console(
         CONSOLE_TTYS[ConsoleIndex].charset_name,
         ABNT2_CHARMAP_NAME,
         name_size );
-    
     CONSOLE_TTYS[ConsoleIndex].charset_name_size = 
         (size_t) name_size;
 
@@ -659,20 +691,28 @@ console_init_virtual_console(
 
     switch (ConsoleIndex){
     case 0:
-        console0_tty = (struct tty_d *) &CONSOLE_TTYS[0];
+        //console0_tty = (struct tty_d *) &CONSOLE_TTYS[0];
+        console0_tty = (struct tty_d *) CONSOLE_GET_TTY_ADDRESS(0);
         console0_tty->link = NULL;  // Not linked yet.
+        console0_tty->is_linked = FALSE;
         break;
     case 1:
-        console1_tty = (struct tty_d *) &CONSOLE_TTYS[1];
+        //console1_tty = (struct tty_d *) &CONSOLE_TTYS[1];
+        console1_tty = (struct tty_d *) CONSOLE_GET_TTY_ADDRESS(1);
         console1_tty->link = NULL;  // Not linked yet.
+        console1_tty->is_linked = FALSE;
         break;
     case 2:
-        console2_tty = (struct tty_d *) &CONSOLE_TTYS[2];
+        //console2_tty = (struct tty_d *) &CONSOLE_TTYS[2];
+        console2_tty = (struct tty_d *) CONSOLE_GET_TTY_ADDRESS(2);
         console2_tty->link = NULL;  // Not linked yet.
+        console2_tty->is_linked = FALSE;
         break;
     case 3:
-        console3_tty = (struct tty_d *) &CONSOLE_TTYS[3];
+        //console3_tty = (struct tty_d *) &CONSOLE_TTYS[3];
+        console3_tty = (struct tty_d *) CONSOLE_GET_TTY_ADDRESS(3);
         console3_tty->link = NULL;  // Not linked yet.
+        console3_tty->is_linked = FALSE;
         break;
     };
 
@@ -1444,6 +1484,12 @@ void console_outbyte2 (int c, int console_number)
         CONSOLE_TTYS[n].cursor_x++;
 }
 
+void console_echo(int c, int console_number)
+{
+    if (console_number<0)
+        return;
+    console_outbyte2(c,console_number);
+}
 
 // worker
 // __ConsoleOutbyte:
@@ -1458,6 +1504,14 @@ void console_outbyte2 (int c, int console_number)
 
 static void __ConsoleOutbyte (int c, int console_number)
 {
+// Low level.
+// This routine is gonna call the function d_draw_char()
+// to draw into the screen. this function belongs to the 
+// display device driver.
+// #todo: We need to change the name of this function
+// this way we will know that the function belongs
+// to the device driver.  Maybe display_draw_char().
+
     register int Ch = c;
 
 // Target console
@@ -1524,6 +1578,7 @@ static void __ConsoleOutbyte (int c, int console_number)
     fg_color = (unsigned int) CONSOLE_TTYS[n].fg_color;
 
 // Sempre pinte o bg e o fg.
+// see:
     d_draw_char ( screenx, screeny, Ch, fg_color, bg_color );
 
 /*
@@ -2368,6 +2423,9 @@ console_write (
     int ivalue=0;
     int ivalue2=0;
     int ivalue3=0;
+    
+    struct tty_d *tty;
+    int DoEcho = FALSE;
 
     //debug_print ("console_write: [test]\n");
 
@@ -2386,6 +2444,26 @@ console_write (
         printf ("console_write: count\n");
         goto fail;
     }
+
+//
+// tty
+//
+
+// Get the tty pointer
+    tty = (struct tty_d *) CONSOLE_GET_TTY_ADDRESS(console_number);
+// Validation again
+    if ( (void*) tty == NULL )
+        panic("console_write: tty\n");
+    if (tty->magic != 1234)
+        panic("console_write: tty validation\n");
+
+//
+// Echo?
+//
+
+    if (tty->termios.c_lflag & ECHO)
+        DoEcho = TRUE;
+
 
 //
 // Write string
@@ -2432,7 +2510,10 @@ console_write (
                if (ch >= 32 && ch <= 127){
 
                     // Draw and refresh.
-                    console_outbyte2 ( ch, console_number );
+                    if (DoEcho == TRUE){
+                        console_echo(ch,console_number);
+                        //console_outbyte2(ch,console_number);
+                    }
 
                // >>>> [ Escape ]
                // Entramos em uma escape sequence,
@@ -3372,9 +3453,8 @@ console_ioctl (
     return -1;
 }
 
-
 /*
- * REFRESH_STREAM:
+ * console_refresh_screen:
  *     #IMPORTANTE
  *     REFRESH SOME GIVEN STREAM INTO TERMINAL CLIENT WINDOW !!
  */
@@ -3382,43 +3462,49 @@ console_ioctl (
 // Change this name. 
 // Do not use stream in the base kernel.
 
-void REFRESH_STREAM(file *f)
+void console_refresh_screen(file *f)
 {
+
+    // #bugbug
+    // This routine is wrong!
+    // This is not a place to draw directly
+    // into the screen device.
+
+    panic("console_refresh_screen: #fixme\n");
+
+/*
     register int i=0;
     int j=0;
     char *ptr;
 
-    debug_print("console.c-REFRESH_STREAM: [FIXME] It is wrong!\n");
+    debug_print("console_refresh_screen: [FIXME] It is wrong!\n");
 
 // char width and height.
     int cWidth  = get_char_width();
     int cHeight = get_char_height();
     
     if ( cWidth == 0 || cHeight == 0 ){
-        panic ("REFRESH_STREAM: [FAIL] char w h\n");
+        panic ("console_refresh_screen: [FAIL] char w h\n");
     }
 
     j = (80*25);
 
-// File
-// #bugbug
-// Tem que checar a validade da estrutura e do ponteiro base.
 
-    if ( (void *) f == NULL ){ 
-        panic ("REFRESH_STREAM: [FAIL] f\n");
+    if ((void *) f == NULL){ 
+        panic("console_refresh_screen: f\n");
+    }
+    if (f->magic != 1234){
+        panic("console_refresh_screen: f falidation\n");
     }
 
 // Pointer
-
     ptr = f->_base;
 
 // #bugbug
 // Tem que checar a validade da estrutura e do ponteiro base.
-
     //if ( (void *) c == NULL ){ ? }
 
 // Seleciona o modo terminal.
-
 
 //++
     stdio_terminalmode_flag = TRUE; 
@@ -3436,6 +3522,8 @@ void REFRESH_STREAM(file *f)
     };
     stdio_terminalmode_flag = FALSE; 
 //--
+*/
+
 }
 
 int 
@@ -3446,14 +3534,19 @@ clear_console (
 {
 // Clear a console with the given colors.
 
-    if ( VideoBlock.useGui != TRUE ){
-        return -1;
+    if (VideoBlock.useGui != TRUE){
+        goto fail;
     }
+    // FIRST_CONSOLE and LAST_CONSOLE.
     if (console_number<0 || console_number > 3){
-        return -1;
+        goto fail;
     }
 
 // Clear background.
+// #todo:
+// This worker belongs to the display device driver,
+// so we need a name that represents it.
+// ex: display_device_draw_background().
     backgroundDraw(bg_color);
     CONSOLE_TTYS[console_number].bg_color = (unsigned int) bg_color;
     CONSOLE_TTYS[console_number].fg_color = (unsigned int) fg_color;
@@ -3461,8 +3554,12 @@ clear_console (
 // Cursor
     __local_gotoxy(0,0,console_number);
 
+// Refreshing the whole screen.
+// #todo: Call the faster routine for that job.
+
     refresh_screen();
     return 0;
+fail:
+    return (int) -1;
 }
-
 

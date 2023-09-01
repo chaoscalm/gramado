@@ -113,18 +113,29 @@ struct tty_line_d
 };
 
 
+// Where the bytes are stored.
 struct tty_queue 
 {
+// Save the bytes here.
+    char buf[TTY_BUF_SIZE];
+    int buffer_size;
 
 // Quantidade de bytes dentro do buffer.
 // Se colocar mais isso aumenta, se retirarmos, isso diminui.
     int cnt;
-    unsigned long head;
-    unsigned long tail;
+
+// Offsets
+    unsigned long head;  // In
+    unsigned long tail;  // Out
+
+// Contador de line feed.
+    //int lf_counter;
+
 // Vamos acordar as threads que estão nessa lista.
-// é uma lista encadeada de processo esperando nesse tipo de fila.
+// Eh uma lista encadeada de 
+// threads esperando nessa fila.
     struct thread_d *thread_list;
-    char buf[TTY_BUF_SIZE];
+
 };
 
 
@@ -200,6 +211,12 @@ struct tty_d
 // == Security ============================================
 //
 
+    //pid_t pid_in_caller;
+    //pid_t pid_out_caller;
+
+    //tid_t tid_in_caller;
+    //tid_t tid_out_caller;
+
 // process group.
 // Usando quanto tiver uma interrupção de tty.
 // Quais processos estão no mesmo grupo quanto tiver a interrupção.
@@ -229,6 +246,7 @@ struct tty_d
 
 // linked socket?
     struct tty_d *link;
+    int is_linked;
 
 //
 // == Device info ==================
@@ -239,11 +257,8 @@ struct tty_d
     struct ttydrv_d *driver;
 // i don't like this
 // line discipline
+// (Virtual functions).
     struct ttyldisc_d *ldisc;
-// termios
-// see: ktermios.h
-    //struct termios termios;
-    struct termios_d  termios;
 
 //
 // ==  properties ========================
@@ -259,15 +274,38 @@ struct tty_d
 
     short type;       // type of tty
     short subtype;    // subtype of tty 
-    
-    unsigned long flags;        // tty flags.   
+
+// tty flags.
+    unsigned long flags;
 
 //
 // == Actions ==============
 //
 
 // Qual terminal virtual esta usando essa tty.
-    int virtual_terminal_pid;
+    pid_t virtual_terminal_pid;
+    //tid_t virtual_terminal_tid;
+
+//------------------------------
+
+// #test
+// The winsize structure used in ioctl().
+// see: kioctl.h
+    struct winsize_d winsize;
+
+//------------------------------
+
+// see: ktermios.h
+    struct termios_d  termios;
+
+//------------------------------
+
+//
+// Echo support
+//
+
+    // Maybe we can create a structure for echo support. 
+    // tty->Echo.cursor_x;
 
 //
 // Cursor support.
@@ -286,11 +324,7 @@ struct tty_d
     unsigned long cursor_width_in_pixels;
     unsigned long cursor_height_in_pixels;
 
-
-// #test
-// The winsize structure used in ioctl().
-// see: kioctl.h
-    struct winsize_d winsize;
+//------------------------------
 
 //
 // Charset support.
@@ -345,19 +379,8 @@ struct tty_d
 };
 
 //
-// == consoles ==================
-//
-
-// Index
-//extern int fg_console;
-
-
-// Fullscreen kernel console.
-// Handmade by the kernel at the initialization.
-//#define CONSOLETTYS_COUNT_MAX    4
-
-
 // == prototypes ===============================================
+//
 
 int tty_copy_raw_buffer( struct tty_d *tty_to, struct tty_d *tty_from );
 
