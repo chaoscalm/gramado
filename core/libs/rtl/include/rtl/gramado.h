@@ -12,6 +12,7 @@
 
 #include <types.h>
 #include <sys/types.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <pthread.h>
 

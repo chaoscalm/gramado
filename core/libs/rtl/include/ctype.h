@@ -1,14 +1,14 @@
 /*
  * File: ctype.h
- *
  * User mode C library for Gramado.
- *
  * History:
  *     2018 - Created by Fred Nora.
  *     2018 - Linux stuff
  */
- 
- 
+
+#ifndef __CTYPE_H
+#define __CTYPE_H    1
+
 //linux
 #define _U	0x01	// upper 
 #define _L	0x02	// lower 
@@ -270,8 +270,6 @@ static inline int isodigit(const char c)
 
 //This is a set of Lowercase letters and Uppercase letters.
 
-
-
 /*
 ' '     (0x20)	space (SPC)
 '\t'	(0x09)	horizontal tab (TAB)
@@ -282,14 +280,5 @@ static inline int isodigit(const char c)
 */
 
 
-
-
- 
-
-
-
-
-
-
-
+#endif    
 
