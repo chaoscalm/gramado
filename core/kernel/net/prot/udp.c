@@ -19,8 +19,13 @@ unsigned char __udp_gramado_default_ipv4[4] = {
 };
 // destination ip (linux)
 unsigned char __udp_target_default_ipv4[4]  = { 
-    192, 168, 1, 6  //linux
+    192, 168, 1, 10  //linux
 };
+// destination ip (gateway)
+unsigned char __udp_target_gateway_ipv4[4]  = { 
+    192, 168, 1, 1  //gateway
+};
+
 // Target MAC.
 unsigned char __udp_target_mac[6] = { 
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF 
@@ -148,6 +153,13 @@ network_handle_udp(
          dport == 22888 ||
          dport == 34884 )
     {
+
+        // #debug
+        if ( dport == 11888 ){
+            printf ("------------------------\n");
+            printf ("---- UDP -> [11888] ----\n");
+        }
+
         // Print the message for these ports.
         if (PushIntoTheQueue == TRUE){
             // #bugbug
@@ -190,11 +202,11 @@ void network_test_udp(void)
        return;
 
     network_send_udp( 
-        __udp_gramado_default_ipv4,   // scr ip
-        __udp_target_default_ipv4,    // dst ip
-        __udp_target_mac,             // dst mac
-        34885,      // source port
-        34884,      // dst port
+        dhcp_info.your_ipv4,        //__udp_gramado_default_ipv4,  // scr ip
+        __udp_target_gateway_ipv4,  //__udp_target_default_ipv4,   // dst ip
+        __udp_target_mac,           // dst mac
+        11888,      // source port
+        11999,      // dst port
         message,    // msg
          512 );     // msg lenght
 }

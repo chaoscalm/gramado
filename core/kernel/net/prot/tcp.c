@@ -113,6 +113,9 @@ network_handle_tcp(
    
     if (dport == 11888)
     {
+        printf ("------------------------\n");
+        printf ("---- TCP -> [11888] ----\n");
+
         // >> Connection request: 
         // SYN=1, ACK=0
         // >> Reply: 
