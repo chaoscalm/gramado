@@ -217,7 +217,8 @@ static void __check_refresh_support(void)
 // for maior que o que temos disponivel.
 // Entao nao podemos habilitar o refresh screen.
 
-    if ( screen_size_in_kb >= 2048 ){
+    if (screen_size_in_kb >= 2048)
+    {
         refresh_screen_enabled = FALSE;
         debug_print ("Screen size fail screen_size_in_kb\n");
     }
@@ -226,7 +227,7 @@ static void __check_refresh_support(void)
 // Ok We can use the refresh routine.
 // Because we have memory enough for that.
 
-    if ( screen_size_in_kb < 2048 ){
+    if (screen_size_in_kb < 2048){
         refresh_screen_enabled = TRUE;  
     }
     
@@ -261,14 +262,15 @@ static void __check_refresh_support(void)
 // tudo isso se resolvera quando mapearmos memoria
 // o suficiente para resoluçoes grandes.
 
-    // #todo
-    // (Screen Extents)
-    // #todo: We can use the concept of screen extents
-    // in this case. It's similar to virtual screens. :)
+// #todo
+// (Screen Extents)
+// #todo: 
+// We can use the concept of screen extents in this case. 
+// It's similar to virtual screens. :)
 
-    if ( refresh_screen_enabled != TRUE )
+    if (refresh_screen_enabled != TRUE)
     {
-        // enough for 320x200x32bpp
+        // Enough for 320x200x32bpp
         fake_screen_size_in_kb = (( 320*4*200 )/1024);
         g_use_fake_screen_size = TRUE;
         refresh_screen_enabled = TRUE;
@@ -299,6 +301,7 @@ static void __print_resolution_info(void)
 }
 
 // Worker
+// CAlled by booting_begin().
 static void __check_gramado_mode(void)
 {
 //-----------
@@ -306,6 +309,10 @@ static void __check_gramado_mode(void)
 
 // Show gramado mode.
     printf ("gramado mode: %d\n",current_mode);
+    
+    // #debug
+    //refresh_screen();
+    //while(1){}
 
     switch (current_mode){
 // #temp
@@ -969,6 +976,7 @@ static int booting_begin(int arch_type)
     __check_refresh_support();
 // Now we have console debug
     Initialization.is_console_log_initialized = TRUE;
+
 // Show banner!
     zero_show_banner();
 // Print resolution info
@@ -1063,7 +1071,6 @@ int I_kmain(int arch_type)
         enable_serial_debug();
     }
 
-// see: init.c
     I_init_main(current_arch);
 
 // Not reached.

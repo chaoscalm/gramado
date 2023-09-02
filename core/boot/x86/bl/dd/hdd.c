@@ -50,13 +50,10 @@ extern void reset_ide0();
 extern unsigned long hd_buffer;
 extern unsigned long hd_lba;
 
-
 //Variáveis internas
 int hddStatus;
 int hddError;
 //...
-
-
 
 // interna
 
@@ -68,7 +65,6 @@ static void hdd_ata_pio_read (
     void *buffer, 
     int bytes )
 {
-
     asm volatile (\
         "cld;\
          rep; insw":: "D" (buffer),\
@@ -93,28 +89,24 @@ hdd_ata_pio_write (
                 "c"(bytes/2));
 }
 
-
-uint8_t hdd_ata_status_read (int p)
+uint8_t hdd_ata_status_read(int p)
 {
 	//#bugbug: 
 	//rever o offset
 
 	//return inb(ata[p].cmd_block_base_addr + ATA_REG_STATUS);
 
-    return (uint8_t) in8 ( (int) ide_ports[p].base_port + 7);
+    return (uint8_t) in8( (int) ide_ports[p].base_port + 7 );
 }
- 
 
-int hdd_ata_wait_not_busy (int p)
+int hdd_ata_wait_not_busy(int p)
 {
-
-    while( hdd_ata_status_read(p) & ATA_SR_BSY )
-    if ( hdd_ata_status_read(p) & ATA_SR_ERR )
-        return 1;
+    while ( hdd_ata_status_read(p) & ATA_SR_BSY )
+        if ( hdd_ata_status_read(p) & ATA_SR_ERR )
+            return 1;
 
     return 0;
 }
-
 
 void hdd_ata_cmd_write ( int port, int cmd_val )
 {
@@ -128,16 +120,14 @@ void hdd_ata_cmd_write ( int port, int cmd_val )
     ata_wait (400);  
 }
 
-
 int hdd_ata_wait_no_drq (int p)
 {
-    while( hdd_ata_status_read(p) &ATA_SR_DRQ)
-        if(hdd_ata_status_read(p) &ATA_SR_ERR)
+    while ( hdd_ata_status_read(p) &ATA_SR_DRQ)
+        if (hdd_ata_status_read(p) &ATA_SR_ERR)
             return 1;
 
     return 0;
 }
-
 
 /*
  * pio_rw_sector
@@ -149,7 +139,6 @@ int hdd_ata_wait_no_drq (int p)
  *   //out8 ( int port, int data )
  *   (IDE PIO)
  */
-
 int 
 pio_rw_sector ( 
     unsigned long buffer, 
@@ -207,7 +196,6 @@ pio_rw_sector (
 
     // testando
     //out8 ( (int) ide_ports[port].base_port + 6, (int) 0xE0 | (master << 4) | ((tmplba >> 24) & 0x0F));
-    
  
 // 0x01F2
 // Port to send number of sectors.
@@ -216,14 +204,12 @@ pio_rw_sector (
         (int) ( ide_ports[port].base_port + 2 ), 
         (int) 1 );
 
-
 // 0x1F3  
 // Port to send bit 0 - 7 of LBA.
 
     tmplba = lba;
-    tmplba = tmplba & 0x000000FF;	
+    tmplba = tmplba & 0x000000FF;
     out8  ( (int) ide_ports[port].base_port + 3 , (int) tmplba );
-
 
 // 0x1F4
 // Port to send bit 8 - 15 of LBA.
@@ -232,7 +218,6 @@ pio_rw_sector (
     tmplba = tmplba >> 8;
     tmplba = tmplba & 0x000000FF;
     out8  ( (int) ide_ports[port].base_port + 4 , (int) tmplba );
-
 
 // 0x1F5:  
 // Port to send bit 16 - 23 of LBA
@@ -249,11 +234,9 @@ pio_rw_sector (
 	rw = rw & 0x000000FF;
 	out8 ( (int) ide_ports[port].base_port + 7 , (int) rw );
 
-
 	//PIO or DMA ??
 	//If the command is going to use DMA, set the Features Register to 1, otherwise 0 for PIO.
 	//outb (0x1F1, isDMA)
-
 
 // timeout sim, não podemos esperar para sempre.
 // #todo
@@ -267,7 +250,6 @@ again:
     c = (unsigned char) in8( (int) ide_ports[port].base_port + 7);
 
 // Select a bit.
-
     c = ( c & 8 );
 
     if ( c == 0 )
@@ -329,7 +311,6 @@ again:
     return 0;
 }
 
-
 /*
  * my_read_hd_sector:
  * eax - buffer
@@ -338,7 +319,6 @@ again:
  * edx - null
  * Opção: void hddReadSector(....)
  */
-
 void 
 my_read_hd_sector ( 
     unsigned long ax, 
@@ -363,7 +343,6 @@ my_read_hd_sector (
         (int) g_current_ide_channel,     // 0
         (int) g_current_ide_device );    // 1
 
-
 	/*
 	 //antigo.
 	
@@ -380,7 +359,6 @@ my_read_hd_sector (
 	*/
 
 }
-
 
 /*
  * my_write_hd_sector:
@@ -419,7 +397,6 @@ my_write_hd_sector (
         (int) g_current_ide_channel,   //0 
         (int) g_current_ide_device );  //1
 
-
 /*
 	//antigo.
     // Passando os argumentos.	
@@ -435,15 +412,11 @@ my_write_hd_sector (
 
 }
 
-
-
 /*
  * init_hdd:
  *     Inicializa o driver de hd.
  */
-
 // Called by OS_Loader_Main in main.c.
-
 int init_hdd(void)
 {
 
@@ -451,14 +424,13 @@ int init_hdd(void)
 // We need to do something here. haha
 
 // See: ide.c
-    diskATADialog ( 1, FORCEPIO, FORCEPIO );
-
+    diskATADialog( 1, FORCEPIO, FORCEPIO );
     g_driver_hdd_initialized = (int) TRUE;
+
     return 0;
 }
 
-
 //
-// End.
+// End
 //
 

@@ -137,18 +137,15 @@ static inline void __atapi_pio_read ( void *buffer, uint32_t bytes )
 
 // ====================
 
-
 int disk_get_ata_irq_invoked()
 {
     return (int) ata_irq_invoked;
 }
 
-
 void disk_reset_ata_irq_invoked ()
 {
     ata_irq_invoked = 0;
 }
-
 
 void ata_wait (_i32 val)
 {
@@ -164,12 +161,11 @@ void ata_wait (_i32 val)
     };
 }
 
-
 // #TODO: 
 // Nelson, ao configurar os bits BUSY e DRQ. 
 // Devemos verificar retornos de erros.
 
-_u8 ata_wait_not_busy ()
+_u8 ata_wait_not_busy()
 {
     while ( ata_status_read() & ATA_SR_BSY ){
         if ( ata_status_read() & ATA_SR_ERR ){
@@ -180,10 +176,10 @@ _u8 ata_wait_not_busy ()
     return 0;
 }
 
-
 _u8 ata_wait_busy()
 {
-    while ( !(ata_status_read() & ATA_SR_BSY ) ){
+    while ( !(ata_status_read() & ATA_SR_BSY ) )
+    {
         if ( ata_status_read() & ATA_SR_ERR ){
             return 1;
         }
@@ -192,10 +188,10 @@ _u8 ata_wait_busy()
     return 0;
 }
 
-
 _u8 ata_wait_no_drq()
 {
-    while ( ata_status_read() & ATA_SR_DRQ ){
+    while ( ata_status_read() & ATA_SR_DRQ )
+    {
         if (ata_status_read() & ATA_SR_ERR){
             return 1;
         }
@@ -204,10 +200,10 @@ _u8 ata_wait_no_drq()
     return 0;
 }
 
-
 _u8 ata_wait_drq()
 {
-    while ( !(ata_status_read() & ATA_SR_DRQ) ){
+    while ( !(ata_status_read() & ATA_SR_DRQ) )
+    {
         if (ata_status_read() & ATA_SR_ERR){
             return 1;
         }
@@ -215,7 +211,6 @@ _u8 ata_wait_drq()
 
     return 0;
 }
-
 
 _u8 ata_wait_irq (){
 
@@ -247,13 +242,12 @@ _u8 ata_wait_irq (){
     return 0;
 }
 
-
 // Soft reset.
 void ata_soft_reset()
 {
     _u8 Data=0;
 
-    Data = in8 (ata.ctrl_block_base_address + 2);
+    Data = in8(ata.ctrl_block_base_address + 2);
     out8( 
         ata.ctrl_block_base_address, 
         Data | 0x4 );
@@ -261,7 +255,6 @@ void ata_soft_reset()
         ata.ctrl_block_base_address, 
         Data & 0xfb ); 
 }
-
 
 //#bugbug
 //Lê o status de um disco determinado, se os valores  
@@ -279,19 +272,17 @@ _u8 ata_status_read()
 void ata_cmd_write (_i32 cmd_val)
 {
     ata_wait_not_busy();
-    out8 ( ata.cmd_block_base_address + ATA_REG_CMD, cmd_val );
+    out8( ata.cmd_block_base_address + ATA_REG_CMD, cmd_val );
     ata_wait(400);  
 }
-
 
 // __ata_assert_dever:
 // Check if it is primary or secondary and
 // master or slave.
 
-_u8 __ata_assert_dever (char nport)
+_u8 __ata_assert_dever(char nport)
 {
-
-    if(nport>3){
+    if (nport>3){
         return -1;
     }
 
@@ -330,7 +321,6 @@ _u8 __ata_assert_dever (char nport)
     return 0;
 }
 
-
 int ide_identify_device(uint8_t nport)
 {
     _u8 status=0;
@@ -338,7 +328,7 @@ int ide_identify_device(uint8_t nport)
     _u8 sigbyte1=0;
     _u8 sigbyte2=0;
 
-    if ( nport > 3 ){
+    if (nport > 3){
         return -1;
     }
 
@@ -491,21 +481,17 @@ int ide_identify_device(uint8_t nport)
     return 0;
 }
 
-
-
 // Set address.
 // Primary or secondary.
-
-void set_ata_addr (int channel)
+void set_ata_addr(int channel)
 {
     if (channel<0){
         printf ("set_ata_addr: [FAIL] channel\n");
         return;
     }
 
-    // #bugbug
-    // Porque estamos checando se é primário ou
-    // secundario?
+// #bugbug
+// Porque estamos checando se é primário ou secundario?
 
     switch (channel){
 
@@ -527,15 +513,10 @@ void set_ata_addr (int channel)
     };
 }
 
-
-
-
-
 /*
  * ide_mass_storage_initialize:
  *     Rotina de inicialização de dispositivo de armazenamento de dados.
  */
-
 void ide_mass_storage_initialize()
 {
     int port=0;
@@ -552,7 +533,7 @@ void ide_mass_storage_initialize()
 // #bugbug
 // Check validation!
 
-    current_dev = ( struct st_dev * ) ready_queue_dev;
+    current_dev = (struct st_dev *) ready_queue_dev;
 
     current_dev->dev_id      = dev_next_pid++;
     current_dev->dev_type    = -1;
@@ -564,13 +545,10 @@ void ide_mass_storage_initialize()
     // Buffer to get information 
     // about a single device, i guess.
 
-    ata_identify_dev_buf = ( _u16 * ) malloc(4096);
-
-    // Invalid buffer
-    if ( (void*) ata_identify_dev_buf == NULL )
+    ata_identify_dev_buf = (_u16 *) malloc(4096);
+    if ((void*) ata_identify_dev_buf == NULL)
     {
         printf("ide_mass_storage_initialize: [FAIL] invalid buffer\n");
-        
         // #todo
         // hang here
     }
@@ -583,20 +561,18 @@ void ide_mass_storage_initialize()
     };
 }
 
-
 /*
  * ide_dev_init:
  *    Obtendo informações sobre um dos dispositivos.
  */
-
-int ide_dev_init (char port)
+int ide_dev_init(char port)
 {
     int data=0;
     st_dev_t *new_dev;
 
 // Storage device structure.
-    new_dev = ( struct st_dev * ) malloc ( sizeof( struct st_dev) );
-    if ( (void *) new_dev ==  NULL ){
+    new_dev = (struct st_dev *) malloc( sizeof( struct st_dev) );
+    if ((void *) new_dev ==  NULL){
         printf ("ide_dev_init: [FAIL] struct\n");
         die();
     }
@@ -715,11 +691,11 @@ int ide_dev_init (char port)
 // Queue
 // Add no fim da lista (ready_queue_dev).
 
-    st_dev_t *tmp_dev; 
+    st_dev_t *tmp_dev;
 
     tmp_dev = (struct st_dev *) ready_queue_dev;
-    if ( (void*) tmp_dev == NULL ){
-        printf ("ide_dev_init: [FAIL] tmp_dev\n");
+    if ((void*) tmp_dev == NULL){
+        printf("ide_dev_init: [FAIL] tmp_dev\n");
         die();
     }
 
@@ -731,11 +707,9 @@ int ide_dev_init (char port)
     return 0;
 }
 
-
 // dev_switch:
 // Porque esse tipo?
-
-static inline void dev_switch (void)
+static inline void dev_switch(void)
 {
 
 // ??
@@ -758,47 +732,38 @@ static inline void dev_switch (void)
     }
 }
 
-
-
 /*
  * getpid_dev:
  *     ?? Deve ser algum suporte a Processos.
  */
-
-static inline int getpid_dev ()
+static inline int getpid_dev()
 {
-    if ( (void*) current_dev == NULL ){
+    if ((void*) current_dev == NULL){
         printf("getpid_dev: [FAIL] Invalid pointer\n");
         return -1;
     }
-
     return current_dev->dev_id;
 }
-
 
 /*
  * getnport_dev:
  */
-
-static inline int getnport_dev ()
+static inline int getnport_dev()
 {
-    if ( (void*) current_dev == NULL ){
+    if ((void*) current_dev == NULL){
         printf("getnport_dev: [FAIL] Invalid pointer\n");
         return -1;
     }
-
     return current_dev->dev_nport;
 }
-
 
 /*
  * nport_ajuste:
  */
-
 // #todo
 // Change this name.
 
-int nport_ajuste ( char nport )
+int nport_ajuste(char nport)
 {
     _i8 i=0;
 
@@ -822,11 +787,9 @@ int nport_ajuste ( char nport )
     return 0;
 }
 
-
 // ===============================================
 // Obs: 
 // O que segue são rotinas de suporte a ATA.
-
 
 // ata_set_device_and_sector:
 static inline void ata_set_device_and_sector ( 
@@ -839,7 +802,7 @@ static inline void ata_set_device_and_sector (
 
 // Access type.
 
-    switch ( access_type ){
+    switch (access_type){
 
         // Mode LBA28
         case 28:
@@ -934,20 +897,15 @@ static inline void ata_set_device_and_sector (
 /* 
  * ide_dma_prdt: 
  */
-
 struct {
-
     uint32_t addr;
     uint32_t len;
-
 }ide_dma_prdt[4];
 
 
 /* 
  * ide_dma_data: 
- * 
  */
-
 void 
 ide_dma_data ( 
     void *addr, 
@@ -1000,12 +958,9 @@ done:
     return;
 }
 
-
-
 /*
  * ide_dma_start:
  */
-
 void ide_dma_start ()
 {
     _u8 Data = 0; 
@@ -1016,16 +971,13 @@ void ide_dma_start ()
         Data | 1);
 }
 
-
-
 /*
  * ide_dma_stop:
  */
-
-void ide_dma_stop ()
+void ide_dma_stop()
 {
     _u8 Data=0;
-    
+
     Data = in8 ( ata.bus_master_base_address + ide_dma_reg_cmd );  
     out8( 
         ata.bus_master_base_address + ide_dma_reg_cmd, 
@@ -1045,9 +997,7 @@ int ide_dma_read_status ()
     return Status;
 }
 
-
 // pci support
-
 // #todo:
 // Checar se temos uma lista dessa no suporte a PCI.
 // #bugbug
@@ -1080,7 +1030,6 @@ const char *pci_classes[] = {
  * read_pci_config_addr:
  *     READ
  */
-
 uint32_t 
 diskReadPCIConfigAddr ( 
     int bus, 
@@ -1100,12 +1049,10 @@ diskReadPCIConfigAddr (
     return (uint32_t) in32 (PCI_PORT_DATA);
 }
 
-
 /*
  * write_pci_config_addr:
  *     WRITE
  */
-
 void 
 diskWritePCIConfigAddr ( 
     int bus, 
@@ -1125,13 +1072,11 @@ diskWritePCIConfigAddr (
     out32 ( PCI_PORT_DATA, data );
 }
 
-
 /*
  * diskATAPCIConfigurationSpace:
  *     Espaço de configuraçao PCI Mass Storage
  *     Aqui vamos analisar o tipo de dispositivo.
  */
-
 int 
 diskATAPCIConfigurationSpace ( 
     char bus, 
@@ -1145,22 +1090,18 @@ diskATAPCIConfigurationSpace (
     printf ("Initializing PCI Mass Storage support..\n");
 //#endif
 
-
 // Indentification Device e
 // Salvando configurações.
 
-    data = (uint32_t) diskReadPCIConfigAddr ( bus, dev, fun, 0 );
+    data = (uint32_t) diskReadPCIConfigAddr( bus, dev, fun, 0 );
 
     ata_pci.vendor_id = data       & 0xffff;
     ata_pci.device_id = data >> 16 & 0xffff;
 
-
-//#ifdef KERNEL_VERBOSE
     //printf ("\nDisk info:\n");
-    printf ("[ Vendor ID: %X,Device ID: %X ]\n", ata_pci.vendor_id, 
+    printf("[ Vendor ID: %X,Device ID: %X ]\n", 
+        ata_pci.vendor_id, 
         ata_pci.device_id );
-//#endif
-
 
 // ======================================================
 
@@ -1169,7 +1110,7 @@ diskATAPCIConfigurationSpace (
 // Salvando informações.
 // Classe, sub-classe, prog if and revision.
 
-    data  = (uint32_t) diskReadPCIConfigAddr ( bus, dev, fun, 8 );
+    data = (uint32_t) diskReadPCIConfigAddr( bus, dev, fun, 8 );
 
     ata_pci.classe      = data >> 24 & 0xff;
     ata_pci.subclasse   = data >> 16 & 0xff;
@@ -1378,12 +1319,11 @@ diskATAPCIConfigurationSpace (
 // ================
 // Get Synchronous DMA Control Register.
 
-    data = diskReadPCIConfigAddr (bus,dev,fun,0x48);
+    data = diskReadPCIConfigAddr(bus,dev,fun,0x48);
 
 #ifdef KERNEL_VERBOSE
     printf ("[ Synchronous DMA Control Register %X ]\n", data );
 #endif
-
 
 done:
 
@@ -1394,15 +1334,13 @@ done:
     return (PCI_MSG_SUCCESSFUL);
 }
 
-
 /*
  * diskPCIScanDevice:
  *     Esta função deve retornar o número de barramento, 
  *     o dispositivo e a função do dispositivo conectado 
  *     ao barramento PCI de acordo a classe.
  */
-
-uint32_t diskPCIScanDevice (int class)
+uint32_t diskPCIScanDevice(int class)
 {
     uint32_t data = -1;
     int bus=0; 
@@ -1452,14 +1390,12 @@ uint32_t diskPCIScanDevice (int class)
     return (uint32_t) (-1);
 }
 
-
 /*
  * diskATAInitialize:
  *     Inicializa o IDE e mostra informações sobre o disco.
  * Credits: Nelson Cole.
  */
-
-int diskATAInitialize (int ataflag)
+int diskATAInitialize(int ataflag)
 {
     int Status = 1;  //error
     int port=0;
@@ -1468,7 +1404,6 @@ int diskATAInitialize (int ataflag)
     _u8 bus=0;
     _u8 dev=0;
     _u8 fun=0;
-
 
 // ================================================
 
@@ -1526,7 +1461,7 @@ int diskATAInitialize (int ataflag)
     fun = ( data      & 7 );
 
 // Vamos saber mais sobre o dispositivo enconrtado.
-    data = (_u32) diskATAPCIConfigurationSpace ( bus, dev, fun );
+    data = (_u32) diskATAPCIConfigurationSpace( bus, dev, fun );
 
     // Error.
     if( data == PCI_MSG_ERROR ){
@@ -1603,21 +1538,21 @@ int diskATAInitialize (int ataflag)
 
         // Iniciando a lista.
         ready_queue_dev = 
-            ( struct st_dev * ) malloc ( sizeof( struct st_dev) );
+            (struct st_dev *) malloc( sizeof( struct st_dev) );
 
-        if ( (void *) ready_queue_dev == NULL )
+        if ((void *) ready_queue_dev == NULL)
         {
-            printf ("diskATAInitialize: ready_queue_dev struct fail\n");
+            printf("diskATAInitialize: ready_queue_dev struct fail\n");
             die();
         }
 
         // #todo:
         // Checar a validade da estrutura.
 
-        current_dev = ( struct st_dev * ) ready_queue_dev;
-    
+        current_dev = (struct st_dev *) ready_queue_dev;
+
         current_dev->dev_id = dev_next_pid++;
-    
+
         current_dev->dev_type    = -1;
         current_dev->dev_num     = -1;
         current_dev->dev_channel = -1;
@@ -1625,11 +1560,10 @@ int diskATAInitialize (int ataflag)
         current_dev->next = NULL;
 
         // ??
-        ata_identify_dev_buf = ( _u16 * ) malloc (4096);
-
-        if ( (void *) ata_identify_dev_buf == NULL )
+        ata_identify_dev_buf = (_u16 *) malloc(4096);
+        if ((void *) ata_identify_dev_buf == NULL)
         {
-            printf ("diskATAInitialize: ata_identify_dev_buf fail\n");
+            printf("diskATAInitialize: ata_identify_dev_buf fail\n");
             die();
         }
 
@@ -1638,7 +1572,7 @@ int diskATAInitialize (int ataflag)
 
         for ( port=0; port < 4; port++ )
         {
-            ide_dev_init (port);
+            ide_dev_init(port);
         };
 
 // =========================
@@ -1681,14 +1615,11 @@ done:
     return (int) Status;
 }
 
-
 /*
  * diskATADialog:
  *     Rotina de diálogo com o driver ATA.
  */
-
 // Called by init_hdd in hdd.c
-
 int 
 diskATADialog ( 
     int msg, 
@@ -1702,7 +1633,7 @@ diskATADialog (
     //ATAMSG_INITIALIZE
     //Initialize driver.
     case 1:
-        diskATAInitialize ( (int) long1 );
+        diskATAInitialize((int) long1);
         Status = 0;
         goto done;
         break;
@@ -1724,7 +1655,6 @@ done:
     return (int) Status;
 }
 
-
 /*
  * diskATAIRQHandler1
  *     irq 14 handler
@@ -1743,15 +1673,14 @@ void diskATAIRQHandler2 ()
     ata_irq_invoked = 1;   
 }
 
-
 /*
  * show_ide_info:
  *     Mostrar as informações obtidas na 
  * inicializações do controlador.
  */
-void show_ide_info ()
+void show_ide_info()
 {
-    int i=0;
+    register int i=0;
 
     printf ("show_ide_info:\n");
 
@@ -1765,7 +1694,6 @@ void show_ide_info ()
         printf ("name      = %s \n", ide_ports[i].name );
         printf ("base_port = %x \n", ide_ports[i].base_port );
     };
-
 
 	/*
 	// Estrutura 'ata'
@@ -1799,7 +1727,6 @@ void show_ide_info ()
     //...
 }
 
-
 /*
  * disk_ata_wait_irq:
  *     Esperando pela interrupção.
@@ -1808,8 +1735,7 @@ void show_ide_info ()
  *     -1   = ok por status do controlador.
  *     0x80 = ok por tempo esperado.
  */
-
-int disk_ata_wait_irq ()
+int disk_ata_wait_irq()
 {
    _u32 tmp = 0x10000;
    _u8 data=0;

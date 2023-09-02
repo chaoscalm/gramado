@@ -710,7 +710,8 @@ See: https://wiki.osdev.org/X86-64
     //#debug
     //printf ("OS_Loader_Main: Setup paging ...\n");
     //refresh_screen();
-
+    //while(1){}
+    
     SetUpPaging();
 
 // Nao podemos chamar rotina alguma aqui, somente retornar.

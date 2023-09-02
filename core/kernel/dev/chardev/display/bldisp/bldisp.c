@@ -48,13 +48,15 @@ See:
  */
 // ================================
 
-
 #include <kernel.h>
 
+// Screen sizes and bpp.
+unsigned long g_device_screen_width=0;
+unsigned long g_device_screen_height=0;
+unsigned long g_device_screen_bpp=0;
 
 int refresh_device_screen_flag=0;
 int refresh_valid_screen_flag=0;
-
 
 unsigned long screen_size_in_kb=0;
 // hack: for debuging purpose
@@ -424,8 +426,8 @@ int bldisp_initialize(void)
 
 // Memory allocation for Display device structure.
     bl_display_device = 
-        (struct display_device_d *) kmalloc ( sizeof(struct display_device_d) ); 
-    if ( (void*) bl_display_device == NULL ){
+        (struct display_device_d *) kmalloc( sizeof(struct display_device_d) ); 
+    if ((void*) bl_display_device == NULL){
         x_panic ("Error: 0x05");
     }
 
@@ -535,7 +537,8 @@ static int __videoInit(void)
 
 // Device screen sizes. 
 // (herdadas do boot loader.)
-// See: globals/gdevice.h
+// See: 
+// admin/config/superv/gdevice.h
     g_device_screen_width  = (unsigned long) gSavedX;
     g_device_screen_height = (unsigned long) gSavedY;
     g_device_screen_bpp    = (unsigned long) gSavedBPP;
