@@ -17,18 +17,26 @@ const char *crt0_args[] = {
 
 
 // Entry point
-void module_crt0(int reason)
+unsigned long  
+module_crt0(
+    unsigned long rdi_reason,
+    unsigned long rsi_long1 )
 {
+    unsigned long reason = (unsigned long) rdi_reason;
+    unsigned long long1  = (unsigned long) rsi_long1;
     int ret_val=0;
 
 // Calling the main function.
 // IN: 
 // reason
 
+    // #todo
+    // The return value needs to be long
     ret_val = (int) main(2,crt0_args,reason);
 
 // Return to kernel
     //while(1){};
-}
 
+    return (unsigned long) 1234;
+}
 

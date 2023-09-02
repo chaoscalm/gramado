@@ -35,27 +35,30 @@ caller1(
 //   using a big buffer for that.
 // + Maybe share the pointer of the buffer of a file.
 // ...
+// (in order: rdi, rsi, rdx, rcx, r8, r9).
 
-// 32bit
-    unsigned int x = (unsigned int) (data0 & 0xFFFFFFFF);
-    unsigned int y = (unsigned int) (data0 & 0xFFFFFFFF);
-
-// #todo: Simplify
-
-    asm ("movl %1, %%eax;"
-         "movl %%eax, %0;"
-         "movl %%eax, %%edi;"
-         :"=r"(y)        /* output */
-         :"r"(x)         /* input */
-         :"%eax"         /* clobbered register */
-    );   
-
+    //#debug
     //asm (" movq $65, %rdi ");
-    
-    asm ("call *%0" : : "r"(function_address));
+
+// 64bit
+    unsigned long first_parameter = data0;
+    unsigned long return_value=0;
+    asm volatile ("movq    %1, %%rax  ;"
+         "movq %%rax, %0     ;"
+         "movq %%rax, %%rdi  ;"  // RDI: First parameter.  (data0).
+         "movq %%rax, %%rsi  ;"  // RSI: Second parameter. (data0).
+         :"=r"(return_value)  //output 
+         :"r"(first_parameter) //input (O operando eh um registrador de prop. geral).
+         :"%rax"   //clobbered register. (rax sera modificado).
+    );    
+    asm volatile ("call *%0" : : "r"(function_address));
+
+// #test
+// #todo
+// What is the return value.
+    printf ("RETURN: {%d}\n",return_value);
+    refresh_screen();
 }
-
-
 
 // mod0: Call the entrypoint of the module.
 // mod0.bin entry point.

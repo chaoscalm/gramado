@@ -536,8 +536,9 @@ static int newm0_1001(void)
 int main( int arc, char *argv[], int reason )
 {
 
-    if (reason<0)
-        return -1;
+    if (reason<0){
+        goto fail;
+    }
 
     switch (reason){
         case 1000:
@@ -554,10 +555,11 @@ int main( int arc, char *argv[], int reason )
             break;
 
         default:
-            return -1;
+            goto fail;
             break;
     };
 
-    return -1;
+fail:
+    return (int) -1;
 }
 

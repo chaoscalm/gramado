@@ -3,7 +3,11 @@
 #ifndef __CRT0_H
 #define __CRT0_H  1
 
-void module_crt0(int reason);
+// Entry point
+unsigned long  
+module_crt0(
+    unsigned long rdi_reason,
+    unsigned long rsi_long1 );
 
 #endif  
 
