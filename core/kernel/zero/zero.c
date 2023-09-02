@@ -86,14 +86,21 @@ void zero_show_banner(void)
     char build_string[256];
     size_t size=0;
 
+    memset(product_string,0,256);
+    memset(build_string,0,256);
+
 // product string
     sprintf(product_string,PRODUCT_NAME);
     size = sizeof(PRODUCT_NAME);
+    if (size >= 256)
+        return;
     product_string[size+1]=0;
 
 // build string
     sprintf(build_string,BUILD_STRING);
     size = sizeof(BUILD_STRING);
+    if (size >= 256)
+        return;
     build_string[size+1]=0;
     
 // Crear screen and print version string.

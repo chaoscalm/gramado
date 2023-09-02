@@ -54,9 +54,7 @@ CFLAGS := \
 	-mno-red-zone \
 	-mno-mmx -mno-sse -mno-sse2   
 
-
 endif
-
 
 .PHONY: all libc-header libc-content libc-footer link install clean clean-all
 

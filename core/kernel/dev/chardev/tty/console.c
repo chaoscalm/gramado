@@ -2035,6 +2035,8 @@ int consoleCompareStrings(void)
 
 // about:
     if ( strncmp( prompt, "about", 5 ) == 0 ){
+        // Crear screen and print version string.
+        zero_show_banner();
         printf("About: The kernel console\n");
         goto exit_cmp;
     }
