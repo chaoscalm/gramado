@@ -178,6 +178,10 @@ void network_save_mac( uint8_t mac[6] )
 
 void network_test_udp(void)
 {
+// Called by the command "test-udp" in console.c.
+// Called by the syscall 22003 in sci.c
+// The terminal.bin command is "n2".
+
     char message[512];
     memset(message,0,sizeof(message));
     sprintf(message,"Hello from Gramado to Linux\n");
