@@ -13,6 +13,7 @@
 
 #include <types.h>
 #include <sys/types.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <pthread.h>
 
@@ -224,7 +225,13 @@ rtl_draw_text (
     unsigned long y, 
     unsigned long color, 
     char *string );
-    
+
+char *rtl_get_next_token_in_a_string(
+    char *buf,           // Input string pointer. 
+    char *w,             // Output token string pointer.
+    size_t buffer_size,  // The buffer size.
+    size_t *size );      // Output to return an int value. The counter.
+
 void rtl_show_backbuffer (void);
 
 unsigned long rtl_get_system_message(unsigned long message_buffer);

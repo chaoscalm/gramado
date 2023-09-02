@@ -642,9 +642,7 @@ int rtl_create_empty_directory(char *dir_name)
     return (int) (Value & 0xF);
 }
 
-
-
-void *rtl_create_process( const char *file_name )
+void *rtl_create_process(const char *file_name)
 {
     char pName[32];
 
@@ -744,6 +742,72 @@ int rtl_start_thread_tid(int tid)
 */
 
 
+/* Get the next token in a string, 
+ * returning a pointer to the byte following the token.
+ */
+char *rtl_get_next_token_in_a_string(
+    char *buf,           // Input string pointer. 
+    char *w,             // Output token string pointer.
+    size_t buffer_size,  // The buffer size.
+    size_t *size )       // Output to return an int value. The counter.
+{
+
+// #todo
+// Not tested yet!
+
+	*w = 0;
+	*size = 0;
+
+// Fail
+    if ((void*) buf == NULL){
+        goto fail;
+    }
+    if ((void*) w == NULL){
+        goto fail;
+    }
+    if ((void*) size == NULL){
+        goto fail;
+    }
+
+
+    size_t BufferSize = strlen(buf);
+    if (BufferSize > buffer_size)
+        goto fail;
+
+// Pula os espaços iniciais se tiver.
+	while (isspace(*buf))
+	{
+	    buf++;
+	};
+
+// Se depois dos espaços temos um 0.
+// o size ainda eh 0.
+	if (*buf == '\0')
+	{
+		return NULL;
+    }
+
+// Depois dos espaços iniciais pegamos os chars que nao sao espaços.
+// Colocando eles no retorno.
+    size_t Conter=0;
+	while (!isspace(*buf) && *buf)
+	{
+		*w++ = *buf++;
+	    Conter++;
+	};
+
+//  finaliza o retorno.
+	*w = 0;
+// The token size.
+	*size = Conter;
+
+//retorna o endereço do ultimo bytes encontrado.
+	return (char *) buf;
+fail:
+    return NULL;
+}
+
+
 // Vamos escrever em uma janela indefinida. NULL.
 // provavelmente a janela principal.
 // #todo: Change string to 'const char *'
@@ -756,6 +820,8 @@ rtl_draw_text (
     unsigned long color, 
     char *string )
 {
+// ??
+
     unsigned long msg[8];
 
     if ( (void*) string == NULL ){

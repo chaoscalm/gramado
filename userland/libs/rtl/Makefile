@@ -130,20 +130,16 @@ libc-footer:
 link:
 #	ar rc LIBC03.A $(OBJECTS)
 #	ld -m elf_i386 socrt0.o somain.o -nostdlib -T elf_ia32_efi.lds -shared -znocombreloc -Bsymbolic -L . -l:LIBC03.A -o LIBC03.SO -Map map.s
-
 	#$(LD) -r -o archive_rtl.o 
-
 install:
 	-mkdir        obj/
 	-cp *.o       obj/
 	#-cp LIBC03.A  obj/
 	#-cp LIBC03.SO obj/
-
 clean:
 	-rm *.o
 	-rm *.A
 	-rm *.SO
-
 clean2:
 	-rm obj/*.o
 

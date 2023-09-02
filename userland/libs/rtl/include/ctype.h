@@ -5,8 +5,10 @@
  *     2018 - Created by Fred Nora.
  *     2018 - Linux stuff
  */
- 
- 
+
+#ifndef __CTYPE_H
+#define __CTYPE_H    1
+
 //linux
 #define _U	0x01	// upper 
 #define _L	0x02	// lower 
@@ -278,6 +280,9 @@ static inline int isodigit(const char c)
 '\f'	(0x0c)	feed (FF)
 '\r'	(0x0d)	carriage return (CR)
 */
+
+#endif    
+
 
 
 
