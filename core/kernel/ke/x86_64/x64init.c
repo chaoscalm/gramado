@@ -840,7 +840,7 @@ static int I_x64CreateKernelProcess(void)
 
 // name
 
-    char *name = "km::first";
+    char *name = "km::mod0";
     size_t s=0;
 
     memset(m->name,0,64);
@@ -868,6 +868,18 @@ static int I_x64CreateKernelProcess(void)
 // #todo: Change this name
     m->id = KMODULE_MOD0;
     kmList[KMODULE_MOD0] = (unsigned long) m;
+
+//
+// Entry point
+//
+
+// #test
+// Virtual function
+// The entry point for the ring0 kernel module.
+// Using the kernel's address espace.
+// See: mod0.h, mod0.c.
+    m->entry_point = (unsigned long) XP_MOD0;
+
 
 // Finalize the module structure.
     m->initialized = TRUE;

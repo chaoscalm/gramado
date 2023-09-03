@@ -5,9 +5,6 @@
 
 #include <kernel.h>
 
-// Cross Pointer
-#define XP_MOD0    0x30A01000
-
 // Modulo 0.
 // see: kernel.h
 struct kernel_module_d  *kernel_mod0;
@@ -16,14 +13,16 @@ struct kernel_module_d  *kernel_mod0;
 unsigned long kmList[KMODULE_MAX];
 
 
+/*
 static void 
 caller1(
     unsigned long function_address, 
     unsigned long data0 );
+*/
 
 // ----------------------------------------
 
-
+/*
 static void 
 caller1(
     unsigned long function_address, 
@@ -59,6 +58,7 @@ caller1(
     printf ("RETURN: {%d}\n",return_value);
     refresh_screen();
 }
+*/
 
 // mod0: Call the entrypoint of the module.
 // mod0.bin entry point.
@@ -69,13 +69,37 @@ caller1(
 
 void test_mod0(void)
 {
+    unsigned long return_value=0;
+
     printf ("test_mod0:\n");
-    if ((void*) kernel_mod0 != NULL)
+
+    if ((void*) kernel_mod0 == NULL)
+        return;
+    if (kernel_mod0->magic != 1234)
+        return;
+    if (kernel_mod0->initialized != TRUE)
+        return;
+
+// #test
+// Calling the virtual function, and
+// getting the return value.
+    if ( (void*) kernel_mod0->entry_point != NULL )
     {
-        if (kernel_mod0->magic == 1234)
-        {
-            if (kernel_mod0->initialized == TRUE)
-            {
+        // test1
+        return_value = 
+            (unsigned long) kernel_mod0->entry_point(1000,1234,0,0);
+        printf ("RETURN: %d\n",return_value);
+
+        // test2
+        return_value = 
+            (unsigned long) kernel_mod0->entry_point(1001,1234,0,0);
+        printf ("RETURN: %d\n",return_value);
+    }
+
+done:
+    return;
+
+/*
                 //while(1){
                 // No return value.
                 // 1 parameter.
@@ -86,9 +110,7 @@ void test_mod0(void)
                 // Invalid reason
                 caller1((unsigned long) XP_MOD0,  999 );
                 //};
-            }
-        }
-    }
+*/
 }
 
 void xp_putchar_in_fgconsole(unsigned long _char)

@@ -43,8 +43,8 @@ kinguio_i2hex(
     char *dest, 
     int len );
     
-static int newm0_1001(void);
 static int newm0_initialize(void);
+static int newm0_1001(void);
 static void newm0_print_string (char *s);
 
 // printf support.
@@ -533,19 +533,33 @@ static int newm0_1001(void)
 
 // ---------------------------
 // main:
-int main( int arc, char *argv[], int reason )
+unsigned long 
+module_main (
+    unsigned long arg1,  // reason
+    unsigned long arg2,  // long1
+    unsigned long arg3,  // long2
+    unsigned long arg4 ) // long3
 {
+    unsigned long reason = (unsigned long) arg1;
+    unsigned long sig = (unsigned long) arg2;
+    int Status = -1;
 
+// Reason
     if (reason<0){
         goto fail;
     }
+// Signature
+    if (sig != 1234)
+        goto fail;
 
     switch (reason){
         case 1000:
-            return (int) newm0_initialize();
+            Status = (int) newm0_initialize();
+            return (unsigned long) 0;
             break;
         case 1001:
-            return (int) newm0_1001();
+            Status = (int) newm0_1001();
+            return (unsigned long) 0;
             break;
 
         // #test
@@ -560,6 +574,6 @@ int main( int arc, char *argv[], int reason )
     };
 
 fail:
-    return (int) -1;
+    return (unsigned long) 0;
 }
 

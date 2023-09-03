@@ -115,11 +115,14 @@ struct _iobuf
 
 // operations - (bsd-like) 
 // #todo: olhar __P em sys/cdefs.h
-    void *_cookie;                 // cookie passed to io functions 
+    void *_cookie;  // cookie passed to io functions 
+
+/*
     int    (*_close) __P((void *));
     int    (*_read)  __P((void *, char *, int));
     fpos_t (*_seek)  __P((void *, fpos_t, int));
     int    (*_write) __P((void *, const char *, int));
+*/
 
 //file extension 
     struct __sbuf _ext;

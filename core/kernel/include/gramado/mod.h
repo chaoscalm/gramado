@@ -8,6 +8,10 @@
 #define KMODULE_MOD0  0   // first of the list.
 #define KMODULE_MAX   8
 
+// Cross Pointer
+#define XP_MOD0    0x30A01000
+
+
 // Informações compartilhadas 
 // entre o kernel e um dado módulo.
 struct km_shared_info_d
@@ -35,6 +39,14 @@ struct kernel_module_d
 // Shared info
     struct km_shared_info_d info;
     struct thread_d  *thread;
+
+// #test
+// Virtual function
+// The entry point for the ring0 kernel module.
+// Using the kernel's address espace.
+// IN: 4 parameters.
+// OUT: unsigned long.
+   unsigned long (*entry_point)(unsigned long, unsigned long, unsigned long, unsigned long);
 
 // Navigation
     struct kernel_module_d  *next;
