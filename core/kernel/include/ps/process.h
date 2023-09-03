@@ -25,7 +25,7 @@ extern int copy_process_in_progress;
 
 #define PROCESS_MAGIC  1234
 
-/*
+
 //
 // Process environment
 //
@@ -36,7 +36,7 @@ extern int copy_process_in_progress;
 #define PROCESS_ENV_UNKNOWN  0
 // The kernel process.
 #define PROCESS_ENV_KERNEL  1000
-// The init process
+// The init process.
 #define PROCESS_ENV_INIT  2000
 
 // The display server.
@@ -52,7 +52,6 @@ extern int copy_process_in_progress;
 // It calls the kernel directly using syscalls.
 // Posix commands or game engines.
 #define PROCESS_ENV_NATIVE  9000
-*/
 
 // -----------------------------
 
@@ -202,8 +201,7 @@ struct process_d
 // Process environment.
 // Que tipo de aplicaçao gramado eh esse processo.
 // Eh um kernel, um init, um serviço do sistema, um cliente de servico.
-// 
-    //int process_env;
+    int process_env;
 
     int exit_in_progress;
 

@@ -1932,8 +1932,9 @@ struct process_d *create_and_initialize_process_object(void)
 // Default personality
     new_process->personality = PERSONALITY_GRAMADO;
 
+// #test
 // No environment yet.
-    // new_process->process_env = 0;
+    new_process->process_env = PROCESS_ENV_UNKNOWN;
 
 // Get PID.
 // Obtêm um índice para um slot vazio na lista de processos.

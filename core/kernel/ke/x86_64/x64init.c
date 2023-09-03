@@ -249,6 +249,9 @@ static int I_x64CreateInitialProcess(void)
     InitProcess->base_priority = BasePriority;    
     InitProcess->priority = Priority;
 
+// The init process.
+    InitProcess->process_env = PROCESS_ENV_INIT;
+
 
     if ( init_mm_data.used != TRUE || 
          init_mm_data.magic != 1234 )
@@ -781,6 +784,9 @@ static int I_x64CreateKernelProcess(void)
 
     KernelProcess->base_priority = BasePriority;
     KernelProcess->priority = Priority;
+
+// This is the kernel process.
+    KernelProcess->process_env = PROCESS_ENV_KERNEL;
 
 //
 // mm
