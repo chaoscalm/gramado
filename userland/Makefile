@@ -16,10 +16,6 @@ all:
 	make -C libs/
 
 # ----------------
-# Client-side GUI applications.
-	make -C apps/
-
-# ----------------
 # Ring 3 posix-like commands.
 	make -C commands/
 
@@ -43,9 +39,12 @@ all:
 # The shell command.
 	make -C shell/
 
+# ----------------
+# Client-side GUI applications.
+	make -C winapps/
+
 clean-all:
 
-	-rm -f apps/bin/*.BIN
 
 	-rm -f commands/bin/*.BIN
 
@@ -62,4 +61,5 @@ clean-all:
 	-rm -f netd/bin/*.BIN
 
 	-rm -f services/bin/*.BIN
-	
+
+	-rm -f winapps/bin/*.BIN

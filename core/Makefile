@@ -207,20 +207,20 @@ copy-extras:
 # Shell
 #
 
-# apps, apps and apps: (Students)
+# winapps (Students)
 
-# apps: Unit 3
-	-sudo cp ../userland/apps/bin/GWS.BIN   ../base/
-	-sudo cp ../userland/apps/bin/GDM.BIN   ../base/
-	-sudo cp ../userland/apps/bin/GDM2.BIN  ../base/
-# apps: Unit 2
-	-sudo cp ../userland/apps/bin/TERMINAL.BIN  ../base/
-# apps: Unit 1
-	-sudo cp ../userland/apps/bin/EDITOR.BIN   ../base/
-	-sudo cp ../userland/apps/bin/FILEMAN.BIN  ../base/
-	-sudo cp ../userland/apps/bin/CMDLINE.BIN  ../base/PROGRAMS/
-	-sudo cp ../userland/apps/bin/BROWSER.BIN  ../base/
-	-sudo cp ../userland/apps/bin/DOCV.BIN     ../base/PROGRAMS/
+# winapps: Unit 3
+	-sudo cp ../userland/winapps/bin/GWS.BIN   ../base/
+	-sudo cp ../userland/winapps/bin/GDM.BIN   ../base/
+	-sudo cp ../userland/winapps/bin/GDM2.BIN  ../base/
+# winapps: Unit 2
+	-sudo cp ../userland/winapps/bin/TERMINAL.BIN  ../base/
+# winapps: Unit 1
+	-sudo cp ../userland/winapps/bin/EDITOR.BIN   ../base/
+	-sudo cp ../userland/winapps/bin/FILEMAN.BIN  ../base/
+	-sudo cp ../userland/winapps/bin/CMDLINE.BIN  ../base/PROGRAMS/
+	-sudo cp ../userland/winapps/bin/BROWSER.BIN  ../base/
+	-sudo cp ../userland/winapps/bin/DOCV.BIN     ../base/PROGRAMS/
 
 	@echo "~ copy-extras"
 
