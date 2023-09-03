@@ -16,6 +16,10 @@ all:
 	make -C libs/
 
 # ----------------
+# The shell command.
+	make -C barnsh/
+
+# ----------------
 # Ring 3 posix-like commands.
 	make -C commands/
 
@@ -36,16 +40,12 @@ all:
 	make -C services/
 
 # ----------------
-# The shell command.
-	make -C shell/
-
-# ----------------
 # Client-side GUI applications.
 	make -C winapps/
 
 clean-all:
 
-
+	-rm -f barnsh/bin/*.BIN
 	-rm -f commands/bin/*.BIN
 
 	-rm -f demos/eng/bin/*.BIN
@@ -59,7 +59,5 @@ clean-all:
 	-rm -f libs/rtl/obj/*.o
 
 	-rm -f netd/bin/*.BIN
-
 	-rm -f services/bin/*.BIN
-
 	-rm -f winapps/bin/*.BIN

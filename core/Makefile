@@ -172,6 +172,8 @@ copy-extras:
 
 	@echo ":: Copying Window server and clients."
 
+	-sudo cp ../userland/barnsh/bin/SHELL.BIN     ../base/PROGRAMS/
+
 # Copy to the target folder.
 	-sudo cp ../userland/commands/bin/SHUTDOWN.BIN  ../base/
 	-sudo cp ../userland/commands/bin/REBOOT.BIN    ../base/
@@ -179,7 +181,6 @@ copy-extras:
 	-sudo cp ../userland/commands/bin/UNAME.BIN     ../base/
 
 	-sudo cp ../userland/commands/bin/VGA1.BIN      ../base/PROGRAMS/
-	-sudo cp ../userland/commands/bin/SHELL.BIN     ../base/PROGRAMS/
 	-sudo cp ../userland/commands/bin/TPRINTF.BIN   ../base/PROGRAMS/
 	-sudo cp ../userland/commands/bin/SHOWFUN.BIN   ../base/PROGRAMS/
 	-sudo cp ../userland/commands/bin/CMP.BIN       ../base/PROGRAMS/

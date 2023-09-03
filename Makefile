@@ -28,6 +28,7 @@ clean-all: clean-userland clean-core clean-base clean-cancun
 PHONY := clean-userland
 clean-userland:
 # In userland/
+	-rm -f userland/barnsh/bin/*.BIN
 	-rm -f userland/commands/bin/*.BIN
 	-rm -f userland/netd/bin/*.BIN
 	-rm -f userland/services/bin/*.BIN
