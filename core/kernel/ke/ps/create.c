@@ -41,7 +41,6 @@ struct thread_d *create_init_thread(void)
     t->objectType = ObjectTypeThread;
     t->objectClass = ObjectClassKernelObjects;
 
-    t->personality = (int) PERSONALITY_GRAMADO;
     t->exit_in_progress = FALSE;
     
     t->link = NULL;

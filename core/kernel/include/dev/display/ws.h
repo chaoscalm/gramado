@@ -111,10 +111,13 @@ extern struct color_scheme_d *CurrentColorScheme;
 struct ws_info_d
 {
     int initialized;
+
+// Process info
     pid_t pid;
     int pid_personality;
+
+// Thread indo
     tid_t tid;
-    int tid_personality
 };
 // see: graphics.c
 extern struct ws_info_d  WindowServerInfo;

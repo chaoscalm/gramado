@@ -1923,14 +1923,17 @@ struct process_d *create_and_initialize_process_object(void)
 
 // Process structure.
     new_process = (struct process_d *) processObject();
-    if ( (void *) new_process == NULL ){
+    if ((void *) new_process == NULL){
         debug_print ("create_and_initialize_process_object: [FAIL] new_process\n");
         printf      ("create_and_initialize_process_object: [FAIL] new_process\n");
         goto fail;
     }
 
-//no personality yet
-    new_process->personality = 0;
+// Default personality
+    new_process->personality = PERSONALITY_GRAMADO;
+
+// No environment yet.
+    // new_process->process_env = 0;
 
 // Get PID.
 // Obtêm um índice para um slot vazio na lista de processos.

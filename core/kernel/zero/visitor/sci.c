@@ -197,15 +197,12 @@ static void __initialize_ws_info(pid_t pid)
     WindowServerInfo.tid = (tid_t) t->tid;
 
 // ----------------
-// Personality
-    p->personality = (int) PERSONALITY_GWS;
-    t->personality = (int) PERSONALITY_GWS;
-    WindowServerInfo.pid_personality = (int) PERSONALITY_GWS;
-    WindowServerInfo.tid_personality = (int) PERSONALITY_GWS;
+// Process Personality
+    p->personality = (int) PERSONALITY_GRAMADO;
+    WindowServerInfo.pid_personality = (int) PERSONALITY_GRAMADO;
 
     WindowServerInfo.initialized = TRUE;
 }
-
 
 static void __service897(void)
 {
@@ -1213,8 +1210,8 @@ void *sci0 (
         panic("sci0: p validation\n");
     }
 
-    if (p->personality != PERSONALITY_GRAMADO &&
-        p->personality != PERSONALITY_GWS)
+// Feito pra rodar no Gramado OS.
+    if (p->personality != PERSONALITY_GRAMADO)
     {
         debug_print("sci0: Personality\n");
         panic      ("sci0: Personality\n");
@@ -2257,10 +2254,8 @@ void *sci2 (
     }
 
 // Personality
-// #todo: 
-// We need to work on these options.
-    if (p->personality != PERSONALITY_GRAMADO &&
-        p->personality != PERSONALITY_GWS)
+// Feito pra rodar no Gramado OS.
+    if (p->personality != PERSONALITY_GRAMADO)
     {
         debug_print("sci2: Personality\n");
         panic      ("sci2: Personality\n");

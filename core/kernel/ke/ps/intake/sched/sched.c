@@ -266,11 +266,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                 //    TmpThread->quantum = QUANTUM_MIN;
                 //}
 
-                // Balance
-                // Interactive gui applications.
-                //if (TmpThread->personality == PERSONALITY_GWS){
-                //    TmpThread->quantum = QUANTUM_MAX;
-                //}
+                // Balance?
 
                 // Balance all.
                 // Priority normal. balance.

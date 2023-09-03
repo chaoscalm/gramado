@@ -1754,10 +1754,8 @@ void __test_thread(void)
                                 PRIORITY_NORMAL_THRESHOLD, 
                                 get_current_process(), 
                                 "no-name",
-                                RING0,
-                                PERSONALITY_GRAMADO ); 
-
-    if ( (void*)t==NULL ){
+                                RING0 ); 
+    if ((void*) t == NULL){
         printf("fail\n");
         return;
     }

@@ -25,9 +25,39 @@ extern int copy_process_in_progress;
 
 #define PROCESS_MAGIC  1234
 
+/*
+//
+// Process environment
+//
 
+// p->process_env = 0;
+
+// Fail
+#define PROCESS_ENV_UNKNOWN  0
+// The kernel process.
+#define PROCESS_ENV_KERNEL  1000
+// The init process
+#define PROCESS_ENV_INIT  2000
+
+// The display server.
+#define PROCESS_ENV_DISPLAY_SERVER  4000
+// The client-side application for the display server.
+#define PROCESS_ENV_DISPLAY_CLIENT  4001
+
+// Server: system services.
+#define PROCESS_ENV_SYSTEM_SERVICE  8000
+// Client: client-side for system services.
+#define PROCESS_ENV_SYSTEM_CLIENT  8001
+
+// It calls the kernel directly using syscalls.
+// Posix commands or game engines.
+#define PROCESS_ENV_NATIVE  9000
+*/
+
+// -----------------------------
+
+// This process was made to Gramado OS.
 #define PERSONALITY_GRAMADO  1000
-#define PERSONALITY_GWS      1001
 // ...
 
 // Processes:
@@ -161,8 +191,20 @@ struct process_d
     uid_t ruid;
     uid_t suid;
 
+// Personality
+// O sistema pra qual o programa foi feito.
+// Pode se referir a uma versao diferente do Gramado
+// Ou ate mesmo outro sistema operaciona.
+// Dai o Gramado tenta rodar se for possivel,
+// fazer adaptaçoes para compatibilidade.
     int personality;
-    
+
+// Process environment.
+// Que tipo de aplicaçao gramado eh esse processo.
+// Eh um kernel, um init, um serviço do sistema, um cliente de servico.
+// 
+    //int process_env;
+
     int exit_in_progress;
 
 

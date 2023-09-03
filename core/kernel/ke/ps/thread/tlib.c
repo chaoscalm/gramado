@@ -86,12 +86,11 @@ void show_slot(int tid)
 
 // Show one slot
     printf ("\n");
-    printf ("TID   PID   Per   pdPA  Prio  State Quan Jiffies initial_rip rflags   tName \n");
-    printf ("====  ====  ====  ====  ====  ===== ==== ====    ==========  ======  =====   \n");
-    printf ("%d    %d    %d    %x   %d    %d    %d    %d      %x          %x      %s      \n", 
+    printf ("TID   PID   pdPA  Prio  State Quan Jiffies initial_rip rflags   tName \n");
+    printf ("====  ====  ====  ====  ===== ==== ====    ==========  ======  =====   \n");
+    printf ("%d    %d    %x   %d    %d    %d    %d      %x          %x      %s      \n", 
         t->tid, 
         t->owner_pid,
-        t->personality,
         t->pml4_PA,
         t->priority, 
         t->state,

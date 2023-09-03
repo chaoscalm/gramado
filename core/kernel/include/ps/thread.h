@@ -208,8 +208,6 @@ struct thread_d
 // Thread ID.
     tid_t tid;
 
-// 1000=GRAMADO 1001=GWS
-    int personality;
 // We are waiting the right time to close a thread.
 // The scheduler will do this job.
     int exit_in_progress;
@@ -837,8 +835,7 @@ struct thread_d *create_thread (
     unsigned long init_stack, 
     pid_t pid, 
     char *name,
-    unsigned int cpl,
-    int personality );
+    unsigned int cpl );
 
 // =====
 

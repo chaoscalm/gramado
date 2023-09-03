@@ -100,7 +100,6 @@ void *sys_create_process (
     struct thread_d *CurrentThread;
     struct process_d *CurrentProcess;
     int ProcessPersonality=0;
-    int ThreadPersonality=0;
 
 //
 // Not tested
@@ -122,12 +121,6 @@ void *sys_create_process (
     if (CurrentThread->magic != 1234)
         return NULL;
 
-    ThreadPersonality = (int) CurrentThread->personality;
-    if (ThreadPersonality!=PERSONALITY_GRAMADO &&
-        ThreadPersonality!=PERSONALITY_GWS)
-    {
-        panic("sys_create_process: ThreadPersonality\n");
-    }
 
 // Create a ring0 copy of the name.
     strncpy(NewName,name,16);
@@ -171,16 +164,10 @@ void *sys_create_process (
     if (CurrentProcess->magic!=1234)
         return NULL;
 
+// Process personality
     ProcessPersonality = (int) CurrentProcess->personality;
-
-    if (ProcessPersonality!=PERSONALITY_GRAMADO &&
-        ProcessPersonality!=PERSONALITY_GWS)
-    {
+    if (ProcessPersonality != PERSONALITY_GRAMADO){
         panic("sys_create_process: ProcessPersonality\n");
-    }
-
-    if (ProcessPersonality != ThreadPersonality){
-        panic("sys_create_process: Personality check\n");
     }
 
 // Create process.
@@ -238,11 +225,7 @@ void *sys_create_thread (
     char *name )
 {
     struct thread_d  *Thread;
-// #bugbug: 
-// Precisamos trabalhar isso.
-// Essa personalidade pode vir via argumento
-// ou depender da personalidade do caller.
-    int ThreadPersonality = PERSONALITY_GRAMADO;
+
 
     debug_print ("sys_create_thread:\n");
 
@@ -280,11 +263,10 @@ void *sys_create_thread (
                                 priority, 
                                 ppid, 
                                 name,
-                                iopl,
-                                ThreadPersonality ); 
+                                iopl ); 
 
-    if ( (void *) Thread == NULL ){
-        debug_print ("sys_create_thread: [FAIL] Thread\n");
+    if ((void *) Thread == NULL){
+        debug_print("sys_create_thread: [FAIL] Thread\n");
         return NULL;
     }
 
