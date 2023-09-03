@@ -235,8 +235,8 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                 }
                 
                 // Can't kill the init process
-                if ( (void*) TmpThread == InitThread ){
-                    panic("__scheduler_rr: Coudn't kill InitThread\n");
+                if ((void*) TmpThread == InitThread){
+                    panic("__scheduler_rr: Can't kill InitThread\n");
                 }
                 
                 TmpThread->used = FALSE;
