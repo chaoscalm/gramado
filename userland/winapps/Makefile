@@ -2,6 +2,10 @@
 # Client-side GUI applications.
 
 all:
+
+# The virtual terminal
+	make -C barnterm
+
 	make -C browser
 	make -C client
 	make -C cmdline
@@ -9,4 +13,4 @@ all:
 	make -C editor
 	make -C gdm
 	make -C setup
-	make -C terminal
+

@@ -2,7 +2,7 @@
 
 ## Where is the Display Server?
 
-The display server is called Gramland. See services/gramland/.
+The display server is called Gramland. See services/winland/.
 
 ## Where is the Window Manager - (WM)?
 

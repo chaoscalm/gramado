@@ -61,27 +61,26 @@ desktop/ is a place for the graphical user interface.
 
  * `core/` - Low level basic components of the system.  
    * `boot` - The boot loader.
-   * `commands` - Unix-like commands and more.
+   * `hals/` - Ring 0 loadable module.
    * `init` - The init process.
    * `kernel` - The Gramado OS kernel.
    * `libs` - Libraries.
    * `netd` - Network server and first client.
-   * `newm0` - Ring 0 loadable module.
 
  * `docs/` - Documentation.
 
  * `meta/` - metadata.
 
  * `userland/` - Desktop Environment (DE).
-   * `apps` - Client-side GUI applications.
+   * `barnsh` - The shell command.
    * `commands` - The posix commands.
-   * `demos` - Demos.
-     * `eng` - 3D demo.
-   * `games` - Games.
    * `libs` - Libraries.
    * `services` - Servers.
-     * `gramland` - Display server.
-   * `shell` - The shell command.
+     * `winland` - Display server. (GRAMLAND.BIN)
+   * `wdemos` - Demos.
+     * `eng` - 3D demo.
+   * `wgames` - Games.
+   * `winapps` - Client-side GUI applications.
 
 ## Who are the developers?
 
