@@ -221,6 +221,24 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                  TmpThread->magic == 1234 && 
                  TmpThread->state == ZOMBIE )
             {
+                // #bugbug
+                // If we are destroying the display server
+                // or the init process.
+                
+                // Unregister the window server.
+                if (WindowServerInfo.initialized == TRUE)
+                {
+                    if (TmpThread->tid == WindowServerInfo.tid)
+                    {
+                        WindowServerInfo.initialized = FALSE;
+                    }
+                }
+                
+                // Can't kill the init process
+                if ( (void*) TmpThread == InitThread ){
+                    panic("__scheduler_rr: Coudn't kill InitThread\n");
+                }
+                
                 TmpThread->used = FALSE;
                 TmpThread->magic = 0;
                 TmpThread = NULL;

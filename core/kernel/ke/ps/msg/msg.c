@@ -311,6 +311,13 @@ post_message_to_ws (
 {
 //  Post msg to the window server's tid.
 
+// #bugbug
+// We can't send messages to the display server
+// when the server was closed.
+// Ex: Right after we close the demo ENG.BIN
+// using control + c.
+// It is because the thread will have an invalid pointer.
+
     tid_t src_tid = 0;   // sender tid #todo
     tid_t dst_tid = -1;  // receiver tid
 

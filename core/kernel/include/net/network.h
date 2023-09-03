@@ -112,6 +112,13 @@ extern int ____network_late_flag;
 //
 
 
+int 
+network_register_ring3_display_server(
+    struct desktop_d *desktop,
+    pid_t caller_pid );
+
+
+
 void 
 network_fill_mac(
     unsigned char *to, 

@@ -3716,8 +3716,14 @@ static int on_combination(int msg_code)
     if (msg_code == GWS_Cut)
     {printf("ws: cut\n"); return 0;}
 
-    if (msg_code == GWS_Copy){
+    if (msg_code == GWS_Copy)
+    {
         printf("ws: copy\n"); 
+        
+        // #bugbug
+        // #suspended
+        // It's causing kernel panic
+        // with invalid thread pointer.
         gramado_terminate();
         return 0;
     }

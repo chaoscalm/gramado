@@ -3778,7 +3778,7 @@ static int on_execute(void)
         close(server_fd);
     }
 
-// Teturn to main()
+// Return to main()
     return 0; 
 }
 
@@ -3837,6 +3837,7 @@ int main(int argc, char **argv)
         // The thread state didn't change.
         // We are still in RUNNING state.
         // It probably hang in the exit function.
+        printf("ENG: exit(0)\n");
         exit(0);
     }
 

@@ -39,7 +39,168 @@ char *default_network_version_string = "0.0.0";
 unsigned char __saved_gateway_mac[6];
 
 
+static void __initialize_ws_info(pid_t pid);
+static void __maximize_ws_priority(pid_t pid);
+
 // ====================================================
+
+
+// Setup WindowServerInfo global structure.
+static void __initialize_ws_info(pid_t pid)
+{
+    struct process_d *p;
+    struct thread_d *t;
+    pid_t current_process = -1;
+
+    debug_print ("__initialize_ws_info:\n");
+
+// Maybe we can just emit an error message and return.
+    if (WindowServerInfo.initialized == TRUE){
+        panic("__initialize_ws_info: The ws is already running\n");
+    }
+    WindowServerInfo.initialized = FALSE;
+
+// -----------------
+// PID
+// Get process pointer.
+    if (pid < 0 || pid >= PROCESS_COUNT_MAX){
+        return;
+    }
+    current_process = (pid_t) get_current_process();
+    if (pid != current_process){
+        panic("__initialize_ws_info: pid != current_process\n");
+    }
+    p = (struct process_d *) processList[pid];
+    if ((void*) p == NULL){
+        return;
+    }
+    if (p->magic != 1234){
+        return;
+    }
+    WindowServerInfo.pid = (pid_t) pid;
+
+// -----------------
+// TID
+// The control thread.
+    t = (struct thread_d *) p->control;
+    if ((void*) t == NULL){
+        return;
+    }
+    if (t->magic != 1234){
+        return;
+    }
+    WindowServerInfo.tid = (tid_t) t->tid;
+
+// ----------------
+// Process Personality
+    p->personality = (int) PERSONALITY_GRAMADO;
+    WindowServerInfo.pid_personality = (int) PERSONALITY_GRAMADO;
+
+// ----------------
+// The environment.
+// The display server.
+    p->process_env = PROCESS_ENV_DISPLAY_SERVER;
+
+    WindowServerInfo.initialized = TRUE;
+}
+
+
+// #test
+// Changing the window server's quantum. 
+// The purpose here is boosting it when it is trying to register itself.
+// class 1: Normal threads.
+static void __maximize_ws_priority(pid_t pid)
+{
+    struct process_d *p;
+    struct thread_d *t;
+
+    unsigned long ProcessType         = PROCESS_TYPE_SYSTEM;
+    unsigned long ProcessBasePriority = PRIORITY_SYSTEM_THRESHOLD;
+    unsigned long ProcessPriority     = PRIORITY_MAX;
+
+    unsigned long ThreadType         = ProcessType;
+    unsigned long ThreadBasePriority = ProcessBasePriority;
+    unsigned long ThreadPriority     = ProcessPriority;
+
+    pid_t current_process = (pid_t) get_current_process();
+
+    if (pid<=0 || pid >= PROCESS_COUNT_MAX){
+        return;
+    }
+    if (pid != current_process){
+        debug_print ("__maximize_ws_priority: pid != current_process\n");
+        panic       ("__maximize_ws_priority: pid != current_process\n");
+    }
+
+// process
+    p = (struct process_d *) processList[pid];
+    if ((void*)p==NULL)
+        return;
+    if (p->used!=TRUE)
+        return;
+    if (p->magic!=1234)
+        return;
+
+    p->type = ProcessType;
+
+    p->base_priority = ProcessBasePriority;
+    p->priority      = ProcessPriority;
+
+// thread
+    t = (struct thread_d *) p->control;
+    if ( (void*) t == NULL ){ return; }
+    if ( t->magic != 1234 ) { return; }
+
+    t->type = ThreadType;
+
+    t->base_priority = ThreadBasePriority;
+    t->priority      = ThreadPriority;
+
+// see: ps/sched.h
+    t->quantum = QUANTUM_MAX;
+}
+
+int 
+network_register_ring3_display_server(
+    struct desktop_d *desktop,
+    pid_t caller_pid )
+{
+// 513 - SYS_SET_WS_PID
+// Syscall implementation.
+
+    pid_t current_process = (pid_t) get_current_process();
+
+    if ((void*) desktop == NULL )
+        goto fail;
+    if (desktop->magic != 1234)
+        goto fail;
+
+// Invalid caller.
+    if (caller_pid != current_process){
+        panic("__register_ring3_display_server: Invalid pid\n");
+    }
+
+// Register_ws_process(current_process);
+    desktop->ws = (pid_t) current_process;
+
+// #todo
+// Maybe this method belongs to the sys_bind() routine.
+    socket_set_gramado_port(
+        GRAMADO_PORT_WS,
+        (pid_t) current_process );
+
+    __initialize_ws_info(current_process);
+    __maximize_ws_priority(current_process);
+
+    return TRUE;
+
+fail:
+    return (int) -1;
+}
+
+
+
+
 
 void 
 network_fill_mac(

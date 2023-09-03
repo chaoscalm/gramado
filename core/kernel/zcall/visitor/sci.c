@@ -39,8 +39,8 @@ static void __setup_surface_rectangle(
     unsigned long width,
     unsigned long height );
 
-static void __initialize_ws_info(pid_t pid);
-static void __maximize_ws_priority(pid_t pid);
+
+
 
 // =============================
 
@@ -150,66 +150,8 @@ void newos_set_cursor( unsigned long x, unsigned long y )
         (unsigned long) y );
 }
 
-// =====================================================
 
-// Setup WindowServerInfo global structure.
-static void __initialize_ws_info(pid_t pid)
-{
-    struct process_d *p;
-    struct thread_d *t;
-    pid_t current_process = -1;
 
-    debug_print ("__initialize_ws_info:\n");
-
-// Maybe we can just emit an error message and return.
-    if (WindowServerInfo.initialized == TRUE){
-        panic("__initialize_ws_info: The ws is already running\n");
-    }
-    WindowServerInfo.initialized = FALSE;
-
-// -----------------
-// PID
-// Get process pointer.
-    if (pid < 0 || pid >= PROCESS_COUNT_MAX){
-        return;
-    }
-    current_process = (pid_t) get_current_process();
-    if (pid != current_process){
-        panic("__initialize_ws_info: pid != current_process\n");
-    }
-    p = (struct process_d *) processList[pid];
-    if ((void*) p == NULL){
-        return;
-    }
-    if (p->magic != 1234){
-        return;
-    }
-    WindowServerInfo.pid = (pid_t) pid;
-
-// -----------------
-// TID
-// The control thread.
-    t = (struct thread_d *) p->control;
-    if ((void*) t == NULL){
-        return;
-    }
-    if (t->magic != 1234){
-        return;
-    }
-    WindowServerInfo.tid = (tid_t) t->tid;
-
-// ----------------
-// Process Personality
-    p->personality = (int) PERSONALITY_GRAMADO;
-    WindowServerInfo.pid_personality = (int) PERSONALITY_GRAMADO;
-
-// ----------------
-// The environment.
-// The display server.
-    p->process_env = PROCESS_ENV_DISPLAY_SERVER;
-
-    WindowServerInfo.initialized = TRUE;
-}
 
 static void __service897(void)
 {
@@ -348,61 +290,7 @@ static void __invalidate_surface_rectangle(void)
 }
 
 
-// #test
-// Changing the window server's quantum. 
-// The purpose here is boosting it when it is trying to register itself.
-// class 1: Normal threads.
-static void __maximize_ws_priority(pid_t pid)
-{
-    struct process_d *p;
-    struct thread_d *t;
-
-    unsigned long ProcessType         = PROCESS_TYPE_SYSTEM;
-    unsigned long ProcessBasePriority = PRIORITY_SYSTEM_THRESHOLD;
-    unsigned long ProcessPriority     = PRIORITY_MAX;
-
-    unsigned long ThreadType         = ProcessType;
-    unsigned long ThreadBasePriority = ProcessBasePriority;
-    unsigned long ThreadPriority     = ProcessPriority;
-
-    pid_t current_process = (pid_t) get_current_process();
-
-    if (pid<=0 || pid >= PROCESS_COUNT_MAX){
-        return;
-    }
-    if (pid != current_process){
-        debug_print ("__maximize_ws_priority: pid != current_process\n");
-        panic       ("__maximize_ws_priority: pid != current_process\n");
-    }
-
-// process
-    p = (struct process_d *) processList[pid];
-    if ((void*)p==NULL)
-        return;
-    if (p->used!=TRUE)
-        return;
-    if (p->magic!=1234)
-        return;
-
-    p->type = ProcessType;
-
-    p->base_priority = ProcessBasePriority;
-    p->priority      = ProcessPriority;
-
-// thread
-    t = (struct thread_d *) p->control;
-    if ( (void*) t == NULL ){ return; }
-    if ( t->magic != 1234 ) { return; }
-
-    t->type = ThreadType;
-
-    t->base_priority = ThreadBasePriority;
-    t->priority      = ThreadPriority;
-
-// see: ps/sched.h
-    t->quantum = QUANTUM_MAX;
-}
-
+// =====================================================
 
 // Services abouve 256.
 // Helper function called by sci0().
@@ -611,12 +499,25 @@ static void *__extra_services (
 // #todo: 
 // We need a helper function for this.
 
+    int display_server_ok=FALSE;
+
     if (number == SYS_SET_WS_PID)
     {
         debug_print("__extra_services: SYS_SET_WS_PID\n");
         
-        __desktop = ( struct desktop_d *) arg2;
+        // IN: desktop, caller pid.
+        // see: network.c
+        display_server_ok = (int) network_register_ring3_display_server(
+            (struct desktop_d *) arg2, (pid_t) arg3);
+        if (display_server_ok == TRUE)
+        {
+            return (void*) TRUE;
+        }
+        return NULL;
 
+        /*
+        // Get desktop poiter from user.
+        __desktop = (struct desktop_d *) arg2;
         if ((void *) __desktop != NULL)
         {
             if ( __desktop->used  == TRUE && 
@@ -674,13 +575,14 @@ static void *__extra_services (
                 return (void *) TRUE;  //ok 
             }
         }
+        */
 
         //#debug
         //printf("513: fail\n");
         //while(1){}
 
         return NULL; //fail
-    }    
+    }   
 
 // 514 - get wm PID for a given desktop
 // IN: desktop
