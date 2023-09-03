@@ -1,5 +1,7 @@
 
 // newos.h
+// newos_xxxx prefix is used for the wrappers
+// in the kernel-mode calleble interfaces.
 
 #ifndef __NEWOS_H
 #define __NEWOS_H    1

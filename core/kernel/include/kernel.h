@@ -14,9 +14,7 @@
 //   + (8) File system.
 //   + (9) Process structures.
 //   + (10) User.
-//   + (11) Syscalls.
-//   + (12) API. (Wrappers).
-
+//   + (11) Kernel-mode callable interfaces.
 
 //
 // + (1) Configuration of product and version.
@@ -329,29 +327,18 @@
 
 
 //
-// + (11) Syscalls.
+// + (11) Kernel-mode callable interfaces.
 //
 
-// ==============================
-
-// sci - system call interface
-// All the functions in this folder can be called
-// by the ring3 apps via system call.
-// This is the last #include. :^)
-
-#include "gramado/syscalls/sci0.h"
-#include "gramado/syscalls/sci1.h"
-#include "gramado/syscalls/sci2.h"
-#include "gramado/syscalls/syscalls.h"
-
-// ==============================
-
-//
-// + (12) API. (Wrappers).
-//
-
-#include "zero.h"
-#include "newos.h"
+// syscalls. (Called by the interrups 0x80 and 0x82).
+#include "zcall/sys/sci0.h"
+#include "zcall/sys/sci1.h"
+#include "zcall/sys/sci2.h"
+#include "zcall/sys/syscalls.h"
+// zero. (Used during the kernel initialization)
+#include "zcall/zero/zero.h"
+// newos. (Called by the interrups 0x80 and 0x82).
+#include "zcall/newos/newos.h"
 
 // ==============================
 // #bugbug: O resto das coisas daqui pra 

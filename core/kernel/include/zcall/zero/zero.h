@@ -1,5 +1,6 @@
 
 // zero.h
+// see: zero.c
 
 
 #ifndef __ZERO_H

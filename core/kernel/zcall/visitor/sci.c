@@ -1,6 +1,8 @@
 
 // sci.c
-// system call interface.
+// (System Call Interface).
+// System Service Dispatcher.
+//
 // Handlers for the system interrupts.
 // #todo: 
 // There is another point:
@@ -2173,6 +2175,42 @@ void *sci1 (
     if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
         panic("sci1: current_process\n");
     }
+
+/*
+//++
+//-------------------------------------
+// #test
+// #todo: This is a work in progress.
+// Maybe this interrupt can be used 
+// to call the services provided by the first module, mod0.bin.
+// see: mod.c and mod.h.
+    unsigned long return_value=0;
+
+    if ((void*) kernel_mod0 == NULL)
+        return NULL;
+    if (kernel_mod0->magic != 1234)
+        return NULL;
+    if (kernel_mod0->initialized != TRUE)
+        return NULL;
+
+// #test
+// Calling the virtual function, and
+// getting the return value.
+    if ( (void*) kernel_mod0->entry_point != NULL )
+    {
+        return_value = 
+            (unsigned long) kernel_mod0->entry_point(
+                number,
+                arg2,
+                arg3,
+                arg4 );
+        //printf ("RETURN: %d\n",return_value);
+        return (void*) return_value;
+    }
+//-------------------------------------
+//--
+*/
+
 
     switch (number){
 

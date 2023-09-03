@@ -1,5 +1,18 @@
 
 // sys.c
+// see: syscalls/syscalls.h
+// Kernel-mode callable interfaces.
+// These are the wrappers for the real low-level 
+// kernel services implementation implementation.
+// Normally these routines are called by 
+// the user mode applications via syscalls, 
+// 0x80 and 0x82, 0x81 is not used for now.
+// #todo
+// Create some standard kernel-mode callable interfaces.
+// That can be used by the ring0 kernel modules and
+// by the syscalls.
+// sys_xxxx is the prefix for the routines used by the syscalls.
+
 
 #include <kernel.h> 
 

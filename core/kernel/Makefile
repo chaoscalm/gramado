@@ -178,27 +178,30 @@ k3:
 	$(MAKE) -C user/
 	# ...
 
-	$(CC) -c zero/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
-	$(CC) -c zero/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
-	$(CC) -c zero/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
-	$(CC) -c zero/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
-	$(CC) -c zero/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
-	$(CC) -c zero/sys/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
-	$(CC) -c zero/sys/sys.c  $(KERNEL_INCLUDE) $(CFLAGS) -o sys.o
+# kernel services
+	$(CC) -c zcall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
+	$(CC) -c zcall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
+	$(CC) -c zcall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
+	$(CC) -c zcall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
+	$(CC) -c zcall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
+
+# syscalls
+	$(CC) -c zcall/sys/sys.c     $(KERNEL_INCLUDE) $(CFLAGS) -o sys.o
+	$(CC) -c zcall/sys/system.c  $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
 
 # Initializations
-	$(CC) -c zero/zero.c  $(KERNEL_INCLUDE) $(CFLAGS) -o zero.o
+	$(CC) -c zcall/zero/zero.c  $(KERNEL_INCLUDE) $(CFLAGS) -o zero.o
 
 # Module interface.
 # mod.o
-	$(CC) -c zero/mod/mod.c \
+	$(CC) -c zcall/mod/mod.c \
 	$(KERNEL_INCLUDE) \
 	$(CFLAGS) \
 	-o mod.o    
 
 # Systemcall interface.
 # sci.o
-	$(CC) -c zero/visitor/sci.c \
+	$(CC) -c zcall/visitor/sci.c \
 	$(KERNEL_INCLUDE) \
 	$(CFLAGS) \
 	-o sci.o    
