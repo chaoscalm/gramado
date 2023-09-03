@@ -32,6 +32,7 @@ clean-userland:
 	-rm -f userland/commands/bin/*.BIN
 	-rm -f userland/netd/bin/*.BIN
 	-rm -f userland/services/bin/*.BIN
+	-rm -f userland/wdemos/eng/bin/*.BIN
 	-rm -f userland/winapps/bin/*.BIN
 
 PHONY := clean-core

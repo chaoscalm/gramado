@@ -24,20 +24,20 @@ all:
 	make -C commands/
 
 # ----------------
-# demos/
-# Graphics engine. (3D demos)
-	make -C demos/
-
-# ----------------
-# games
-
-# ----------------
 # netd
 	make -C netd/ 
 
 # ----------------
 # Services
 	make -C services/
+
+# ----------------
+# wdemos/
+# Graphics engine. (3D demos)
+	make -C wdemos/
+
+# ----------------
+# wgames
 
 # ----------------
 # Client-side GUI applications.
@@ -47,8 +47,6 @@ clean-all:
 
 	-rm -f barnsh/bin/*.BIN
 	-rm -f commands/bin/*.BIN
-
-	-rm -f demos/eng/bin/*.BIN
 
 	-rm -f libs/libdisp/obj/*.o
 	-rm -f libs/libgns/obj/*.o
@@ -60,4 +58,6 @@ clean-all:
 
 	-rm -f netd/bin/*.BIN
 	-rm -f services/bin/*.BIN
+
+	-rm -f wdemos/eng/bin/*.BIN
 	-rm -f winapps/bin/*.BIN

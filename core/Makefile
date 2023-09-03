@@ -195,18 +195,15 @@ copy-extras:
 	-sudo cp ../userland/commands/bin/N10.BIN  ../base/PROGRAMS/
 	-sudo cp ../userland/commands/bin/N11.BIN  ../base/PROGRAMS/
 
-# Graphics engine
-	-sudo cp ../userland/demos/eng/bin/ENG.BIN  ../base/
-# Window server
-	-sudo cp ../userland/services/bin/GRAMLAND.BIN  ../base/
-
 # netd
 	-sudo cp ../userland/netd/bin/GNS.BIN     ../base/
 	-sudo cp ../userland/netd/bin/GNSSRV.BIN  ../base/
 
-#
-# Shell
-#
+# Display server.
+	-sudo cp ../userland/services/bin/GRAMLAND.BIN  ../base/
+
+# Graphics engine
+	-sudo cp ../userland/wdemos/eng/bin/ENG.BIN  ../base/
 
 # winapps (Students)
 
