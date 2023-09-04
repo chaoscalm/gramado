@@ -446,7 +446,6 @@ bitblt(
 //
 
 void exit_kernel_console(void);
-void kgwm_early_kernel_console(void);
 
 // ==========
 int 

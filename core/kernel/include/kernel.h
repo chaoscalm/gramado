@@ -585,7 +585,7 @@ struct kernel_classes_d  KernelClasses;
 int I_kmain(int arch_type);
 // Inicialização do kernel, independente da arquitetura.
 // See: init.c
-int I_init_main(int arch_type);
+int I_StartSystem(int arch_type);
 // x86_64 Initialization. (Main routine)
 // see: x64init.c
 int I_x64main(void);

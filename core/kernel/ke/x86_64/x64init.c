@@ -27,6 +27,8 @@ static int InitialProcessInitialized = FALSE;
 // == Private functions: Prototypes ========
 //
 
+static int __setup_stdin_cmdline(void);
+
 static int I_init(void);
 static int I_x64CreateKernelProcess(void);
 static int I_x64CreateInitialProcess(void);
@@ -44,6 +46,32 @@ void x64init_load_pml4_table(unsigned long phy_addr)
     asm volatile ("movq %0,%%cr3"::"r"(phy_addr));
 }
 */
+
+// Setup stdin file.
+// Clean the buffer.
+// Set the offset position.
+// See: kstdio.c
+static int __setup_stdin_cmdline(void)
+{
+    char cmdline[64];
+
+    memset(cmdline, 0, 64);  
+    cmdline[63]=0;
+
+    if ( (void*) stdin == NULL ){
+        return -1;
+    }
+    if (stdin->magic!=1234){
+        return -1;
+    }
+// Rewind.
+    k_fseek( stdin, 0, SEEK_SET );
+// Clean
+    file_write_buffer( stdin, cmdline, 64 );
+    k_fseek( stdin, 0, SEEK_SET );
+    return 0;
+}
+
 
 
 //local
@@ -397,6 +425,8 @@ void I_x64ExecuteInitialProcess (void)
     //    panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
     //}
 
+// Setup command line for the init process.
+    __setup_stdin_cmdline();
 
 // The first thread to run will the control thread 
 // of the init process. It is called InitThread.
@@ -1436,7 +1466,7 @@ int I_x64main (void)
 
     PROGRESS("::(2)(?) init process\n"); 
     Status = I_x64CreateInitialProcess();
-    if(Status != TRUE){
+    if (Status != TRUE){
         debug_print ("Couldn't create the Initial process\n");
         return FALSE;
     }
@@ -1462,10 +1492,6 @@ int I_x64main (void)
     PROGRESS("::(2)(?) ps2\n"); 
     PS2_early_initialization();
     //PS2_initialization();
-
-// Loading .BMP icon images.
-    PROGRESS("::(2)(?) Icons\n"); 
-    windowLoadGramadoIcons();
 
     return TRUE;
 

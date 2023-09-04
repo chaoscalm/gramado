@@ -143,7 +143,6 @@ static void kernel_final_messages(void);
 
 // System initialization routines.
 
-static int __setup_cmdline(void);
 static void __enter_debug_mode(void);
 
 
@@ -404,31 +403,6 @@ static void __import_data_from_linker(void)
     }
 }
 
-// Setup stdin file.
-// Clean the buffer.
-// Set the offset position.
-// See: kstdio.c
-static int __setup_cmdline(void)
-{
-    char cmdline[64];
-
-    memset(cmdline, 0, 64);  
-    cmdline[63]=0;
-
-    if ( (void*) stdin == NULL ){
-        return -1;
-    }
-    if (stdin->magic!=1234){
-        return -1;
-    }
-// Rewind.
-    k_fseek( stdin, 0, SEEK_SET );
-// Clean
-    file_write_buffer( stdin, cmdline, 64 );
-    k_fseek( stdin, 0, SEEK_SET );
-    return 0;
-}
-
 static void __enter_debug_mode(void)
 {
     if (Initialization.is_serial_log_initialized == TRUE){
@@ -444,13 +418,19 @@ static void __enter_debug_mode(void)
 
     if (Initialization.is_console_log_initialized == TRUE)
     {
-        printf("init.c: The kernel is in debug mode.\n");
-        kgwm_early_kernel_console();
-        printf("init.c: End of debug mode.\n");
+        //printf("kmain.c: The kernel is in debug mode.\n");
+        // kgwm_early_kernel_console();  //#deprecated
+        //printf("kmain.c: End of debug mode.\n");
+        
+        // #panic
+        printf("__enter_debug_mode: [PANIC] console log ok\n");
         refresh_screen();
         die();
     }
 
+// #panic
+// Oh God.
+// Die. No refresh. No message.
     die();
 }
 
@@ -466,7 +446,7 @@ static int booting_end(int arch_type)
 // instead of first process.
 // We can receive this flag via command line.
 
-    //int UseDebugMode=TRUE;
+    //int UseDebugMode=TRUE;  //#bugbug
     int UseDebugMode=FALSE;
 
 // Final message before jumping to init process.
@@ -477,11 +457,12 @@ static int booting_end(int arch_type)
     //refresh_screen();
     //while(1){}
 
-// Setup command line for the init process.
-    __setup_cmdline();
-
 // Clear the screen again.
     zero_initialize_background();
+
+// Loading .BMP icon images.
+    //PROGRESS("::(2)(?) Icons\n"); 
+    windowLoadGramadoIcons();
 
 // ::: Initialization on debug mode.
 // Initialize the default kernel virtual console.
@@ -700,9 +681,9 @@ void init_globals(void)
 
 // ===========================
 // ::(2)
-// I_init_main:
+// I_StartSystem:
 // Called by I_kmain in kmain.c
-int I_init_main(int arch_type)
+int I_StartSystem(int arch_type)
 {
 // We don't have any print support yet.
 
@@ -896,42 +877,48 @@ static void kernel_booting(int arch_type)
 
     PROGRESS("::(2)(2)\n");
 
+// ------------------
 // Begin
 // Kernel initialization.
     Status = (int) booting_begin(arch_type);
+// Initialization fail.
+    if (Status != TRUE)
+        goto fail;
 
+// ------------------
 // End
 // + Pass the command to the first process or,
 // + Pass the command to the embedded debug shell.
-    if (Status==TRUE){
+    if (Status == TRUE){
         Status = (int) booting_end(arch_type);
     }
 
 // + Pass the command to the embedded debug shell if possible.
-    if (Status != TRUE)
-    {
-        PROGRESS("::(2)(2)(3)\n");
-        // panic screen
-        // Mostramos informações completas ou
-        // permitimos a inicialização de outro modo,
-        // talvez algum modo de recuperação ou simplificado.
+
+    PROGRESS("::(2)(2)(3)\n");
+
+// panic screen
+// Mostramos informações completas ou
+// permitimos a inicialização de outro modo,
+// talvez algum modo de recuperação ou simplificado.
  
-        if (Initialization.is_serial_log_initialized == TRUE){
-            debug_print("init: booting_end fail\n");
-        }
-        if (Initialization.is_console_log_initialized == TRUE)
-        {
-            printf("init: booting_end fail\n");
-            printf("init: Trying debug mode\n");
-            __enter_debug_mode();
-        }
-        die();
+    if (Initialization.is_serial_log_initialized == TRUE){
+        debug_print("init: booting_end fail\n");
+    }
+    if (Initialization.is_console_log_initialized == TRUE)
+    {
+        printf("init: booting_end fail\n");
+        printf("init: Trying debug mode\n");
+        __enter_debug_mode();
     }
 
-// Da fuck!
-    PROGRESS("::(2)(2)(?)\n");
-}
+// hang
+    die();
 
+// Initialization fail
+fail:
+    PROGRESS("::(2)(2)(?) Initialization fail\n");
+}
 
 // ====================
 // ::(2)(2)(1)
@@ -987,6 +974,7 @@ static int booting_begin(int arch_type)
     __import_data_from_linker();
 // Initialize bootloader display device.
     bldisp_initialize();
+
 // Initialize the current architecture.
     Status = (int) zero_initialize_arch(arch_type);
     if (Status == TRUE){
@@ -1056,6 +1044,7 @@ Loop:
 int I_kmain(int arch_type)
 {
 // Called by START in startup/head_64.asm.
+// This is the first function in C.
 // We don't have any print support yet.
 
     // #hack
@@ -1071,7 +1060,7 @@ int I_kmain(int arch_type)
         enable_serial_debug();
     }
 
-    I_init_main(current_arch);
+    I_StartSystem(current_arch);
 
 // Not reached.
     while (1){

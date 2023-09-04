@@ -117,16 +117,6 @@ void exit_kernel_console(void)
     ShellFlag = FALSE;
 }
 
-
-// #deprecated
-// called by init.c
-void kgwm_early_kernel_console(void)
-{
-// #deprecated
-    x_panic ("kgwm_early_kernel_console:");
-}
-
-
 /*
  * wmProcedure:
  *       Some combinations with control + F1~F12
