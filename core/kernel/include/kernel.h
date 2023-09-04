@@ -263,9 +263,9 @@
 // Depois de devices.
 
 // fs
-#include "fs/path.h"       // path.
-#include "fs/fat.h"        // fat16.
-#include "fs/fat_lfn.h"    // fat16 lfn.
+#include "fs/path.h"      // path.
+#include "fs/fatlib.h"    // fat16 library.
+#include "fs/fat.h"       // fat16.
 #include "fs/inode.h"
 #include "fs/exec_elf.h"
 #include "fs/pipe.h"
