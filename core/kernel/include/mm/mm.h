@@ -12,6 +12,8 @@
 // Aligns a value on a boundary.
 //#define ALIGN(x, a)    (((x) + ((a) - 1)) & ~((a) - 1))
 
+int mmInitialize(int phase);
+
 #endif    
 
 

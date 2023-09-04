@@ -355,7 +355,7 @@ void memory_destroy_heap (struct heap_d *heap)
 // Init Memory Manager for x64:
 // Heap, Stack, Pages, mmblocks, memory sizes, memory zones ...
 
-int mmInit(void)
+int mmInitialize(int phase)
 {
 // + Initialize the memory support.
 //   The kernel heap and the kernel stack.
@@ -366,139 +366,152 @@ int mmInit(void)
     int Status=0;
     register int i=0;
 
-    debug_print("mmInit: [TODO] [FIXME]\n");
+    debug_print("mmInitialize: [TODO] [FIXME]\n");
 
-// #todo: 
-// Inicializar algumas variáveis globais.
-// Chamar os construtores para inicializar o básico.
-// #todo: 
-// Clear BSS.
-// Criar mmClearBSS()
+    if (phase == 0){
 
-// heap and stack
-    Status = (int) __init_heap();
-    if (Status != 0){
-        debug_print("mmInit: [FAIL] Heap\n");
-        goto fail;
+        // Video support
+        zero_initialize_video();
+
+        // #todo: 
+        // Inicializar algumas variáveis globais.
+        // Chamar os construtores para inicializar o básico.
+        // #todo: 
+        // Clear BSS.
+        // Criar mmClearBSS()
+
+        // heap and stack
+        Status = (int) __init_heap();
+        if (Status != 0){
+            debug_print("mmInitialize: Heap\n");
+            goto fail;
+        }
+        Status = (int) __init_stack();
+        if (Status != 0){
+            debug_print ("mmInitialize: Stack\n");
+            goto fail;
+        }
+
+        // Initialize the list of pointer.
+        while (i<MMBLOCK_COUNT_MAX){
+            mmblockList[i] = (unsigned long) 0;
+            i++;
+        };
+
+        // Primeiro Bloco.
+        // current_mmblock = (void *) NULL;
+
+        // #importante:
+        // Inicializando o índice la lista de ponteiros 
+        // para estruturas de alocação.
+
+        mmblockCount = (int) 0;
+
+        // ...
+
+        //
+        // MEMORY SIZES
+        //
+
+        // Get memory sizes via RTC. (KB)
+        // base, other, extended.
+        // RTC só consegue perceber 64MB de memória.
+        memorysizeBaseMemoryViaCMOS = (unsigned long) rtcGetBaseMemory();
+        memorysizeBaseMemory = 
+            (unsigned long) memorysizeBaseMemoryViaCMOS;
+        memorysizeOtherMemory = 
+            (unsigned long) (1024 - memorysizeBaseMemory);
+
+        // #todo
+        // New we have a new value from boot.
+        // We're gonna use this new value instead the one from cmos.
+
+        unsigned long __total_memory_in_kb = (blSavedLastValidAddress/0x400);
+
+        // extended memory from cmos.
+        //memorysizeExtendedMemory = (unsigned long) rtcGetExtendedMemory(); 
+        memorysizeExtendedMemory =  
+            (unsigned long) ( 
+            __total_memory_in_kb - 
+            memorysizeBaseMemory - 
+            memorysizeOtherMemory 
+            );
+
+        // Size in KB.
+        memorysizeTotal = 
+            (unsigned long) ( 
+            memorysizeBaseMemory + 
+            memorysizeOtherMemory + 
+            memorysizeExtendedMemory 
+            );
+
+        // #IMPORTANTE 
+        // Determinar o tipo de sistema de memória.
+        // small   pelo menos 32mb
+        // medium  pelo menos 64mb
+        // large   pelo menos 128mb
+
+        // 0MB
+        // #atenção 
+        // Nesse caso devemos prosseguir e testar as outras opções.
+        if (memorysizeTotal >= 0){
+            g_mm_system_type = stNull;
+            debug_print ("mmInit: stNull\n");
+        }
+
+        // Small. (32MB).
+        if (memorysizeTotal >= SMALLSYSTEM_SIZE_KB){
+            g_mm_system_type = stSmallSystem;
+            debug_print ("mmInitialize: stSmallSystem\n");
+        }
+        // Medium. (64MB).
+        if (memorysizeTotal >= MEDIUMSYSTEM_SIZE_KB){
+            g_mm_system_type = stMediumSystem;
+            debug_print ("mmInitialize: stMediumSystem\n");
+        }
+        // Large. (128MB).
+        if (memorysizeTotal >= LARGESYSTEM_SIZE_KB){
+            g_mm_system_type = stLargeSystem;
+            debug_print ("mmInitialize: stLargeSystem\n");
+        }
+
+        // #debug
+        //while(1){}
+   
+        // End of phase 0.
+        goto InitializeEnd;
+
+
+    // phase 1
+    } else if (phase == 1) {
+
+        // Inicializando o framepool (paged pool).
+        initializeFramesAlloc();
+
+        // Continua...
+
+        // Initializing the paging infrastructure.
+        // Mapping all the static system areas.
+        // See: pages.c
+        int PagingStatus=-1;
+        PagingStatus = (int) mmInitializePaging();
+        if (PagingStatus<0){
+            x_panic("mmInitialize: Paging");
+        }
+
+        // End of phase 1.
+        goto InitializeEnd;
     }
-    Status = (int) __init_stack();
-    if (Status != 0){
-        debug_print ("mmInit: [FAIL] Stack\n");
-        goto fail;
-    }
 
-// Initialize the list of pointer.
-    while (i<MMBLOCK_COUNT_MAX){
-        mmblockList[i] = (unsigned long) 0;
-        i++;
-    };
-
-// Primeiro Bloco.
-    // current_mmblock = (void *) NULL;
-
-// #importante:
-// Inicializando o índice la lista de ponteiros 
-// para estruturas de alocação.
-
-    mmblockCount = (int) 0;
-
-    // ...
-
-//
-// MEMORY SIZES
-//
-
-// Get memory sizes via RTC. (KB)
-// base, other, extended.
-// RTC só consegue perceber 64MB de memória.
-    memorysizeBaseMemoryViaCMOS = (unsigned long) rtcGetBaseMemory();
-    memorysizeBaseMemory = 
-        (unsigned long) memorysizeBaseMemoryViaCMOS;
-    memorysizeOtherMemory = 
-        (unsigned long) (1024 - memorysizeBaseMemory);
-
-// #todo
-// New we have a new value from boot.
-// We're gonna use this new value instead the one from cmos.
-
-    unsigned long __total_memory_in_kb = (blSavedLastValidAddress/0x400);
-
-// extended memory from cmos.
-    //memorysizeExtendedMemory = (unsigned long) rtcGetExtendedMemory(); 
-    memorysizeExtendedMemory =  
-        (unsigned long) ( 
-        __total_memory_in_kb - 
-        memorysizeBaseMemory - 
-        memorysizeOtherMemory 
-        );
-
-// Size in KB.
-    memorysizeTotal = 
-        (unsigned long) ( 
-        memorysizeBaseMemory + 
-        memorysizeOtherMemory + 
-        memorysizeExtendedMemory 
-        );
-
-// #IMPORTANTE 
-// Determinar o tipo de sistema de memória.
-// small   pelo menos 32mb
-// medium  pelo menos 64mb
-// large   pelo menos 128mb
-
-
-// 0MB
-// #atenção 
-// Nesse caso devemos prosseguir e testar as outras opções.
-    if (memorysizeTotal >= 0){
-        g_mm_system_type = stNull;
-        debug_print ("mmInit: stNull\n");
-    }
-
-// Small. (32MB).
-    if (memorysizeTotal >= SMALLSYSTEM_SIZE_KB){
-        g_mm_system_type = stSmallSystem;
-        debug_print ("mmInit: stSmallSystem\n");
-    }
-// Medium. (64MB).
-    if (memorysizeTotal >= MEDIUMSYSTEM_SIZE_KB){
-        g_mm_system_type = stMediumSystem;
-        debug_print ("mmInit: stMediumSystem\n");
-    }
-// Large. (128MB).
-    if (memorysizeTotal >= LARGESYSTEM_SIZE_KB){
-        g_mm_system_type = stLargeSystem;
-        debug_print ("mmInit: stLargeSystem\n");
-    }
-
-    // #debug
-    //while(1){}
-
-// Inicializando o framepool (paged pool).
-    initializeFramesAlloc();
-
-    // Continua...
-
-// Initializing the paging infrastructure.
-// Mapping all the static system areas.
-// See: pages.c
-    int PagingStatus=-1;
-    PagingStatus = (int) mmInitializePaging();
-    if (PagingStatus<0){
-        x_panic("mmInit: Paging");
-    }
-
-done:
-
+InitializeEnd:
     //#debug
     //debug_print("mmInit: done\n");
     //refresh_screen();
     //while(1){}
-
     return 0;
 
 fail:
-    debug_print("mmInit: fail\n");
+    debug_print("mmInitialize: fail\n");
     //refresh_screen();
     //while(1){}
     return (int) (-1);

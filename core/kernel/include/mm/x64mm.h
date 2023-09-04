@@ -946,7 +946,6 @@ mm_fill_page_table(
 // Memory initialization.
 // This routine initializes the paging infrastructure.
 int mmInitializePaging(void);
-int mmInit(void);
 
 // Memory info.
 void mmShowMemoryInfo(void);

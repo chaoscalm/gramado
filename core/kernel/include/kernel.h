@@ -297,6 +297,9 @@
 #include "ps/process.h"
 
 
+// Precisa de todos os componentes de ke/
+#include "ke.h"
+
 //
 // + (10) User.
 //
@@ -582,10 +585,9 @@ struct kernel_classes_d  KernelClasses;
 // ::(2)
 // Global initialization.
 // see: init.c
-int I_kmain(int arch_type);
-// Inicialização do kernel, independente da arquitetura.
-// See: init.c
-int I_StartSystem(int arch_type);
+void I_kmain(int arch_type);
+
+
 // x86_64 Initialization. (Main routine)
 // see: x64init.c
 int I_x64main(void);

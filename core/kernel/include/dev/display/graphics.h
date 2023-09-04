@@ -61,14 +61,13 @@ void demo0(void);
 
 void kgws_enable(void);
 void kgws_disable(void);
-int kgwsRegisterWindowServer (pid_t pid);
+int kgwsRegisterWindowServer(pid_t pid);
 
-int windowLoadGramadoIcons (void);
-void *ui_get_system_icon ( int n );
+int windowLoadGramadoIcons(void);
+void *ui_get_system_icon(int n);
 
-int grInit (void);
+int grInit(void);
 int KGWS_initialize(void);
-int kgwmInitialize (void);
 
 #endif   
 

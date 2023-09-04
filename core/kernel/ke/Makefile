@@ -76,6 +76,7 @@ msg.o \
 create.o clone.o \
 callback.o \
 detect.o \
+ke.o \
 hal.o \
 apic.o \
 pit.o ports64.o rtc.o \
@@ -91,8 +92,9 @@ all:
 	$(CC) -c x86_64/x64init.c  \
 $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
 
-# hal/
+	$(CC) -c ke.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
 
+# hal/
 	$(CC) -c hal.c  $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
 	$(CC) -c x86_64/detect.c  $(KERNEL_INCLUDE) $(CFLAGS) -o detect.o
 

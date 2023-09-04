@@ -29,7 +29,8 @@ static int InitialProcessInitialized = FALSE;
 
 static int __setup_stdin_cmdline(void);
 
-static int I_init(void);
+static int I_initKernelComponents(void);
+
 static int I_x64CreateKernelProcess(void);
 static int I_x64CreateInitialProcess(void);
 static int I_x64CreateTID0(void);
@@ -1036,12 +1037,12 @@ static int I_x64CreateTID0(void)
 // Called by x64main in x64init.c
 // OUT: TRUE if it is ok.
 
-static int I_init(void)
+static int I_initKernelComponents(void)
 {
     int Status = FALSE;
     unsigned char ProcessorType=0;
 
-    PROGRESS("I_init:\n");
+    PROGRESS("I_initKernelComponents:\n");
 
 // #debug
     //debug_print ("I_init:\n");
@@ -1051,7 +1052,7 @@ static int I_init(void)
 // Check kernel phase.
 
     if (Initialization.current_phase != 1){
-        printf ("I_init: Initialization phase is Not 1.\n");
+        printf ("I_initKernelComponents: Initialization phase is Not 1.\n");
         return FALSE;
     }
 
@@ -1066,6 +1067,7 @@ static int I_init(void)
     init_device_manager();
     PROGRESS("init_device_manager ok\n"); 
 
+
 // ===============================
 // Storage manager
 // Ordem: storage, disk, volume, file system.
@@ -1074,20 +1076,17 @@ static int I_init(void)
 // É nela que as outras partes devem se basear.
 
     PROGRESS("storage, disk, volume, fs\n"); 
-
 // Storage
     int st_status=FALSE;
     st_status = init_storage_support();
     if (st_status != TRUE){
-       printf ("I_init: init_storage_support fail\n");
+       printf ("I_initKernelComponents: init_storage_support fail\n");
        return FALSE;
     }
-
 // Disks and volumes.
 // see: storage.c
     disk_init();
     volume_init();
-
 // File systems support.
 // see: fs.c
     //vfsInit();
@@ -1095,23 +1094,10 @@ static int I_init(void)
     // ...
 
 // ==========================
-// Network support.
-// See: network.c
-    networkInit();
-    PROGRESS("networkInit ok\n"); 
-// ===============================
-// #important
-// We need to be in the phase 1.
-    //if (Initialization.current_phase != 1){
-    //    printf ("I_init: Initialization phase is NOT 1.\n");
-    //    return FALSE;
-    //}
-
-// ==========================
 // hal
     Status = halInitialize();
     if (Status != TRUE){
-        printf("I_init: halInitialize fail\n");
+        printf("I_initKernelComponents: halInitialize fail\n");
         return FALSE;
     }
     PROGRESS("halInitialize ok\n"); 
@@ -1121,7 +1107,7 @@ static int I_init(void)
 // mm, ipc, ps ...
     Status = psInitializeMKComponents();
     if (Status != TRUE){
-        printf ("I_init: psInitializeMKComponents fail\n");
+        printf ("I_initKernelComponents: psInitializeMKComponents fail\n");
         return FALSE;
     }
     PROGRESS("psInitializeMKComponents ok\n"); 
@@ -1130,20 +1116,10 @@ static int I_init(void)
 // Executive components
     Status = zeroInitializeSystemComponents();
     if (Status != TRUE){
-        printf ("I_init: zeroInitializeSystemComponents fail\n"); 
+        printf ("I_initKernelComponents: zeroInitializeSystemComponents fail\n"); 
         return FALSE;
     }
     PROGRESS("zeroInitializeSystemComponents ok\n"); 
-
-// =========================================
-// Some gui components.
-// #todo: rever 
-    Status = kgwmInitialize();
-    if (Status != TRUE){
-        printf ("I_init: kgwmInitialize fail\n"); 
-        return FALSE;
-    }
-    PROGRESS("kgwmInitialize ok\n"); 
 
 // FAT support.
     initialize_FAT_and_main_directories();
@@ -1162,7 +1138,7 @@ static int I_init(void)
 // 'processor' structuture initialization.
     processor = (void *) kmalloc( sizeof(struct processor_d) ); 
     if ((void *) processor == NULL){
-        printf("I_init: processor\n");
+        printf("I_initKernelComponents: processor\n");
         return FALSE;
     }
 
@@ -1209,7 +1185,7 @@ static int I_init(void)
         //Initialize fpu/see support.
         fpu_status = (int) x64_init_fpu_support();
         if (fpu_status<0){
-            printf("I_init: [FAIL] FPU Initialization fail\n");
+            printf("I_initKernelComponents: [FAIL] FPU Initialization fail\n");
             return FALSE;
         }
         
@@ -1226,7 +1202,7 @@ static int I_init(void)
         smp_status = (int) x64_probe_smp();
         if (smp_status == TRUE)
         {
-            printf("I_init: [x64_probe_smp] ok\n");
+            printf("I_initKernelComponents: [x64_probe_smp] ok\n");
             // Initialize LAPIC based on the address we found before.
             if ((void*) MPConfigurationTable != NULL)
             {
@@ -1244,15 +1220,24 @@ static int I_init(void)
         }
         if (smp_status != TRUE)
         {
-            printf("I_init: [x64_probe_smp] fail\n");
+            printf("I_initKernelComponents: [x64_probe_smp] fail\n");
             // #test #todo
             // Using the ACPI tables.
             smp_status = (int) x64_probe_smp_via_acpi();
             if (smp_status!=TRUE){
-                printf("I_init: [x64_probe_smp_via_acpi] fail\n");
+                printf("I_initKernelComponents: [x64_probe_smp_via_acpi] fail\n");
             }
         }
-        
+
+        // --------
+        // Detect the hypervisor.
+        // Saved into the processor data structure.
+        // Save the option found into a global variable.
+        // #todo: We need a structure for that thing.
+        // see: detect.c
+        // Essa rotina eh valida para AMD e Intel.
+        detect_hv();
+
         // #test
         // #todo
         // We need to setup a lot of registers 
@@ -1267,18 +1252,10 @@ static int I_init(void)
         break;
     // ...
     default:
-        printf ("I_init: [ERROR] default ProcessorType\n");
+        printf ("I_initKernelComponents: [ERROR] default ProcessorType\n");
         return FALSE;
         break;
     };
-
-// --------
-// Detect the hypervisor.
-// Saved into the processor data structure.
-// Save the option found into a global variable.
-// #todo: We need a structure for that thing.
-// see: detect.c
-    detect_hv();
 
 // ok
 // Return to the main initialization routine
@@ -1294,7 +1271,7 @@ static int I_init(void)
     // If we already have printf verbose.
 fail0:
     PROGRESS("::(5)(3)(?): Fail");
-    debug_print ("I_init: fail\n");
+    debug_print ("I_initKernelComponents: fail\n");
     return FALSE;
 }
 
@@ -1354,7 +1331,7 @@ int I_x64main (void)
 
 // ================================
 // sse support.
-    PROGRESS("::(2)(?)\n"); 
+    //PROGRESS("::(2)(?)\n"); 
     //debug_print ("[x64] I_x64main: [TODO] SSE support\n");
     // x86_sse_init();
 
@@ -1374,7 +1351,7 @@ int I_x64main (void)
 // durante essa fase da inicialização.
 // See: sysinit.c
 
-    PROGRESS("::(2)(?)\n"); 
+    //PROGRESS("::(2)(?)\n"); 
     if (Initialization.current_phase != 0){
         debug_print ("I_x64main: Initialization phase is NOT 0.\n");
         return FALSE;
@@ -1382,12 +1359,17 @@ int I_x64main (void)
 
 // -------------------------------
 // Starting phase 1.
-    PROGRESS("::(2)(?)\n"); 
+    //PROGRESS(":: Call\n"); 
     Initialization.current_phase = 1;
 
-    Status = (int) I_init(); 
+// Initialize a lot of kernel components
+// + globals
+// + storage and fs.
+// + network
+// ...
+    Status = (int) I_initKernelComponents(); 
     if ( Status != TRUE ){
-        printf ("I_x64main: I_init fail\n");
+        printf ("I_x64main: I_init2 fail\n");
         return FALSE;
     }
 
@@ -1399,33 +1381,6 @@ int I_x64main (void)
 // -------------------------------
 // Starting phase 3.
     Initialization.current_phase = 3;
-
-//================================
-// Initialize all the kernel graphics support.
-// Initialize all the kernel graphics support.
-// some extra things like virtual terminal and tty.
-// #todo: rever essa inicializaçao.
-// See: graphics.c
-// ================================
-// Initialize window server manager.
-// ws.c
-// #debug:  
-// Esperamos alcaçarmos esse alvo.
-// Isso funcionou gigabyte/intel
-// Vamos avançar
-// Quem chamou essa funçao foi o começo da inicializaçao do kernel.
-// Retornamos para x86main.c para arch x86.
-// See: drivers/ws.c
-// Initialize ws callback support.
-// see: callback.c
-
-    PROGRESS("::(2)(?) kgws, ws, ws callback\n"); 
-    // Graphics infrastruture.
-    KGWS_initialize();
-    // ws registration support.
-    ws_init();
-    // ws callback support.
-    initialize_ws_callback_info();
 
 // ================================
 // DANGER !!!
@@ -1443,7 +1398,7 @@ int I_x64main (void)
 // #bugbug
 // see: x64.c
 
-    PROGRESS("::(2)(?) gdt\n"); 
+    PROGRESS(":: GDT\n"); 
     x64_init_gdt();
 
 // ================================
@@ -1453,7 +1408,7 @@ int I_x64main (void)
 // a process structure to handle the kernel base and the
 // window server's control thread.
 
-    PROGRESS("::(2)(?) kernel process\n"); 
+    PROGRESS(":: Create kernel process\n"); 
     Status = I_x64CreateKernelProcess();
     if (Status != TRUE){
         debug_print ("Couldn't create the Kernel process\n");
@@ -1464,34 +1419,12 @@ int I_x64main (void)
 // Create the first ring3 process.
 // INIT.BIN.
 
-    PROGRESS("::(2)(?) init process\n"); 
+    PROGRESS(":: Create init process\n"); 
     Status = I_x64CreateInitialProcess();
     if (Status != TRUE){
         debug_print ("Couldn't create the Initial process\n");
         return FALSE;
     }
-
-// ================================
-// Early ps/2 initialization.
-// Initializing ps/2 controller.
-// #todo: 
-// Essa inicialização deve ser adiada.
-// deixando para o processo init fazer isso.
-// Chamaremos essa inicialização básica nesse momento.
-// A inicialização completa será chamada pelo processo init.
-// See: i8042.c
-// ================
-// Early initialization
-// Only the keyboard.
-// It is working
-// ================
-// This is the full initialization.
-// #bugbug This is a test yet.
-// It fails in the real machine.
-
-    PROGRESS("::(2)(?) ps2\n"); 
-    PS2_early_initialization();
-    //PS2_initialization();
 
     return TRUE;
 
@@ -1500,29 +1433,27 @@ int I_x64main (void)
 
 fail:
     // Nothing
-    PROGRESS("::(4)(?) Fail\n"); 
+    //debug_print("I_x64main: Fail\n"); 
 fail0:
-    debug_print ("[x64] I_x64main: fail\n");
+    debug_print ("I_x64main: fail\n");
     refresh_screen(); 
     return FALSE;
 }
 
+/*
 // ==============================
 // ::(2)
-
 void I_x64InitializeKernel(int arch_type)
 {
 // We don't have any print support yet.
 
     //#hack
     // current_arch = CURRENT_ARCH_X86_64;
-
 // see:
 // kernel/init.c
     I_kmain(arch_type);
-
 }
-
+*/
 
 
 

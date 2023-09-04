@@ -599,14 +599,6 @@ fail:
 
 //----------------------------------------------
 
-// called by I_init()
-// OUT: return TRUE if its ok.
-int kgwmInitialize (void)
-{
-    debug_print ("kgwmInitialize: [fixme]\n");
-    return TRUE;
-}
-
 // windowLoadGramadoIcons:
 // Carrega alguns ícones do sistema.
 // It's a part of the window system's initialization.
