@@ -4,18 +4,21 @@
 # This is the default target
 PHONY := all
 all: userland-domain core-domain
+# Warning: Respect the order!
 	@echo "Done"
-	@echo "Go to core/ and type ./run or ./runkvm"
+	@echo "Go to ama/ and type ./run or ./runkvm"
 
 # Step 1
 PHONY := userland-domain
 userland-domain:
-	make -C  userland
+# Warning: Respect the order!
+	make -C  zing/
+	make -C  zz/
 
 # Step 2
 PHONY := core-domain
 core-domain:
-	make -C  core
+	make -C  ama/
 
 # ------------------------
 
@@ -27,32 +30,37 @@ clean-all: clean-userland clean-core clean-base clean-cancun
 
 PHONY := clean-userland
 clean-userland:
-# In userland/
-	-rm -f userland/barnsh/bin/*.BIN
-	-rm -f userland/commands/bin/*.BIN
-	-rm -f userland/netd/bin/*.BIN
-	-rm -f userland/services/bin/*.BIN
-	-rm -f userland/wdemos/eng/bin/*.BIN
-	-rm -f userland/winapps/bin/*.BIN
+# Clear the userland domain.
+
+# zing/
+	-rm -f zing/barnsh/bin/*.BIN
+	-rm -f zing/commands/bin/*.BIN
+	-rm -f zing/netd/bin/*.BIN
+	-rm -f zing/services/bin/*.BIN
+# zz/
+	-rm -f zz/demos/eng/bin/*.BIN
+	-rm -f zz/gramland/bin/*.BIN
+	-rm -f zz/winapps/bin/*.BIN
 
 PHONY := clean-core
 clean-core:
-# In core/
-	-rm core/GRAMADO.VHD
-	-rm core/MBR0.BIN
-	-rm core/kernel/KERNEL.BIN
-	-rm core/hals/newm0/MOD0.BIN
-	-rm core/hals/newm1/MOD1.BIN
+# Clear the core domain.
+	-rm ama/GRAMADO.VHD
+	-rm ama/MBR0.BIN
+	-rm ama/kernel/KERNEL.BIN
+	-rm ama/hals/newm0/MOD0.BIN
+	-rm ama/hals/newm1/MOD1.BIN
 
 PHONY := clean-base
 clean-base:
+# Clear the base domain.
 # Clear the disk cache
-	-rm -rf base/*.BIN 
-	-rm -rf base/*.BMP
-	-rm -rf base/EFI/BOOT/*.EFI 
-	-rm -rf base/GRAMADO/*.BIN 
-	-rm -rf base/PROGRAMS/*.BIN 
-	-rm -rf base/USERS/*.BIN 
+	-rm -rf aa/base/*.BIN 
+	-rm -rf aa/base/*.BMP
+	-rm -rf aa/base/EFI/BOOT/*.EFI 
+	-rm -rf aa/base/GRAMADO/*.BIN 
+	-rm -rf aa/base/PROGRAMS/*.BIN 
+	-rm -rf aa/base/USERS/*.BIN 
 
 PHONY := clean-cancun 
 clean-cancun:

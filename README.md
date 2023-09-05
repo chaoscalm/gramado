@@ -57,9 +57,10 @@ desktop/ is a place for the graphical user interface.
 
     The next few lines has a brief description of the subdirectories:
 
- * `base/` - The root directory for the boot partition.
+```
+ * `aa/base/` - The root directory for the boot partition.
 
- * `core/` - Low level basic components of the system.  
+ * `ama/` - Low level basic components of the system.  
    * `boot` - The boot loader.
    * `hals/` - Ring 0 loadable module.
    * `init` - The init process.
@@ -67,21 +68,23 @@ desktop/ is a place for the graphical user interface.
    * `libs` - Libraries.
    * `netd` - Network server and first client.
 
- * `docs/` - Documentation.
+ * `boring/docs/` - Documentation.
+ * `boring/meta/` - metadata.
 
- * `meta/` - metadata.
-
- * `userland/` - Desktop Environment (DE).
+ * `zing/` - Desktop Environment (DE).
    * `barnsh` - The shell command.
    * `commands` - The posix commands.
    * `libs` - Libraries.
    * `services` - Servers.
-     * `winland` - Display server. (GRAMLAND.BIN)
-   * `wdemos` - Demos.
-     * `eng` - 3D demo.
-   * `wgames` - Games.
-   * `winapps` - Client-side GUI applications.
 
+ * `zing/` - Desktop Environment (DE).
+   * `demos` - Demos.
+     * `eng` - 3D demo.
+   * `games` - Games.
+   * `gramland` - Display server. (GRAMLAND.BIN)
+   * `winapps` - Client-side GUI applications.
+```
+   
 ## Who are the developers?
 
 The main developer is Fred Nora, a brazilian developer.
@@ -96,7 +99,7 @@ Contributions are welcome.
 
 ```bash
 $ make
-$ cd core
+$ cd ama
 $ ./run
 ```
 
