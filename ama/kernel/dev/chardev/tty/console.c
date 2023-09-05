@@ -1889,7 +1889,6 @@ int consoleCompareStrings(void)
         goto exit_cmp;
     }
 
-
     if ( strncmp(prompt,"str",3) == 0 )
     {
         console_print_indent(4,fg_console);
@@ -2047,17 +2046,8 @@ int consoleCompareStrings(void)
     }
 
 // cls:
-    if ( strncmp( prompt, "cls", 3 ) == 0 )
-    {
-        //backgroundDraw(COLOR_EMBEDDED_SHELL_BG);
-        //set_up_cursor(1,1);
-
-        //IN: bg color, fg color, console number.
-        clear_console(
-            (unsigned int) CONSOLE_TTYS[fg_console].bg_color,
-            (unsigned int) CONSOLE_TTYS[fg_console].fg_color,
-            fg_console );
-
+    if ( strncmp( prompt, "cls", 3 ) == 0 ){
+        console_clear();
         goto exit_cmp;
     }
 
@@ -2068,7 +2058,9 @@ int consoleCompareStrings(void)
     }
 
 // pit: Display PIT info.
-    if ( strncmp( prompt, "pit", 3 ) == 0 ){
+    if ( strncmp( prompt, "pit", 3 ) == 0 )
+    {
+        // #todo: Create pitShowInfo() in pit.c.
         printf("Dev freq: %d | Clocks per sec: %d HZ | Period: %d\n",
             PITInfo.dev_freq,
             PITInfo.clocks_per_sec,
@@ -2135,7 +2127,7 @@ int consoleCompareStrings(void)
 
 // reboot:
     if ( strncmp( prompt, "reboot", 6 ) == 0 ){
-        hal_reboot();
+        keReboot();
         goto exit_cmp;
     }
 
@@ -2178,6 +2170,7 @@ int consoleCompareStrings(void)
 // But we can get information for all the 4 ports.
     if ( strncmp( prompt, "serial", 6 ) == 0 )
     {
+        //#todo: Create serialShowInfo in serial.c.
         //#todo: Only com1 for now.
         printf("com1.divisor:       %d\n",
             SerialPortInfo.com1.divisor);
@@ -2192,15 +2185,8 @@ int consoleCompareStrings(void)
 
 // ========
 // close: Sending a MSG_CLOSE messsage to the init thread.
-    if ( strncmp(prompt,"close",5) == 0 )
-    {
-        if( (void*) InitThread == NULL ){goto exit_cmp;}
-        post_message_to_tid(
-            (tid_t) 0,                //sender tid. #todo
-            (tid_t) InitThread->tid,  //receiver tid.
-            (int) MSG_CLOSE,          //msg code
-            0,
-            0 );
+    if ( strncmp(prompt,"close",5) == 0 ){
+        keCloseInitProcess();
         goto exit_cmp;
     }
 
@@ -3562,4 +3548,34 @@ clear_console (
 fail:
     return (int) -1;
 }
+
+int console_clear(void)
+{
+    if (fg_console<0 || fg_console > 3){
+        goto fail;
+    }
+
+    //backgroundDraw(COLOR_EMBEDDED_SHELL_BG);
+    //set_up_cursor(1,1);
+
+// IN: bg color, fg color, console number.
+    clear_console(
+        (unsigned int) CONSOLE_TTYS[fg_console].bg_color,
+        (unsigned int) CONSOLE_TTYS[fg_console].fg_color,
+        fg_console );
+
+    return 0;
+
+fail:
+    return -1;
+}
+
+//
+// End
+//
+
+
+
+
+
 

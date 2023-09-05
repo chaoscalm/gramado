@@ -75,7 +75,6 @@ struct kernel_heap_d
     unsigned long start;
     unsigned long end;
 };
-
 // Global.
 struct kernel_heap_d KernelHeap;
 // --------------------------------
@@ -88,7 +87,6 @@ struct kernel_stack_d
     unsigned long start;
     unsigned long end;
 };
-
 // Global.
 struct kernel_stack_d KernelStack;
 // --------------------------------
@@ -193,14 +191,14 @@ unsigned long slab_2mb_extraheap3(void)
  * @todo: Rotinas de automação da criação de heaps para processos.
  */
 
-static int __init_heap (void)
+// OUT: 0=OK.
+static int __init_heap(void)
 {
-    int i=0;
+    register int i=0;
 
     // #bugbug
     // não usar printf
     // printf ainda não funciona nesse momento.
-
 
     KernelHeap.initialized = FALSE;
 
@@ -215,47 +213,46 @@ static int __init_heap (void)
     KernelHeap.start = (unsigned long) kernel_heap_start;
     KernelHeap.end   = (unsigned long) kernel_heap_end;
 
-
 // Heap Pointer, Available heap and Counter.
     g_heap_pointer   = (unsigned long) kernel_heap_start; 
     g_available_heap = (unsigned long) (kernel_heap_end - kernel_heap_start);  
     heapCount = 0; 
 
 // Check Heap Pointer.
-    if ( g_heap_pointer == 0 ){
-        debug_print ("__init_heap: [FAIL] g_heap_pointer\n");
+    if (g_heap_pointer == 0){
+        debug_print("__init_heap: [FAIL] g_heap_pointer\n");
         goto fail;
     }
 
 // Check Heap Pointer overflow.
-    if ( g_heap_pointer > kernel_heap_end ){
-        debug_print ("__init_heap: [FAIL] Heap Pointer Overflow\n");
+    if (g_heap_pointer > kernel_heap_end){
+        debug_print("__init_heap: [FAIL] Heap Pointer Overflow\n");
         goto fail;
     }
 
 // Heap Start
-    if ( kernel_heap_start == 0 ){
+    if (kernel_heap_start == 0){
         debug_print("__init_heap: [FAIL] HeapStart\n");
         goto fail;
     }
 
 // Heap End
-    if ( kernel_heap_end == 0 ){
+    if (kernel_heap_end == 0){
         debug_print("__init_heap: [FAIL] HeapEnd\n");
         goto fail;
     }
 
 // Check available heap.
 // #todo: Tentar crescer o heap.
-    if ( g_available_heap == 0 ){
-        debug_print ("__init_heap: [FAIL] g_available_heap\n");
+    if (g_available_heap == 0){
+        debug_print("__init_heap: [FAIL] g_available_heap\n");
         goto fail;
     }
 
 // Heap list: 
 // Inicializa a lista de heaps.
 
-    while ( i < HEAP_COUNT_MAX ){
+    while (i < HEAP_COUNT_MAX){
         heapList[i] = (unsigned long) 0;
         i++;
     };
@@ -266,31 +263,26 @@ static int __init_heap (void)
 
     KernelHeap.initialized = TRUE;
 
+// OUT: 0=OK.
     return 0;
 
 
 // Falha ao iniciar o heap do kernel.
 // ====================================
-
 fail:
-
     KernelHeap.initialized = FALSE;
-
-    debug_print ("__init_heap: Fail\n");
-
+    debug_print("__init_heap: Fail\n");
     //refresh_screen();
-
-    return (int) 1;
+    return (int) -1;
 }
-
 
 /*
  * __init_stack:
  *     Iniciar a gerência de Stack do kernel. 
  *     #todo: Usar stackInit(). 
  */
-
-static int __init_stack (void)
+// OUT: 0=OK.
+static int __init_stack(void)
 {
 
     KernelStack.initialized = FALSE;
@@ -317,19 +309,16 @@ static int __init_stack (void)
 
     KernelStack.initialized = TRUE;
 
+// OUT: 0=OK.
     return 0;
 
 fail:
-
     KernelStack.initialized = FALSE;
-
     //refresh_screen();
-    
-    return (int) 1;
-    //return (int) -1;
+    return (int) -1;
 }
 
-int kernel_gc (void)
+int kernel_gc(void)
 {
     panic ("kernel_gc: Unimplemented\n");
     return -1;
@@ -355,6 +344,7 @@ void memory_destroy_heap (struct heap_d *heap)
 // Init Memory Manager for x64:
 // Heap, Stack, Pages, mmblocks, memory sizes, memory zones ...
 
+// OUT: TRUE or FALSE.
 int mmInitialize(int phase)
 {
 // + Initialize the memory support.
@@ -505,18 +495,17 @@ int mmInitialize(int phase)
 
 InitializeEnd:
     //#debug
-    //debug_print("mmInit: done\n");
+    //debug_print("mmInitialize: done\n");
     //refresh_screen();
     //while(1){}
-    return 0;
+    return TRUE;
 
 fail:
     debug_print("mmInitialize: fail\n");
     //refresh_screen();
     //while(1){}
-    return (int) (-1);
+    return FALSE;
 }
-
 
 /*
  * heapAllocateMemory:
@@ -538,7 +527,7 @@ fail:
 // OUT: 
 // Address if success. '0' if fail.
 
-unsigned long heapAllocateMemory (unsigned long size)
+unsigned long heapAllocateMemory(unsigned long size)
 {
 // Allocate memory inside the kernel heap.
 // This is a worker for kmalloc/__kmalloc_impl in kstdlib.c
@@ -633,12 +622,11 @@ unsigned long heapAllocateMemory (unsigned long size)
 
 // Agora temos um ponteiro para a estrutura.
     Current = (void *) g_heap_pointer;
-    if ( (void *) Current == NULL ){
-        debug_print ("heapAllocateMemory: [FAIL] struct\n");
-        printf             ("heapAllocateMemory: [FAIL] struct\n");
+    if ((void *) Current == NULL){
+        debug_print("heapAllocateMemory: [FAIL] struct\n");
+        printf     ("heapAllocateMemory: [FAIL] struct\n");
         goto fail;
     }
-
 
 //
 // Header -------------------------

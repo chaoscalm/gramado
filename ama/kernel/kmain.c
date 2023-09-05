@@ -34,6 +34,19 @@
 
 #include <kernel.h>
 
+typedef enum {
+    KERNEL_SUBSYSTEM_INVALID,
+    KERNEL_SUBSYSTEM_DEV,  // Device drivers
+    KERNEL_SUBSYSTEM_FS,   // File systems
+    KERNEL_SUBSYSTEM_KE,   // Kernel executive
+    KERNEL_SUBSYSTEM_MM,   // Memory manager
+    KERNEL_SUBSYSTEM_NET,  // Network
+    KERNEL_SUBSYSTEM_USER  // User manager. (um)
+}kernel_subsystem_t;
+
+// Local
+static kernel_subsystem_t __failing_kernel_subsystem = 
+    KERNEL_SUBSYSTEM_INVALID;
 
 //
 // Initialization :)
@@ -532,6 +545,8 @@ void I_kmain(int arch_type)
 // We don't have any print support yet.
 
     int Status = FALSE;
+    __failing_kernel_subsystem = KERNEL_SUBSYSTEM_INVALID;
+
     //int UseDebugMode=TRUE;  //#bugbug
     int UseDebugMode=FALSE;
 
@@ -587,8 +602,10 @@ void I_kmain(int arch_type)
 // + Initialize memory sizes.
     PROGRESS(":: Initialize mm phase 0\n");
     Status = (int) mmInitialize(0);
-    if (Status < 0)
+    if (Status != TRUE)
     {
+        __failing_kernel_subsystem = 
+            KERNEL_SUBSYSTEM_MM;
         if (Initialization.is_serial_log_initialized == TRUE){
             debug_print("I_kmain: mmInitialize phase 0 fail\n");
         }
@@ -601,8 +618,10 @@ void I_kmain(int arch_type)
 //   Mapping all the static system areas.
     PROGRESS(":: Initialize mm phase 1\n");
     Status = (int) mmInitialize(1);
-    if (Status < 0)
+    if (Status != TRUE)
     {
+        __failing_kernel_subsystem = 
+            KERNEL_SUBSYSTEM_MM;
         if (Initialization.is_serial_log_initialized == TRUE){
             debug_print("I_kmain: mmInitialize phase 1 fail\n");
         }
@@ -626,7 +645,10 @@ void I_kmain(int arch_type)
 // + Initialize bootloader display device.
     PROGRESS(":: Initialize ke phase 0\n");
     Status = (int) keInitialize(0);
-    if (Status != TRUE){
+    if (Status != TRUE)
+    {
+        __failing_kernel_subsystem = 
+            KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
 
@@ -637,7 +659,10 @@ void I_kmain(int arch_type)
 // + PS2 early initialization.
     PROGRESS(":: Initialize ke phase 1\n");
     Status = (int) keInitialize(1);
-    if (Status != TRUE){
+    if (Status != TRUE)
+    {
+        __failing_kernel_subsystem = 
+            KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
 
@@ -646,7 +671,10 @@ void I_kmain(int arch_type)
 // + Load BMP icons.
     PROGRESS(":: Initialize ke phase 2\n");
     Status = (int) keInitialize(2);
-    if (Status != TRUE){
+    if (Status != TRUE)
+    {
+        __failing_kernel_subsystem = 
+            KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
 
@@ -692,12 +720,18 @@ StartSystemEnd:
 
 // Initialization fail
 fail:
+// #todo
+// Print error info if it is possible.
+// + __failing_kernel_subsystem
+// + system_state
+// ...
+
     PROGRESS("::(2)(2)(?) Initialization fail\n");
     system_state = SYSTEM_ABORTED;
     x_panic("Error: 0x02");
     die();
 
-// Not reached.
+// Not reached
     while (1){
         asm ("cli");
         asm ("hlt");

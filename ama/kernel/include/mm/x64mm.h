@@ -813,8 +813,8 @@ struct frame_d
 #define FT_NUMBER_OF_USER_FRAMES      512
 
 // A área total de frames não pode conter menos frames que isso.
-#define FT_TOTAL_FRAMES  (FT_NUMBER_OF_SYSTEM_FRAMES + FT_NUMBER_OF_USER_FRAMES)
-
+#define FT_TOTAL_FRAMES \
+    (FT_NUMBER_OF_SYSTEM_FRAMES + FT_NUMBER_OF_USER_FRAMES)
 
 // Gerencia a área alocável total.
 struct frame_table_d 
@@ -997,12 +997,17 @@ void pages_calc_mem (void);
 
 // #todo
 // #fixme
-void *newPage (void);
+void *newPage(void);
 
-void *mm_alloc_single_page (void);
-void *mm_alloc_contig_pages (size_t size);
+void *mm_alloc_single_page(void);
+void *mm_alloc_contig_pages(size_t size);
 
-void *allocPages (int size);
+void *allocPages(int size);
+
+// Interface.
+void *mmAllocPage(void);
+void *mmAllocPages(int size);
+
 void initializeFramesAlloc (void);
 
 void *slab_1MB_allocator(void);

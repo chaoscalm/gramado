@@ -100,7 +100,7 @@ static void __initialize_extraheap1(void);
 static void __initialize_extraheap2(void);
 static void __initialize_extraheap3(void);
 
-static void mmSetupMemoryUsage(void);
+static void __mmSetupMemoryUsage(void);
 
 // Local worker
 static unsigned long 
@@ -585,11 +585,12 @@ void *clone_pml4(unsigned long pml4_va)
 // Used.
 // #todo: mm_used_lfb ??
 
-static void mmSetupMemoryUsage(void)
+static void __mmSetupMemoryUsage(void)
 {
+// Local worker.
 // Called by mmInitializePaging().
 
-    debug_print ("mmSetupMemoryUsage: Setup memory usage\n");
+    debug_print("__mmSetupMemoryUsage: Setup memory usage\n");
 
 // used memory:
     memorysizeUsed = 
@@ -648,22 +649,23 @@ int I_initialize_frame_table(void)
 {
 // Called by mmInitializePaging().
 
-    debug_print("I_initialize_frame_table:\n");
+    PROGRESS("I_initialize_frame_table:\n");
 
 // Clear.
     FT.initialized = FALSE;
     FT.used  = FALSE;
     FT.magic = 0;
+
 // Setup 'Start' and 'End' default physical addresses.
+// __128MB_MARK_PA
 // Size = 0.
-    FT.start_pa = __128MB_MARK_PA;
-    FT.end_pa   = __128MB_MARK_PA;
+    FT.start_pa = (unsigned long) FRAMETABLE_START_PA;
+    FT.end_pa   = (unsigned long) FRAMETABLE_START_PA;
 
 // what is the 'End'?
 // Let's setup the size of the frame table.
 // Changing the 'End' physical address given
 // the size of the physical RAM.
-
 
 // =================================================
 // Size in KB.
@@ -673,8 +675,8 @@ int I_initialize_frame_table(void)
 
     // 1024 KB?
     if ( memorysizeTotal >= (1024*1024) ){
-        FT.end_pa = __1GB_MARK_PA;
-        debug_print ("I_initialize_frame_table: We have 1GB or more\n");
+        FT.end_pa = (unsigned long) __1GB_MARK_PA;
+        debug_print("I_initialize_frame_table: We have 1GB or more\n");
         goto initialize_frame_table;
     }
 
@@ -684,7 +686,7 @@ int I_initialize_frame_table(void)
 
     // 512 KB?
     if ( memorysizeTotal >= (512*1024) ){
-        FT.end_pa = __512MB_MARK_PA;
+        FT.end_pa = (unsigned long) __512MB_MARK_PA;
         debug_print ("I_initialize_frame_table: We have 512MB or more\n");
         goto initialize_frame_table;
     } 
@@ -695,7 +697,7 @@ int I_initialize_frame_table(void)
 
     // 256 KB?
     if ( memorysizeTotal >= (256*1024) ){
-        FT.end_pa = __256MB_MARK_PA;
+        FT.end_pa = (unsigned long) __256MB_MARK_PA;
         debug_print ("I_initialize_frame_table: We have 256MB or more\n");
         goto initialize_frame_table;
     } 
@@ -714,6 +716,7 @@ int I_initialize_frame_table(void)
         debug_print ("I_initialize_frame_table: [ALERT] memorysizeTotal is less than 256MB\n");
     }
 
+// ---------------------------
 // Danger!
 // The available RAM is almost 256MB
 // Its because we a 256MB card,
@@ -721,8 +724,8 @@ int I_initialize_frame_table(void)
 // #bugbug: x_panic is not available yet.
 
     if ( memorysizeTotal < (250*1024) ){
-        debug_print ("I_initialize_frame_table: [PANIC] The system has less than 250MB of available RAM\n");
-        x_panic     ("I_initialize_frame_table: less than 250MB \n");
+        debug_print("I_initialize_frame_table: [PANIC] The system has less than 250MB of available RAM\n");
+        x_panic    ("I_initialize_frame_table: less than 250MB\n");
     }
 
 // Minimum
@@ -752,28 +755,28 @@ initialize_frame_table:
     //    x_panic("I_initialize_frame_table: FT.end_pa > __3GB_MARK_PA");
     //}
 
-
 // Total size in KB.
     mm_used_frame_table = 
         (unsigned long)((FT.end_pa - FT.start_pa)/1024);
 
 //
-// ====================================================================
+// ===================================================================
 //
 
+// Invalid start address.
     if (FT.start_pa == 0){
          debug_print("I_initialize_frame_table: FT.start_pa\n");
          x_panic    ("I_initialize_frame_table: FT.start_pa\n");
     }
-
+// Invalid end address.
     if (FT.end_pa == 0){
          debug_print("I_initialize_frame_table: FT.end_pa\n");
          x_panic    ("I_initialize_frame_table: FT.end_pa\n");
     }
 
-// Size in bytes.
-// Size in KB.
-// Size in MB.
+// Size in Bytes 
+// Size in KB 
+// Size in MB
     FT.size_in_bytes = 
         (unsigned long) (FT.end_pa - FT.start_pa);
     FT.size_in_kb = 
@@ -786,10 +789,13 @@ initialize_frame_table:
 // This is because each page has 4096 bytes.
     FT.size_in_frames = 
         (unsigned long) (FT.size_in_bytes/4096);
+// System frames.
     FT.number_of_system_frames = 
         (unsigned long) FT_NUMBER_OF_SYSTEM_FRAMES;
+// User frames.
     FT.number_of_user_frames = 
         (unsigned long) FT_NUMBER_OF_USER_FRAMES;
+// Used frames.
 // Número de frames gerenciados por essa estrutura.
     FT.number_of_used_frames = 
         (unsigned long) FT_TOTAL_FRAMES;
@@ -798,7 +804,8 @@ initialize_frame_table:
 // não pode ser menor que a quantidade de frames 
 // gerenciados por essa estrutura.
 
-    if (FT.size_in_frames < FT.number_of_used_frames){
+    if (FT.size_in_frames <= FT.number_of_used_frames)
+    {
         debug_print("I_initialize_frame_table: FT.size_in_frames\n");
         x_panic    ("I_initialize_frame_table: FT.size_in_frames\n");
     }
@@ -845,11 +852,10 @@ void freePage (struct page_d *p)
     if ( p->used == TRUE && p->magic == 1234 ){ p->free = TRUE; }
 }
 
-
-// Selecionar a p�gina como n�o livre.
-void notfreePage (struct page_d *p)
+// Selecionar a pagina como nao livre.
+void notfreePage(struct page_d *p)
 {
-    if ( (void*) p == NULL )
+    if ((void*) p == NULL)
     {
         // #debug ?
         return; 
@@ -897,23 +903,23 @@ __virtual_to_physical (
     //1111 1111 1111
     //FFF
 
-    // #debug
-    // IN 64bit each table has only 512 entries.
-    // With 64KB pages, an offset can't have more than 4096 bytes.
+// #debug
+// In 64bit each table has only 512 entries.
+// With 64KB pages, an offset can't have more than 4096 bytes.
     if ( a >= 512 || b >= 512 || d >= 512 || t >= 512 || 
          o >= 4096  )
     {
-        printf ("__virtual_to_physical: entry limits\n");
+        printf("__virtual_to_physical: entry limits\n");
         printf("a=%d\n",a);
         printf("b=%d\n",b);
         printf("d=%d\n",d); //directory
         printf("t=%d\n",t); //page table
         printf("o=%d\n",o); //offset 4096 bytes limit
+        
         refresh_screen();
-        while(1){
-        }
+        while (1){
+        };
     }
-
 
 // #todo
 // Por enquanto estamos usando apenas as entradas '0'
@@ -923,7 +929,8 @@ __virtual_to_physical (
     if (a != 0){
         printf ("__virtual_to_physical: [TODO] a != 0 \n");
         refresh_screen();
-        while(1){}
+        while (1){
+        };
         //return;
     }
 
@@ -931,7 +938,8 @@ __virtual_to_physical (
     if (b != 0){
         printf ("__virtual_to_physical: [TODO] b != 0 \n");
         refresh_screen();
-        while(1){}
+        while (1){
+        };
         //return;
     }
 
@@ -990,18 +998,20 @@ __virtual_to_physical (
 }
 
 // IN:
-// virtual_address
-// pml4_va
-
+//   + virtual_address
+//   + pml4_va
+// OUT:
+//   + physical address
 unsigned long 
 virtual_to_physical ( 
     unsigned long virtual_address, 
     unsigned long pml4_va ) 
 {
-    return (unsigned long) __virtual_to_physical (virtual_address,pml4_va);
+    return (unsigned long) __virtual_to_physical(virtual_address,pml4_va);
 }
 
 // Esta alinhado à página.
+// #todo: Explain it better.
 int mm_is_page_aligned_va(unsigned long va)
 {
     if ( (va & 0xFFF) == 0 ){
@@ -1011,7 +1021,7 @@ int mm_is_page_aligned_va(unsigned long va)
 }
 
 // #todo
-void pages_calc_mem (void)
+void pages_calc_mem(void)
 {
     int a=0;
     int b=0;
@@ -1280,7 +1290,11 @@ mm_fill_page_table(
 // We need to validate some limits here.
 
 // Validation
-    if ( directory_entry < 0 || directory_entry >= 512 ){ return -1; }
+    if ( directory_entry < 0 || 
+         directory_entry >= 512 )
+    {
+        return -1;
+    }
 
 // Fill the pagetable with 512 entries.
     for ( i=0; i<512; ++i )
@@ -1474,7 +1488,7 @@ static void __initialize_ring3area(void)
 // pa
 // user_address_pa:   
 // User area, (32MB mark) 0x02000000.
-    unsigned long useraddress_pa = (unsigned long) USER_BASE;
+    unsigned long useraddress_pa = (unsigned long) USER_BASE_PA;
 // va
     g_ring3area_va = (unsigned long) RING3AREA_VA;
 // pd index
@@ -1528,7 +1542,7 @@ static void __initialize_kernelimage_region(void)
 // pa
 // kernel_base_pa:    
 // Início da imagem do kernel. (1MB mark).
-    unsigned long kernelimage_pa = (unsigned long) KERNEL_BASE;
+    unsigned long kernelimage_pa = (unsigned long) KERNEL_BASE_PA;
 // va
     g_kernelimage_va = (unsigned long) KERNELIMAGE_VA;
 // pd index
@@ -1747,11 +1761,18 @@ static void __initialize_pagedpool2(void)
 {
     NewPagedPool.initialized = FALSE;
 
-    if ( g_extraheap2_va == 0 || g_extraheap3_va == 0 ){
+// We need these two addresses.
+// The virtual addresses for 
+// extraheap 2 and extraheap3.
+
+    if ( g_extraheap2_va == 0 || 
+         g_extraheap3_va == 0 )
+    {
         panic("__initialize_pagedpool2: address\n");
     }
 
-//----
+//-------------------
+// Two reagions of 1MB each in the extraheap2.
 // a1
     NewPagedPool.a1_va = 
         (unsigned long) g_extraheap2_va;
@@ -1760,7 +1781,9 @@ static void __initialize_pagedpool2(void)
     NewPagedPool.a2_va = 
         (unsigned long) (g_extraheap2_va + (1024*1024) );
     NewPagedPool.Free[1] = TRUE;
-//----
+
+//-------------------
+// Two reagions of 1MB each in the extraheap3.
 // b1
     NewPagedPool.b1_va = 
         (unsigned long) g_extraheap3_va;
@@ -1771,9 +1794,9 @@ static void __initialize_pagedpool2(void)
     NewPagedPool.Free[3] = TRUE;
 //----
 
+// Now the slab allocator can use these addresses.
     NewPagedPool.initialized = TRUE;
 }
-
 
 // global
 // Used by alloc_memory_for_image_and_stack() in process.c
@@ -1784,6 +1807,8 @@ void *slab_1MB_allocator(void)
     if (NewPagedPool.initialized != TRUE)
         return NULL;
 
+
+/*
 // Se devemos ou não incremetar o contador de uso.
     int IncrementUsageCounter=TRUE; //P->allocated_memory
     struct process_d *process;
@@ -1792,42 +1817,64 @@ void *slab_1MB_allocator(void)
         IncrementUsageCounter=FALSE;
     if(process->magic!=1234)
         IncrementUsageCounter=FALSE;
+*/
 
-// procure um livre.
-    
-//a1
+// #test
+// At this moment we're gonna know what is the
+// process that is calling the allocator.
+// Lets see if its a valid process.
+    struct process_d *process;
+    process = (void*) get_current_process_pointer();
+    if ((void*) process == NULL)
+        panic ("slab_1MB_allocator: process\n");
+    if (process->magic != 1234)
+        panic ("slab_1MB_allocator: process validation\n");
+
+//
+// Procure um livre entre os 4 de 1MB cada.
+//
+
+// --------
+// a1 - Get address a1 if it is available.
     if (NewPagedPool.Free[0] == TRUE)
     {
         NewPagedPool.Free[0] = FALSE;  // NOT FREE
-        if( (void*) process != NULL )
+        if ((void*) process != NULL)
             process->allocated_memory += (1*1024*1024);
         return (void *) NewPagedPool.a1_va; 
     }
-//a2
+
+// --------
+// a2 - Get address a2 if it is available.
     if (NewPagedPool.Free[1] == TRUE)
     {
         NewPagedPool.Free[1] = FALSE;  // NOT FREE
-        if( (void*) process != NULL )
+        if ((void*) process != NULL)
             process->allocated_memory += (1*1024*1024);
         return (void *) NewPagedPool.a2_va; 
     }
-//b1
+
+// --------
+// b1 - Get address b1 if it is available.
     if (NewPagedPool.Free[2] == TRUE)
     {
         NewPagedPool.Free[2] = FALSE;  // NOT FREE
-        if( (void*) process != NULL )
+        if ((void*) process != NULL)
             process->allocated_memory += (1*1024*1024);
         return (void *) NewPagedPool.b1_va; 
     }
-//b2
+
+// --------
+// b2 - Get address b2 if it is available.
     if (NewPagedPool.Free[3] == TRUE)
     {
         NewPagedPool.Free[3] = FALSE;  // NOT FREE
-        if( (void*) process != NULL )
+        if ((void*) process != NULL)
             process->allocated_memory += (1*1024*1024);
         return (void *) NewPagedPool.b2_va; 
     }
-    
+
+// fail
     return NULL;
 }
 
@@ -2054,6 +2101,9 @@ static void mmInitializeKernelPageTables(void)
 // previamente alocados.
 
     __initialize_pagedpool2();
+
+//...
+
 }
 
 // ======================================
@@ -2255,11 +2305,11 @@ int mmInitializePaging(void)
     I_initialize_frame_table();
 
 // local worker: Setup memory usage.
-    mmSetupMemoryUsage();
+    __mmSetupMemoryUsage();
 
 // ==============================================
 
-    debug_print ("mmInitializePaging: [DANGER] Load cr3\n");
+    debug_print("mmInitializePaging: [DANGER] Load cr3\n");
 
 // pae
     //printf ("SetUpPaging: __enable_pae\n");

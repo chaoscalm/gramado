@@ -797,8 +797,9 @@ int networkInit (void)
 
 // =====================================
 // receive buffers
-    for (i=0; i<32; i++){
-        tmp_buffer_address = (void*) newPage();
+    for (i=0; i<32; i++)
+    {
+        tmp_buffer_address = (void*) mmAllocPage();
         if ((void *)tmp_buffer_address == NULL){
             panic("networkInit: [FAIL] receive tmp_buffer_address\n");
         }

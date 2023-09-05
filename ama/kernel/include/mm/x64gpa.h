@@ -339,11 +339,10 @@ A conservative approach is to avoid everything above 0x00080000.
 // para o heap e a stack.
 
 // 1
-#define KERNEL_BASE  0x00100000
-#define SMALLSYSTEM_KERNELBASE   KERNEL_BASE
-#define MEDIUMSYSTEM_KERNELBASE  KERNEL_BASE
-#define LARGESYSTEM_KERNELBASE   KERNEL_BASE
-
+#define KERNEL_BASE_PA  0x00100000
+#define SMALLSYSTEM_KERNELBASE   KERNEL_BASE_PA
+#define MEDIUMSYSTEM_KERNELBASE  KERNEL_BASE_PA
+#define LARGESYSTEM_KERNELBASE   KERNEL_BASE_PA
 
 //
 // == 2 MB ==================================================
@@ -372,10 +371,10 @@ A conservative approach is to avoid everything above 0x00080000.
 // sistemas 'Small'.
 
 // 8
-#define BACKBUFFER  0x800000
-#define SMALLSYSTEM_BACKBUFFER   BACKBUFFER
-#define MEDIUMSYSTEM_BACKBUFFER  BACKBUFFER
-#define LARGESYSTEM_BACKBUFFER   BACKBUFFER
+#define BACKBUFFER_PA  0x00800000
+#define SMALLSYSTEM_BACKBUFFER   BACKBUFFER_PA
+#define MEDIUMSYSTEM_BACKBUFFER  BACKBUFFER_PA
+#define LARGESYSTEM_BACKBUFFER   BACKBUFFER_PA
 
 // 10
 // 0xA00000
@@ -399,61 +398,61 @@ A conservative approach is to avoid everything above 0x00080000.
 // (2048/64) = 32 KB.
 // It has 64 processes with 32KB each.
 // See: process.h
-#define HEAPPOOL  0x01000000
-#define SMALLSYSTEM_HEAPPOLL_START   HEAPPOOL
-#define MEDIUMSYSTEM_HEAPPOLL_START  HEAPPOOL
-#define LARGESYSTEM_HEAPPOLL_START   HEAPPOOL
+#define HEAPPOOL_PA  0x01000000
+#define SMALLSYSTEM_HEAPPOLL_START   HEAPPOOL_PA
+#define MEDIUMSYSTEM_HEAPPOLL_START  HEAPPOOL_PA
+#define LARGESYSTEM_HEAPPOLL_START   HEAPPOOL_PA
 
 //16+2 = 18 MB
-#define EXTRAHEAP1  (0x01000000 + 0x200000)
-#define SMALLSYSTEM_EXTRAHEAP1_START     EXTRAHEAP1
-#define MEDIUMSYSTEM_EXTRAHEAP1_START    EXTRAHEAP1 
-#define LARGESYSTEM_EXTRAHEAP1_START     EXTRAHEAP1 
+#define EXTRAHEAP1_PA  (0x01000000 + 0x200000)
+#define SMALLSYSTEM_EXTRAHEAP1_START     EXTRAHEAP1_PA
+#define MEDIUMSYSTEM_EXTRAHEAP1_START    EXTRAHEAP1_PA 
+#define LARGESYSTEM_EXTRAHEAP1_START     EXTRAHEAP1_PA 
 
 //16+4 = 20 MB
-#define EXTRAHEAP2  (0x01000000 + 0x400000)
-#define SMALLSYSTEM_EXTRAHEAP2_START    EXTRAHEAP2
-#define MEDIUMSYSTEM_EXTRAHEAP2_START   EXTRAHEAP2 
-#define LARGESYSTEM_EXTRAHEAP2_START    EXTRAHEAP2 
+#define EXTRAHEAP2_PA  (0x01000000 + 0x400000)
+#define SMALLSYSTEM_EXTRAHEAP2_START    EXTRAHEAP2_PA
+#define MEDIUMSYSTEM_EXTRAHEAP2_START   EXTRAHEAP2_PA 
+#define LARGESYSTEM_EXTRAHEAP2_START    EXTRAHEAP2_PA 
 
 //16+6 = 22 MB
-#define EXTRAHEAP3  (0x01000000 + 0x600000)
-#define SMALLSYSTEM_EXTRAHEAP3_START     EXTRAHEAP3
-#define MEDIUMSYSTEM_EXTRAHEAP3_START    EXTRAHEAP3 
-#define LARGESYSTEM_EXTRAHEAP3_START     EXTRAHEAP3 
+#define EXTRAHEAP3_PA  (0x01000000 + 0x600000)
+#define SMALLSYSTEM_EXTRAHEAP3_START     EXTRAHEAP3_PA
+#define MEDIUMSYSTEM_EXTRAHEAP3_START    EXTRAHEAP3_PA 
+#define LARGESYSTEM_EXTRAHEAP3_START     EXTRAHEAP3_PA 
 
 // 24
-#define PAGEDPOOL1  (0x01000000 + 0x800000) 
-#define PAGEDPOOL  PAGEDPOOL1
-#define SMALLSYSTEM_PAGEDPOLL_START   PAGEDPOOL
-#define MEDIUMSYSTEM_PAGEDPOLL_START  PAGEDPOOL
-#define LARGESYSTEM_PAGEDPOLL_START   PAGEDPOOL
+#define PAGEDPOOL1_PA  (0x01000000 + 0x800000) 
+#define SMALLSYSTEM_PAGEDPOLL_START   PAGEDPOOL1_PA
+#define MEDIUMSYSTEM_PAGEDPOLL_START  PAGEDPOOL1_PA
+#define LARGESYSTEM_PAGEDPOLL_START   PAGEDPOOL1_PA
+#define PAGEDPOOL_PA  PAGEDPOOL1_PA
 
 // 26
-#define PAGEDPOOL2  (0x01000000 + 0xA00000) 
+#define PAGEDPOOL2_PA  (0x01000000 + 0xA00000) 
 
 // 28
-#define PAGEDPOOL3  (0x01000000 + 0xC00000) 
+#define PAGEDPOOL3_PA  (0x01000000 + 0xC00000) 
 
 // 30
-#define PAGEDPOOL4  (0x01000000 + 0xE00000) 
+#define PAGEDPOOL4_PA  (0x01000000 + 0xE00000) 
 
 
 //
 // == 32 MB =========================================================
 //
 
+// 0x02000000
 // Um sistema maior que 32MB já é considerado Small.
 
 // #atenção:
 // Essa é uma area em user mode.
 
 // 32 MB mark
-#define USER_BASE  0x02000000 
-#define SMALLSYSTEM_USERBASE     USER_BASE
-#define MEDIUMSYSTEM_USERBASE    USER_BASE
-#define LARGESYSTEM_USERBASE     USER_BASE 
-
+#define USER_BASE_PA  0x02000000 
+#define SMALLSYSTEM_USERBASE     USER_BASE_PA
+#define MEDIUMSYSTEM_USERBASE    USER_BASE_PA
+#define LARGESYSTEM_USERBASE     USER_BASE_PA
 
 // #important: 
 // Segue-se bastaste espaço livre.
@@ -461,14 +460,13 @@ A conservative approach is to avoid everything above 0x00080000.
 // ...
 
 
-
 //
 // == 64 MB =========================================================
 //
 
+// 0x04000000
 // Um sistema maior que 64MB já é considerado Medium.
 // Portando não pode mais ter definições de Small.
-
 
 // #important: Segue-se bastaste espaço livre.
 // ...
@@ -478,12 +476,18 @@ A conservative approach is to avoid everything above 0x00080000.
 // == 128 MB =========================================================
 //
 
+// 0x08000000
 // Used by the frame table. (FT)
+// Frame table | 0x08000000 ~ 0x10000000 |
 // See: x64mm.h
 // | 128MB ~ 1GB | 
 
 #define __128MB_MARK_PA  (0x08000000)
+#define FRAMETABLE_START_PA  __128MB_MARK_PA
+
 #define __256MB_MARK_PA  (0x10000000)
+//#define FRAMETABLE_END_PA  __256MB_MARK_PA
+
 #define __512MB_MARK_PA  (0x20000000)
 
 //
@@ -502,8 +506,7 @@ A conservative approach is to avoid everything above 0x00080000.
 // #todo: 
 // Já podemos tentar isso na máquina real.
 
-
-#define BACKBUFFER_1GB_MARK_PA  0x40000000
+#define BACKBUFFER_1GB_MARK_PA  __1GB_MARK_PA
 
 
 //
@@ -560,6 +563,11 @@ A conservative approach is to avoid everything above 0x00080000.
 // must be shareable by all processors 
 // to permit dynamic reconfiguration
 #define __LAPIC_PA   0xFEE00000
+
+
+//
+// After 4GB ... 
+//
 
 #endif    
 

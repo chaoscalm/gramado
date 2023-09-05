@@ -1,4 +1,8 @@
 
+    Kernel Executive
+    Process, threads, Wrappers for major system routines
+    that can be used by all the other kernel subsystems.
+
     Architectures:
 
 ----------------------------------

@@ -5,6 +5,7 @@
 
 static int __kill_process(void);
 
+// --------------------------
 
 // #todo
 // Criar uma rotina onde, 
@@ -17,6 +18,8 @@ static int __kill_process(void);
 
 static int __kill_process(void)
 {
+// #todo: Explain it better.
+
     struct process_d *p;
     struct thread_d *t;
     pid_t pid=-1;
@@ -86,11 +89,10 @@ static int __kill_process(void)
     return 0; //ok
 }
 
-
-// Called by 'all_faults:' in unit1hw.asm.
-
+// Called by 'all_faults:' in hw1.asm.
 void faults(unsigned long number)
 {
+// Quote: 'You've never failed and You won't start now'.
 
 // Get the pagefault address.
 // #todo: Not tested.

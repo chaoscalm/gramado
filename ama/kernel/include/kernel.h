@@ -298,7 +298,7 @@
 
 
 // Precisa de todos os componentes de ke/
-#include "ke.h"
+#include "ke/ke.h"
 
 //
 // + (10) User.

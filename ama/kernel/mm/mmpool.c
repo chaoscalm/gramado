@@ -94,7 +94,7 @@ fail:
 // #todo
 // #fixme
 
-void *newPage (void)
+void *newPage(void)
 {
 // Esse é o endereço virtual do início do pool de páginas.
     unsigned long base = (unsigned long) g_pagedpool_va;
@@ -219,9 +219,7 @@ void *mm_alloc_single_page (void)
 // Allocate n contiguous pages.
 void *mm_alloc_contig_pages (size_t size)
 {
-
     debug_print("mm_alloc_contig_pages: [TODO] [FIXME]\n");
-
     panic("mm_alloc_contig_pages: [TODO] its a work in progress\n");
 
     //if (size<=0)
@@ -301,27 +299,23 @@ tryAgain:
  * contíguos mas as páginas serão.
  * estamos usando uma page table toda já mapeada. 4MB.
  * @TODO: ESSA ROTINA ESTÁ INCOMPLETA ... REVISAR. #bugbug
- *
  * #bugbug: 
  * Se estamos lidando com o endereço base vitual, então estamos 
  * lidando com páginas pre alocadas e não pageframes.
  */
- 
 // #bugbug
 // Estamos alocando memória compartilhada?
 // então seria sh_allocPages() 
-
 // Essa rotina aloca uma quantidade de páginas
 // de um pool de páginas.
 // São compartilhadas.
 // #todo: Explicar o ring e as permissões.
-
 // #tomos que ter um marcador de páginas disponíveis para
 // livres para alocação.
 // Nosso limite é 512 páginas, pois so temos 2mb de pool.
-
 // #todo: change to 'ssize_t number_of_pages'.
-void *allocPages (int size)
+// IN: number of pages.
+void *allocPages(int size)
 {
 // Esse é o endereço virtual do início do pool de pageframes.
 // #bugbug: O paged pool so tem 2mb, veja pages.c
@@ -482,17 +476,26 @@ void *allocPages (int size)
 
 fail:
     // #debug
-    debug_print ("allocPages: fail\n");
-    //printf      ("allocPages: fail\n");
-    panic       ("allocPages: fail\n");
+    debug_print("allocPages: fail\n");
+    //printf   ("allocPages: fail\n");
+    panic      ("allocPages: fail\n");
     return NULL;
 }
 
+void *mmAllocPage(void)
+{
+    return (void*) newPage();
+}
+
+void *mmAllocPages(int size)
+{
+// IN: Number of pages.
+    return (void*) allocPages(size);
+}
 
 // initializeFramesAlloc:
 // Inicializa o framepool. 
-
-void initializeFramesAlloc (void)
+void initializeFramesAlloc(void)
 {
     struct page_d  *p;
     int __slot = 0;
@@ -514,7 +517,7 @@ void initializeFramesAlloc (void)
 // Talvez seja desnecessário criar essa entrada.
 
     p = (void *) kmalloc( sizeof( struct page_d ) );
-    if ( (void*) p == NULL){
+    if ((void*) p == NULL){
         debug_print ("initializeFramesAlloc:\n");
         panic       ("initializeFramesAlloc:\n");
     }

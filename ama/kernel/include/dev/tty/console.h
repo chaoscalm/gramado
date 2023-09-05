@@ -199,6 +199,8 @@ clear_console (
     unsigned int fg_color, 
     int console_number );
 
+int console_clear(void);
+
 
 
 #endif    

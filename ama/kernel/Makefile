@@ -106,7 +106,7 @@ KERNEL_INCLUDE := -I include/ $(USER_INCLUDE)
 
 # Head
 objects-y := head_64.o kmain.o zero.o ar_crt.o  
-# Body
+# Body (Kernel subsystems).
 objects-y += ar_dev.o  
 objects-y += ar_fs.o  
 objects-y += ar_ke.o  

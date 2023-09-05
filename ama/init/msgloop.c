@@ -3,7 +3,9 @@
 
 #include "init.h"
 
+#define __MSG_CLOSE     7
 #define __MSG_COMMAND  40
+
 
 // The tid of the caller.
 // Sent us a system message.
@@ -144,6 +146,10 @@ __Procedure (
     //case MSG_YIELD:
         //rtl_yield();
         //break;
+
+    case __MSG_CLOSE:
+        printf("#debug: Sorry, can't close init.bin\n");
+        break;
 
     // ...
 

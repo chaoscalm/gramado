@@ -1605,9 +1605,11 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
 
     __new_base = (unsigned long) slab_1MB_allocator();
     
-    // Se o slab se esgotou, então tenta o alocador normal.
-    if (__new_base == 0){
-        __new_base = (unsigned long) allocPages(number_of_pages_on_image); 
+// Se o slab se esgotou, então tenta o alocador normal.
+    if (__new_base == 0)
+    {
+        __new_base = 
+            (unsigned long) mmAllocPages(number_of_pages_on_image); 
     }
 // Check!
     if (__new_base == 0){
@@ -1631,7 +1633,8 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
 
     int number_of_pages_on_stack=0;
     number_of_pages_on_stack = (int) (32*1024)/4096;
-    __new_stack = (unsigned long) allocPages(number_of_pages_on_stack); 
+    __new_stack = 
+        (unsigned long) mmAllocPages(number_of_pages_on_stack); 
     if (__new_stack == 0){
         panic ("alloc_memory_for_image_and_stack: __new_stack\n");
     }

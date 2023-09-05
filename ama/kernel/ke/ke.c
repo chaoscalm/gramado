@@ -308,6 +308,38 @@ static void __import_data_from_linker(void)
     }
 }
 
+
+int keCloseInitProcess(void)
+{
+    if ((void*) InitThread == NULL){
+        goto fail;
+    }
+    if (InitThread->magic != 1234){
+        goto fail;
+    }
+
+    // #debug
+    printf("#test: Sending CLOSE to init.bin\n");
+    refresh_screen();
+
+// Send
+    post_message_to_tid(
+        (tid_t) 0,                //sender tid. #todo
+        (tid_t) InitThread->tid,  //receiver tid.
+        (int) MSG_CLOSE,          //msg code
+        0,
+        0 );
+
+    return 0;
+fail:
+    return -1;
+}
+
+void keReboot(void)
+{
+    hal_reboot();
+}
+
 void ke_x64ExecuteInitialProcess(void)
 {
     I_x64ExecuteInitialProcess();
@@ -315,7 +347,7 @@ void ke_x64ExecuteInitialProcess(void)
     //goto InitializeEnd;
 }
 
-
+// OUT: TRUE or FALSE.
 int keInitialize(int phase)
 {
     int Status=FALSE;
@@ -428,10 +460,7 @@ int keInitialize(int phase)
         networkInit();
         PROGRESS("networkInit ok\n"); 
 
-
         goto InitializeEnd;
-    
-    
     }
 
 InitializeEnd:
