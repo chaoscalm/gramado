@@ -4,6 +4,11 @@
     Gramado OS
 ```
 
+## Here are some screenshots of Gramado Operating System.
+
+![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-8.png)
+![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-3.png)
+
 ## What is Gramado Operating System?
 
 GramadoOS is a graphical operating system for x86_64 computers.
@@ -14,7 +19,7 @@ Gramado is a hobby operating system, not a commercial operating system,
 because it is a small system and has only some few features, 
 not all the features needed by a commercial operating system.
 
-## What are the features of Gramado Operating system?
+## What are the features of Gramado Operating System?
 
 The core features are:
 
@@ -93,10 +98,6 @@ The main developer is Fred Nora, a brazilian developer.
 Fred Nora is the creator and main maintainer of the project.
 Contributions are welcome.
 
-## How to Build?
-
-> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/docs/build.md)
-
 ## Building and running on vm
 
 ```bash
@@ -151,18 +152,6 @@ with an Intel Core 2 Duo processor and a VIA chipset.
 Yes, we need some feedback. 
 Please make some comments on Github or send messages to Fred Nora.
 
-## Documentation
-
-The project has a folder for documentation and design notes. 
-The folder is docs/.
-
-> See the [docs](https://github.com/gramado/gramado/tree/master/docs).
-
-The project is looking for some people to create a better documentation, for free, 
-as a contribuition to the open source community. To create this new documentation 
-we can use the documentation in docs/ and the design notes 
-found all over the project.
-
 ## Author
 
 * **Fred Nora** - [Fred Nora's Twitter account](https://twitter.com/frednora)
@@ -173,16 +162,31 @@ found all over the project.
 * **Fred Nora** - [Fred Nora's Facebook account](https://facebook.com/frednora)
 * **Fred Nora 2** - [Fred Nora's Facebook account](https://facebook.com/frednora)
 
+
+# Warning
+
+You're reaching the boring area of this document!
+
+## How to Build?
+
+> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/boring/docs/build.md)
+
+## Documentation
+
+The project has a folder for documentation and design notes. 
+The folder is docs/.
+
+> See the [docs](https://github.com/gramado/gramado/tree/master/boring/docs).
+
+The project is looking for some people to create a better documentation, for free, 
+as a contribuition to the open source community. To create this new documentation 
+we can use the documentation in docs/ and the design notes 
+found all over the project.
+
 ## License
 
 Gramado is a Free and Open Source operating system.
 The source code uses the BSD license.
-
-## Here are some screenshots of Gramado Operating System.
-
-![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-8.png)
-![Screenshot](https://raw.githubusercontent.com/gramado/screenshots/main/gramado-3.png)
-
 
 ## Quotes:
 > Exciting :)
