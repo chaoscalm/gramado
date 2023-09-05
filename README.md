@@ -1,6 +1,8 @@
-# GramadoOS
+# The Amazing Gramado Operating System
 
-Gramado Operating System.
+```
+    Gramado OS
+```
 
 ## What is Gramado Operating System?
 
