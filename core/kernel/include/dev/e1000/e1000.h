@@ -1,9 +1,9 @@
 
-// nicintel.h
+// e1000.h
 // see: e1000/e1000.c
 
-#ifndef ____NICINTEL_H
-#define ____NICINTEL_H    1
+#ifndef ____E1000_H
+#define ____E1000_H    1
 
 // Interrupt Masks
 // The handler uses this.
@@ -27,8 +27,6 @@
                                      // 0x2000
 #define INTERRUPT_TXD_LOW (1 << 15)  // 0x4000
 #define INTERRUPT_SRPD    (1 << 16)  // 0x8000
-
-
 
 
 #define TDESC_STA_DD    0x01 /* indicates hardware done with descriptor */
@@ -143,7 +141,7 @@ struct legacy_rx_desc
 
 
 // arp cache item
-struct arp_cache_item_d
+struct e1000_arp_cache_item_d
 {
     int used;
     int magic;
@@ -194,7 +192,7 @@ struct intel_nic_info_d
     unsigned long tx_buffers_virt[8];
 
 // arp cache.
-    struct arp_cache_item_d  arp_cache[32];
+    struct e1000_arp_cache_item_d  arp_cache[32];
 
 //pci device.
     struct pci_device_d *pci;

@@ -1,7 +1,24 @@
 /*
  * File: rtl.c 
+ * Low level code used by all the rtl files.
+ * Environment:
+ *     Ring3, Gramado core/.
  * Created by Fred Nora.
  */
+
+// The is the 'os base' interface between the
+// ring 3 applications and the kernel.
+// + We have the functions that implement the interrupts
+// used by the syscalls.
+// + We have syscalls requesting kernel sevices.
+// + We have some workers doing some services here in ring 3.
+
+// ----------------------
+// Functions to exetute the syscalls via interrupts.
+//   + 0x80 - gramado_system_call()
+//   + 0x80 - sc80()
+//   + 0x81 - sc81()
+//   + 0x82 - sc82()
 
 #include <stdio.h>
 #include <types.h> 

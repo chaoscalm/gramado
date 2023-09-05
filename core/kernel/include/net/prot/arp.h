@@ -43,6 +43,19 @@ struct ether_arp
 } __attribute__((packed)); 
 
 
+/*
+// arp cache item
+struct arp_cache_item_d
+{
+    int used;
+    int magic;
+    uint8_t mac_address[6];
+    uint8_t ipv4_address[4];
+};
+*/
+
+
+
 // =====================================
 
 

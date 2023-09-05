@@ -230,7 +230,7 @@
 
 // primeiro controladoras depois protocolos
 // e1000 - nic intel
-#include "dev/e1000/nicintel.h"
+#include "dev/e1000/e1000.h"
 #include "net/mac.h"
 #include "net/host.h"
 #include "net/in.h"
