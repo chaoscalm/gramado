@@ -568,6 +568,50 @@ void *clone_pml4(unsigned long pml4_va)
 }
 
 
+/*
+// #test
+// Worker
+int __findhole_in_pml4(unsigned long pml4_va);
+int __findhole_in_pml4(unsigned long pml4_va)
+{
+// IN: The va for the pml4.
+// OUT: Return the index for the empty spot.
+
+    register int i=0;
+    int Max=512; //#todo: Use definition.
+    unsigned long *base = (unsigned long *) pml4_va;
+
+
+// #bugbug
+// #todo
+// Check valid va for pml4.
+// There is a lot if invalid address to put a pml4.
+// #todo: Actually we need to put them all into a 
+// single big place. It's gonna be easier to track
+// the validation.
+
+    if (pml4_va == RING0AREA_VA)
+        goto fail;
+    if (pml4_va == RING3AREA_VA)
+        goto fail;
+    if (pml4_va == KERNELIMAGE_VA)
+        goto fail;
+    // ...   
+
+    for (i=0; i<Max; i++)
+    {
+        if (base[i] == 0)
+        {
+            // Return the index for the empty spot.
+            return (int) i;
+        }    
+    };
+fail:
+    return (int) -1;
+}
+*/
+
+
 // #Importante
 // Agora vamos calcular a quantidade de memória física usada 
 // até agora.

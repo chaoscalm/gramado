@@ -908,6 +908,20 @@ extern struct frame_table_d  FT;
 #define MEDIUMSYSTEM_SIZE_PAGES ( ( 64*1024*1024) / 4096 )
 #define LARGESYSTEM_SIZE_PAGES  ( (128*1024*1024) / 4096 )
 
+
+/*
+struct x64_address_space_d 
+{
+    int used;
+    int magic;
+    int id;
+
+    unsigned long pml4_pa;
+    unsigned long pml4_va;
+};
+*/
+
+
 //
 // == prototypes =================================================
 //
