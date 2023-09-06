@@ -1,13 +1,13 @@
 # Compiling some commands to run on Linux.
 
 all:
-	gcc ../../userland/commands/cat/main.c -o cat
-	gcc ../../userland/commands/c4/c4.c -o c4
-	gcc ../../userland/commands/cmp/main.c -o cmp
-	gcc ../../userland/commands/jackpot/main.c -o jackpot
-	gcc ../../userland/commands/showfun/main.c -o showfun
-	gcc ../../userland/commands/unknown/main.c -o unknown
-	gcc ../../userland/commands/sum/main.c -o sum
+	gcc ../../zing/commands/cat/main.c -o cat
+	gcc ../../zing/commands/c4/c4.c -o c4
+	gcc ../../zing/commands/cmp/main.c -o cmp
+	gcc ../../zing/commands/jackpot/main.c -o jackpot
+	gcc ../../zing/commands/showfun/main.c -o showfun
+	gcc ../../zing/commands/unknown/main.c -o unknown
+	gcc ../../zing/commands/sum/main.c -o sum
 	
 clean:
 	-rm cat
