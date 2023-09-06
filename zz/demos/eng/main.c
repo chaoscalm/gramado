@@ -243,10 +243,20 @@ void callback1(void)
     }
 }
 
-// Print a simple string in the serial port.
-void gwssrv_debug_print (char *string)
+// #todo: maybe we can have some parameters here.
+void gramado_terminate(void)
 {
-    if ( (void*) string == NULL ){
+//#todo:
+// clean up all the mess before finishing the program.
+    IsTimeToQuit = TRUE;
+    //wm_Update_TaskBar("Exit",TRUE);
+    //demoCat();
+}
+
+// Print a simple string in the serial port.
+void gwssrv_debug_print(char *string)
+{
+    if ((void*) string == NULL){
         return;
     }
     gramado_system_call ( 
@@ -256,19 +266,17 @@ void gwssrv_debug_print (char *string)
         (unsigned long) string );
 }
 
-
 // #bugbug
 // delete this. we already have the library.
-int gwssrv_clone_and_execute ( char *name )
+int gwssrv_clone_and_execute(char *name)
 {
     printf("gwssrv_clone_and_execute: #deprecated\n");
     return (int) -1;
 }
 
-
 // #delete
 // We can use the rtl or the library
-unsigned long gwssrv_get_system_metrics (int index)
+unsigned long gwssrv_get_system_metrics(int index)
 {
 
     //if (index<0){
@@ -277,13 +285,12 @@ unsigned long gwssrv_get_system_metrics (int index)
     //}
     //#define	SYSTEMCALL_GETSYSTEMMETRICS  250 
 
-   return (unsigned long) gramado_system_call ( 250, 
-                               (unsigned long) index, 
-                               (unsigned long) index, 
-                               (unsigned long) index );
+   return (unsigned long) gramado_system_call( 
+                              250, 
+                              (unsigned long) index, 
+                              (unsigned long) index, 
+                              (unsigned long) index );
 }
-
-
 
 // enter critical section
 // close the gate
@@ -311,7 +318,6 @@ done:
     return;
 }
 
-
 // exit critical section
 // open the gate.
 void gwssrv_exit_critical_section (void)
@@ -319,13 +325,9 @@ void gwssrv_exit_critical_section (void)
     gramado_system_call ( 228, 0, 0, 0 );
 }
 
-
-
-
 //
 // =============================================================
 //
-
 
 //??
 // Quando um cliente tenta se desconectar.
@@ -339,7 +341,6 @@ void client_shutdown (int fd)
 }
 */
 
-
 //?? Die after to handle a request.
 // no multiple requests.
 /*
@@ -350,7 +351,6 @@ void client_die(int fd)
 }
 */
 
-
 // ??
 /*
 int client_start(int fd);
@@ -360,8 +360,6 @@ int client_start(int fd)
 }
 */
 
-
-
 /*
 int client_send_error_response(int fd);
 int client_send_error_response(int fd)
@@ -369,7 +367,6 @@ int client_send_error_response(int fd)
     return -1;//todo
 }
 */
-
 
 // Getting the server pid.
 /*
@@ -389,7 +386,6 @@ int get_client_id()
 }
 */
 
-
 // setting the client id
 /*
 void set_client_id ( int id );
@@ -399,7 +395,6 @@ void set_client_id ( int id )
     //____client_id = id;
 }
 */
-
 
 /*
 int
@@ -416,7 +411,6 @@ __WriteToClient (
     return -1;
 }
 */
-
 
 /*
 int WriteToClient (int fd);
@@ -476,7 +470,6 @@ __again:
     return (int) n_writes;
 }
 */
-
 
 // Worker
 // There is a vetor with values for the next response.
@@ -3336,11 +3329,9 @@ static int on_execute(void)
 //==================
     struct sockaddr server_address;
     socklen_t addrlen;
-
     server_address.sa_family = AF_GRAMADO;
     server_address.sa_data[0] = 'w';
     server_address.sa_data[1] = 's';
-
     addrlen = sizeof(server_address);
 //==================
 
@@ -3410,19 +3401,18 @@ static int on_execute(void)
 // Initialize the client list support.
     initClientSupport();
 
-
 // The server is also a client.
-
-    if ( (void*) serverClient == NULL )
+    if ((void*) serverClient == NULL)
     {
-        printf ("ws: serverClient\n");
-        while(1){}
+        printf("eng.bin: serverClient\n");
+        while (1){
+        };
         //exit(0);
     }
-
     if ( serverClient->used != TRUE || serverClient->magic != 1234 ){
-        printf ("ws: serverClient validation\n");
-        while(1){}
+        printf("eng.bin: serverClient validation\n");
+        while (1){
+        };
         //exit(0);
     } 
 
@@ -3442,13 +3432,12 @@ static int on_execute(void)
     _status = (int) register_ws();
     if (_status<0)
     {
-        gwssrv_debug_print ("gwssrv: Couldn't register the server\n");
-        printf             ("gwssrv: Couldn't register the server\n");
+        gwssrv_debug_print("eng.bin: Couldn't register the server\n");
+        printf            ("eng.bin: Couldn't register the server\n");
         return -1;
         //exit(1);
     }
     window_server->registration_status = TRUE;
-
 
 // Setup callback
 // Pra isso o ws precisa estar registrado.
@@ -3466,7 +3455,6 @@ static int on_execute(void)
         */
     }
 
-
 // #todo
 // Daqui pra frente é conexão com cliente.
 // Lembrando que o servidor vai se conectar à mais de um cliente.
@@ -3481,40 +3469,36 @@ static int on_execute(void)
 // Socket:
 // + Creating the socket for the server.
 // + Saving the socket fd.
-
     server_fd = (int) socket(AF_GRAMADO, SOCK_STREAM, 0);
-    
-    if (server_fd<0)
+    if (server_fd < 0)
     {
-        gwssrv_debug_print ("gwssrv: [FATAL] Couldn't create the server socket\n");
-        printf             ("gwssrv: [FATAL] Couldn't create the server socket\n");
+        gwssrv_debug_print("eng.bin: on socket()\n");
+        printf            ("eng.bin: on socket()\n");
         return -1;
         //exit(1);
     }
-
-// Global variable.
-    ____saved_server_fd   = (int) server_fd;
 // Window server structure.
     window_server->socket = (int) server_fd;
 // The server itself has its own client structure.
-    serverClient->fd      = (int) server_fd;
+    serverClient->fd = (int) server_fd;
+// Global variable.
+    ____saved_server_fd = (int) server_fd;
 
     // #debug
     //printf ("fd: %d\n", serverClient->fd);
     //while(1){}
 
 // Bind:
-
     bind_status = 
         (int) bind (
                   server_fd, 
                   (struct sockaddr *) &server_address, 
                   addrlen );
 
-    if (bind_status<0)
+    if (bind_status < 0)
     {
-        gwssrv_debug_print ("gwssrv: [FATAL] Couldn't bind to the socket\n");
-        printf             ("gwssrv: [FATAL] Couldn't bind to the socket\n");
+        gwssrv_debug_print("eng.bin: in bind()\n");
+        printf            ("eng.bin: in bind()\n");
         return -1;
         //exit(1);
     }
@@ -3542,7 +3526,7 @@ static int on_execute(void)
 
     int graphics_status = -1;
     graphics_status = (int) InitHot();
-    if(graphics_status<0){
+    if (graphics_status < 0){
         printf("on_execute: InitHot failed\n");
         return -1;
     }
@@ -3553,18 +3537,19 @@ static int on_execute(void)
 
 // ===============
 
-    if( (void*) WindowManager.root == NULL )
+// No root window.
+    if ((void*) WindowManager.root == NULL)
     {
-        gwssrv_debug_print("gwssrv: WindowManager.root fail\n");
-                    printf("gwssrv: WindowManager.root fail\n");
+        gwssrv_debug_print("eng.bin: WindowManager.root fail\n");
+                    printf("eng.bin: WindowManager.root fail\n");
         return -1;
         //exit(0);
     }
-
-    if( (void*) WindowManager.taskbar == NULL )
+// No taskbar.
+    if ((void*) WindowManager.taskbar == NULL)
     {
-        gwssrv_debug_print("WindowManager.taskbar fail\n");
-        printf("WindowManager.taskbar fail\n");
+        gwssrv_debug_print("eng.bin: WindowManager.taskbar fail\n");
+                    printf("eng.bin: WindowManager.taskbar fail\n");
         return -1;
         //exit(0);
     }
@@ -3600,7 +3585,6 @@ static int on_execute(void)
     //printf ("fd: %d\n", serverClient->fd);
     //while(1){}
 
-
 // Child
 
     /*
@@ -3620,12 +3604,11 @@ static int on_execute(void)
 // Client
 //
 
-    if ( flagUseClient == TRUE )
+    if (flagUseClient == TRUE)
     {
         //debug_print ("gwssrc: Calling client $\n");
         //rtl_clone_and_execute("terminal.bin");
     }
-
 
 //
 // =======================================
@@ -3683,7 +3666,7 @@ static int on_execute(void)
 // Chamamos o accepr soment quando
 // o servidor estiver aceitando conexoes.
 
-    gwssrv_debug_print ("gwssrv: Entering main loop.\n");
+    gwssrv_debug_print("eng.bin: Entering main loop\n");
     rtl_focus_on_this_thread();
     running = TRUE;
 
@@ -3706,7 +3689,7 @@ static int on_execute(void)
 
     while (running == TRUE){
 
-        beginTick = rtl_jiffies();
+        beginTick = (unsigned long) rtl_jiffies();
 
         if (IsTimeToQuit == TRUE){
             break;
@@ -3716,7 +3699,7 @@ static int on_execute(void)
 
         if (IsAcceptingConnections == TRUE)
         {
-            newconn = accept ( 
+            newconn = (int) accept( 
                 ____saved_server_fd,
                 (struct sockaddr *) &server_address, 
                 (socklen_t *) addrlen );
@@ -3734,8 +3717,9 @@ static int on_execute(void)
             //#debug
             if ( newconn == ____saved_server_fd )
             {
-                printf("GWSSRV.BIN: newconn == ____saved_server_fd\n");
-                while(1){}
+                printf("eng.bin: Invalid connection\n");
+                while (1){
+                };
             }
             
             //close(newconn);
@@ -3805,13 +3789,12 @@ static inline void __outb(uint16_t port, uint8_t val)
 */
 
 
-// Gramado ga,e engine.
+// Gramado game engine.
 // main: entry point
 // see: gramado.h
 int main(int argc, char **argv)
 {
     int Status=-1;
-
 
 // #todo
 // Parse the parameters and select the flags.
@@ -3846,24 +3829,12 @@ int main(int argc, char **argv)
 // Page fault when exiting ... 
 // #fixme
 
-    gwssrv_debug_print ("ENG.BIN: Hang on exit\n");
-    printf             ("ENG.BIN: Hang on exit\n");
-
+    gwssrv_debug_print("ENG.BIN: Hang on exit\n");
+    printf            ("ENG.BIN: Hang on exit\n");
     while (1){
     };
 
     return 0;
-}
-
-
-// #todo: maybe we can have some parameters here.
-void gramado_terminate(void)
-{
-//#todo:
-// clean up all the mess before finishing the program.
-    IsTimeToQuit = TRUE;
-    //wm_Update_TaskBar("Exit",TRUE);
-    //demoCat();
 }
 
 //

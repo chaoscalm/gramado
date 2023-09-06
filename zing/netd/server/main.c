@@ -500,6 +500,13 @@ static void __initialize_globals(void)
     };
 }
 
+static int ServerShutdown(void)
+{
+    //#todo
+    printf("gnssrv: [todo] ServerShutdown\n");
+}
+
+// Called by main().
 static int ServerInitialization(void)
 {
 
@@ -514,7 +521,7 @@ static int ServerInitialization(void)
 
     int server_fd = -1; 
     int bind_status = -1;
-    int i=0;
+    register int i=0;
     int _status = -1;
     //int InitializeFirstClient = TRUE;
     int InitializeFirstClient = FALSE;
@@ -524,7 +531,7 @@ static int ServerInitialization(void)
 
 
 // debug
-    printf ("gnssrv: Initializing...\n");
+    printf("gnssrv: Initializing\n");
 
 // Initialize global variables.
     __initialize_globals();
@@ -553,16 +560,17 @@ static int ServerInitialization(void)
         printf ("gnssrv: Couldn't register the server\n");
         goto fail;
     }
-    debug_print ("gnssrv: Registration ok \n");
+    debug_print("gnssrv: Registration ok\n");
 
 // -------------------
 // socket
+// Create socket and save the into a global variable.
     server_fd = (int) socket(AF_GRAMADO, SOCK_STREAM, 0);
-    if (server_fd<0){
-        printf("gnssrv: [FAIL] Couldn't create the server socket\n");
+    if (server_fd < 0){
+        printf("gnssrv: on socket()\n");
         goto fail;
     }
-    ____saved_server_fd = server_fd;
+    ____saved_server_fd = (int) server_fd;
 
 // -------------------
 // bind
@@ -572,14 +580,15 @@ static int ServerInitialization(void)
                   (struct sockaddr *) &server_address, 
                   addrlen );
 
-    if (bind_status<0){
-        printf("gnssrv: Couldn't bind to the socket\n");
-        exit(1);
+    if (bind_status < 0){
+        printf("gnssrv: on bind()\n");
+        goto fail;
     }
 
 // Calling child and wait.
-    if (InitializeFirstClient==TRUE){
-        rtl_clone_and_execute ("gns.bin");
+// Just for fun, not for profit.
+    if (InitializeFirstClient == TRUE){
+        rtl_clone_and_execute("gns.bin");
     }
 
 // Wait
@@ -613,31 +622,27 @@ static int ServerInitialization(void)
                       (socklen_t *) addrlen );
 
         if (newconn < 0){
-            debug_print ("gnssrv: [FAIL] Error on accept\n");
+            debug_print("gnssrv: on accept()\n");
             gnssrv_yield(); 
         }else{
+            // Valid fd.
             if (newconn == 31){
                 dispatch(newconn);
             }
         };
     };
+
 // =======================================
-
-    debug_print ("gnssrv: Bye\n");
-         printf ("gnssrv: Bye\n");
-
+    debug_print("gnssrv: Bye\n");
+         printf("gnssrv: Bye\n");
     return 0;
-
 fail:
     exit(1);
-    return 1;
+    return -1;
 }
 
-static int ServerShutdown(void)
-{
-    //#todo
-}
-
+// -------------------
+// Main:
 int main (int argc, char **argv)
 {
     int Status=-1;

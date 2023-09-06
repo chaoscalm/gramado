@@ -17,14 +17,14 @@
 // The client-side library.
 #include <gws.h>
 
-
 // network ports.
 #define PORTS_WS  4040
 #define PORTS_NS  4041
 #define PORTS_FS  4042
 // ...
 
-#define IP(a, b, c, d)  (a << 24 | b << 16 | c << 8 | d)
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
 
 
 //char *hello = "Hello there!\n";

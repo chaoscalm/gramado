@@ -87,22 +87,32 @@ int main(int argc, char *argv[])
 
 // Initializing the structure.
     Terminal.initialized = FALSE;
-    Terminal.pid = getpid();
-    Terminal.uid = getuid();
-    Terminal.gid = getgid();
+    Terminal.pid = (pid_t) getpid();
+    Terminal.uid = (uid_t) getuid();
+    Terminal.gid = (gid_t) getgid();
+
+    //setreuid(-1, -1);
+    //setpgrp(0, getpid());
+
     Terminal.esc = 0;
-    Terminal.client_fd = 0;
-    Terminal.main_window_id = 0;
-    Terminal.client_window_id = 0;
+ 
+    Terminal.client_fd = -1;
+
+    Terminal.main_window_id = -1;
+    Terminal.client_window_id = -1;
+
     Terminal.left = 0;
-    Terminal.top  = 0;
+    Terminal.top = 0;
     Terminal.width = 50;
     Terminal.height = 50;
+
     Terminal.width_in_chars = 0;
     Terminal.height_in_chars = 0;
+
     // ...
 
-
+// #todo
+// Talvez passar parametros.
     Status = (int) terminal_init();
     if (Status != 0)
         printf("main: Something is wrong\n");

@@ -50,7 +50,7 @@
 
 
 // == Private functions: prototypes =============
-static int gws(void);
+static int __gws_initialization(void);
 //====================
 
 // initialize via AF_GRAMADO.
@@ -58,7 +58,7 @@ static int gws(void);
 // do suporte as rotinas de socket e as definiçoes.
 // tem que incluir mais coisa na lib.
 
-static int gws(void)
+static int __gws_initialization(void)
 {
 
 // Vamos nos concetar com o processo identificado 
@@ -73,14 +73,14 @@ static int gws(void)
 //==============================
     int client_fd = -1;
  
-    gws_debug_print ("gws.bin: Initializing ...\n");
-    //printf          ("gws.bin: Initializing ...\n");
+    gws_debug_print("gws.bin: Initializing\n");
+    //printf       ("gws.bin: Initializing\n");
 
 // Socket
-    client_fd = socket ( AF_INET, SOCK_STREAM, 0 );
+    client_fd = (int) socket( AF_INET, SOCK_STREAM, 0 );
     if (client_fd < 0){
-       gws_debug_print ("gws: [FAIL] Couldn't create socket\n");
-       printf          ("gws: [FAIL] Couldn't create socket\n");
+       gws_debug_print("gws: on socket()\n");
+       printf         ("gws: on socket()\n");
        exit(1);  //#bugbug Cuidado.
     }
 
@@ -89,27 +89,31 @@ static int gws(void)
 // então o servidor escreverá em nosso arquivo.
     while (1){
         if (connect(client_fd, (void *) &addr_in, sizeof(addr_in)) < 0){
-            gws_debug_print("gws: Connection Failed \n");
-            printf         ("gws: Connection Failed \n");
+            gws_debug_print("gws: Connection Failed\n");
+            printf         ("gws: Connection Failed\n");
         }else{ break; }; 
     };
 
     return (int) client_fd;
 }
 
-
 // Main
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
-// This is a program to setup the window server.
-// ps: The window server is already running.
+// This is a program to setup the display server.
+// ps: The display server need to be is already running.
+
+// #todo
+// We need to grab the parameters,
+// and send messages to the display server 
+// at the end of the main routine.
 
     int client_fd = -1;
 
-    printf ("GWS.BIN: argc{%d} \n",argc);
+    printf("GWS.BIN: argc{%d}\n",argc);
 
 /*
-    if(argc >= 2){
+    if (argc >= 2){
         printf ("argv[0]: %s \n",argv[0]);
         printf ("argv[1]: %s \n",argv[1]);
     }
@@ -133,10 +137,10 @@ int main ( int argc, char *argv[] )
 // Is the window server already up and running?
 // Will we stay in a loop until the connection is stablished?
 
-    client_fd = (int) gws();
+    client_fd = (int) __gws_initialization();
     if (client_fd < 0){
-         gws_debug_print ("gws.bin: gws initialization fail \n");
-         printf          ("gws.bin: gws initialization fail \n");
+         gws_debug_print("gws.bin: Initialization fail\n");
+         printf         ("gws.bin: Initialization fail\n");
          exit(1);
     }
 
@@ -165,7 +169,6 @@ int main ( int argc, char *argv[] )
     //gws_async_command(client_fd,6,TRUE,0);
     //gws_async_command(client_fd,6,FALSE,0);
 
-
 // Shutdown the system
     //gws_async_command(client_fd,22,0,0);
 
@@ -176,10 +179,12 @@ int main ( int argc, char *argv[] )
     //gws_async_command(client_fd,89,0,0);
 
 
+    printf ("Closing socket\n");
+    close(client_fd);
 
 // exit
-    gws_debug_print ("gws: bye :)\n");
-    printf          ("gws: bye :)\n");
+    gws_debug_print("gws: bye :)\n");
+    printf         ("gws: bye :)\n");
 
     return 0;
 }

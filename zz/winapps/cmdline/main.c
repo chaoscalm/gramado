@@ -3,6 +3,10 @@
  *    Client side application for Gramado Window Server.
  *    Using socket to connect with gws.
  *    AF_GRAMADO family.
+ *
+ *    #warning:
+ *    This application is using floating point.
+ *
  * History:
  *     2020 - Created by Fred Nora.
  */
@@ -56,6 +60,16 @@
 #include <gws.h>
 
 
+// network ports.
+#define PORTS_WS  4040
+#define PORTS_NS  4041
+#define PORTS_FS  4042
+// ...
+
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
+
+
 #define MYGREEN  0x0b6623
 
 unsigned long savedW=0;
@@ -83,7 +97,9 @@ int status_window;
 // == Private functions: prototypes ====================
 //
 
-static int gws(void);
+static void __test_gr(int fd);
+
+static int __initialization(void);
 static void doPrompt(int fd);
 static void compareStrings(int fd);
 static void testASCIITable(int fd,unsigned long w, unsigned long h);
@@ -112,85 +128,70 @@ updateStatusBar(
 // do suporte as rotinas de socket e as definiçoes.
 // tem que incluir mais coisa na lib.
 
-static int gws(void)
+static int __initialization(void)
 {
 
 //==============================
-// Vamos nos concetar com o processo identificado 
-// com o nome 'ws'
-// The port name is 'port:/ws'
-    struct sockaddr addr; 
-    int addrlen;
-    addr.sa_family = AF_GRAMADO; 
-    addr.sa_data[0] = 'w';
-    addr.sa_data[1] = 's';  
-    addrlen = sizeof(addr);
+    struct sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
+    addr_in.sin_port = PORTS_WS;   
+    addr_in.sin_addr.s_addr = IP(127,0,0,1);
 //==============================
 
-    
     int client_fd = -1;
-    
-    
+
     //gws_debug_print ("-------------------------\n"); 
     //printf          ("-------------------------\n"); 
-    gws_debug_print ("gws.bin: Initializing\n");
+    gws_debug_print("cmdline: Initializing\n");
     //printf          ("gws.bin: Initializing ...\n");
 
-//
-// Socket
-// 
+
+// Socket:
+// Create a socket. 
+// AF_GRAMADO = 8000
 
     // #debug
     //printf ("gws: Creating socket\n");
 
-    // Create a socket. 
-    // AF_GRAMADO = 8000
-    client_fd = socket ( AF_GRAMADO, SOCK_STREAM, 0 );
-    
-    if ( client_fd < 0 )
+    client_fd = (int) socket( AF_INET, SOCK_STREAM, 0 );
+    if (client_fd < 0)
     {
-       gws_debug_print ("gws: [FAIL] Couldn't create socket\n");
-       printf          ("gws: [FAIL] Couldn't create socket\n");
+       gws_debug_print("cmdline: on socket()\n");
+       printf         ("cmdline: on socket()\n");
        exit(1);  //#bugbug Cuidado.
     }
 
-    //
-    // Connect
-    //
-
-    // Nessa hora colocamos no accept um fd.
-    // então o servidor escreverá em nosso arquivo.
-    // Tentando nos conectar ao endereço indicado na estrutura
-    // Como o domínio é AF_GRAMADO, então o endereço é "w","s".
+// Connect
+// Nessa hora colocamos no accept um fd.
+// então o servidor escreverá em nosso arquivo.
+// Tentando nos conectar ao endereço indicado na estrutura
+// Como o domínio é AF_GRAMADO, então o endereço é "w","s".
 
     //printf ("gws: Trying to connect to the address 'ws' ...\n");      
 
-    while (TRUE)
-    {
-        if ( connect (client_fd, (struct sockaddr *) &addr, addrlen ) < 0 )
-        { 
-            gws_debug_print ("gws: Connection Failed\n");
-            //printf          ("gws: Connection Failed \n"); 
-            //exit(1);
-        }else{ break; };
+    while (TRUE){
+        if (connect(client_fd, (void *) &addr_in, sizeof(addr_in)) < 0){ 
+            debug_print("cmdline: Connection Failed \n"); 
+            printf     ("cmdline: Connection Failed \n"); 
+        }else{ break; }; 
     };
 
     return (int) client_fd;
 }
 
-
 static void doPrompt(int fd)
 {
-    int i=0;
+    register int i=0;
 
     if (fd<0){
         return;
     }
 
-    // Clean prompt buffer.
-    
-    for ( i=0; i<PROMPT_MAX_DEFAULT; i++ ){ prompt[i] = (char) '\0'; };
-    
+// Clean prompt buffer.    
+    for (i=0; i<PROMPT_MAX_DEFAULT; i++){
+        prompt[i] = (char) '\0';
+    };
+
     prompt[0] = (char) '\0';
     prompt_pos    = 0;
     prompt_status = 0;
@@ -212,10 +213,10 @@ static void doPrompt(int fd)
     //gws_refresh_window(fd,game_window);
 }
 
-
-static void __test_gr(int fd);
 static void __test_gr(int fd)
 {
+    if (fd<0)
+        return;
 
     gr_initialize();
 
@@ -267,11 +268,13 @@ static void __test_gr(int fd)
     gws_refresh_window(fd,game_window);
 }
 
-
 static void compareStrings(int fd)
 {
     unsigned long message_buffer[8];
     int init_tid=-1;
+
+    if (fd<0)
+        return;
 
     printf("\n");
 
@@ -292,7 +295,6 @@ static void compareStrings(int fd)
          goto exit_cmp;
     }
 
-
     if ( strncmp(prompt,"test",4) == 0 )
     {
         //get init tid.
@@ -305,14 +307,12 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-
     if ( strncmp(prompt,"ascii",5) == 0 )
     {
          //not working
          //print_ascii_table(fd);
          goto exit_cmp;
     }
-
 
     if ( strncmp(prompt,"reboot",6) == 0 )
     {
@@ -339,7 +339,6 @@ static void compareStrings(int fd)
          goto exit_cmp;
     }
 
-
     printf("Command not found\n");
 
 exit_cmp:
@@ -349,12 +348,15 @@ exit_cmp:
 static void testASCIITable(int fd,unsigned long w, unsigned long h)
 {
     int i=0;
-    int j=0;
+    register int j=0;
     int c=0;
-    
-    for(i=0; i<4; i++)
+
+    if (fd<0)
+        return;
+
+    for (i=0; i<4; i++)
     {
-        for(j=0; j<64; j++)
+        for (j=0; j<64; j++)
         {
             gws_draw_char ( 
                 fd, status_window, 
@@ -374,6 +376,9 @@ cmdlineProcedure (
     unsigned long long2 )
 {
     int f12Status = -1;
+
+    if (fd<0)
+        return -1;
 
     if(msg<=0){
         return (-1);
@@ -532,13 +537,11 @@ done:
     //return (int) gws_default_procedure(fd,0,msg,long1,long2);
 }
 
-
-
-
-
-
 void init_cursor(int fd)
 {
+    if (fd<0)
+        return;
+
     player_x = game_width >> 1;
     player_y = game_height >> 1;
 
@@ -553,6 +556,9 @@ void init_cursor(int fd)
 
 void init_prize(int fd)
 {
+    if (fd<0)
+        return;
+
     prize_x = (rand() % 50) << 3;
     prize_y = (rand() % 50) << 3;
 
@@ -565,13 +571,13 @@ void init_prize(int fd)
         '+' );
 }
 
-
 //
 // initialize 'game' support.
 //
-
 int gameInitialize(int fd,unsigned long w, unsigned long h)
 {
+    if (fd<0)
+        return -1;
 
     game_status = FALSE;
 
@@ -606,8 +612,7 @@ int gameInitialize(int fd,unsigned long w, unsigned long h)
     //gws_draw_char ( fd, status_window, (w/30)  * 12, (8), COLOR_YELLOW, 127 );
     
     //...
-    
-    
+
     game_status = TRUE;
 
     return 0;
@@ -622,6 +627,8 @@ updateStatusBar(
     int first_number, 
     int second_number)
 {
+    if (fd<0)
+        return;
 
 // first box
     gws_draw_char ( fd, status_window, (w/30)  * 2, (8), COLOR_BLUE, 127 );
@@ -636,16 +643,18 @@ updateStatusBar(
 
 static void print_ascii_table(int fd)
 {
-    int i=0;
+    register int i=0;
     int line=0;
-    
+
+    if (fd<0)
+        return;
+
     printf("ascii: :)\n");
 
     gws_redraw_window(fd,game_window,TRUE);
     //#define SYSTEMCALL_SETCURSOR  34
     gramado_system_call ( 34, 2, 2, 0 );
 
-    if(fd<0){return;}
     for(i=0; i<256; i++)
     {
         gws_draw_char ( 
@@ -655,16 +664,17 @@ static void print_ascii_table(int fd)
             (8*line),  //y
             COLOR_YELLOW, i );
         
-        if(i%10)line++;
+        if (i%10)
+            line++;
     };
 }
 
-
 //==========================================
 // Main
-
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
+// #test
+// Testing floating point.
 
 // #config
 
@@ -700,7 +710,6 @@ int main ( int argc, char *argv[] )
     //printf          ("cmdline.bin: Create rectangle \n");
     //gramado_system_call(897,0,0,0);
 
-
 //
 // hang
 //
@@ -708,19 +717,15 @@ int main ( int argc, char *argv[] )
     //    gramado_system_call(897,0,0,0);
     //}
 
-
 //================================
-   
 // Connection.
 // Only connect. Nothing more.
-// Create socket and call connect()
-
-    client_fd = (int) gws();
-
-    if ( client_fd < 0 )
+// Create socket and call connect().
+    client_fd = (int) __initialization();
+    if (client_fd < 0)
     {
-         gws_debug_print ("cmdline.bin: gws() fail\n");
-         printf          ("cmdline.bin: gws() fail\n");
+         gws_debug_print("cmdline: __initialization fail\n");
+         printf         ("cmdline: __initialization fail\n");
          exit(1);
     }
 
@@ -1214,12 +1219,7 @@ int main ( int argc, char *argv[] )
     return 0;
 }
 
-
-
 //
-// End.
+// End
 //
-
-
-
 

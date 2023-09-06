@@ -3374,6 +3374,60 @@ static int initGUI(void)
     return 0;
 }
 
+void gwssrv_quit(void)
+{
+    IsTimeToQuit = TRUE;
+}
+
+static void ServerShutdown(void)
+{
+    char shutdown_string[64];
+    int times=0;
+
+    gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
+    printf             ("GRAMLAND: ServerShutdown\n");
+
+// Clear root window.
+// Show final message.
+
+    if ((void*) __root_window != NULL)
+    {
+        // Clean window
+        clear_window_by_id( __root_window->id, TRUE );
+        // String
+        memset(shutdown_string, 0 , 64);
+        strcat(shutdown_string,"ws: Shutting down ...");
+        strcat(shutdown_string,"\0");
+        dtextDrawText ( 
+            (struct gws_window_d *) __root_window,
+            8, 
+            8, 
+            (unsigned int) COLOR_WHITE, 
+            shutdown_string );
+        
+        // Show the window and the final message.
+        wm_flush_window(__root_window);
+    }
+
+// Close the server's socket.
+    close( ____saved_server_fd );
+
+//-------
+// Mande mensagens para fecharem os programas clientes.
+    gwssrv_broadcast_close();
+
+// wait
+    for (times=0; times<8; times++){
+        rtl_yield();
+    };
+
+// Lance o programa que desliga a maquina.
+    rtl_clone_and_execute("shutdown.bin");
+    DestroyAllWindows();
+done:
+    exit(0);
+}
+
 /*
  * ServerInitialization: 
  *     + Initializes the gws infrastructure.
@@ -3475,26 +3529,28 @@ static int ServerInitialization(int dm)
 // ex: OsInit();
 
     // #debug
-    gwssrv_debug_print ("GWSSRV.BIN: Initializing\n");
+    gwssrv_debug_print("GRAMLAND.BIN: Initializing\n");
 
 //
-// Client support.
+// Client support
 //
 
 // Initialize the client list support.
     initClientSupport();
 
 // The server is also a client.
-    if ( (void*) serverClient == NULL ){
-        printf ("ws: serverClient\n");
-        while(1){}
+    if ((void*) serverClient == NULL){
+        printf("gramland: serverClient\n");
+        while (1){
+        };
         //exit(0);
     }
     if ( serverClient->used != TRUE || serverClient->magic != 1234 ){
-        printf ("ws: serverClient validation\n");
-        while(1){}
+        printf("gramland: serverClient validation\n");
+        while (1){
+        };
         //exit(0);
-    } 
+    }
 
 // Register
 // #bugbug
@@ -3512,13 +3568,12 @@ static int ServerInitialization(int dm)
 
     _status = (int) register_ws();
     if (_status<0){
-        gwssrv_debug_print ("gwssrv: Couldn't register the server\n");
-        printf             ("gwssrv: Couldn't register the server\n");
+        gwssrv_debug_print("gramland: Couldn't register the server\n");
+        printf            ("gramland: Couldn't register the server\n");
         return -1;
         //exit(1);
     }
     display_server->registration_status = TRUE;
-
 
 // Setup callback.
 // Register this ring3 address as a callback.
@@ -3541,25 +3596,27 @@ static int ServerInitialization(int dm)
 // pelo servidor.
 // ex: CreateWellKnownSockets ();
 
-// Creating a socket file and saving the fd.
+// Socket
+// Creating a socket file and saving the fd in different places.
     server_fd = (int) socket(AF_GRAMADO, SOCK_STREAM, 0);
     if (server_fd<0){
-        gwssrv_debug_print ("gwssrv: Couldn't create the server socket\n");
-        printf             ("gwssrv: Couldn't create the server socket\n");
+        gwssrv_debug_print("gramland: on socket()\n");
+        printf            ("gramland: on socket()\n");
         return -1;
         //exit(1);
     }
-// Global variable.
-    ____saved_server_fd   = (int) server_fd;
 // Display server structure.
     display_server->socket = (int) server_fd;
 // The server itself has its own client structure.
-    serverClient->fd      = (int) server_fd;
+    serverClient->fd = (int) server_fd;
+// Global variable.
+    ____saved_server_fd = (int) server_fd;
 
-    // #debug Breakpoint.
+    // #debug Breakpoint
     //printf ("fd: %d\n", serverClient->fd);
     //while(1){}
 
+// Bind
 // Associate this address with the server's socket fd.
     bind_status = 
         (int) bind (
@@ -3567,21 +3624,23 @@ static int ServerInitialization(int dm)
                   (struct sockaddr *) &server_address, 
                   addrlen );
 
-    if (bind_status<0){
-        gwssrv_debug_print ("gwssrv: [FATAL] Couldn't bind to the socket\n");
-        printf             ("gwssrv: [FATAL] Couldn't bind to the socket\n");
+    if (bind_status < 0){
+        gwssrv_debug_print("gramland: on bind()\n");
+        printf            ("gramland: on bind()\n");
         return -1;
     }
 
-    // #debug Breakpoint.
+    // #debug Breakpoint
     //printf ("fd: %d\n", serverClient->fd);
     //while(1){}
 
+// Listen
 // Setup how many pending connections.
 // SOMAXCONN is the default limit on backlog.
 // see: sys/socket.h
     listen(server_fd,SERVER_BACKLOG);
 
+// Checkpoint
     Initialization.setup_connection_checkpoint = TRUE;
 
 // ==================================================
@@ -3747,7 +3806,7 @@ static int ServerInitialization(int dm)
 // Chamamos o accepr soment quando
 // o servidor estiver aceitando conexoes.
 
-    gwssrv_debug_print ("gwssrv: Entering main loop.\n");
+    gwssrv_debug_print("gramland: Entering main loop\n");
     rtl_focus_on_this_thread();
 
 // ==========================================
@@ -3794,7 +3853,7 @@ static int ServerInitialization(int dm)
 
         if (IsAcceptingConnections == TRUE)
         {
-            newconn = accept ( 
+            newconn = (int) accept ( 
                 ____saved_server_fd,
                 (struct sockaddr *) &server_address, 
                 (socklen_t *) addrlen );
@@ -3810,9 +3869,10 @@ static int ServerInitialization(int dm)
             //}
 
             //#debug
-            if ( newconn == ____saved_server_fd ){
-                printf("GWSSRV.BIN: newconn == ____saved_server_fd\n");
-                while(1){}
+            if (newconn == ____saved_server_fd){
+                printf("gramland: [debug] Invalid new connnection.\n");
+                while (1){
+                };
             }
             //close(newconn);
         }
@@ -3837,7 +3897,7 @@ static int ServerInitialization(int dm)
     ServerState.state = SERVER_STATE_SHUTTINGDOWN;
 
     if (IsTimeToQuit != TRUE){
-        debug_print ("gwssrv: [ERROR] Invalid IsTimeToQuit\n");
+        debug_print("gramland: Invalid IsTimeToQuit\n");
         return -1;
     }
 
@@ -3851,65 +3911,13 @@ static int ServerInitialization(int dm)
 
 // Close the server's fd.
     if (server_fd>0){
+        // #test
+        printf ("gramland: Close th socket\n");
         close(server_fd);
     }
 
-// Teturn to main()
+// Teturn to main() in main.c
     return 0; 
-}
-
-void gwssrv_quit(void)
-{
-    IsTimeToQuit = TRUE;
-}
-
-static void ServerShutdown(void)
-{
-    char shutdown_string[64];
-    int times=0;
-
-    gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
-    printf             ("GRAMLAND: ServerShutdown\n");
-
-// Clear root window.
-// Show final message.
-
-    if ((void*) __root_window != NULL)
-    {
-        // Clean window
-        clear_window_by_id( __root_window->id, TRUE );
-        // String
-        memset(shutdown_string, 0 , 64);
-        strcat(shutdown_string,"ws: Shutting down ...");
-        strcat(shutdown_string,"\0");
-        dtextDrawText ( 
-            (struct gws_window_d *) __root_window,
-            8, 
-            8, 
-            (unsigned int) COLOR_WHITE, 
-            shutdown_string );
-        
-        // Show the window and the final message.
-        wm_flush_window(__root_window);
-    }
-
-// Close the server's socket.
-    close( ____saved_server_fd );
-
-//-------
-// Mande mensagens para fecharem os programas clientes.
-    gwssrv_broadcast_close();
-
-// wait
-    for (times=0; times<8; times++){
-        rtl_yield();
-    };
-
-// Lance o programa que desliga a maquina.
-    rtl_clone_and_execute("shutdown.bin");
-    DestroyAllWindows();
-done:
-    exit(0);
 }
 
 // main: 
