@@ -11,7 +11,24 @@
 // Sent us a system message.
 struct endpoint_d  Caller;
 
+struct next_msg_d
+{
+
+// tid
+    int target_tid;
+
+// Message
+    int msg_code;
+    unsigned long long1;
+    unsigned long long2;
+};
+struct next_msg_d  NextMessage;
+
+static int NoReply = TRUE;
+
 //-----------------------------------------
+
+static void __send_response(void);
 
 static int __idlethread_loop(void);
 static void do_hello(int src_tid);
@@ -61,6 +78,16 @@ static void do_hello(int src_tid)
     rtl_post_system_message( 
         (int) dst_tid,
         (unsigned long) msg_buffer_address );
+
+/*
+// #test
+// It's working!
+    NextMessage.target_tid = (int) dst_tid;
+    NextMessage.msg_code = __MSG_CLOSE; // HEHE
+    NextMessage.long1 = 0;
+    NextMessage.long2 = 0;
+    NoReply = FALSE;
+*/
 }
 
 static void do_reboot(int src_tid)
@@ -160,10 +187,37 @@ __Procedure (
     return 0;
 }
 
+
+static void __send_response(void)
+{
+    if (NoReply == TRUE)
+        return;
+
+// Post next response.
+
+    RTLEventBuffer[0] = 0;
+    RTLEventBuffer[1] = (unsigned long) (NextMessage.msg_code & 0xFFFFFFFF);
+    RTLEventBuffer[2] = (unsigned long) NextMessage.long1;
+    RTLEventBuffer[3] = (unsigned long) NextMessage.long2;
+
+    rtl_post_system_message( 
+        (int) NextMessage.target_tid,
+        (unsigned long) RTLEventBuffer );
+
+// Clear message
+    NextMessage.target_tid = 0;
+    NextMessage.msg_code = 0;
+    NextMessage.long1 = 0;
+    NextMessage.long2 = 0;
+    NoReply = TRUE;   // No more responses.
+}
+
 static int __idlethread_loop(void)
 {
 // Get input from idlethread.
 // Getting requests or events.
+
+    NoReply = TRUE;
 
 // #todo
 // Get the id of the caller.
@@ -188,6 +242,10 @@ static int __idlethread_loop(void)
             //#test
             //rtl_yield();
             Caller.tid = -1;
+        }
+
+        if (NoReply == FALSE){
+            __send_response();
         }
     };
 

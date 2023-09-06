@@ -243,9 +243,6 @@ static void __test_send_async_hello(void)
     rtl_post_system_message( 
         (int) InitProcessControlTID, 
         (unsigned long) message_buffer );
-
-// Done
-    // return;
 }
 
 // Redraw and refresh the client window.
@@ -2824,7 +2821,7 @@ terminalProcedure (
         break;
 
     case MSG_CLOSE:
-        printf ("terminal.bin: MSG_CLOSE\n");
+        printf("terminal.bin: MSG_CLOSE\n");
         gws_destroy_window(fd,terminal_window);
         gws_destroy_window(fd,main_window);
         exit(0);
