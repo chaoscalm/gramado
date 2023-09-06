@@ -48,7 +48,7 @@ struct hv_d  HVInfo;
 // called by I_init() in x64init.c
 int detect_hv(void)
 {
-    int i=0;
+    register int i=0;
 
     HVInfo.initialized = FALSE;
     HVInfo.type = HV_TYPE_UNDEFINED;
@@ -57,10 +57,9 @@ int detect_hv(void)
 // This structure is for the current processor?
 // on Intel only?
 
-    if ( (void *) processor == NULL ){
-        x_panic ("detect_hv: processor struct\n");
+    if ((void *) processor == NULL){
+        x_panic("detect_hv: processor struct\n");
     }
-
 
 //
 // Memory limits
@@ -75,7 +74,7 @@ int detect_hv(void)
 // name string
 //
 
-    //Copy 4 integers.
+    // Copy 4 integers
     for (i=0; i<4; i++){
         HVInfo.hvName[i] = (unsigned int) processor->hvName[i];
     };
@@ -125,8 +124,6 @@ done:
     return TRUE;
 }
 
-
-// #todo: Used by system metrics.
 int isQEMU(void)
 {
     if (HVInfo.initialized == TRUE)
@@ -135,10 +132,8 @@ int isQEMU(void)
             return TRUE;
         }
     }
-
     return FALSE;
 }
-
 
 /*
  * hal_probe_cpu:
@@ -147,8 +142,7 @@ int isQEMU(void)
  * #todo: Estamos usando cpuid para testar os 2 tipos de arquitetura.
  * nao sei qual ha instruções diferentes para arquiteturas diferentes.
  */
-
-int hal_probe_cpu (void)
+int hal_probe_cpu(void)
 {
     unsigned int eax=0;
     unsigned int ebx=0;
@@ -158,8 +152,8 @@ int hal_probe_cpu (void)
     debug_print ("hal_probe_cpu:\n");
 
 // Check processor structure.
-    if ( (void *) processor == NULL ){
-        x_panic ("hal_probe_cpu: [FAIL] processor\n");
+    if ((void *) processor == NULL){
+        x_panic("hal_probe_cpu: [FAIL] processor\n");
     }
 
 // Unknown processor type.
@@ -169,7 +163,7 @@ int hal_probe_cpu (void)
 // Check vendor
 //
 
-    cpuid ( 0, eax, ebx, ecx, edx ); 
+    cpuid( 0, eax, ebx, ecx, edx ); 
 
 // TestIntel: Confere se é intel.
     if ( ebx == CPUID_VENDOR_INTEL_1 && 
@@ -190,18 +184,15 @@ int hal_probe_cpu (void)
     }
     
 // fail:
-    x_panic ("hal_probe_cpu: [FAIL] Processor not supported\n");
+    x_panic("hal_probe_cpu: [FAIL] Processor not supported\n");
     return (int) (-1);
 }
-
 
 /*
  * hal_probe_processor_type:
  *     Sonda pra ver apenas qual é a empresa do processador.
  */
-
-// Called by init_architecture_dependent() in core/init.c
-
+// Called by I_initKernelComponents() in x64init.c.c
 int hal_probe_processor_type (void)
 {
     unsigned int eax=0;
@@ -211,17 +202,14 @@ int hal_probe_processor_type (void)
     unsigned int name[32];
     int MASK_LSB_8 = 0xFF;  
 
-
     //debug.
-    debug_print ("hal_probe_processor_type:\n");
+    debug_print("hal_probe_processor_type:\n");
     //printf("Scaning x86 CPU ...\n");
 
-
 // Check processor structure.
-    if ( (void *) processor == NULL ){
-        x_panic ("hal_probe_processor_type: [FAIL] processor\n");
+    if ((void *) processor == NULL){
+        x_panic("hal_probe_processor_type: processor\n");
     }
-
 
 // Unknown processor type.
     // processor->Type = Processor_NULL;
@@ -240,14 +228,12 @@ int hal_probe_processor_type (void)
     processor->Vendor[2] = ecx;
     processor->Vendor[3] = 0;
 
-
 // #hackhack
 // #fixme
 // Na verdade quando estamos rodando no qemu, é amd.
 // #todo: Precisamos do nome certo usado pelo qemu.
 
     return Processor_AMD;
-
 
     /*
     // Confere se é Intel.
@@ -267,11 +253,10 @@ int hal_probe_processor_type (void)
     }
     */
 
-	// Continua...
+// Continua...
 
     return (int) Processor_NULL;
 }
-
 
 // ====================================
 // MSR
@@ -286,7 +271,7 @@ int hal_probe_processor_type (void)
 
 const unsigned int CPUID_FLAG_MSR = (1 << 5);
  
-int cpuHasMSR (void)
+int cpuHasMSR(void)
 {
     unsigned int a=0;
     unsigned int b=0;
@@ -297,7 +282,6 @@ int cpuHasMSR (void)
     return (int) (d & CPUID_FLAG_MSR);
 }
 
-
 void 
 cpuGetMSR ( 
     unsigned int msr, 
@@ -307,7 +291,6 @@ cpuGetMSR (
     asm volatile ("rdmsr" : "=a"(*lo), "=d"(*hi) : "c"(msr));
 }
 
-
 void 
 cpuSetMSR ( 
     unsigned int msr, 
@@ -316,9 +299,6 @@ cpuSetMSR (
 {
     asm volatile ("wrmsr" : : "a"(lo), "d"(hi), "c"(msr));
 }
-
-
-
 
 /* Example: Get CPU's model number */
 /*
@@ -330,7 +310,6 @@ static int get_model(void)
     return ebx;
 }
 */
-
 
 /* Example: Check for builtin local APIC. */
 /*

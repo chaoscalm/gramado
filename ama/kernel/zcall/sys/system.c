@@ -11,13 +11,28 @@ static void __a_soft_place_to_fall(void);
 
 // ====================================
 
+static void __a_soft_place_to_fall(void)
+{
+    while (TRUE)
+    { 
+        asm ("cli");
+        //asm ("mwait");   
+        asm ("hlt");
+    };
+}
+
+void soft_die(void)
+{
+    __a_soft_place_to_fall();
+    soft_die();
+}
+
 /*
  * doGetSystemMetrics:
  *     Retorna informações sobre o sistema.
  *     #todo: 
  *     Criam um enum para essa função, aqui mesmo nesse arquivo.
  */
-
 unsigned long doGetSystemMetrics(int index)
 {
 // Called by sys_get_system_metrics() in sys.c
@@ -44,35 +59,43 @@ unsigned long doGetSystemMetrics(int index)
             break;
 
         //cursor width in pixels.
+        // #todo: We need a mehtod for this.
         case 3:
             return (unsigned long) CONSOLE_TTYS[fg_console].cursor_width_in_pixels;
             break;
 
         //cursor height in pixels.
+        // #todo: We need a mehtod for this.
         case 4:
             return (unsigned long) CONSOLE_TTYS[fg_console].cursor_height_in_pixels;
             break;
 
         // mouse pointer width.
+        // #todo: We need a mehtod for this.
         case 5:
             return (unsigned long) g_mousepointer_width;
             break;
 
-        // mouse pointer height. 
+        // mouse pointer height.
+        // #todo: We need a mehtod for this.
         case 6:
             return (unsigned long) g_mousepointer_height;
             break;
 
         // char width.
+        // #bugbug: The method is returning an int.
         case 7:
             return (unsigned long) get_char_width();
             break;
 
         // char height.
+        // #bugbug: The method is returning an int.
         case 8:
             return (unsigned long) get_char_height();
             break;
 
+        // Bits Per Pixel.
+        // #todo: We need a method for this.
         case 9:
             return (unsigned long) gSavedBPP;
             break;
@@ -80,16 +103,19 @@ unsigned long doGetSystemMetrics(int index)
         // screen buffers
 
         // lfb pa
+        // #todo: We need a method for this.
         case 10:
             return (unsigned long) g_frontbuffer_pa;
             break;
 
         // lfb va
+        // #todo: We need a method for this.
         case 11:
             return (unsigned long) g_frontbuffer_va;
             break;
 
         // main backbuffer va
+        // #todo: We need a method for this.
         case 12:
             return (unsigned long) g_backbuffer_va;
             break;
@@ -113,199 +139,244 @@ unsigned long doGetSystemMetrics(int index)
         // Ram support
 
         // base memory
+        // #todo: We need a method for this.
         case 30:
             return (unsigned long) memorysizeBaseMemory;
             break;
             
         // extended - base
+        // #todo: We need a method for this.
         case 31:
             return (unsigned long) memorysizeOtherMemory;
             break;
 
         // extended memory
+        // #todo: We need a method for this.
         case 32:
             return (unsigned long) memorysizeExtendedMemory;
             break;
 
         // total = base + other + extended 
+        // #todo: We need a method for this.
         case 33:
             return (unsigned long) memorysizeTotal;
             break;
 
         // used
+        // #todo: We need a method for this.
         case 34:
             return (unsigned long) memorysizeUsed;
             break;
 
-        // free   
+        // free
+        // #todo: We need a method for this. 
         case 35:
             return (unsigned long) memorysizeFree;
             break;  
 
          // Kernel Heap support.
 
+        // #todo: We need a method for this.
         case 40:
             return (unsigned long) kernel_heap_start;
             break;
 
+        // #todo: We need a method for this.
         case 41:
             return (unsigned long) kernel_heap_end;
             break;
 
+        // #todo: We need a method for this.
         case 42:
             return (unsigned long) g_available_heap;
             break;
 
-         // Kernel Stack support.
+        // Kernel Stack support.
 
+        // #todo: We need a method for this.
         case 50:
             return (unsigned long) kernel_stack_start;
             break;
 
+        // #todo: We need a method for this.
         case 51:
             return (unsigned long) kernel_stack_end;
             break;
 
+        // #todo: We need a method for this.
         case 52:
             return (unsigned long) kernel_stack_start_pa;
             break; 
 
         // Used memory support
 
+        // #todo: We need a method for this.
         case 60:
             return (unsigned long) mm_used_ring0_area;
             break;
 
+        // #todo: We need a method for this.
         case 61:
             return (unsigned long) mm_used_ring3_area;
             break;
 
+        // #todo: We need a method for this.
         case 62:
             return (unsigned long) mm_used_backbuffer;
             break;
 
+        // #todo: We need a method for this.
         case 63:
             return (unsigned long) mm_used_pagedpool;
             break;
 
+        // #todo: We need a method for this.
         case 64:
             return (unsigned long) mm_used_heappool;
             break;
 
+        // #todo: We need a method for this.
         case 65:
             return (unsigned long) mm_used_extraheap1;
             break;
 
+        // #todo: We need a method for this.
         case 66:
             return (unsigned long) mm_used_extraheap2 ;
             break;
 
+        // #todo: We need a method for this.
         case 67:
             return (unsigned long) mm_used_extraheap3;
             break;
 
         // Dispatch critéria.
 
+        // #todo: We need a method for this.
         case 70:
             return (unsigned long) DispatchCountBlock->SelectIdleCount;
             break;
 
+        // #todo: We need a method for this.
         case 71:
             return (unsigned long) DispatchCountBlock->SelectInitializedCount;
             break;
 
+        // #todo: We need a method for this.
         case 72:
             return (unsigned long) DispatchCountBlock->SelectNextCount;
             break;
 
+        // #todo: We need a method for this.
         case 73:
             return (unsigned long) DispatchCountBlock->SelectCurrentCount;
             break;
 
+        // #todo: We need a method for this.
         case 74:
             return (unsigned long) DispatchCountBlock->SelectAnyCount;
             break;
 
+        // #todo: We need a method for this.
         case 75:
             return (unsigned long) DispatchCountBlock->SelectIdealCount;
             break;
 
+        // #todo: We need a method for this.
         case 76:
             return (unsigned long) DispatchCountBlock->SelectDispatcherQueueCount;
             break;
 
         // System type by memory size;
+        // #todo: We need a method for this.
         case 90:
             return (unsigned long) g_mm_system_type;
             break;
 
         // Profiler ... (reservar vários números.)
 
+        // #todo: We need a method for this.
         case 100:
             return (unsigned long) g_profiler_ints_irq0;
             break;
 
+        // #todo: We need a method for this.
         case 101:
             return (unsigned long) g_profiler_ints_irq1;
             break;
 
+        // #todo: We need a method for this.
         case 102:
             return (unsigned long) g_profiler_ints_irq2;
             break; 
 
+        // #todo: We need a method for this.
         case 103:
             return (unsigned long) g_profiler_ints_irq3;
             break;
 
+        // #todo: We need a method for this.
         case 104:
             return (unsigned long) g_profiler_ints_irq4;
             break;
 
+        // #todo: We need a method for this.
         case 105:
             return (unsigned long) g_profiler_ints_irq5;
             break;
 
+        // #todo: We need a method for this.
         case 106:
             return (unsigned long) g_profiler_ints_irq6;
             break;              
 
+        // #todo: We need a method for this.
         case 107:
             return (unsigned long) g_profiler_ints_irq7;
             break;
 
+        // #todo: We need a method for this.
         case 108:
             return (unsigned long) g_profiler_ints_irq8;
             break;
 
+        // #todo: We need a method for this.
         case 109:
             return (unsigned long) g_profiler_ints_irq9;
             break;
 
+        // #todo: We need a method for this.
         case 110:
             return (unsigned long) g_profiler_ints_irq10;
             break;
 
+        // #todo: We need a method for this.
         case 111:
             return (unsigned long) g_profiler_ints_irq11;
             break;
 
+        // #todo: We need a method for this.
         case 112:
             return (unsigned long) g_profiler_ints_irq12;
             break;
 
+        // #todo: We need a method for this.
         case 113:
             return (unsigned long) g_profiler_ints_irq13;
             break;
 
+        // #todo: We need a method for this.
         case 114:
             return (unsigned long) g_profiler_ints_irq14;
             break;
 
+        // #todo: We need a method for this.
         case 115:
             return (unsigned long) g_profiler_ints_irq15;
             break;
 
         // Interrupção de serviços do sistema.
+        // #todo: We need a method for this.
         case 117:
             return (unsigned long) g_profiler_ints_gde_services;
             break; 
@@ -315,42 +386,61 @@ unsigned long doGetSystemMetrics(int index)
 
        // jiffies.
        // total ticks
-       case 118:  return (unsigned long) jiffies;  break;
+       // #todo: We need a method for this.
+       case 118:
+           return (unsigned long) jiffies;
+           break;
 
        // seconds
        // por quantos segundos o sistema esta rodando
        // jiffies/sys_time_hz
-       case 119:  return (unsigned long) seconds;      break;
-       
+       // #todo: We need a method for this.
+       case 119:
+           return (unsigned long) seconds;
+           break;
+
        // Por quantos ms o sistema esta rodando.
-       case 120:  return (unsigned long) sys_time_ms;  break;
+       // #todo: We need a method for this.
+       case 120:
+           return (unsigned long) sys_time_ms;
+           break;
 
        // pit frequency
-       case 121:  return (unsigned long) sys_time_hz;  break;
+       // #todo: We need a method for this.
+       case 121:
+           return (unsigned long) sys_time_hz;
+           break;
 
         // ...
 
        // gramado mode, gamemode.
        // jail, p1, home ...
-       case 130:  return (unsigned long) current_mode;  break;
-
-       // When a thread is running to call this service,
-       // so, this thread is the current thread.
-       // But, current for what processor?
-       case 140:  
-           //return (unsigned long) current_process;
-           return (unsigned long) get_current_process(); //#bugbug mask?  
+       // #todo: We need a method for this.
+       case 130:
+           return (unsigned long) current_mode;
            break;
+
+        // When a thread is running to call this service,
+        // so, this thread is the current thread.
+        // But, current for what processor?
+        case 140:  
+            //return (unsigned long) current_process;
+            return (unsigned long) get_current_process(); //#bugbug mask?  
+            break;
        
-       case 141:  
-           return (unsigned long) current_thread;   
-           break;
+        // #todo: We need a method for this.
+        case 141:  
+            return (unsigned long) current_thread;   
+            break;
 
-       // return the number of processors.
-       case 150:  
-           return (unsigned long) (g_processor_count & 0xFFFFFFFF);
-           break;
-       //case 151:  break;
+        // return the number of processors.
+        // #todo: We need a method for this.
+        case 150:  
+            return (unsigned long) (g_processor_count & 0xFFFFFFFF);
+            break;
+ 
+        //case 151:
+            //break;
 
         // 200 ~ 2xx window server info.
         // See: ws.h
@@ -369,34 +459,46 @@ unsigned long doGetSystemMetrics(int index)
         // o kernel nao podera mais pegar as informaçoes que estao em ring3. certo??
         // See:
         // sw.asm
-        
+
+        // #todo: We need a method for this.
+        // #todo: We need a structure for that.
+        // and the name needs to be DisplayServer.xxx.
         case 200:
            //printf ("#type: %d\n",WindowServer_type);
            //refresh_screen();
            return (unsigned long) WindowServer_type;
            break;
 
+        // #todo: We need a method for this.
+        // #todo: We need a structure for that.
+        // and the name needs to be DisplayServer.xxx.
         case 201:
            //printf ("#pid: %d\n",WindowServer_pid);
            //refresh_screen();
            return (unsigned long) WindowServer_pid; 
            break;
 
+        // #todo: We need a method for this.
+        // #todo: We need a structure for that.
+        // and the name needs to be DisplayServer.xxx.
         case 202:
            //printf ("#virtual_console: %d\n",WindowServer_virtual_console);
            //refresh_screen();
            return (unsigned long) WindowServer_virtual_console; 
            break;
 
+        // #todo: We need a method for this.
+        // #todo: We need a structure for that.
+        // and the name needs to be DisplayServer.xxx.
         case 203:
            //printf ("#initialized: %d\n",WindowServer_initialized);
            //refresh_screen();
            return (unsigned long) WindowServer_initialized; 
            break;
 
-// is quemu
+        // Are we running on Qemu hv?
         case 300:
-            return (unsigned long) isQEMU();
+            return (unsigned long) keIsQemu();
             break;
 
         // ...
@@ -408,23 +510,6 @@ unsigned long doGetSystemMetrics(int index)
 
 done:
     return (unsigned long) 0;
-}
-
-
-static void __a_soft_place_to_fall(void)
-{
-    while (TRUE)
-    { 
-        asm ("cli");
-        //asm ("mwait");   
-        asm ("hlt");
-    };
-}
-
-void soft_die(void)
-{
-    __a_soft_place_to_fall();
-    soft_die();
 }
 
 // The kernel hangs.
@@ -441,7 +526,6 @@ void die(void)
     die();
 }
 
-
 /*
  * doSetupVersion:
  *     Setup version info.     
@@ -450,7 +534,6 @@ void die(void)
 // config/version.h
 // config/u.h
 // system.h
-
 void doSetupVersion(void)
 {
 
@@ -461,11 +544,9 @@ void doSetupVersion(void)
 // para funcionarem corretamente.. 
 
     Version = (void *) kmalloc( sizeof(struct version_d) );
-
-    if ( (void *) Version == NULL ){
-        panic("doSetupVersion: Version");
+    if ((void *) Version == NULL){
+        panic("doSetupVersion: Version\n");
     }
-
     Version->Major = VERSION_MAJOR;
     Version->Minor = VERSION_MINOR;
     Version->Build = VERSION_BUILD;
@@ -476,20 +557,18 @@ void doSetupVersion(void)
 // pois existem aplicações que dependem da versão do sistema 
 // para funcionarem corretamente.. 
 
-    VersionInfo = (void *) kmalloc ( sizeof(struct version_info_d) );
-
-    if ( (void *) VersionInfo == NULL ){
+    VersionInfo = (void *) kmalloc( sizeof(struct version_info_d) );
+    if ((void *) VersionInfo == NULL){
         panic ("doSetupVersion: VersionInfo\n");
     }
 
 // Global structure
 // Colocando na estrutura System se ela for válida.
 
-    if ( (void *) System == NULL ){
+    if ((void *) System == NULL){
         panic ("doSetupVersion: System\n");
     }
-
-    if ( (void *) System != NULL )
+    if ((void *) System != NULL)
     {
         if ( System->used == TRUE && System->magic == 1234 )
         {
@@ -500,9 +579,8 @@ void doSetupVersion(void)
     }
 }
 
-
 /*
- * init_executive:
+ * zeroInitializeSystemComponents:
  *     Initialize the kernel executive.
  *     Architecture (independent) inicialization. 
  */

@@ -61,16 +61,17 @@ void spawn_thread(tid_t tid)
 // Target thread
 //
 
-    if ( next_tid < 0 || next_tid >= THREAD_COUNT_MAX ){
-        printf ("spawn_thread: next_tid=%d", next_tid );  
-        die();
+    if ( next_tid < 0 || next_tid >= THREAD_COUNT_MAX )
+    {
+        printf("spawn_thread: next_tid=%d", next_tid );  
+        keDie();
     }
     target_thread = (void *) threadList[next_tid]; 
-    if ( (void *) target_thread == NULL )
+    if ((void *) target_thread == NULL)
     {
-        printf ("spawn_thread: target_thread, next_tid={%d}", 
+        printf("spawn_thread: target_thread, next_tid={%d}", 
             next_tid );  
-        die();
+        keDie();
     }
     if ( target_thread->used != TRUE || target_thread->magic != 1234 )
     {
@@ -90,15 +91,15 @@ void spawn_thread(tid_t tid)
 
 // State: Needs to be in Standby.
     if (target_thread->state != STANDBY){
-        printf ("spawn_thread: TID={%d} not in Standby\n", next_tid );
-        die();
+        printf("spawn_thread: TID={%d} not in Standby\n", next_tid );
+        keDie();
     }
 
 // Saved:
 // If the context is saved, so it is not the first time.
     if (target_thread->saved == TRUE){
         printf ("spawn_thread: Saved TID={%d}\n", next_tid );
-        die();
+        keDie();
     }
 
 // Initializing
@@ -163,11 +164,11 @@ void spawn_thread(tid_t tid)
 // Paranoia: Check state.
     if (target_thread->state != RUNNING){
         printf ("spawn_thread: State TID={%d}\n", next_tid );
-        die();
+        keDie();
     }
 
 // Do we have an owner process?
-    if ( (void*) target_thread->owner_process == NULL ){
+    if ((void*) target_thread->owner_process == NULL){
         panic("spawn_thread: target_thread->owner_process\n");
     }
 
@@ -227,7 +228,7 @@ void spawn_thread(tid_t tid)
     int eoi_is_needed = __spawn_is_eoi_needed();
 
     // #test #debug
-    if ( eoi_is_needed != TRUE ){
+    if (eoi_is_needed != TRUE){
         panic("spawn_thread: eoi_is_needed != TRUE\n");
     }
 
@@ -244,8 +245,8 @@ void spawn_thread(tid_t tid)
 */
 
     if (target_thread->cpl != RING3){
-        debug_print ("spawn_thread: Invalid cpl\n");
-        panic       ("spawn_thread: Invalid cpl\n");
+        debug_print("spawn_thread: Invalid cpl\n");
+        panic      ("spawn_thread: Invalid cpl\n");
     }
 
 // ===================
@@ -311,8 +312,8 @@ void spawn_thread(tid_t tid)
     }
 
 // Paranoia
-    PROGRESS ("-- iretq fail --------\n");
-    panic    ("spawn_thread: iretq fail\n");
+    PROGRESS("-- iretq fail --------\n");
+    panic   ("spawn_thread: iretq fail\n");
 }
 
 // do not check parameters.
@@ -376,9 +377,9 @@ spawn_enter_kernelmode(
     //refresh_screen();
     //while(1){}
 
-    if ( eoi == TRUE ){
-        asm ("movb $0x20, %al \n");
-        asm ("outb %al, $0x20 \n");
+    if (eoi == TRUE){
+        asm volatile ("movb $0x20, %al \n");
+        asm volatile ("outb %al, $0x20 \n");
     }
 
 // #todo
@@ -413,7 +414,7 @@ void psSpawnThread(tid_t tid)
     debug_print ("psSpawnThread:\n");
     if ( tid < 0 || tid >= THREAD_COUNT_MAX ){
         printf("psSpawnThread: TID=%d\n", tid );
-        die();
+        keDie();
     }
     spawn_thread(tid);
 // Not reached
@@ -439,7 +440,7 @@ void spawn_pid(pid_t pid)
 
 // process structure.
     p = (struct process_d *) processList[pid];
-    if ( (void*) p == NULL ){
+    if ((void*) p == NULL){
         panic("spawn_pid: p\n");
     }
     if ( p->used != TRUE || p->magic != 1234 ){
@@ -461,7 +462,7 @@ void spawn_tid(int tid)
         panic("spawn_tid: tid\n");
 
     t = (struct thread_d *) threadList[tid];
-    if ( (void*) t == NULL )
+    if ((void*) t == NULL)
         panic("spawn_tid: tid\n");
     if ( t->used != TRUE || t->magic != 1234 )
         panic("spawn_tid: validation\n");

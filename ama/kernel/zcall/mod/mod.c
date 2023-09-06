@@ -128,22 +128,19 @@ void xp_refresh_screen(void)
 
 void xp_reboot(void)
 {
-    hal_reboot();
+    keReboot();
 }
 
 void xp_putchar_test(void)
 {
     int c='x';
-    console_outbyte2 ( c, fg_console );
+    console_outbyte2( c, fg_console );
 }
 
 void xp_die(void)
 {
     printf("xp_die:\n");
-    die();
+    keDie();
 }
-
-
-
 
 

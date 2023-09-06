@@ -1,11 +1,13 @@
 
 // ws.c
+// #todo
+// Use the term Display server for everything.
 
 #include <kernel.h>
 
 // This is called at the kernel initialization to initialize
 // the window server struct with the embedded window server info.
-int ws_init (void)
+int ws_init(void)
 {
     //debug_print ("ws_init: \n");
 
@@ -52,7 +54,6 @@ ws_ioctl (
     return -1;
 }
 
-
 void ws_show_info(void)
 {
     printf("name %s\n",WindowServer_name);
@@ -63,21 +64,7 @@ void ws_show_info(void)
     refresh_screen();
 }
 
-
 //
-// End.
+// End
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
 

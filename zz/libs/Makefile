@@ -1,8 +1,9 @@
 
+# Build the libraries in zz/libs/
+
 all:
 
 	make -C libdisp/
-
 # Graphics support (Server-side?)
 	make -C libgr/
 # 3D Graphics support (Server-side?)
@@ -23,10 +24,6 @@ clean:
 	-rm -f libgr/obj/*.o
 	-rm -f libgr3d/obj/*.o
 	-rm -f libgws/obj/*.o
-
-
-
-
 
 
 

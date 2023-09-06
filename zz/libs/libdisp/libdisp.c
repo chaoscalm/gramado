@@ -88,33 +88,45 @@ int libgd_initialize(void)
 {
     libgd_current_mode = gwssrv_get_system_metrics(130);
     if (libgd_current_mode < 0){
-        printf ("libgd_initialize: [FAIL] libgd_current_mode\n");
-        exit(1);
+        printf("libgd_initialize: [FAIL] libgd_current_mode\n");
+        goto fail;
     }
 
-// buffers
+// Buffers
     libgd_FRONTBUFFER_VA = (unsigned long) rtl_get_system_metrics(11);
     libgd_BACKBUFFER_VA  = (unsigned long) rtl_get_system_metrics(12);
 // Screen
+// Width, Height and Bits Per Pixel.
     libgd_device_width  = (unsigned long) gwssrv_get_system_metrics(1);
     libgd_device_height = (unsigned long) gwssrv_get_system_metrics(2);
     libgd_device_bpp    = (unsigned long) gwssrv_get_system_metrics(9);
 // Saving
     libgd_SavedX   = (unsigned long) libgd_device_width;
     libgd_SavedY   = (unsigned long) libgd_device_height;
-    libgd_SavedBPP = (unsigned long) libgd_device_bpp; 
+    libgd_SavedBPP = (unsigned long) libgd_device_bpp;
 
-    if ( libgd_device_width == 0 || 
-         libgd_device_height == 0 || 
-         libgd_device_bpp == 0 || 
-         libgd_FRONTBUFFER_VA == 0 ||
-         libgd_BACKBUFFER_VA == 0 )
+
+// Backbuffer and frontbuffer.
+    if ( libgd_FRONTBUFFER_VA == 0 || libgd_BACKBUFFER_VA == 0 )
     {
-        printf ("libgd_initialize: [FAIL] Screen properties\n");
-        exit(1);
+        printf("libgd_initialize: Buffers\n");
+        goto fail;
     }
 
+// Width, Height and Bits Per Pixel.
+    if ( libgd_device_width == 0 || 
+         libgd_device_height == 0 || 
+         libgd_device_bpp == 0 )
+    {
+        printf("libgd_initialize: w, h and bpp\n");
+        goto fail;
+    }
+
+
     return 0;
+fail:
+    exit(1);
+    return (int) -1;
 }
 
 // Plot pixel into the raster.

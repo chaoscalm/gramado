@@ -47,9 +47,7 @@ static unsigned long KernelImage_BSS_Size=0;
 
 // ==========================
 
-
 //-------------
-
 static void __check_refresh_support(void);
 static void __print_resolution_info(void);
 static void __check_gramado_mode(void);
@@ -122,7 +120,7 @@ static void __check_refresh_support(void)
     if (screen_size_in_kb >= 2048)
     {
         refresh_screen_enabled = FALSE;
-        debug_print ("Screen size fail screen_size_in_kb\n");
+        debug_print("Screen size fail screen_size_in_kb\n");
     }
 
 // ok
@@ -177,9 +175,7 @@ static void __check_refresh_support(void)
         g_use_fake_screen_size = TRUE;
         refresh_screen_enabled = TRUE;
     }
-
 // -------------------------------------------
-
 }
 
 // Worker
@@ -203,15 +199,15 @@ static void __print_resolution_info(void)
 }
 
 // Worker
-// CAlled by booting_begin().
+// Called by booting_begin().
 static void __check_gramado_mode(void)
 {
 //-----------
 // gramado mode.
 
 // Show gramado mode.
-    printf ("gramado mode: %d\n",current_mode);
-    
+    printf("gramado mode: %d\n",current_mode);
+
     // #debug
     //refresh_screen();
     //while(1){}
@@ -229,15 +225,16 @@ static void __check_gramado_mode(void)
     case GRAMADO_P2:
     case GRAMADO_CASTLE:
     case GRAMADO_CALIFORNIA:
-        // #bugbug: panic and x_panic are not working at this point.
+
+        // #bugbug: 
+        // panic and x_panic are not working at this point.
         debug_print("__check_gramado_mode: Unsupported gramado mode\n");
         panic("__check_gramado_mode: Unsupported gramado mode\n");
-        //x_panic("x");
-        //die();
         break;
 // Undefined gramado mode.
     default:
-        // #bugbug: panic and x_panic are not working at this point.
+        // #bugbug: 
+        // panic and x_panic are not working at this point.
         debug_print("__check_gramado_mode: Undefined gramado mode\n");
         panic("__check_gramado_mode: Undefined gramado mode\n");
         break;
@@ -256,11 +253,10 @@ static void __import_data_from_linker(void)
 // Isso deve ter uma flag no aquivo de configuração.
 // config.h i guess.
 
-    if ( ImportDataFromLinker == TRUE )
+    if (ImportDataFromLinker == TRUE)
     {
         //printf("\n");
  
-
         //KernelImageSize = (start_of_kernel_image - end_of_kernel_image);
         //printf ("Image Size %d KB \n",KernelImageSize/1024);
 
@@ -292,14 +288,14 @@ static void __import_data_from_linker(void)
         // The kernel image is too long.
         if ( KernelImage_Size/1024 > 1024 )
         {
-            panic ("Error 0x04: Image size");
+            panic("Error 0x04: Image size\n");
         }
         
         // Address limit for the kernel image.
         // See: x64gva.h
-        if( kernel_end > KERNEL_HEAP_START )
+        if (kernel_end > KERNEL_HEAP_START)
         {
-            panic ("Error 0x04: kernel_end");
+            panic("Error 0x04: kernel_end\n");
         }
 
         // #debug: breakpoint
@@ -308,6 +304,28 @@ static void __import_data_from_linker(void)
     }
 }
 
+unsigned long keGetSystemMetrics(int index)
+{
+    if (index <= 0){
+        return (unsigned long) 0;
+    }
+    return (unsigned long) doGetSystemMetrics(index);
+}
+
+void keDie(void)
+{
+    die();
+}
+
+void keSoftDie(void)
+{
+    soft_die();
+}
+
+int keIsQemu(void)
+{
+    return (int) isQEMU();
+}
 
 int keCloseInitProcess(void)
 {

@@ -70,12 +70,10 @@ fail:
     return (int) Status;
 }
 
-
 /*
  * __debug_check_drivers:
  *    Checar se os drivers estão inicializados.
  */
-
 static int __debug_check_drivers(void)
 {
     int Status = FALSE;
@@ -92,7 +90,6 @@ static int __debug_check_drivers(void)
 	    //erro
 	}
 
-
 	if (g_driver_hdd_initialized != 1){
 	    //erro
 	}
@@ -108,7 +105,6 @@ static int __debug_check_drivers(void)
     if (g_driver_timer_initialized != 1){
 	    //erro
 	}
-
     */
 
     return (int) Status;
@@ -130,7 +126,6 @@ void disable_serial_debug(void)
 {
     __using_serial_debug = FALSE;
 }
-
 
 void debug_print(char *data)
 {
@@ -162,11 +157,9 @@ void debug_print(char *data)
     };
 }
 
-
 // We will use this function to track 
 // the main kernel initialization progress.
 // It will print into the serial port for now.
-
 void PROGRESS(char *string)
 {
 // Verbose via serial.
@@ -175,7 +168,7 @@ void PROGRESS(char *string)
         return;
     }
 // Parameter validation
-    if ( (void*) string == NULL ){
+    if ((void*) string == NULL){
         return;
     }
     if (*string == 0){
@@ -190,7 +183,6 @@ void PROGRESS(char *string)
     debug_print(string);
 }
 
-
 /*
  * debug:
  *     Checa por falhas depois de cumpridas as 
@@ -199,7 +191,7 @@ void PROGRESS(char *string)
 // #bugbug
 // Será que o output está realmente disponível nesse momento ?!
 
-int debug (void)
+int debug(void)
 {
     int Status = -1; 
 
@@ -207,15 +199,13 @@ int debug (void)
 // Fases, variáveis e estruturas.
 
     Status = (int) __debug_check_inicialization();
-
     if (Status == TRUE){
         panic ("debug: __debug_check_inicialization fail\n");
     }
 
-    // 'processor' struct.
-
-    if ( (void *) processor == NULL ){
-        panic ("debug: processor struct fail\n");
+// 'processor' struct.
+    if ((void *) processor == NULL){
+        panic("debug: processor struct fail\n");
     }
 
 // Check drivers status. 
@@ -226,23 +216,19 @@ int debug (void)
  * @todo: 
  *     Checar se existe componentes do sistema como mbr, root, fat 
  * e arquivos e programas básicos do sistema.
- */
- 
+ */ 
 /* 
  * @todo: 
  *     Checar por falhas no sistema de arquivos.
+ */ 
+/*
+ * @todo:
+ *     Checar por falhas nas estruturas de tarefas.
  */
- 
- 
-	/*
-     * @todo:	
-	 *     Checar por falhas nas estruturas de tarefas.
-	 */
 
-	//...
+//...
 
-
-    // printf ("debug: Done.\n");
+    // printf ("debug: Done\n");
 
     return 0; 
 }
@@ -250,13 +236,12 @@ int debug (void)
 // debug_breakpoint:
 //     Para a execução do sistema.
 //     @todo: isso pode ir para o arquivo debug.c.
-
-void debug_breakpoint (void)
+void debug_breakpoint(void)
 {
-    printf ("debug_breakpoint:\n");
-    die();
+    printf("debug_breakpoint:\n");
+// This is gonna show the message if it is possible and hang.
+    keDie();
 }
-
 
 // Compute checksum
 // IN: address, lenght.
@@ -267,7 +252,6 @@ debug_compute_checksum (
     unsigned long lenght )
 {
     unsigned long res=0;
-    
     res = 
         (unsigned long) string_compute_checksum(
                             (unsigned char *) buffer,

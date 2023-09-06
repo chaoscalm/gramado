@@ -6,7 +6,7 @@
 // This function shows a formated string and 
 // hang the system.
 
-void panic ( const char *format, ... )
+void panic( const char *format, ... )
 {
     register int *varg = (int *) (&format);
 
@@ -16,17 +16,17 @@ void panic ( const char *format, ... )
     Initialization.kernel_owns_display_device = TRUE;
 
 // Se podemos usar o dispositivo serial para log.
-    if (Initialization.is_serial_log_initialized == TRUE){
-        PROGRESS("panic: \n");
+    if (Initialization.is_serial_log_initialized == TRUE)
+    {
+        PROGRESS("panic:\n");
     }
 // Se podemos usar o console virtual para log.
-    if (Initialization.is_console_log_initialized == TRUE){
-        printf ("panic: KERNEL PANIC\n");
-        print ( 0, varg );
+    if (Initialization.is_console_log_initialized == TRUE)
+    {
+        printf("panic: KERNEL PANIC\n");
+        print( 0, varg );
     }
 // Hang
-    die();
+    keDie();
 }
-
-
 
