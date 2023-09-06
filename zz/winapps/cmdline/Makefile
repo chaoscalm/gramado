@@ -32,8 +32,10 @@ CFLAGS = -m64 \
 
 LIBC      = ../../../zing/libs/rtl/include/
 LIBCOBJ   = ../../../zing/libs/rtl/obj
-LIBGWS    = ../../../zing/libs/libgws/include/
-LIBGWSOBJ = ../../../zing/libs/libgws/obj
+
+LIBGWS    = ../../libs/libgws/include/
+LIBGWSOBJ = ../../libs/libgws/obj
+
 
 # Objects
 myObjects = crt0.o main.o rtl.o \

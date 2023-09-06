@@ -4,22 +4,35 @@
 all:
 
 # Display support (Server-side?)
-	make -C libdisp/
+	#make -C libdisp/
+
 # Gramado Network Server (Client-side)
 	make -C libgns/
+
 # Graphics support (Server-side?)
-	make -C libgr/
+#	make -C libgr/
 # 3D Graphics support (Server-side?)
-	make -C libgr3d/
+#	make -C libgr3d/
+
 # Gramado Window System
 # Client-side library for the Display server.
-	make -C libgws/
+#	make -C libgws/
+
 # I/O ports in ring3.
 	make -C libio01/
 # libc and more.
 	make -C rtl/
 	
 clean:
-	-rm rtl/*.o
-	
+
+	-rm -f libgns/*.o
+	-rm -f libio01/*.o
+	-rm -f rtl/*.o
+
+	-rm -f libgns/obj/*.o
+	-rm -f libio01/obj/*.o
+	-rm -f rtl/obj/*.o
+
+
+
 

@@ -81,10 +81,11 @@ CFLAGS += -fno-optimize-sibling-calls
 #path longo. vamos mudar  as libs de lugar para gramado/libs.
 LIBC        = ../../zing/libs/rtl/include/
 LIBCOBJ     = ../../zing/libs/rtl/obj
-LIBDISP     = ../../zing/libs/libdisp/include/
-LIBDISPOBJ  = ../../zing/libs/libdisp/obj
-LIBGR       = ../../zing/libs/libgr/include/
-LIBGROBJ    = ../../zing/libs/libgr/obj
+
+LIBDISP     = ../libs/libdisp/include/
+LIBDISPOBJ  = ../libs/libdisp/obj
+LIBGR       = ../libs/libgr/include/
+LIBGROBJ    = ../libs/libgr/obj
 
 CINCLUDES  = -I $(LIBC)  
 CINCLUDES += -I $(LIBDISP)

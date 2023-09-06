@@ -28,14 +28,14 @@ CFLAGS = -m64 \
 	-s \
 	-Werror=strict-prototypes    
 
-LIBS = -I.  -I ../rtl/include/
+LIBS = -I.  -I ../../../zing/libs/rtl/include/
 
 .PHONY: all all-c finalize clean
 
 all: all-c finalize clean
 	@echo "Ok?"
 all-c:
-	gcc -c libgr3d.c  $(CFLAGS) $(LIBS) -o libgr3d.o
+	gcc -c libgr.c  $(CFLAGS) $(LIBS) -o libgr.o
 finalize:
 	-mkdir obj/
 	-cp *.o obj/

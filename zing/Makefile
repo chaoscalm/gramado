@@ -52,11 +52,8 @@ clean-all:
 	-rm -f barnsh/bin/*.BIN
 	-rm -f commands/bin/*.BIN
 
-	-rm -f libs/libdisp/obj/*.o
+
 	-rm -f libs/libgns/obj/*.o
-	-rm -f libs/libgr/obj/*.o
-	-rm -f libs/libgr3d/obj/*.o
-	-rm -f libs/libgws/obj/*.o
 	-rm -f libs/libio01/obj/*.o
 	-rm -f libs/rtl/obj/*.o
 

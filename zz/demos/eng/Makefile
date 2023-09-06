@@ -79,12 +79,13 @@ user_ccflags += -fno-optimize-sibling-calls
 
 LIBC       = ../../../zing/libs/rtl/include/
 LIBCOBJ    = ../../../zing/libs/rtl/obj
-LIBDISP    = ../../../zing/libs/libdisp/include/
-LIBDISPOBJ = ../../../zing/libs/libdisp/obj
-LIBGR      = ../../../zing/libs/libgr/include/
-LIBGROBJ   = ../../../zing/libs/libgr/obj
-LIBGR3D    = ../../../zing/libs/libgr3d/include/
-LIBGR3DOBJ = ../../../zing/libs/libgr3d/obj
+
+LIBDISP    = ../../libs/libdisp/include/
+LIBDISPOBJ = ../../libs/libdisp/obj
+LIBGR      = ../../libs/libgr/include/
+LIBGROBJ   = ../../libs/libgr/obj
+LIBGR3D    = ../../libs/libgr3d/include/
+LIBGR3DOBJ = ../../libs/libgr3d/obj
 
 CINCLUDES  = -I $(LIBC)  
 CINCLUDES += -I $(LIBDISP)
