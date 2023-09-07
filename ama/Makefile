@@ -146,10 +146,6 @@ build-gramado-os:
 # Copy the ring0 module image.
 #	sudo cp newm1/MOD1.BIN  ../aa/base/
 
-# Install BMPs
-	sudo cp ../aa/assets/themes/537/*.BMP  ../aa/base/
-#	sudo cp ../aa/assets/themes/537/*.BMP  ../aa/base/
-
 # ::Build libraries.
 	$(Q) $(MAKE) -C libs/
 # Don't copy to the disk.
@@ -159,6 +155,10 @@ build-gramado-os:
 	$(Q) $(MAKE) -C init/
 # Copy to the target folder.
 	-sudo cp init/bin/INIT.BIN  ../aa/base/ 
+
+# Install BMPs
+#	sudo cp ../aa/assets/themes/amazing/*.BMP  ../aa/base/
+	sudo cp ../aa/assets/themes/honey/*.BMP    ../aa/base/
 
 	@echo "~build-gramado-os end?"
 

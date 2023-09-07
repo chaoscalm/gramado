@@ -40,27 +40,27 @@ extern unsigned int bmp_substitute_color;
 // See: https://en.wikipedia.org/wiki/BMP_file_format
 struct gws_bmp_header_d                     
 {
-    unsigned short bmpType;       // Magic number for file
-    unsigned int   bmpSize;       // Size of file
-    unsigned short bmpReserved1;  // Reserved
-    unsigned short bmpReserved2;  // ...
-    unsigned int   bmpOffBits;    // Offset to bitmap data
+    unsigned short bmpType;       //  0  - Magic number for file
+    unsigned int   bmpSize;       //  2  - The size of the BMP file in bytes
+    unsigned short bmpReserved1;  //  6  - Reserved
+    unsigned short bmpReserved2;  //  8  - ...
+    unsigned int   bmpOffBits;    // 10  - Offset to bitmap data
 };
 
 // See: https://en.wikipedia.org/wiki/BMP_file_format   
 struct gws_bmp_infoheader_d                     
 {
-    unsigned int  bmpSize;           // Size of info header
-    unsigned int  bmpWidth;          // Width of image
-    unsigned int  bmpHeight;         // Height of image
-    unsigned short bmpPlanes;        // Number of color planes
-    unsigned short bmpBitCount;      // Number of bits per pixel
-    unsigned int  bmpCompression;    // Type of compression to use
-    unsigned int  bmpSizeImage;      // Size of image data
-    unsigned int  bmpXPelsPerMeter;  // X pixels per meter
-    unsigned int  bmpYPelsPerMeter;  // Y pixels per meter
-    unsigned int  bmpClrUsed;        // Number of colors used
-    unsigned int  bmpClrImportant;   // Number of important colors
+    unsigned int  bmpSize;           // 14 - Size of info header
+    unsigned int  bmpWidth;          // 18 - Width of image
+    unsigned int  bmpHeight;         // 22 - Height of image
+    unsigned short bmpPlanes;        // 26 - Number of color planes
+    unsigned short bmpBitCount;      // 28 - Number of bits per pixel
+    unsigned int  bmpCompression;    // 30 - Type of compression to use
+    unsigned int  bmpSizeImage;      // 34 - Size of image data
+    unsigned int  bmpXPelsPerMeter;  // 38 - X pixels per meter
+    unsigned int  bmpYPelsPerMeter;  // 42 - Y pixels per meter
+    unsigned int  bmpClrUsed;        // 46 - Number of colors used
+    unsigned int  bmpClrImportant;   // 50 - Number of important colors
 };
 
 //

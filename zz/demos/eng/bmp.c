@@ -91,12 +91,6 @@ bmpDisplayBMP (
     unsigned char *c  = (unsigned char *) &color;
     unsigned char *c2 = (unsigned char *) &color2;
 
-// Palette
-    unsigned int *palette = 
-        (unsigned int *) (address + 0x36);
-    unsigned char *palette_index = 
-        (unsigned char *) &pal_address;
-
 // Limits
 
 // #todo: 
@@ -170,6 +164,32 @@ bmpDisplayBMP (
     unsigned int Size = *(unsigned int *) &bmp[2];
     __Local_bh.bmpSize = (unsigned int) Size;
     //printf ("Size={%x}\n",Size);
+
+
+// Representa o inicio da paleta
+// ou o inicio da area de dados se for 24/32bpp.
+// 36 00 00 00 - 54 bytes (14+40)
+    unsigned int OffsetForBase = *(unsigned int *) &bmp[10];
+    //printf("OffsetForBase %x\n",OffsetForBase);
+    //while(1){}
+
+// #hackhack
+// Isso porque, para imagens antigas, feitas no Paint do Windows 7,
+// esta aparecento o valor 36 04 00 00, ao invez de 36 04 00 00.
+    OffsetForBase = (unsigned int) (OffsetForBase & 0xFF);
+
+// ----------------------------
+
+
+// Palette
+    unsigned int *palette = 
+        (unsigned int *) (address + OffsetForBase);
+    unsigned char *palette_index = 
+        (unsigned char *) &pal_address;
+
+
+
+//------------------------------
 
 //
 // struct for Info header
@@ -249,12 +269,13 @@ bmpDisplayBMP (
 
 
 //
-// Data area.
+// Data area
 //
 
-// bpp
-// The begin of the data area depends on the bpp value.
-// #tutorial:
+// Bits Per Pixel
+// The start of the data area depends on the bpp value.
+// Estamos falando do tamanho da paleta?
+// Wrong?
 //1     -  1 bpp (Mono)
 //4     -  4 bpp (Indexed)
 //8     -  8 bpp (Indexed) bbgggrrr
@@ -263,51 +284,64 @@ bmpDisplayBMP (
 //160   - 16 bpp (5:5:5:1, RGBA Hi color)
 //24    - 24 bpp (True color)
 //32    - 32 bpp (True color, RGB)
-//320   - 32 bpp (True color, RGBA)	
+//320   - 32 bpp (True color, RGBA)
 
-    switch (__Local_bi.bmpBitCount)
-    {
+    int BitsPerPixel = (int) (__Local_bi.bmpBitCount & 0xFFFF);
 
-    // ??
-    //case 1:  base = (0x36 + 0x40); break;
+    switch (BitsPerPixel){
 
-    // ??
-    //case 2: base = (0x36 + 0x40); break;
-
+    // 4 bytes pra cada cor, 2 cores. Total 8 bytes.
+    // 8/4 = 2 indices
+    case 1:
+        //base = (0x36 + 8);
+        base = (OffsetForBase + 8);
+        break;
     // 4 bytes pra cada cor, 16 cores. Total 64 bytes.
+    // 64/4 = 16 indices
     case 4:  
-        base = (0x36 + 0x40); 
-        //gwssrv_debug_print ("bmpDisplayBMP: bmpBitCount 4\n"); 
+        //base = (0x36 + 64); 
+        base = (OffsetForBase + 64);
         break; 
-
     // 4 bytes pra cada cor, 256 cores. Total 1024 bytes.
-    case 8:  
-        base = (0x36 + 0x400); 
-        //gwssrv_debug_print ("bmpDisplayBMP: bmpBitCount 8\n"); 
+    // 1024/4 = 256 indices.
+    case 8:
+        //printf("8\n");
+        // 36 00 00 00 - 54 bytes (14+40)
+        // base da area de dados = (base da paleta + tamanho da paleta).
+        //base = (0x36 + 1024); 
+        base = (OffsetForBase + 1024);
         break;
-
-    // #todo: Onde fica a base??
+    // 4 bytes pra cada cor, 16384 cores. Total 65536 bytes.
+    // 65536/4 = 16384 cores.
     case 16:
-        base = 0x36;
-        //gwssrv_debug_print ("bmpDisplayBMP: [FIXME] bmpBitCount 16\n"); 
+        //printf("16\n");
+        //base = 0x36 + 65536;
+        base = (OffsetForBase + 65536);
         break;
-
-    // #todo: Onde fica a base??
+    // It is not present for bitmaps with 24 color bits 
+    // because each pixel is represented by 
+    // 24-bit red-green-blue (RGB) values in the actual bitmap data area.
     case 24:
-        base = 0x36;
-        //gwssrv_debug_print ("bmpDisplayBMP: [FIXME] bmpBitCount 24\n"); 
+        //printf("24\n");
+        //base = 0x36 + 0;
+        //base = 4 + 40;  // Right after the headers.
+        //base = 54;  // Right after the headers.
+        base = (OffsetForBase + 0);
         break;
 
-    // #todo: Onde fica a base??
     case 32:
-        base = 0x36;
-        //gwssrv_debug_print ("bmpDisplayBMP: [FIXME] bmpBitCount 32\n"); 
+        //printf("32\n");
+        //base = 0x36 + 0;
+        //base = 0x36 - 64;
+        //base = 54;  // Right after the headers.
+        base = (OffsetForBase + 0);
         break;
 
     // #bugbug
     // We need to abort.
     default:  
-        base = 0x36;
+        //base = 0x36;
+        base = (OffsetForBase + 0);
         gwssrv_debug_print ("bmpDisplayBMP: [FAIL] bmpBitCount fail\n"); 
         break;
     };
@@ -338,7 +372,7 @@ bmpDisplayBMP (
                     color = (unsigned int) palette[  palette_index[0]  ];
 
                     nibble_count_16colors = 0;
-                    base = base + 1;
+                    base = (base +1);
 
                 // Primeiro nibble.
                 }else{
@@ -355,15 +389,19 @@ bmpDisplayBMP (
             // Próximo pixel para 8bpp
             if (__Local_bi.bmpBitCount == 8)
             {   
-                offset = base;
+                offset = (base +0);
                 color = (unsigned int) palette[  bmp[offset] ];
-                base = base + 1; 
+
+                // Na area de dados comtem os indices para a paleta.
+                base = (base +1);
             }
 
             // >>
             // Proximo pixel para 16bpp
             if (__Local_bi.bmpBitCount == 16)
             {
+                // #bugbug: Wrong
+
                 //a
                 c[0] = 0;  
 
@@ -384,41 +422,31 @@ bmpDisplayBMP (
                 c[3] = bmp[offset+1];
                 c[3] = c[3] & 0x1F;        // 0000 0000 '0001 1111' 
 
-                base = base + 2; 
+                base = (base +2); 
             }
 
             // Próximo pixel para 24bpp.
             if (__Local_bi.bmpBitCount == 24)
             {
-                c[0] = 0; //A
-
-                offset = base;
-                c[1] = bmp[offset];
-
-                offset = base+1;
-                c[2] = bmp[offset];
-
-                offset = base+2;
-                c[3] = bmp[offset];
-
-                base = base + 3; 
+                offset = (base +0);  c[0] = bmp[offset];
+                offset = (base +1);  c[1] = bmp[offset];
+                offset = (base +2);  c[2] = bmp[offset];
+                                     c[3] = 0;
+                // Na area de dados contem as cores.
+                base = (base +3); 
             }
 
             // Próximo pixel para 32bpp.
             if (__Local_bi.bmpBitCount == 32)
             {
-                c[0] = 0;  //A
+                offset = (base +0);  c[0] = bmp[offset];
+                offset = (base +1);  c[1] = bmp[offset];
+                offset = (base +2);  c[2] = bmp[offset];
+                offset = (base +3);  c[3] = bmp[offset];
+                                     c[3] = 0;  // Apagando o 3.
 
-                offset = base;
-                c[1] = bmp[offset];
-
-                offset = base+1;
-                c[2] = bmp[offset];
-
-                offset = base+2;
-                c[3] = bmp[offset];
-
-                base = base + 4;    
+                // Na area de dados contem as cores.
+                base = (base +4);    
             }
 
             // Put pixel.
