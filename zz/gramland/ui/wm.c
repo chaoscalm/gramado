@@ -8,6 +8,9 @@
 
 #include "gwsint.h"
 
+// #todo
+// Maybe we need a structure for this.
+
 // Clicked over a window.
 static int grab_is_active=FALSE;
 // Move the mouse without release the button.
@@ -596,6 +599,7 @@ on_mouse_event(
         comp_set_mouse_position(saved_x,saved_y);
         // Check the window we are inside of.
         __probe_window_hover(saved_x,saved_y);
+        
         return;
     }
 
@@ -682,14 +686,39 @@ on_mouse_pressed(
 // Title bar
 //
 
-    // Grab event on title bar window.
+    struct gws_window_d *p;
+
+    // When we pressed the titlebar,
+    // actually we're grabbing the parent.
     if (mouse_hover->isTitleBar == TRUE)
     {
-        grab_wid = (int) mouse_hover->id;
-        grab_is_active = TRUE;
+        grab_wid = -1; // No grabbed window
+        grab_is_active = FALSE;  // Not yet
         // We're not dragging yet.
-        // Just clicked.
+        // Just clicked. (Not moving yet).
         is_dragging = FALSE;
+
+        //#wrong
+        //grab_wid = (int) mouse_hover->id;
+        
+        // parent
+        p = (struct gws_window_d *) mouse_hover->parent;
+        if ( (void*) p != NULL )
+        {
+            // Valid parent. 
+            if (p->magic == 1234)
+            {
+                // Binbaquera!
+                // It needs to be an overlapped window
+                // Grab it!
+                if (p->type == WT_OVERLAPPED)
+                {
+                    grab_wid = (int) p->id;
+                    grab_is_active = TRUE;            
+                }
+            }
+        }
+
         return;
     }
 
@@ -977,8 +1006,12 @@ on_mouse_released(
     struct gws_window_d *tmp;
     struct gws_window_d *old_focus;
     struct gws_window_d *wgrab;
-    long x=0;
-    long y=0;
+    unsigned long x=0;
+    unsigned long y=0;
+    unsigned long x_diff=0;
+    unsigned long y_diff=0;
+    unsigned long x_when_dropping=0;
+    unsigned long y_when_dropping=0;
     unsigned long saved_x = pointer_x;
     unsigned long saved_y = pointer_y;
     unsigned long in_x=0;
@@ -1025,6 +1058,8 @@ on_mouse_released(
 // -------------------
 // Se clicamos em uma janela editbox.
 
+    static int InsideStatus=FALSE;
+
 // Check if we are inside the mouse hover.
     if ( saved_x >= mouse_hover->absolute_x &&
          saved_x <= mouse_hover->absolute_right &&
@@ -1034,6 +1069,8 @@ on_mouse_released(
         // #debug
         // printf("Inside mouse hover window :)\n");
     
+        InsideStatus = TRUE;
+
         // Values inside the window.
         in_x = (unsigned long) (saved_x - mouse_hover->absolute_x);
         in_y = (unsigned long) (saved_y - mouse_hover->absolute_y);
@@ -1132,51 +1169,58 @@ on_mouse_released(
 // Grabbing a window.
 //
 
-// If we already clicked on a window
-// and are already dragging it.
-// So, now it's time to drop it.
-    if ( grab_is_active == TRUE && 
-         is_dragging == TRUE && 
+// + We already pressed a window.
+// + We already moved the mouse. (Drag is active).
+// Now it's time to drop it. (Releasing the button).
+// and setting the grab as not active.
+
+    if ( grab_is_active == TRUE &&  
+         is_dragging == TRUE &&       
          grab_wid > 0 )
     {
-        // Drop it.
-        grab_is_active = FALSE;
-        is_dragging = FALSE;
+        // Drop it
+        grab_is_active = FALSE;  //
+        is_dragging = FALSE;     // 
         
+        // It needs to be an overlapped window.
         wgrab = (struct gws_window_d *) get_window_from_wid(grab_wid);
         if ((void*) wgrab != NULL)
         {
-            // Muda a janela mãe da grab se ela for titlebar.
             if (wgrab->magic == 1234)
             {
-                if (wgrab->isTitleBar == TRUE)
+                // The grabbed window needs to be an Overlapped.         
+                if (wgrab->type == WT_OVERLAPPED)
                 {
-                    if ( (void*)wgrab->parent != NULL)
-                    {
-                        // Posição atual do mouse.
-                        x = (long) comp_get_mouse_x_position();
-                        y = (long) comp_get_mouse_y_position();
+                    // Posição atual do mouse.
+                    x = (unsigned long) comp_get_mouse_x_position();
+                    y = (unsigned long) comp_get_mouse_y_position();
 
-                        // #todo
-                        // + Put the window in the top of the z-order.
-                        // + Redraw all the desktop.
-                        // + Activate the window.
-                        // + Set focus?
-                        gwssrv_change_window_position( 
-                            wgrab->parent, x, y );
+                    // #bugbug
+                    // Provisorio
+                    x_when_dropping = x;
+                    y_when_dropping = y;
+                    
+                    // #todo
+                    // + Put the window in the top of the z-order.
+                    // + Redraw all the desktop.
+                    // + Activate the window.
+                    // + Set focus?
+                    gwssrv_change_window_position( 
+                        wgrab, 
+                        x_when_dropping, 
+                        y_when_dropping );
                         
-                        // Redraw everything.
-                        wm_update_desktop3(wgrab->parent);
+                    // Redraw everything.
+                    wm_update_desktop3(wgrab);
                         
-                        //redraw_window(__root_window,FALSE);
-                        //set_active_window(wgrab->parent);
-                        //redraw_window(wgrab->parent,FALSE);
-                        //wm_Update_TaskBar("...",FALSE);
-                        //flush_window(__root_window);
+                    //redraw_window(__root_window,FALSE);
+                    //set_active_window(wgrab->parent);
+                    //redraw_window(wgrab->parent,FALSE);
+                    //wm_Update_TaskBar("...",FALSE);
+                    //flush_window(__root_window);
                         
-                        grab_wid = -1;
-                        return;
-                    }
+                    grab_wid = -1;
+                    return;
                 }
             }
             // No more grab window.
@@ -4208,13 +4252,12 @@ void __probe_tb_button_hover(unsigned long long1, unsigned long long2)
 }
 */
 
-
 // local
 static void on_mouse_leave(struct gws_window_d *window)
 {
 // When the mouse pointer leaves a window.
 
-    if ( (void*) window == NULL )
+    if ((void*) window == NULL)
         return;
     if (window->magic!=1234)
         return;
@@ -6287,7 +6330,7 @@ gwssrv_change_window_position (
     unsigned long y )
 {
 // Isso deve mudar apenas o deslocamento em relacao
-// a margem e nao a margem ?
+// a margem e nao a margem?
 
 // #test
 // Quando uma janela overlapped muda de posição,
@@ -6303,8 +6346,7 @@ gwssrv_change_window_position (
     struct gws_window_d *tmp_window;
     int tmp_wid = -1;
 
-
-    if ( (void *) window == NULL ){
+    if ((void *) window == NULL){
         gwssrv_debug_print("gwssrv_change_window_position: window\n");
         return -1;
     }
@@ -6326,9 +6368,34 @@ gwssrv_change_window_position (
 // Temos que checar a validade da parent.
 
 // absoluto
-    //if ( (void*) window->parent == NULL ){ return; };
-    window->absolute_x = (window->parent->absolute_x + x);
-    window->absolute_y = (window->parent->absolute_y + y);
+
+// -------------
+
+
+    if (window->type == WT_OVERLAPPED)
+    {
+        window->absolute_x = (unsigned long) x;
+        window->absolute_y = (unsigned long) y;
+        window->absolute_right = 
+            (unsigned long) (x + window->width);
+        window->absolute_bottom = 
+            (unsigned long) (y + window->height );
+    }   
+
+    if (window->type != WT_OVERLAPPED)
+    {
+        window->absolute_x = 
+            (unsigned long) (window->parent->absolute_x + x);
+        window->absolute_y = 
+            (unsigned long) (window->parent->absolute_y + y);
+        window->absolute_right = 
+            (unsigned long) (window->absolute_x + window->width);
+        window->absolute_bottom = 
+            (unsigned long) (window->absolute_y + window->height );
+    }
+
+// -------------
+
 // relativo
     window->left = x;
     window->top = y;
@@ -6409,15 +6476,14 @@ gwssrv_change_window_position (
 
 
             }
-            
         }
-
         // Client area . (rectangle).
         // Esses valores são relativos, então não mudam.
     }
 
 
 // Se nossa parent é overlapped.
+// Entao estamos dentro da area de cliente.
     struct gws_window_d *p;
     p = window->parent;
     if ( (void*) p != NULL )
@@ -6430,6 +6496,7 @@ gwssrv_change_window_position (
                    p->absolute_x +
                    p->rcClient.left +
                    window->left;
+
                 window->absolute_y = 
                    p->absolute_y +
                    p->rcClient.top +
