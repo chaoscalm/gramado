@@ -669,7 +669,7 @@ void *doCreateWindow (
         if (*title == 0){
             window->name = (char *) default_window_name;
         }
-    } else if ( (void*) title == NULL ){
+    } else if ((void*) title == NULL){
         window->name = (char *) default_window_name;
     };
 
@@ -871,63 +871,38 @@ void *doCreateWindow (
 // Calcula o absoluto
     if ((void*) window->parent != NULL)
     {
-        // A parent não é uma title bar,
-        // Então vamos usar o posicionamento absoluto da
-        // janela mãe.
-        //window->left = (window->parent->left + WindowX); 
-        //window->top  = (window->parent->top  + WindowY);
-        //window->left = (window->parent->x + WindowX); 
-        //window->top  = (window->parent->y  + WindowY);
+        if (window->parent->type != WT_OVERLAPPED)
+        {
+            window->absolute_x = 
+                (unsigned long) (window->parent->absolute_x + WindowX);
+            window->absolute_y = 
+                (unsigned long) (window->parent->absolute_y + WindowY);
+        }
+        
+        if (window->parent->type == WT_OVERLAPPED)
+        {
+            // Dentro da área de cliente.
+            window->absolute_x = 
+                (unsigned long) ( window->parent->absolute_x + 
+                window->parent->rcClient.left + 
+                WindowX );
+            window->absolute_y  = 
+                (unsigned long) ( window->parent->absolute_y +
+                window->parent->rcClient.top + 
+                WindowY );
 
-        //if ( window->parent->type == WT_OVERLAPPED || 
-        //     window->parent->type == WT_SIMPLE  )
-        //{
-            // Se estamos criando uma title bar,
-            // ela deve considerar o left da parent e não
-            // o left da area de cliente.
-            //if (window->type == WT_TITLEBAR){
-                //absolute_x = 
-                //    window->parent->x + WindowX;
-                //absolute_y  = 
-                //    window->parent->y + WindowY;
-                    
+            // Fora da área de cliente.
+            if ( window->type == WT_TITLEBAR)
+            {
                 window->absolute_x = 
-                    window->parent->absolute_x + WindowX;
-                window->absolute_y = 
-                    window->parent->absolute_y + WindowY;
-            
-            // Se a janela que estamos criando não é uma title bar
-            // então considere o left da área de cliente da janela mãe.
-            //}else{
-                //if (window->style & WS_CHILD)
-                if (window->parent->type == WT_OVERLAPPED )
-                {
-                    // Dentro da área de cliente.
-                    window->absolute_x = 
-                        window->parent->absolute_x + 
-                        window->parent->rcClient.left + 
-                        WindowX;
-                    window->absolute_y  = 
-                        window->parent->absolute_y +
-                        window->parent->rcClient.top + 
-                        WindowY;
-
-                    // Fora da área de cliente.
-                    if ( window->type == WT_TITLEBAR)
-                    {
-                        window->absolute_x = 
-                            window->parent->absolute_x + 
-                            WindowX;
-                        window->absolute_y  = 
-                           window->parent->absolute_y + 
-                           WindowY;
-                    }
+                    (unsigned long) ( window->parent->absolute_x + WindowX );
+                window->absolute_y  = 
+                    (unsigned long) ( window->parent->absolute_y + WindowY );
+            }
                     
-                    // Fora da área de cliente.
+            // Fora da área de cliente.
                     
-                }
-            //};
-        //}
+        }
     }
 
 // Right and bottom.
@@ -960,7 +935,8 @@ void *doCreateWindow (
     if (Fullscreen == TRUE)
     {
         window->absolute_x = fullWindowX;
-        window->absolute_y  = fullWindowY;
+        window->absolute_y = fullWindowY;
+        // #todo: Relative? window->left, window->top?
         window->width = fullWindowWidth;
         window->height = fullWindowHeight;
 
@@ -989,10 +965,10 @@ void *doCreateWindow (
 
 // Colors: 
 // Background and client area background.
-    window->bg_color = 
-        (unsigned int) frame_color;
-    window->clientrect_bg_color = 
-        (unsigned int) client_color;
+// #todo
+// If this window is overlapped, so, we need to respect the theme.
+    window->bg_color = (unsigned int) frame_color;
+    window->clientrect_bg_color = (unsigned int) client_color;
 
 // #todo: As outras características do cursor.
 // Características.
@@ -1840,7 +1816,7 @@ void *CreateWindow (
                          client_color, 
                          (unsigned long) __rop_flags ); 
 
-        if ( (void *) __w == NULL ){
+        if ((void *) __w == NULL){
              gwssrv_debug_print ("CreateWindow: doCreateWindow fail\n");
              goto fail;
         }

@@ -384,7 +384,7 @@ struct gws_window_d
 // The frame.
 // Top frame has: title bar, tool bar, menu bar ...
 // Not a pointer.
-    struct windowframe_d frame;
+    struct windowframe_d  frame;
 
 // The frame's rectangle.
     struct gws_rect_d  rcWindow;

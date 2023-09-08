@@ -937,8 +937,8 @@ gwsProcedure (
         break;
 
     // Business Logic:
-    // + Create a window.
-    // + Return the window id.
+    // + Service: Create a window.
+    // + Response: Return the window ID.
     case GWS_CreateWindow:
         serviceCreateWindow(client_fd);
         NoReply = FALSE;
@@ -2140,6 +2140,16 @@ int serviceCreateWindow(int client_fd)
     }
     */
 
+// Colors.
+// We need to respect the theme is the window
+// is Overlapped window.
+
+    if (my_style == WT_OVERLAPPED)
+    {
+        frame_color = (unsigned int) get_color(csiWindow);
+        client_color = (unsigned int) get_color(csiWindow);
+    }
+
     Window = 
         (struct gws_window_d *) CreateWindow ( 
                                     type,      // type
@@ -2155,17 +2165,16 @@ int serviceCreateWindow(int client_fd)
 
     if ((void *) Window == NULL)
     {
-       gwssrv_debug_print ("serviceCreateWindow: CreateWindow fail\n");
+       gwssrv_debug_print ("serviceCreateWindow: on CreateWindow()\n");
        next_response[1] = 0;
        goto fail;
-       //return -1;
     }
 
 // Register window
-    wid = RegisterWindow(Window);
+    wid = (int) RegisterWindow(Window);
     if (wid<0 || wid>=WINDOW_COUNT_MAX)
     {
-        gwssrv_debug_print ("gwssrv: serviceCreateWindow Couldn't register window\n");
+        gwssrv_debug_print("serviceCreateWindow: on RegisterWindow()\n");
         next_response[1] = 0;  // msg code.
         goto fail;
     }
@@ -2289,28 +2298,14 @@ int serviceCreateWindow(int client_fd)
     next_response[2] = 0;  //#todo: Maybe we can send aditional info here.
     next_response[3] = 0;  //#todo: Maybe we can send aditional info here.
 
-// Show
-// Invalidate rectangle
-// #todo: 
-// We need a flag here. Came from parameters.
-
-    // if( Show == TRUE )
-    //gws_show_window_rect(Window);
-    
-    //#debug
-    //if (Window->type == WT_ICON)
-    //    while(1){}
-    
-    //Window->dirty = TRUE;
     return 0;
+
 fail:
     gwssrv_debug_print("serviceCreateWindow: FAIL\n");
-    
     //#debug
     //printf("serviceCreateWindow: FAIL\n");
     //exit(0);
-    
-    return -1;
+    return (int) (-1);
 }
 
 // Draw char.

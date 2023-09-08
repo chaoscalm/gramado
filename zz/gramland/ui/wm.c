@@ -2324,7 +2324,7 @@ wmCreateWindowFrame (
     }
 
 // check window
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         //gwssrv_debug_print ("wmCreateWindowFrame: [FAIL] window\n");
         return -1;
     }
