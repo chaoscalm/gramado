@@ -116,22 +116,17 @@ static void wm_tile(void);
 static void on_quick_launch(int button_wid);
 static void launch_app_by_id(int id);
 
-//
-// Keyboard
-//
 
+// Process keyboard events.
 static unsigned long 
-on_keyboard_event(
+wmProcessKeyboardEvent(
     int msg,
     unsigned long long1,
     unsigned long long2 );
 
-//
-// Mouse
-//
-
+// Process mouse events.
 static void 
-on_mouse_event(
+wmProcessMouseEvent(
     int event_type, 
     unsigned long x, 
     unsigned long y );
@@ -144,7 +139,9 @@ static void on_mouse_released(unsigned long  pointer_x, unsigned long  pointer_y
 static void on_mouse_leave(struct gws_window_d *window);
 static void on_mouse_hover(struct gws_window_d *window);
 
-static void on_update_window(int event_type);
+static void on_drop(void);
+
+static void on_update_window(struct gws_window_d *window, int event_type);
 
 void __probe_window_hover(unsigned long long1, unsigned long long2);
 
@@ -156,14 +153,15 @@ void __button_released(int wid);
 
 // Menu
 void __create_start_menu(void);
-void on_menu_event(void);
+void wmProcessMenuEvent(int event_number, int button_wid);
 
 // Launch area
 void __create_quick_launch_area(void);
 
 // Key combination.
 inline int is_combination(int msg_code);
-int on_combination(int msg_code);
+
+static int wmProcessCombinationEvent(int msg_code);
 
 // =====================================================
 
@@ -289,7 +287,7 @@ fail:
 
 // #todo: explain it
 static unsigned long 
-on_keyboard_event(
+wmProcessKeyboardEvent(
     int msg,
     unsigned long long1,
     unsigned long long2 )
@@ -536,7 +534,7 @@ on_keyboard_event(
 // os eventos enviados para as janelas.
 // Mas os aplicativos pegam eventos apenas da 'main window'.
 static void 
-on_mouse_event(
+wmProcessMouseEvent(
     int event_type, 
     unsigned long x, 
     unsigned long y )
@@ -1003,15 +1001,16 @@ on_mouse_released(
 {
     int ButtonWID = -1;
 
+    struct gws_window_d *p;
     struct gws_window_d *tmp;
     struct gws_window_d *old_focus;
-    struct gws_window_d *wgrab;
+
     unsigned long x=0;
     unsigned long y=0;
+
     unsigned long x_diff=0;
     unsigned long y_diff=0;
-    unsigned long x_when_dropping=0;
-    unsigned long y_when_dropping=0;
+
     unsigned long saved_x = pointer_x;
     unsigned long saved_y = pointer_y;
     unsigned long in_x=0;
@@ -1032,7 +1031,7 @@ on_mouse_released(
 // estiver dentro da janela com foco de entrada.
 
 /*
-    on_mouse_event( 
+    wmProcessMouseEvent( 
         GWS_MouseReleased,              // event type
         comp_get_mouse_x_position(),    // current cursor x
         comp_get_mouse_y_position() );  // current cursor y
@@ -1085,10 +1084,10 @@ on_mouse_released(
             if (event_type == GWS_MouseReleased)
             {
                 if (in_x>0){
-                    mouse_hover->ip_x = (int) (in_x/8);
+                    mouse_hover->ip_x = (unsigned long) (in_x/8);
                 }
                 if (in_y>0){
-                    mouse_hover->ip_y = (int) (in_y/8);
+                    mouse_hover->ip_y = (unsigned long) (in_y/8);
                 }
                 
                 // Se essa editbox não é a keyboard owner,
@@ -1158,10 +1157,8 @@ on_mouse_released(
 // -------------------
 // #test
 // Start menu button was released.
-    if (ButtonWID == StartMenu.wid)
-    {
-        __button_released(ButtonWID);
-        on_menu_event();
+    if (ButtonWID == StartMenu.wid){
+        wmProcessMenuEvent(MENU_EVENT_RELEASED,StartMenu.wid);
         return;
     }
 
@@ -1174,60 +1171,13 @@ on_mouse_released(
 // Now it's time to drop it. (Releasing the button).
 // and setting the grab as not active.
 
+// Drop event
+// Release when dragging.
     if ( grab_is_active == TRUE &&  
          is_dragging == TRUE &&       
          grab_wid > 0 )
     {
-        // Drop it
-        grab_is_active = FALSE;  //
-        is_dragging = FALSE;     // 
-        
-        // It needs to be an overlapped window.
-        wgrab = (struct gws_window_d *) get_window_from_wid(grab_wid);
-        if ((void*) wgrab != NULL)
-        {
-            if (wgrab->magic == 1234)
-            {
-                // The grabbed window needs to be an Overlapped.         
-                if (wgrab->type == WT_OVERLAPPED)
-                {
-                    // Posição atual do mouse.
-                    x = (unsigned long) comp_get_mouse_x_position();
-                    y = (unsigned long) comp_get_mouse_y_position();
-
-                    // #bugbug
-                    // Provisorio
-                    x_when_dropping = x;
-                    y_when_dropping = y;
-                    
-                    // #todo
-                    // + Put the window in the top of the z-order.
-                    // + Redraw all the desktop.
-                    // + Activate the window.
-                    // + Set focus?
-                    gwssrv_change_window_position( 
-                        wgrab, 
-                        x_when_dropping, 
-                        y_when_dropping );
-                        
-                    // Redraw everything.
-                    wm_update_desktop3(wgrab);
-                        
-                    //redraw_window(__root_window,FALSE);
-                    //set_active_window(wgrab->parent);
-                    //redraw_window(wgrab->parent,FALSE);
-                    //wm_Update_TaskBar("...",FALSE);
-                    //flush_window(__root_window);
-                        
-                    grab_wid = -1;
-                    return;
-                }
-            }
-            // No more grab window.
-            grab_wid = -1;
-            return;
-        }
-        grab_wid = -1;
+        on_drop();
         return;
     }
 
@@ -1248,23 +1198,41 @@ on_mouse_released(
 
 // ===================================
 // Title bar
+// Release the titlebar.
     if (mouse_hover->isTitleBar == TRUE)
     {
         // Get parent.
-        tmp = (struct gws_window_d *) mouse_hover->parent;
-        if ((void*) tmp != NULL)
+        p = (struct gws_window_d *) mouse_hover->parent;
+        if ((void*) p != NULL)
         {
-            if (tmp->magic == 1234)
+            if (p->magic == 1234)
             {
                 // Set as last window and update desktop.
-                if (tmp->type == WT_OVERLAPPED)
+                if (p->type == WT_OVERLAPPED)
                 {
-                    wm_update_desktop3(tmp);
+                    // Get old active, deactivate and redraw the old.
+                    tmp = (struct gws_window_d *) get_active_window();
+                    unset_active_window();
+                    redraw_window(tmp,TRUE);
+                    on_update_window(tmp,GWS_Paint);
+                    
+                    // Set new active and redraw.
+                    set_active_window(p);
+                    set_focus(p);
+                    redraw_window(p,TRUE);
+                    on_update_window(p,GWS_Paint);  // to wwf
+                    //on_update_window(p,GWS_Paint);
+
+                    // ?
                     //old_focus = (void*) get_focus(); 
                     //if ((void*) old_focus != NULL )
                     //set_active_window(tmp);
                     //set_focus(tmp);
                     //redraw_window(tmp,TRUE);
+
+                    // Set the last window and update the desktop.
+                    //wm_update_desktop3(p);
+                    
                     return;
                 }
             }
@@ -1350,7 +1318,7 @@ on_mouse_released(
 // Post a message into the window with focus message queue.
 // #todo: We need a worker for posting messages into the queues.
 // Do we already have one?
-static void on_update_window(int event_type)
+static void on_update_window(struct gws_window_d *window, int event_type)
 {
 // Post a message to the window with focus.
 
@@ -1363,7 +1331,8 @@ static void on_update_window(int event_type)
         return;
     }
 
-    w = (struct gws_window_d *) get_focus();
+    //w = (struct gws_window_d *) get_focus();
+    w = (struct gws_window_d *) window;
     if ( (void*) w==NULL ){ return; }
     if (w->magic != 1234) { return; }
 
@@ -3084,7 +3053,7 @@ void wm_update_desktop(int tile, int show)
 
     w = (struct gws_window_d *) first_window;
     if ((void*)w == NULL)
-    { 
+    {
         first_window = NULL;
         wm_Update_TaskBar("DESKTOP",FALSE);
         flush_window(__root_window);
@@ -3119,8 +3088,8 @@ void wm_update_desktop(int tile, int show)
                 redraw_window(w,FALSE);
 
                 // Post message to the main window.
-                // Paint the childs of the window with focus.
-                on_update_window(GWS_Paint);
+                // Paint the childs of the 'window with focus'.
+                //on_update_window(w,GWS_Paint);
                 //invalidate_window(w);
             }
         }
@@ -3196,32 +3165,42 @@ wm_update_desktop2(
     wm_update_desktop(TRUE,TRUE);
 }
 
-void wm_update_desktop3(struct gws_window_d *top_window)
+void wm_update_desktop3(struct gws_window_d *new_top_window)
 {
 // #todo
 // We need to redraw a lot of windows.
 
+
+// Root
     if ((void*) __root_window == NULL)
         return;
-    if ((void*) top_window == NULL)
+    redraw_window(__root_window,FALSE);
+
+//
+// The new 'top window'.
+//
+
+    if ((void*) new_top_window == NULL)
         return;
-    if (top_window->magic != 1234)
+    if (new_top_window->magic != 1234)
         return;
 
-    redraw_window(__root_window,FALSE);
+    top_window = new_top_window;
 
     set_active_window(top_window);
     set_focus(top_window); //#wrong: The focus goes to the child.
     redraw_window(top_window,FALSE);
     // Post message to the main window.
     // Paint the childs of the window with focus.
-    on_update_window(GWS_Paint);
+    on_update_window(top_window,GWS_Paint);
+
 
 //
 // String
 //
 
-// Show the window name .. that is the top widnow.
+// Show the name of the top window 
+// into the taskbar.
 
     char *tw_name;
     //wm_Update_TaskBar("...",FALSE);
@@ -3237,6 +3216,8 @@ void wm_update_desktop3(struct gws_window_d *top_window)
         }
     }
 
+    if ((void*) top_window == NULL)
+        wm_Update_TaskBar("...",FALSE);
 
 // Flush the whole desktop.
     flush_window(__root_window);
@@ -3319,7 +3300,7 @@ void wm_update_window_by_id(int wid)
     invalidate_window(w);
 
 // Paint the childs of the window with focus.
-    on_update_window(GWS_Paint);
+    on_update_window(w,GWS_Paint);
 
 //#todo: string
     //wm_Update_TaskBar("Win",TRUE);
@@ -3881,7 +3862,7 @@ wm_draw_char_into_the_window(
     if (ch == VK_BACK)
     {
         window->ip_x--;
-        if (window->ip_x < 0)
+        if (window->ip_x == 0)
         {
             if (window->type == WT_EDITBOX_SINGLE_LINE)
             {
@@ -3891,7 +3872,7 @@ wm_draw_char_into_the_window(
             if (window->type == WT_EDITBOX_MULTIPLE_LINES)
             {
                 window->ip_y--;
-                if (window->ip_y < 0)
+                if (window->ip_y == 0)
                 {
                     window->ip_y=0;
                 }
@@ -4262,6 +4243,13 @@ static void on_mouse_leave(struct gws_window_d *window)
     if (window->magic!=1234)
         return;
 
+// Flag
+    window->is_mouse_hover = FALSE;
+
+// Update mouse pointer
+    window->x_mouse_relative = 0;
+    window->y_mouse_relative = 0;
+
 // The old mousehover needs to comeback
 // to the normal state.
 // visual efect
@@ -4281,6 +4269,9 @@ static void on_mouse_hover(struct gws_window_d *window)
         return;
     if (window->magic!=1234)
         return;
+
+// Flag
+    window->is_mouse_hover = TRUE;
 
 // visual efect
     if (window->type == WT_BUTTON)
@@ -4302,6 +4293,77 @@ static void on_mouse_hover(struct gws_window_d *window)
     }
 }
 
+static void on_drop(void)
+{
+    struct gws_window_d *wgrab;
+
+// Drop it
+    grab_is_active = FALSE;  //
+    is_dragging = FALSE;     // 
+
+// Invalid wid.
+    if ( grab_wid < 0 ||
+         grab_wid >= WINDOW_COUNT_MAX )
+    {
+        return;
+    }
+
+// It needs to be an overlapped window.
+    wgrab = (struct gws_window_d *) get_window_from_wid(grab_wid);
+    if ((void*) wgrab == NULL)
+        return;
+    if (wgrab->magic != 1234)
+        return;
+
+// The grabbed window needs to be an Overlapped.         
+    if (wgrab->type != WT_OVERLAPPED)
+        return;
+
+// Posição atual do mouse.
+    unsigned long x=0;
+    unsigned long y=0;
+// Posiçao do mouse when dropping.
+    unsigned long x_when_dropping = 0;
+    unsigned long y_when_dropping = 0;
+
+// Pega a posiçao atual.
+    x = (unsigned long) comp_get_mouse_x_position();
+    y = (unsigned long) comp_get_mouse_y_position();
+
+// #bugbug
+// Provisorio
+    x_when_dropping = x;
+    y_when_dropping = y;
+
+// #test
+// Using the relative pointer.
+// (0,0)
+// O posicionamento relativo para janelas overlapped
+// nunca foram atualizados, portanto eh (0,0).
+
+    //x_when_dropping = (unsigned long) wgrab->x_mouse_relative;
+    //y_when_dropping = (unsigned long) wgrab->y_mouse_relative;
+
+        
+// #todo
+// + Put the window in the top of the z-order.
+// + Redraw all the desktop.
+// + Activate the window.
+// + Set focus?
+
+    gwssrv_change_window_position( 
+        wgrab, 
+        x_when_dropping, 
+        y_when_dropping );
+
+// Redraw everything.
+    wm_update_desktop3(wgrab);
+
+// done:
+    grab_wid = -1;
+    return;
+}
+
 // local
 // Se o mouse esta passando sobre alguma janela de alguns tipos.
 void 
@@ -4316,6 +4378,7 @@ __probe_window_hover(
     register int i=0;
     int max = WINDOW_COUNT_MAX;  // All the windows in the global list.
     struct gws_window_d *w;
+    struct gws_window_d *p;
 
     if (WindowManager.initialized!=TRUE){
         return;
@@ -4337,7 +4400,7 @@ __probe_window_hover(
     {
         if (w->magic == 1234)
         {
-            // Types:
+            // Valid types: (for now)
             if ( w->type == WT_EDITBOX_SINGLE_LINE ||
                  w->type == WT_EDITBOX_MULTIPLE_LINES ||
                  w->type == WT_BUTTON )
@@ -4349,7 +4412,7 @@ __probe_window_hover(
                 {
                     // Deixe a antiga, e repinte ela,
                     // se estamos numa nova.
-                    if ( w != mouse_hover )
+                    if (w != mouse_hover)
                     {
                         on_mouse_leave(mouse_hover);  // repinte a antiga
                         // The new mouse over.
@@ -4358,6 +4421,12 @@ __probe_window_hover(
                         // Já que estamos numa nova, 
                         // vamos mudar o visual dela.
                         on_mouse_hover(w);            // repinte a nova
+                    
+                        // Update relative mouse pointer
+                        w->x_mouse_relative = 
+                           (unsigned long) (long1 - w->absolute_x);
+                        w->y_mouse_relative = 
+                           (unsigned long) (long2 - w->absolute_y);
                     }
                     return;
                 }
@@ -4372,6 +4441,7 @@ __probe_window_hover(
             // #test
             // Are we hover a menu item?
             // We have two types of menuitens.
+            // Titlebar is also SIMPLE.
             if (w->type == WT_SIMPLE)
             {
                 if (w->isTitleBar == TRUE)
@@ -4385,6 +4455,12 @@ __probe_window_hover(
                             on_mouse_leave(mouse_hover);
                             mouse_hover = (void*) w;
                             on_mouse_hover(w);
+
+                            // Update relative mouse pointer
+                            w->x_mouse_relative = 
+                               (unsigned long) (long1 - w->absolute_x);
+                            w->y_mouse_relative = 
+                               (unsigned long) (long2 - w->absolute_y);
                         }
                         return;
                     }
@@ -4499,7 +4575,7 @@ wmProcedure(
 
 // #todo
 // Esse procedimento não gerencia mais esses eventos de mouse.
-// see: on_mouse_event(...)
+// see: wmProcessMouseEvent(...)
 
     //case GWS_MouseMove:
     //    break;
@@ -4582,34 +4658,44 @@ int wmSTDINInputReader(void)
     return (int) nreads;
 }
 
-
-void on_menu_event(void)
+void wmProcessMenuEvent(int event_number, int button_wid)
 {
-    if (StartMenu.is_created != TRUE)
-    {
-        //__button_pressed( StartMenu.wid );
-        create_main_menu();
-        return;
-    }
 
-    if (StartMenu.is_visible != TRUE)
+// Effect
+// Mouse button released the start menu button
+    if ( event_number == MENU_EVENT_RELEASED || 
+         event_number == MENU_EVENT_COMBINATION )
     {
-        //__button_pressed( StartMenu.wid );
-        redraw_main_menu();
-        return;
-    }
+        if (button_wid == StartMenu.wid){
+            __button_released(StartMenu.wid);
+        }
 
-    if (StartMenu.is_visible == TRUE)
-    {
-        //__button_released( StartMenu.wid );
+        // Not created. Create!
+        if (StartMenu.is_created != TRUE)
+        {
+            create_main_menu();
+            return;
+        }
+
+        // Created, but not visible. Show it!
+        if (StartMenu.is_visible != TRUE)
+        {
+            redraw_main_menu();
+            return;
+        }
+
+        // Created and visible.
         // Update desktop but don't show the menu.
-        StartMenu.is_visible = FALSE;
-        wm_update_desktop(TRUE,TRUE);
-        return;
+        if (StartMenu.is_visible == TRUE)
+        {
+            StartMenu.is_visible = FALSE;
+            wm_update_desktop(TRUE,TRUE);
+            return;
+        }
     }
 }
 
-int on_combination(int msg_code)
+static int wmProcessCombinationEvent(int msg_code)
 {
 // Handle combination code.
 
@@ -4681,9 +4767,8 @@ int on_combination(int msg_code)
 // #test
 // Creates a menu for the root window.
 // Only refresh if it is already created.
-    if (msg_code == GWS_Save)
-    {
-        on_menu_event();
+    if (msg_code == GWS_Save){
+        wmProcessMenuEvent(MENU_EVENT_COMBINATION,-1);
         return 0;
     }
 
@@ -4801,7 +4886,7 @@ new_event:
          msg == GWS_MousePressed ||
          msg == GWS_MouseReleased )
     {
-        on_mouse_event(
+        wmProcessMouseEvent(
             (int) msg,
             (unsigned long) long1,
             (unsigned long) long2 ); 
@@ -4815,7 +4900,7 @@ new_event:
          msg == GWS_SysKeyDown ||
          msg == GWS_SysKeyUp )
     {
-        on_keyboard_event( 
+        wmProcessKeyboardEvent( 
             (int) msg, (unsigned long) long1, (unsigned long) long2 );
         return 0;
     }
@@ -4829,7 +4914,7 @@ new_event:
     int ComStatus = -1;
     if (IsCombination)
     {
-        ComStatus = (int) on_combination(msg);
+        ComStatus = (int) wmProcessCombinationEvent(msg);
         // #todo
         // Can we return right here?
         // #test
@@ -4983,7 +5068,7 @@ int wmInputReader2(void)
                  e.msg == GWS_MousePressed ||
                  e.msg == GWS_MouseReleased )
             {
-                on_mouse_event(
+                wmProcessMouseEvent(
                     (int) e.msg,
                     (unsigned long) e.long1,
                     (unsigned long) e.long2 ); 
@@ -4997,7 +5082,7 @@ int wmInputReader2(void)
                  e.msg == GWS_SysKeyUp )
             {
                 // Print char into the keyboard owner window.
-                on_keyboard_event( 
+                wmProcessKeyboardEvent( 
                     (int) e.msg, 
                     (unsigned long) e.long1, 
                     (unsigned long) e.long2 );
@@ -5006,7 +5091,7 @@ int wmInputReader2(void)
             // Is it a combination?
             IsCombination = (int) is_combination(e.msg);
             if (IsCombination){
-                on_combination(e.msg);
+                wmProcessCombinationEvent(e.msg);
             }
 
             if (e.msg == GWS_HotKey)
@@ -5061,6 +5146,7 @@ void wm_change_bg_color(unsigned int color, int tile, int fullscreen)
     };
 }
 
+// Enter fullscreen.
 void wm_enter_fullscreen_mode(void)
 {
     struct gws_window_d *w;
@@ -5069,6 +5155,19 @@ void wm_enter_fullscreen_mode(void)
         return;
     }
 
+// active window
+    //w = (struct gws_window_d *) last_window;
+    w = (struct gws_window_d *) get_active_window();
+    if ( (void*) w != NULL )
+    {
+        WindowManager.is_fullscreen = TRUE;
+        WindowManager.fullscreen_window = 
+            (struct gws_window_d *) w;
+        wm_update_window_by_id(w->id);
+        return;
+    }
+
+/*
 // Last window
     w = (struct gws_window_d *) last_window;
     if ( (void*) w != NULL ){
@@ -5078,7 +5177,9 @@ void wm_enter_fullscreen_mode(void)
         wm_update_window_by_id(w->id);
         return;
     }
+*/
 
+/*
 // First window
     w = (struct gws_window_d *) first_window;
     if ( (void*) w != NULL ){
@@ -5088,6 +5189,7 @@ void wm_enter_fullscreen_mode(void)
         wm_update_window_by_id(w->id);
         return;
     }
+*/
 }
 
 void wm_exit_fullscreen_mode(int tile)
@@ -6070,7 +6172,7 @@ int dock_window( struct gws_window_d *window, int position )
     redraw_window(window,TRUE);
     // Post message to the main window.
     // Paint the childs of the window with focus.
-    on_update_window(GWS_Paint);
+    on_update_window(window,GWS_Paint);
 
     return 0; 
 }
@@ -6080,7 +6182,7 @@ struct gws_window_d *get_active_window (void)
     return (struct gws_window_d *) active_window;
 }
 
-void set_active_window (struct gws_window_d *window)
+void set_active_window(struct gws_window_d *window)
 {
 // #bugbug
 // Can we active the root window?
@@ -6098,6 +6200,11 @@ void set_active_window (struct gws_window_d *window)
     }
 
     active_window = (void*) window;
+}
+
+void unset_active_window(void)
+{
+    active_window = NULL;
 }
 
 struct gws_window_d *get_window_with_focus(void)

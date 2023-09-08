@@ -203,7 +203,7 @@ void
 wm_update_desktop2(
     struct gws_window_d *last_window,
     int tile );
-void wm_update_desktop3(struct gws_window_d *top_window);
+void wm_update_desktop3(struct gws_window_d *new_top_window);
 
 // Update window.
 void wm_update_window_by_id(int wid);

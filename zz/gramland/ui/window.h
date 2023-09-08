@@ -864,8 +864,8 @@ struct gws_window_d
     // Use chars, or use only asterisk for password, etc ...
     //int input_glyph_style;
 
-    int ip_x;
-    int ip_y;
+    unsigned long ip_x;
+    unsigned long ip_y;
     unsigned int ip_color;
     unsigned long width_in_chars;
     unsigned long height_in_chars;
@@ -877,6 +877,13 @@ struct gws_window_d
 // para input do tipo teclado
     unsigned long ip_pixel_x;
     unsigned long ip_pixel_y;
+
+// A posiçao do mouse relativa a essa janela.
+    unsigned long x_mouse_relative;
+    unsigned long y_mouse_relative;
+
+// The pointer is inside this window.
+    int is_mouse_hover;
 
 //
 // == Events =========================================
@@ -1342,6 +1349,8 @@ struct gws_window_d *get_window_from_wid(int wid);
 struct gws_window_d *get_active_window (void);
 void set_active_window (struct gws_window_d *window);
 void set_active_by_id(int wid);
+
+void unset_active_window(void);
 
 //
 // Text/String support.

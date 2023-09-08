@@ -4,6 +4,11 @@
 #ifndef GWS_MENU_H
 #define GWS_MENU_H    1
 
+
+#define MENU_EVENT_PRESSED      1000
+#define MENU_EVENT_RELEASED     2000
+#define MENU_EVENT_COMBINATION  3000
+
 // Menu item types
 #define MI_TYPE_SEPARATOR  1000
 #define MI_TYPE_TEXT       2000

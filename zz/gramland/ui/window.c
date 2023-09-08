@@ -646,6 +646,13 @@ void *doCreateWindow (
 // In pixel, for mouse pointer ip device.
     window->ip_pixel_x = 0;
     window->ip_pixel_y = 0;
+
+// A posiçao do mouse relativa a essa janela.
+    window->x_mouse_relative=0;
+    window->y_mouse_relative=0;
+
+// The pointer is inside this window.
+    window->is_mouse_hover = FALSE;
 // ===================================
 
 // Id
