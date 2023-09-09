@@ -51,8 +51,8 @@ clean-core:
 	-rm ama/hals/newm0/MOD0.BIN
 	-rm ama/hals/newm1/MOD1.BIN
 # Clear the init process.
-	-rm ama/init/bin/*.BIN
-	-rm ama/init/*.o
+	-rm ama/c0/init/bin/*.BIN
+	-rm ama/c0/init/*.o
 
 PHONY := clean-base
 clean-base:

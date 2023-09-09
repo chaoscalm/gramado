@@ -152,9 +152,9 @@ build-gramado-os:
 
 # :: init.bin 
 # Building init process.
-	$(Q) $(MAKE) -C init/
+	$(Q) $(MAKE) -C c0/init/
 # Copy to the target folder.
-	-sudo cp init/bin/INIT.BIN  ../aa/base/ 
+	-sudo cp c0/init/bin/INIT.BIN  ../aa/base/ 
 
 # Install BMPs
 #	sudo cp ../aa/assets/themes/amazing/*.BMP  ../aa/base/
@@ -309,8 +309,8 @@ clean-all: clean
 	-rm -rf ../aa/base/USERS/*.BIN 
 # ==================
 # Clear the init process.
-	-rm init/bin/*.BIN
-	-rm init/*.o
+	-rm c0/init/bin/*.BIN
+	-rm c0/init/*.o
 # ==================
 # Clear the dependencies.
 	-rm libs/fonts/bin/*.FON
