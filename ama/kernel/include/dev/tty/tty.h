@@ -140,15 +140,14 @@ struct tty_queue
 
 
 /*
- * tty_d:
- * This is tty structure.
- */
-// ??
+// tty_d:
+// This is tty structure.
 // The tty structure need to have a pointer to
 // a buffer and a pointer to a thread. These is the where
 // we're gonna send the data.
 // uma estrutura de tty deve estar associado a
 // uma janela de terminal virtual.
+*/
 
 struct tty_d
 {
@@ -167,6 +166,10 @@ struct tty_d
     size_t Name_len;
 
     int initialized;
+
+// Ownership
+
+    tid_t __owner_tid;
 
 //
 // == Storage ========
@@ -204,33 +207,11 @@ struct tty_d
 
 // If a process try to write in a stopped TTY it will be blocked.
     int stopped;
-    
-    //int lock;
 
 //
 // == Security ============================================
 //
 
-    //pid_t pid_in_caller;
-    //pid_t pid_out_caller;
-
-    //tid_t tid_in_caller;
-    //tid_t tid_out_caller;
-
-// process group.
-// Usando quanto tiver uma interrupção de tty.
-// Quais processos estão no mesmo grupo quanto tiver a interrupção.
-// Vamos sinalizá-los.
-    gid_t gid;
-// Quantos processos estao usando essa tty.
-    int pid_count;
-// Owner process.
-    struct process_d *process;
-// #todo: merge?
-// Thread de input.
-    struct thread_d *thread;
-// Control thread;
-    struct thread_d *control;
 // What is the user logged in this terminal?
 // see: user.h
     struct user_info_d *user_info;

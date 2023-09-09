@@ -652,6 +652,9 @@ struct tty_d *tty_create(void)
     __tty->used = TRUE;
     __tty->magic = 1234;
 
+// Uninitialized.
+    __tty->__owner_tid = (int) -1;
+
 // Index
     __tty->index = (int) (new_tty_index & 0xFFFF);
     new_tty_index++;
@@ -665,7 +668,7 @@ struct tty_d *tty_create(void)
 
 // No thread for now.
 // ?? What thread we need to use here?
-    __tty->control = NULL;
+    //__tty->control = NULL;
 // No user logged yet.
     __tty->user_info = NULL;
 
@@ -692,11 +695,13 @@ struct tty_d *tty_create(void)
     __tty->ldisc  = NULL;  //line discipline struct
 // termios struct (not a pointer)
     tty_reset_termios(__tty);
+
 // process group.
-    __tty->gid = current_group;
+    //__tty->gid = current_group;
 // ??
 // Quantos processos estao usando essa tty.
-    __tty->pid_count=0;
+    //__tty->pid_count=0;
+    
     __tty->type = 0;
     __tty->subtype = 0;
     __tty->flags = 0;

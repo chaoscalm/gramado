@@ -502,8 +502,12 @@ console_init_virtual_console(
     CONSOLE_TTYS[ConsoleIndex].used  = TRUE;
     CONSOLE_TTYS[ConsoleIndex].magic = (int) 1234;
 
+// Owner tid
+// Uninitialized
+    CONSOLE_TTYS[ConsoleIndex].__owner_tid = (int) -1;
+
     // No thread for now.
-    CONSOLE_TTYS[ConsoleIndex].control = NULL;
+    //CONSOLE_TTYS[ConsoleIndex].control = NULL;
 
     // tty is a terminal, so the user logs on a terminal.
     // No user logged yet.
@@ -533,11 +537,11 @@ console_init_virtual_console(
     //CONSOLE_TTYS[ConsoleIndex].termios??       //termios struct (not a pointer)
 
     // process group.
-    CONSOLE_TTYS[ConsoleIndex].gid = current_group;
+    //CONSOLE_TTYS[ConsoleIndex].gid = current_group;
 
     // ??
     // Quantos processos estao usando essa tty.
-    CONSOLE_TTYS[ConsoleIndex].pid_count=0;
+    //CONSOLE_TTYS[ConsoleIndex].pid_count=0;
 
     CONSOLE_TTYS[ConsoleIndex].type = 0;
     CONSOLE_TTYS[ConsoleIndex].subtype = 0;
@@ -3290,7 +3294,8 @@ console_ioctl (
 
 // What process group it belongs to?
     case 502:
-        return (int) CONSOLE_TTYS[fg_console].gid;
+        return (int) -1;
+        //return (int) CONSOLE_TTYS[fg_console].gid;
         break;
 
 // ??
