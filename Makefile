@@ -34,12 +34,13 @@ clean-userland:
 
 # zing/
 	-rm -f zing/barnsh/bin/*.BIN
+	-rm -f zing/c3/bin/*.BIN
+	-rm -f zing/c3/bin/*.BIN
 	-rm -f zing/commands/bin/*.BIN
-	-rm -f zing/netd/bin/*.BIN
 	-rm -f zing/services/bin/*.BIN
-# zz/
-	-rm -f zz/demos/eng/bin/*.BIN
-	-rm -f zz/gramland/bin/*.BIN
+# zz
+	-rm -f zz/c1/eng/bin/*.BIN
+	-rm -f zz/c1/gramland/bin/*.BIN
 	-rm -f zz/winapps/bin/*.BIN
 
 PHONY := clean-core
@@ -47,12 +48,12 @@ clean-core:
 # Clear the core domain.
 	-rm ama/GRAMADO.VHD
 	-rm ama/MBR0.BIN
-	-rm ama/kernel/KERNEL.BIN
+# Clear the init process.
+	-rm ama/c0/init/*.o
+	-rm ama/c0/init/bin/*.BIN
 	-rm ama/hals/newm0/MOD0.BIN
 	-rm ama/hals/newm1/MOD1.BIN
-# Clear the init process.
-	-rm ama/c0/init/bin/*.BIN
-	-rm ama/c0/init/*.o
+	-rm ama/kernel/KERNEL.BIN
 
 PHONY := clean-base
 clean-base:

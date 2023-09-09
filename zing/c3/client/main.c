@@ -134,6 +134,9 @@ int main(int argc, char *argv[])
 // ------------------
 // Send request and wait for response.
 // Ok. Its working :)
+
+    printf("NETCTL.BIN: Sending hello!\n");
+
     int hello_status = (int) gns_hello(client_fd);
     if (hello_status <= 0){
         printf("gns.bin: Service failed\n");

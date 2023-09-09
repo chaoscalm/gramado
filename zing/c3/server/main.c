@@ -531,7 +531,7 @@ static int ServerInitialization(void)
 
 
 // debug
-    printf("gnssrv: Initializing\n");
+    printf("NETCTLD.BIN: [c3] Initializing\n");
 
 // Initialize global variables.
     __initialize_globals();

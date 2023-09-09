@@ -192,23 +192,29 @@ copy-extras:
 	-sudo cp ../zing/commands/bin/GRAMCNF.BIN   ../aa/base/PROGRAMS/
 	#...
 
+# c2
+	-sudo cp ../zing/c2/bin/NICCTL.BIN     ../aa/base/
+	-sudo cp ../zing/c2/bin/NICCTLD.BIN  ../aa/base/
+
+# c3
+	-sudo cp ../zing/c3/bin/NETCTL.BIN     ../aa/base/
+	-sudo cp ../zing/c3/bin/NETCTLD.BIN  ../aa/base/
+
 	-sudo cp ../zing/commands/bin/N9.BIN   ../aa/base/PROGRAMS/
 	-sudo cp ../zing/commands/bin/N10.BIN  ../aa/base/PROGRAMS/
 	-sudo cp ../zing/commands/bin/N11.BIN  ../aa/base/PROGRAMS/
 
-# netd
-	-sudo cp ../zing/netd/bin/GNS.BIN     ../aa/base/
-	-sudo cp ../zing/netd/bin/GNSSRV.BIN  ../aa/base/
 
 # zz
 # Copying every image from zz/.
 	@echo ":: Copying every image from zz"
 
-# Graphics engine
-	-sudo cp ../zz/demos/eng/bin/ENG.BIN  ../aa/base/
+# zz/c1/
 
+# Graphics engine
+	-sudo cp ../zz/c1/eng/bin/ENG.BIN  ../aa/base/
 # Display server.
-	-sudo cp ../zz/gramland/bin/GRAMLAND.BIN  ../aa/base/
+	-sudo cp ../zz/c1/gramland/bin/GRAMLAND.BIN  ../aa/base/
 
 # winapps (Students)
 

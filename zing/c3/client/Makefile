@@ -1,7 +1,6 @@
 
-# gns.bin
-# This is a client application for gnssrv.
-# 2019 - Created by Fred Nora.
+# NETCTL.BIN
+# NET Control (Client-side)
 
 VERSION = 0
 PATCHLEVEL = 0
@@ -74,10 +73,10 @@ all-c:
 	cp $(LIBGNSOBJ)/gns.o .
 
 hello-link:
-	ld -m elf_x86_64 -T ../link.ld -o GNS.BIN $(myObjects)    
+	ld -m elf_x86_64 -T ../link.ld -o NETCTL.BIN $(myObjects)    
 finalize:
-	cp GNS.BIN  ../bin
+	cp NETCTL.BIN  ../bin
 clean:
 	-rm *.o
-	-rm GNS.BIN 
+	-rm NETCTL.BIN 
 	

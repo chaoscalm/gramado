@@ -7,7 +7,13 @@ all:
 	#make -C libdisp/
 
 # Gramado Network Server (Client-side)
+# Client-side lib for netctld.
 	make -C libgns/
+
+# Gramado Network Server (Client-side)
+# Client-side lib for nicctld.
+	make -C libgns2/
+
 
 # Graphics support (Server-side?)
 #	make -C libgr/
@@ -26,6 +32,8 @@ all:
 clean:
 
 	-rm -f libgns/*.o
+	-rm -f libgns2/*.o
+
 	-rm -f libio01/*.o
 	-rm -f rtl/*.o
 

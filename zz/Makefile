@@ -3,9 +3,8 @@
 
 all:
 	make -C libs/
-	make -C demos
+	make -C c1/
 #	make -C games
-	make -C gramland
 	make -C winapps
 
 clean-all:
@@ -15,9 +14,9 @@ clean-all:
 	-rm -f libs/libgr3d/obj/*.o
 	-rm -f libs/libgws/obj/*.o
 
-	-rm demos/eng/bin/*.BIN
+	-rm c1/eng/bin/*.BIN
+	-rm c1/gramland/bin/*.BIN
 #	-rm games/game1/bin/*.BIN
-	-rm gramland/bin/*.BIN
 	-rm winapps/bin/*.BIN
 
 

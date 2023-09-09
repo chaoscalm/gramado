@@ -1,6 +1,6 @@
-# GNSSRV.BIN
-# gnssrv - Gramado Network Server.
-# 2020 - Created by Fred Nora.
+
+# NICCTLD.BIN
+# NIC Control (Server-side)
 
 VERSION = 0
 PATCHLEVEL = 1
@@ -70,10 +70,10 @@ all-c:
 	cp $(LIBCOBJ)/fcntl.o .
 
 gws-link:
-	ld -m elf_x86_64 -T ../link.ld -o GNSSRV.BIN $(myObjects)    
+	ld -m elf_x86_64 -T ../link.ld -o NICCTLD.BIN $(myObjects)    
 finalize:
-	cp GNSSRV.BIN ../bin
+	cp NICCTLD.BIN ../bin
 clean:
 	-rm *.o
-	-rm GNSSRV.BIN 
+	-rm NICCTLD.BIN 
 	

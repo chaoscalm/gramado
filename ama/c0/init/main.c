@@ -28,11 +28,12 @@
 
 static isTimeToQuit = FALSE;
 
-static const char *app1_name = "gramland.bin";
-//static const char *app1_name = "gwssrv.bin";
-static const char *app2_name = "gws.bin";
-static const char *app3_name = "gnssrv.bin";
-static const char *app4_name = "gns.bin";
+
+static const char *app1_name = "gramland.bin";   // #c1
+//static const char *app1_name = "nicctld.bin";  // #c2
+static const char *app2_name = "nicctl.bin";
+static const char *app3_name = "netctld.bin";    // #c3
+static const char *app4_name = "netctl.bin";
 
 // Flags:
 // --dm - Launches the default Display Manager.
@@ -374,13 +375,15 @@ static int __CompareString(void)
 // Initialize the network server.
     if ( strncmp(prompt,"ns",2) == 0 ){
         //printf ("~NS\n");
-        //rtl_clone_and_execute("gnssrv.bin");
+        // #c3 NICCTLD.BIN
+        //rtl_clone_and_execute(app3_name);
         goto exit_cmp;
     }
 // Initialize the network server and quit the command line.
     if( strncmp(prompt,"nsq",3) == 0 ){
         printf ("~NSQ\n");
         do_clear_console();
+        // #c3 NICCTLD.BIN
         rtl_clone_and_execute(app3_name);
         isTimeToQuit = TRUE;
         goto exit_cmp;

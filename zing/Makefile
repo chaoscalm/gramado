@@ -22,12 +22,15 @@ all:
 	make -C barnsh/
 
 # ----------------
+# c2 - NICCTL
+	make -C c2/
+# c3 - NETCTL
+	make -C c3/
+
+# ----------------
 # Ring 3 posix-like commands.
 	make -C commands/
 
-# ----------------
-# netd
-	make -C netd/
 
 # ----------------
 # Services
@@ -50,15 +53,16 @@ all:
 clean-all:
 
 	-rm -f barnsh/bin/*.BIN
+
+	-rm -f c2/bin/*.BIN
+	-rm -f c3/bin/*.BIN
+
 	-rm -f commands/bin/*.BIN
 
-
 	-rm -f libs/libgns/obj/*.o
+	-rm -f libs/libgns2/obj/*.o
 	-rm -f libs/libio01/obj/*.o
 	-rm -f libs/rtl/obj/*.o
 
-	-rm -f netd/bin/*.BIN
 	-rm -f services/bin/*.BIN
 
-#	-rm -f wdemos/eng/bin/*.BIN
-#	-rm -f winapps/bin/*.BIN
