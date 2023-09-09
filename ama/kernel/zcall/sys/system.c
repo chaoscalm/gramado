@@ -37,6 +37,8 @@ unsigned long doGetSystemMetrics(int index)
 {
 // Called by sys_get_system_metrics() in sys.c
 
+    // unsigned long ul_value=0;
+
     // We are trying to have more system calls. sc80 sc81 sc82.
     // These system calls uses different set of selectors.
 
@@ -484,6 +486,8 @@ unsigned long doGetSystemMetrics(int index)
         case 202:
            //printf ("#virtual_console: %d\n",WindowServer_virtual_console);
            //refresh_screen();
+           // #todo
+           // What is this ??
            return (unsigned long) WindowServer_virtual_console; 
            break;
 
@@ -499,6 +503,11 @@ unsigned long doGetSystemMetrics(int index)
         // Are we running on Qemu hv?
         case 300:
             return (unsigned long) keIsQemu();
+            break;
+
+        case 400:
+            // console_get_current_virtual_console();
+            return (unsigned long) fg_console;
             break;
 
         // ...

@@ -1169,6 +1169,15 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
+// 'console'
+    int fg_console = -1;
+    if ( strncmp(prompt,"console",7) == 0 ){
+        fg_console = (int) rtl_get_system_metrics(400);
+        fg_console = (int) (fg_console & 0xFF);
+        printf("The current fg_console is {%d}\n",fg_console);
+        goto exit_cmp;
+    }
+
 // 'reboot'
 // reboot via ws.
     if ( strncmp(prompt,"reboot",6) == 0 ){

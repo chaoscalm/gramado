@@ -3066,15 +3066,22 @@ int VirtualConsole_initialize(void)
     unsigned int bg_colors[CONSOLETTYS_COUNT_MAX];
     unsigned int fg_colors[CONSOLETTYS_COUNT_MAX];
 
+// -----------------------------
+// c0 console: --> INIT.BIN
 // Default kernel console.
     bg_colors[0] = (unsigned int) COLOR_BLUE;
     fg_colors[0] = (unsigned int) COLOR_WHITE;
-// 
+// -----------------------------
+// c1 console: --> GRAMLAND.BIN
     bg_colors[1] = (unsigned int) COLOR_BLUE;
     fg_colors[1] = (unsigned int) COLOR_YELLOW;
+// -----------------------------
+// c2 console: --> NICCTLD.BIN
 // Warning console.
     bg_colors[2] = (unsigned int) COLOR_ORANGE;
     fg_colors[2] = (unsigned int) COLOR_WHITE;
+// -----------------------------
+// c3 console: --> NETCTLD.BIN
 // Danger console.
     bg_colors[3] = (unsigned int) COLOR_RED;
     fg_colors[3] = (unsigned int) COLOR_YELLOW;

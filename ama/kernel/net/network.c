@@ -192,6 +192,10 @@ network_register_ring3_display_server(
     __initialize_ws_info(current_process);
     __maximize_ws_priority(current_process);
 
+// Setup c1/
+// Change the foreground console.
+    console_set_current_virtual_console(CONSOLE1);
+
     return TRUE;
 
 fail:

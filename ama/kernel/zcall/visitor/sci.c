@@ -507,10 +507,11 @@ static void *__extra_services (
         
         // IN: desktop, caller pid.
         // see: network.c
-        display_server_ok = (int) network_register_ring3_display_server(
-            (struct desktop_d *) arg2, (pid_t) arg3);
-        if (display_server_ok == TRUE)
-        {
+        display_server_ok = 
+            (int) network_register_ring3_display_server(
+                (struct desktop_d *) arg2, (pid_t) arg3);
+        
+        if (display_server_ok == TRUE){
             return (void*) TRUE;
         }
         return NULL;

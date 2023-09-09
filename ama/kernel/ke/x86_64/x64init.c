@@ -426,6 +426,12 @@ void I_x64ExecuteInitialProcess (void)
     //    panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
     //}
 
+
+// Setup c0/  (Again)
+// Change the foreground console.
+    console_set_current_virtual_console(CONSOLE0);
+
+
 // Setup command line for the init process.
     __setup_stdin_cmdline();
 

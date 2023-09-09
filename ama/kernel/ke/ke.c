@@ -360,6 +360,8 @@ void keReboot(void)
 
 void ke_x64ExecuteInitialProcess(void)
 {
+
+// See: x64init.c
     I_x64ExecuteInitialProcess();
     panic("keInitialize: phase 3\n");
     //goto InitializeEnd;
