@@ -189,4 +189,9 @@ Gramado is a Free and Open Source operating system.
 The source code uses the BSD license.
 
 ## Quotes:
-> Exciting :)
+
+```
+  * "Close to the borders and beyond."
+  * "Exciting"
+  * "(+ spontaneous)"
+```
