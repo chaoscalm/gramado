@@ -29,7 +29,7 @@ static void *__extra_services (
     unsigned long arg4 );
 
 static void __service897(void);
-static void __servicePutChar( int c );
+static void __servicePutChar(int c);
 static void __invalidate_surface_rectangle(void);
 
 
@@ -300,8 +300,8 @@ static void *__extra_services (
     unsigned long arg3, 
     unsigned long arg4 )
 {
-    struct process_d *__p;
-    struct process_d *__net_process;
+    //struct process_d *__p;
+    //struct process_d *__net_process;
     struct desktop_d *__desktop;
 // Generic file pointer
 //    file *__fp;
@@ -1052,7 +1052,7 @@ void *sci0 (
 // Getting requests from ring3 applications via systemcalls.
 
     struct process_d  *p;
-    struct thread_d  *t;
+    //struct thread_d  *t;
 
     unsigned long *message_address = (unsigned long *) arg2;
 
@@ -1060,13 +1060,14 @@ void *sci0 (
     unsigned long *a3 = (unsigned long*) arg3;
     unsigned long *a4 = (unsigned long*) arg4;
 
-    char *aa2 = (char *) arg2;
-    char *aa3 = (char *) arg3;
-    char *aa4 = (char *) arg4;
+    // Not in use!
+    //char *aa2 = (char *) arg2;
+    //char *aa3 = (char *) arg3;
+    //char *aa4 = (char *) arg4;
 
     pid_t current_process = (pid_t) get_current_pid();
 
-    int desktopID=0;
+    //int desktopID=0;
 
 //cpl
     unsigned long *cpl_buffer = (unsigned long *) &sci0_cpl;
@@ -2033,7 +2034,7 @@ void *sci0 (
             break;
     };
 
-done:
+//done:
     return NULL;
 }
 
@@ -2149,9 +2150,10 @@ void *sci2 (
     struct thread_d  *t;
 
     // Array de longs.
-    unsigned long *a2 = (unsigned long*) arg2;
-    unsigned long *a3 = (unsigned long*) arg3;
-    unsigned long *a4 = (unsigned long*) arg4;
+    // Not in use!
+    //unsigned long *a2 = (unsigned long*) arg2;
+    //unsigned long *a3 = (unsigned long*) arg3;
+    //unsigned long *a4 = (unsigned long*) arg4;
 
     pid_t current_process = (pid_t) get_current_process();
 

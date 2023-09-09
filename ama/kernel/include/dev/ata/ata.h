@@ -592,10 +592,6 @@ int atapciSetupMassStorageController(struct pci_device_d *D);
 unsigned char ata_wait_irq (int p);
 int disk_ata_wait_irq (int p);
 
-static inline void dev_switch (void);
-static inline int getnport_dev (void);
-int nport_ajust ( char nport );
-
 // Show info:
 void ata_show_ide_info(void);
 void ata_show_device_list_info(void);

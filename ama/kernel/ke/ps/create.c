@@ -70,6 +70,12 @@ struct thread_d *create_init_thread(void)
     t->owner_process = (void *) InitProcess;
     t->owner_pid = (pid_t) InitProcess->pid; 
 
+
+// The kernel console associated with this thread.
+// 0~3
+    t->__console_id = (int) CONSOLE0;
+
+
 // Local name.
     t->name_address = (unsigned long) ThreadName; 
 // Execution plane.

@@ -208,6 +208,10 @@ struct thread_d
 // Thread ID.
     tid_t tid;
 
+// The kernel console associated with this thread.
+// 0~3
+    int __console_id;
+
 // We are waiting the right time to close a thread.
 // The scheduler will do this job.
     int exit_in_progress;
@@ -575,14 +579,6 @@ struct thread_d
     //struct _iobuf *root;  // 4 root directory
     //struct _iobuf *pwd;   // 5 (print working directory) 
     //...
-
-//
-// == tty ==========================
-//
-
-// ID da tty usada.
-    //int tty_id;
-    //struct tty_d *tty;
 
 //
 // link

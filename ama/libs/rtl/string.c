@@ -659,28 +659,23 @@ int strcmp (const char *s1, const char *s2){
     return (int) ( s1[i] - s2[i] );
 }
 
-
-
 /*
  * strncmp:
  * compare two strings
  */
-
 // See:
 // http://man7.org/linux/man-pages/man3/strcmp.3.html
-
-int strncmp (const char *s1, const char *s2, size_t n){
-
+int strncmp(const char *s1, const char *s2, size_t n)
+{
     while (n > 0)
     {
         n--;
-
-        if ( *s1 != *s2 ){  return (int) 1;  }
-
-        *s1++;  
-        *s2++;
+        if (*s1 != *s2){
+            return (int) 1;
+        }
+        s1++;  
+        s2++;
     };
-
 
     if ( *s1 != '\0' || *s2 != '\0' )
     {
@@ -690,8 +685,7 @@ int strncmp (const char *s1, const char *s2, size_t n){
     return 0;
 }
 
-
-void *memset ( void *ptr, int value, int size )
+void *memset( void *ptr, int value, int size )
 {
     register int i=0;
 

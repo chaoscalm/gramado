@@ -62,18 +62,13 @@ char *strreplace (char *s, char old, char new);
 char *strncpy(char *s1, const char *s2, size_t n);
 
 
-
-
 // See:
 // http://man7.org/linux/man-pages/man3/strcmp.3.html
 int strcmp(const char *s1, const char *s2);
 
 // See:
 // http://man7.org/linux/man-pages/man3/strcmp.3.html
-int strncmp (const char *s1, const char *s2, size_t n);
-
-
-
+int strncmp(const char *s1, const char *s2, size_t n);
 
 //#bugbug deletando porque tá errado.
 //int str_cmp(unsigned char *str1, unsigned char *str2);

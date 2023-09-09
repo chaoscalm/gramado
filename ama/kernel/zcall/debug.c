@@ -63,7 +63,7 @@ static int __debug_check_inicialization (void)
 // More?!
 
 // OK
-done:
+//done:
     return (int) Status;
 fail:
     die(); 

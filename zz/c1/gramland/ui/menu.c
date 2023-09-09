@@ -221,10 +221,8 @@ struct gws_menu_item_d *gwssrv_create_menu_item (
 
 // Create menu item.
     item = (struct gws_menu_item_d *) malloc( sizeof(struct gws_menu_item_d) );
-    if ((void *) item == NULL)
-    {
-        return (struct gws_menu_item_d *) 0;
-        //return NULL;
+    if ((void *) item == NULL){
+        return NULL;
     }
 
     //provisório
@@ -308,8 +306,6 @@ struct gws_menu_item_d *gwssrv_create_menu_item (
 fail:
     printf ("gwssrv_create_menu_item: Fail\n");
     return NULL;
-done:
-    return (struct gws_menu_item_d *) item;
 }
 
 struct gws_menu_d *gwssrv_create_menu (

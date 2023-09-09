@@ -96,9 +96,9 @@ void test_mod0(void)
         printf ("RETURN: %d\n",return_value);
     }
 
-done:
+//done:
     return;
-
+//------------------------
 /*
                 //while(1){
                 // No return value.

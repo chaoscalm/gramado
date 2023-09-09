@@ -81,6 +81,10 @@ static void __set_ata_addr (int p, int channel);
 static int __ide_identify_device(uint8_t nport);
 static int ata_initialize_ide_device(char port);
 
+static void dev_switch(void);
+static int getnport_dev(void);
+static int nport_ajust(char nport);
+
 // =======================================================
 
 static void __local_io_delay(void)
@@ -1377,12 +1381,10 @@ fail:
 }
 
 
-/* 
- * dev_switch:
- * ?? Porque esse tipo ?? 
- */
-static inline void dev_switch (void)
+// dev_switch:
+static void dev_switch(void)
 {
+// Worker
 
 // ??
 // Pula, se ainda não tiver nenhuma unidade.
@@ -1404,8 +1406,7 @@ static inline void dev_switch (void)
     }
 }
 
-
-static inline int getnport_dev (void)
+static int getnport_dev(void)
 {
     if ( (void *) current_sd == NULL )
     {
@@ -1415,10 +1416,9 @@ static inline int getnport_dev (void)
     return (int) current_sd->dev_nport;
 }
 
-
 // #todo
 // Explain it better.
-int nport_ajust ( char nport )
+static int nport_ajust(char nport)
 {
     char i = 0;
 

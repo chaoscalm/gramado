@@ -1370,7 +1370,7 @@ dtextDrawText (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    unsigned char *string );
+    char *string );
 
 void 
 dtextDrawText2 ( 
@@ -1378,7 +1378,7 @@ dtextDrawText2 (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    unsigned char *string,
+    char *string,
     int flush );
 //---
 

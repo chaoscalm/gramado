@@ -406,7 +406,7 @@ int sys_reboot(unsigned long flags)
 // # We need to return when 
 // a non-superuser process call this service.
 
-    int value = FALSE;
+    //int value = FALSE;
 
 // #todo
 // Is it the superuser?

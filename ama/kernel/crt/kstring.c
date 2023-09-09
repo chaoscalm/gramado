@@ -61,7 +61,7 @@ int strcmp(char *s1, char *s2)
 
 // strncmp:
 //    Compare n bytes of two strings. 
-int strncmp( char *s1, char *s2, int len )
+int kstrncmp( char *s1, char *s2, int len )
 {
     register int n = len;
 
@@ -71,11 +71,8 @@ int strncmp( char *s1, char *s2, int len )
         if ( *s1 != *s2 ){
             return (int) 1;
         }
-
-        // #bugbug ??
-        
-        *s1++;
-        *s2++;
+        s1++;
+        s2++;
     };
 
     if (*s1 != '\0' || *s2 != '\0' )

@@ -1855,45 +1855,45 @@ int consoleCompareStrings(void)
 
 // test mbr
 // see: storage.c
-    if ( strncmp(prompt,"mbr",3) == 0 )
+    if ( kstrncmp(prompt,"mbr",3) == 0 )
     {
         disk_show_mbr_info();
         goto exit_cmp;
     }
 
 // test nic
-    if ( strncmp(prompt,"test-nic",8) == 0 ){
+    if ( kstrncmp(prompt,"test-nic",8) == 0 ){
         network_test_NIC();
         goto exit_cmp;
     }
-    if ( strncmp(prompt,"test-arp",8) == 0 ){
+    if ( kstrncmp(prompt,"test-arp",8) == 0 ){
         network_send_arp_request();
         goto exit_cmp;
     }
-    if ( strncmp(prompt,"test-arp2",9) == 0 ){
+    if ( kstrncmp(prompt,"test-arp2",9) == 0 ){
         network_send_arp_request2();
         goto exit_cmp;
     }
-    if ( strncmp(prompt,"test-udp",8) == 0 ){
+    if ( kstrncmp(prompt,"test-udp",8) == 0 ){
         network_test_udp();
         goto exit_cmp;
     }
-    if ( strncmp(prompt,"test-udp2",9) == 0 ){
+    if ( kstrncmp(prompt,"test-udp2",9) == 0 ){
         network_test_udp2();
         goto exit_cmp;
     }
 
-    if ( strncmp(prompt,"test-dhcp",9) == 0 ){
+    if ( kstrncmp(prompt,"test-dhcp",9) == 0 ){
         network_initialize_dhcp();
         goto exit_cmp;
     }
 
-    if ( strncmp(prompt,"dhcp",4) == 0 ){
+    if ( kstrncmp(prompt,"dhcp",4) == 0 ){
         network_show_dhcp_info();
         goto exit_cmp;
     }
 
-    if ( strncmp(prompt,"str",3) == 0 )
+    if ( kstrncmp(prompt,"str",3) == 0 )
     {
         console_print_indent(4,fg_console);
         console_write_string(fg_console,"This is a string\n");
@@ -1905,7 +1905,7 @@ int consoleCompareStrings(void)
 
 // see: mod.c
 // Vamos testar um modulo que ja foi carregado previamente?
-    if ( strncmp(prompt,"mod0",4) == 0 ){
+    if ( kstrncmp(prompt,"mod0",4) == 0 ){
         test_mod0();
         goto exit_cmp;
     }
@@ -1913,7 +1913,7 @@ int consoleCompareStrings(void)
 // dir:
 // List the files in a given directory.
 // root dir. Same as '/'.
-    if ( strncmp(prompt,"dir",3) == 0 ){
+    if ( kstrncmp(prompt,"dir",3) == 0 ){
         fsList("[");
         goto exit_cmp;
     }
@@ -1927,7 +1927,7 @@ int consoleCompareStrings(void)
 // Muidas estruturas aindapossuem valores que estão condizentes
 // com a resolução antiga e precisa ser atualizados.
 
-    if ( strncmp(prompt,"vga1",4) == 0 )
+    if ( kstrncmp(prompt,"vga1",4) == 0 )
     {
         printf ("vga1: This is a work in progress ...\n");
         /*
@@ -1947,7 +1947,7 @@ int consoleCompareStrings(void)
 
 // mm1: Show paged memory list.
 // IN: max index.
-    if ( strncmp(prompt,"mm1",3) == 0 ){
+    if ( kstrncmp(prompt,"mm1",3) == 0 ){
         mmShowPagedMemoryList(512); 
         goto exit_cmp;
     }
@@ -1955,13 +1955,13 @@ int consoleCompareStrings(void)
 // mm2: show the blocks allocated by the kernel allocator.
 // inside the kernel heap.
 // IN: max index.
-    if ( strncmp(prompt,"mm2",3) == 0 ){
+    if ( kstrncmp(prompt,"mm2",3) == 0 ){
         mmShowMemoryBlocksForTheKernelAllocator(); 
         goto exit_cmp;
     }
 
 // exit: Exit the embedded kernel console.
-    if ( strncmp(prompt,"exit",4) == 0 ){
+    if ( kstrncmp(prompt,"exit",4) == 0 ){
         exit_kernel_console(); 
         goto exit_cmp;
     }
@@ -1969,7 +1969,7 @@ int consoleCompareStrings(void)
 /*
 // #note
 // We already did that in the kernel initialization.
-    if ( strncmp(prompt,"fpu",3) == 0 )
+    if ( kstrncmp(prompt,"fpu",3) == 0 )
     {
         printf("Initialize fpu support\n");
         fpu_status = x64_init_fpu_support();
@@ -1984,7 +1984,7 @@ int consoleCompareStrings(void)
 /*
 // smp:
 // See: x64.c
-    if ( strncmp( prompt, "smp", 3 ) == 0 )
+    if ( kstrncmp( prompt, "smp", 3 ) == 0 )
     {
         // #suspended
         // We're making this test during the kernel initialization.
@@ -1997,7 +1997,7 @@ int consoleCompareStrings(void)
 
 // disk: Show some disk information.
 // See: atainfo.c
-    if ( strncmp( prompt, "ata", 3 ) == 0 )
+    if ( kstrncmp( prompt, "ata", 3 ) == 0 )
     {
         printf("ATA controller information:\n");
         ata_show_ata_controller_info();
@@ -2007,7 +2007,7 @@ int consoleCompareStrings(void)
     }
 
 // volume: Show some volume information.
-    if ( strncmp(prompt,"volume",6) == 0 ){
+    if ( kstrncmp(prompt,"volume",6) == 0 ){
         volume_show_info();
         goto exit_cmp;
     }
@@ -2015,7 +2015,7 @@ int consoleCompareStrings(void)
 // device: Device list.
 // Show tty devices, pci devices and devices with regular file.
 // See: devmgr.c
-    if ( strncmp(prompt,"device",6) == 0 )
+    if ( kstrncmp(prompt,"device",6) == 0 )
     {
         printf("tty devices:\n");
         devmgr_show_device_list(ObjectTypeTTY);
@@ -2028,14 +2028,14 @@ int consoleCompareStrings(void)
     }
 
 // pci:
-    if ( strncmp( prompt, "pci", 3 ) == 0 ){
+    if ( kstrncmp( prompt, "pci", 3 ) == 0 ){
         printf("~pci:\n");
         pciInfo();
         goto exit_cmp;
     }
 
 // about:
-    if ( strncmp( prompt, "about", 5 ) == 0 ){
+    if ( kstrncmp( prompt, "about", 5 ) == 0 ){
         // Crear screen and print version string.
         zero_show_banner();
         printf("About: The kernel console\n");
@@ -2043,26 +2043,26 @@ int consoleCompareStrings(void)
     }
 
 // display:
-    if ( strncmp( prompt, "display", 7 ) == 0 )
+    if ( kstrncmp( prompt, "display", 7 ) == 0 )
     {
         bldisp_show_info();  //bl display device.
         goto exit_cmp;
     }
 
 // cls:
-    if ( strncmp( prompt, "cls", 3 ) == 0 ){
+    if ( kstrncmp( prompt, "cls", 3 ) == 0 ){
         console_clear();
         goto exit_cmp;
     }
 
 // cpu: Display cpu info.
-    if ( strncmp( prompt, "cpu", 3 ) == 0 ){
+    if ( kstrncmp( prompt, "cpu", 3 ) == 0 ){
         x64_info();
         goto exit_cmp;
     }
 
 // pit: Display PIT info.
-    if ( strncmp( prompt, "pit", 3 ) == 0 )
+    if ( kstrncmp( prompt, "pit", 3 ) == 0 )
     {
         // #todo: Create pitShowInfo() in pit.c.
         printf("Dev freq: %d | Clocks per sec: %d HZ | Period: %d\n",
@@ -2073,13 +2073,13 @@ int consoleCompareStrings(void)
     }
 
 // help:
-    if ( strncmp( prompt, "help", 4 ) == 0 ){
+    if ( kstrncmp( prompt, "help", 4 ) == 0 ){
         printf("Commands: about, help, reboot, cpu, memory, ...\n");
         goto exit_cmp;
     }
 
 // memory:
-    if ( strncmp( prompt, "memory", 6 ) == 0 ){
+    if ( kstrncmp( prompt, "memory", 6 ) == 0 ){
         mmShowMemoryInfo();
         goto exit_cmp;
     }
@@ -2088,13 +2088,13 @@ int consoleCompareStrings(void)
 // Test the use of 'pathnames' with multiple levels.
 // #test: This test will allocate some pages
 // for the buffer where we are gonna load the file.
-    if ( strncmp(prompt,"path",4) == 0 ){
+    if ( kstrncmp(prompt,"path",4) == 0 ){
         __test_path();
         goto exit_cmp;
     }
 
 // process:
-    if ( strncmp( prompt, "process", 7 ) == 0 ){
+    if ( kstrncmp( prompt, "process", 7 ) == 0 ){
         __test_process();
         goto exit_cmp;
     }
@@ -2103,7 +2103,7 @@ int consoleCompareStrings(void)
 // Testing the full initialization of ps2 interface.
 // This is a work in progress.
 // See: dev/i8042.c
-    if ( strncmp( prompt, "ps2-qemu", 8 ) == 0 )
+    if ( kstrncmp( prompt, "ps2-qemu", 8 ) == 0 )
     {
         if (HVInfo.initialized == TRUE){
             if (HVInfo.type == HV_TYPE_QEMU){
@@ -2117,7 +2117,7 @@ int consoleCompareStrings(void)
 // ps2-kvm: Initializze the ps2 support when running on kvm.
 // #bugbug
 // The initialization is not working on kvm.
-    if ( strncmp( prompt, "ps2-kvm", 7 ) == 0 )
+    if ( kstrncmp( prompt, "ps2-kvm", 7 ) == 0 )
     {
         printf ("#todo: Initialization not working on kvm\n");
         if (HVInfo.initialized == TRUE){
@@ -2130,13 +2130,13 @@ int consoleCompareStrings(void)
     }
 
 // reboot:
-    if ( strncmp( prompt, "reboot", 6 ) == 0 ){
+    if ( kstrncmp( prompt, "reboot", 6 ) == 0 ){
         keReboot();
         goto exit_cmp;
     }
 
 // beep:
-    if ( strncmp( prompt, "beep", 4 ) == 0 ){
+    if ( kstrncmp( prompt, "beep", 4 ) == 0 ){
         hal_test_speaker();
         goto exit_cmp;
     }
@@ -2145,14 +2145,14 @@ int consoleCompareStrings(void)
 // thread:
 // #bugbug: ring0 threads are a huge problem.
 // Avoid that for now.
-    if ( strncmp( prompt, "thread", 6 ) == 0 ){
+    if ( kstrncmp( prompt, "thread", 6 ) == 0 ){
         //__test_thread();
         goto exit_cmp;
     }
 */
 
 // time:
-    if ( strncmp( prompt, "time", 4 ) == 0 )
+    if ( kstrncmp( prompt, "time", 4 ) == 0 )
     {
         printf ("Init stime %d\n",InitThread->stime);
         printf ("Init utime %d\n",InitThread->utime);
@@ -2160,7 +2160,7 @@ int consoleCompareStrings(void)
     }
 
 // tty: Read and write from tty device.
-    if ( strncmp( prompt, "tty", 3 ) == 0 )
+    if ( kstrncmp( prompt, "tty", 3 ) == 0 )
     {
         // Esgotando as filas.
         //while (1){
@@ -2172,7 +2172,7 @@ int consoleCompareStrings(void)
 // serial: Display serial support info.
 // #todo: Only com1 for now.
 // But we can get information for all the 4 ports.
-    if ( strncmp( prompt, "serial", 6 ) == 0 )
+    if ( kstrncmp( prompt, "serial", 6 ) == 0 )
     {
         //#todo: Create serialShowInfo in serial.c.
         //#todo: Only com1 for now.
@@ -2189,14 +2189,14 @@ int consoleCompareStrings(void)
 
 // ========
 // close: Sending a MSG_CLOSE messsage to the init thread.
-    if ( strncmp(prompt,"close",5) == 0 ){
+    if ( kstrncmp(prompt,"close",5) == 0 ){
         keCloseInitProcess();
         goto exit_cmp;
     }
 
 // ========
 // app1: Sending a MSG_COMMAND/4001 messsage to the init thread.
-    if ( strncmp(prompt,"app1",4) == 0 )
+    if ( kstrncmp(prompt,"app1",4) == 0 )
     {
         if ( (void*) InitThread == NULL ){ goto exit_cmp; }
         post_message_to_tid(
@@ -2212,7 +2212,7 @@ int consoleCompareStrings(void)
 
 // ========
 // app2: Sending a MSG_COMMAND/4002 messsage to the init thread.
-    if ( strncmp(prompt,"app2",4) == 0 )
+    if ( kstrncmp(prompt,"app2",4) == 0 )
     {
         if ( (void*) InitThread == NULL ){ goto exit_cmp; }
         post_message_to_tid(
@@ -2228,7 +2228,7 @@ int consoleCompareStrings(void)
 
 // ========
 // app3: Sending a MSG_COMMAND/4003 messsage to the init thread.
-    if ( strncmp(prompt,"app3",4) == 0 )
+    if ( kstrncmp(prompt,"app3",4) == 0 )
     {
         if ( (void*) InitThread == NULL ){ goto exit_cmp; }
         //#todo: We do not have a sender tid yet.

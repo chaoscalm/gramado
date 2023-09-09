@@ -216,7 +216,7 @@ void kfree(void *ptr)
 
 void *kcalloc(size_t count, size_t size)
 {
-    void *ptr;
+    //void *ptr;
     size_t new_size = (size_t) (count * size);
 
 // #todo

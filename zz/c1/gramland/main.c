@@ -875,7 +875,7 @@ gwsProcedure (
 // All the services are the 'Business Logic'.
 
     int Status=0;  //ok
-    int my_pid = -1;
+    //int my_pid = -1;
 
     // #debug
     //debug_print ("gwssrv: gwsProcedure\n");
@@ -1938,10 +1938,10 @@ int serviceCreateWindow(int client_fd)
     unsigned int color=0;
     unsigned long type=0;
 // Device context
-    unsigned long deviceLeft = 0;
-    unsigned long deviceTop = 0;
-    unsigned long deviceWidth  = (__device_width  & 0xFFFF);
-    unsigned long deviceHeight = (__device_height & 0xFFFF);
+    //unsigned long deviceLeft = 0;
+    //unsigned long deviceTop = 0;
+    //unsigned long deviceWidth  = (__device_width  & 0xFFFF);
+    //unsigned long deviceHeight = (__device_height & 0xFFFF);
 // tid da control thread do cliente.
     int ClientPID = -1;
     int ClientTID = -1;
@@ -2543,20 +2543,21 @@ int serviceRedrawWindow(void)
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *window;
     int window_id = -1;
-    int msg_code  = 0;
+    //int msg_code = 0;
     unsigned long flags = 0;
 
     // #debug
     // gwssrv_debug_print ("serviceRedrawWindow:\n");
 
+// #todo: (types)
 // Get wid, msg code and flag.
     window_id  = message_address[0];  // window id 
-    msg_code   = message_address[1];  // message code
+    //msg_code   = message_address[1];  // message code
     flags      = message_address[2];  // flags
     //??       = message_address[3];  // nothing 
 
-    // #todo
-    //  Not tested yet.
+// #todo
+//  Not tested yet.
     //if ( msg_code <= 0 ){
     //    gwssrv_debug_print ("serviceRedrawWindow:\n");
     //    goto fail;
@@ -2760,10 +2761,10 @@ int serviceDrawText(void)
     unsigned long y;         // index 6
     unsigned long color;     // index 7
 // Device context
-    unsigned long deviceLeft   = 0;
-    unsigned long deviceTop    = 0;
-    unsigned long deviceWidth  = (__device_width  & 0xFFFF);
-    unsigned long deviceHeight = (__device_height & 0xFFFF);
+    //unsigned long deviceLeft   = 0;
+    //unsigned long deviceTop    = 0;
+    //unsigned long deviceWidth  = (__device_width  & 0xFFFF);
+    //unsigned long deviceHeight = (__device_height & 0xFFFF);
 
     // #debug
     // gwssrv_debug_print ("gwssrv: serviceDrawText\n");
@@ -2880,10 +2881,10 @@ int serviceSetText(void)
     unsigned long y;         // index 6
     unsigned long color;     // index 7
 // Device context
-    unsigned long deviceLeft   = 0;
-    unsigned long deviceTop    = 0;
-    unsigned long deviceWidth  = (__device_width  & 0xFFFF );
-    unsigned long deviceHeight = (__device_height & 0xFFFF );
+    //unsigned long deviceLeft   = 0;
+    //unsigned long deviceTop    = 0;
+    //unsigned long deviceWidth  = (__device_width  & 0xFFFF );
+    //unsigned long deviceHeight = (__device_height & 0xFFFF );
 
     // #debug
     // gwssrv_debug_print ("gwssrv: serviceDrawText\n");

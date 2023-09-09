@@ -12,7 +12,7 @@ void *memcpy32 ( void *v_dst, const void *v_src, unsigned long n );
 void *memcpy64 ( void *v_dst, const void *v_src, unsigned long n );
 
 int strcmp (char * s1, char * s2);
-int strncmp ( char *s1, char *s2, int len );
+int kstrncmp ( char *s1, char *s2, int len );
 int str_cmp(unsigned char *str1, unsigned char *str2);
 
 char *strcpy ( char *to, const char *from );

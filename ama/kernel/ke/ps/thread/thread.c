@@ -962,6 +962,10 @@ struct thread_d *create_thread (
     }
     memset( Thread, 0, sizeof(struct thread_d) );
 
+// The kernel console associated with this thread.
+// 0~3
+    Thread->__console_id = (int) CONSOLE0;
+
     Thread->link = NULL;
     Thread->is_linked = FALSE;
 
@@ -1342,9 +1346,10 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
 {
     struct thread_d *father;
     struct thread_d *clone;
+
 // Counters
-    int w=0;
-    int q=0;
+    //int w=0;
+    //int q=0;
 
     debug_print("copy_thread_struct:\n");
 
@@ -1447,14 +1452,17 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
     clone->base_priority = father->base_priority; 
     clone->priority      = father->priority;
 
+
+// The kernel console associated with this thread.
+// 0~3
+    clone->__console_id = (int) father->__console_id;
+
 //
 // Input
 //
 
-
-
 // #importante
-// Esse momento � critico.
+// Esse momento eh critico.
 // dependendo do estado da thread ele pode n�o rodar.
 // ou ela pode rodar e falhar por n�o esta pronta,
 // vamos testar op��es.

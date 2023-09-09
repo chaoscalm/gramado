@@ -1,17 +1,18 @@
 
 // ps/mk.c
-// microkernel
+// #bugbug
+// #todo: Remove this term 'mk'.
 
 #include <kernel.h> 
 
 // Called by I_init().
-int psInitializeMKComponents (void)
+int psInitializeMKComponents(void)
 {
-    int Status = FALSE;
+    //int Status = FALSE;
 
     Initialization.microkernel_checkpoint = TRUE;
 
-    debug_print ("psInitializeMKComponents:\n");
+    debug_print("psInitializeMKComponents:\n");
 
 
 // Init scheduler.

@@ -361,8 +361,8 @@ fsGetFileSize (
         {
             memcpy ( NameX, &Dir[z], szFileName );
             NameX[szFileName] = 0;
-            CmpStatus = strncmp ( file_name, NameX, szFileName );
-            if ( CmpStatus == 0 ){
+            CmpStatus = kstrncmp( file_name, NameX, szFileName );
+            if (CmpStatus == 0){
                 goto found;
             }
             // Nothing

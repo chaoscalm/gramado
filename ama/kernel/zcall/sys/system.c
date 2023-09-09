@@ -613,7 +613,7 @@ int zeroInitializeSystemComponents(void)
 {
 // Initialize pci, rtc and ata.
 
-    int Status = FALSE;
+    //int Status = FALSE;
 
     debug_print ("zeroInitializeSystemComponents:\n");
     Initialization.executive_checkpoint = FALSE;

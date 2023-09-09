@@ -300,8 +300,8 @@ wmProcessKeyboardEvent(
 // #todo
     unsigned int fg_color = 
         (unsigned int) get_color(csiSystemFontColor);
-    unsigned int bg_color = 
-        (unsigned int) get_color(csiSystemFontColor);
+    //unsigned int bg_color = 
+    //    (unsigned int) get_color(csiSystemFontColor);
 
     if (msg<0){
         return 0;
@@ -2066,16 +2066,16 @@ struct gws_window_d *do_create_titlebar(
                     TitleBarColor,  //client
                     (unsigned long) rop );   // rop_flags from the parent 
 
-    if ( (void *) tbWindow == NULL ){
+    if ((void *) tbWindow == NULL){
         gwssrv_debug_print ("do_create_titlebar: tbWindow\n");
-        return -1;
+        return NULL;
     }
     tbWindow->type = WT_SIMPLE;
     tbWindow->isTitleBar = TRUE;
 
 // No room drawing more stuff inside the tb window.
     if (tbWindow->width == 0)
-        return -1;
+        return NULL;
 
 // --------------------------------
 // Icon
@@ -2094,8 +2094,8 @@ struct gws_window_d *do_create_titlebar(
     if (icon_id < 1 || icon_id > 5)
     {
         //icon_id = 1;
-        printf ("do_create_titlebar: Invalid icon id\n");
-        return -1;
+        printf("do_create_titlebar: Invalid icon id\n");
+        return NULL;
     }
 
     parent->frame.titlebar_icon_id = icon_id;
@@ -2122,7 +2122,7 @@ struct gws_window_d *do_create_titlebar(
 
 // ---------------------------
 // Ornament
-    int useOrnament = TRUE;
+    // int useOrnament = TRUE;
 
 // Ornamento:
 // Ornamento na parte de baixo da title bar.
@@ -2186,9 +2186,9 @@ struct gws_window_d *do_create_titlebar(
 // #bugbug: Use 'const char *'
 
     tbWindow->name = (char *) strdup( (const char *) parent->name );
-    if ( (void*) tbWindow->name == NULL ){
-        printf ("do_create_titlebar: Invalid name\n");
-        return -1;
+    if ((void*) tbWindow->name == NULL){
+        printf("do_create_titlebar: Invalid name\n");
+        return NULL;
     }
 
     unsigned long sL=0;
@@ -2762,7 +2762,7 @@ static void wm_tile(void)
 
     struct gws_window_d *w;
     int cnt=0;
-    int c=0;
+    //int c=0;
     register int i=0;
 
 // Nothing to do.
@@ -4488,7 +4488,7 @@ wmProcedure(
     unsigned long r=0;
     char name_buffer[64];
 // Active window id.
-    int aw_wid = -1;
+    //int aw_wid = -1;
 
     // #debug
     //printf("wmProcedure: w=? m=%d l1=%d l2=%d\n", 
@@ -5209,7 +5209,7 @@ void yellowstatus0(char *string,int refresh)
     unsigned long w = gws_get_device_width();
     unsigned long h = gws_get_device_height();
     unsigned long offset_string1 = 8;  //( 8*1 );
-    unsigned long offset_string2 = ( 8*5 );
+    //unsigned long offset_string2 = ( 8*5 );
     unsigned long bar_size = w;
     struct gws_window_d *aw;
 
@@ -5603,14 +5603,12 @@ struct gws_window_d *gws_window_from_id (int id)
 */
 
 
-
 void __create_start_menu(void)
 {
 // Colors for the taskbar and for the buttons.
-    unsigned int bg_color     = (unsigned int) get_color(csiTaskBar);
+    //unsigned int bg_color     = (unsigned int) get_color(csiTaskBar);
     unsigned int frame_color  = (unsigned int) get_color(csiTaskBar);
     unsigned int client_color = (unsigned int) get_color(csiTaskBar);
-
 
 // ========================================
 // Quick launch area buttons
@@ -5675,7 +5673,7 @@ void __create_quick_launch_area(void)
 {
 
 // Colors for the taskbar and for the buttons.
-    unsigned int bg_color     = (unsigned int) get_color(csiTaskBar);
+    //unsigned int bg_color     = (unsigned int) get_color(csiTaskBar);
     unsigned int frame_color  = (unsigned int) get_color(csiTaskBar);
     unsigned int client_color = (unsigned int) get_color(csiTaskBar);
 
@@ -5805,8 +5803,8 @@ void create_taskbar(int issuper, int show)
     int wid = -1;
 // Colors for the taskbar and for the buttons.
     unsigned int bg_color     = (unsigned int) get_color(csiTaskBar);
-    unsigned int frame_color  = (unsigned int) get_color(csiTaskBar);
-    unsigned int client_color = (unsigned int) get_color(csiTaskBar);
+    //unsigned int frame_color  = (unsigned int) get_color(csiTaskBar);
+    //unsigned int client_color = (unsigned int) get_color(csiTaskBar);
 
     unsigned long tb_height = METRICS_TASKBAR_DEFAULT_HEIGHT;
 

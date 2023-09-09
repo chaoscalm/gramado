@@ -263,7 +263,7 @@ unsigned long kinput(unsigned long ch)
         break;
     };
 
-input_more:
+//input_more:
     return 0;
 input_done:
     return VK_RETURN;
@@ -506,7 +506,12 @@ int print ( char **out, int *varg )
     register int width = 0;
     register int pad = 0;
     register int pc = 0;
+
+// #bugbug
+// Different sizes.
+// Compilation warning!
     register char *format = (char *) (*varg++);
+
     char scr[2];
 
     // ugly
@@ -1166,7 +1171,7 @@ SEEK_END
 // BUFSIZ is the minimum for a valid buffer.
 // Lets clear only the first part of the buffer.
     case GRAMADO_SEEK_CLEAR:
-        p = f->_base;
+        p = (char *) f->_base;
         //#test
         for (i=0; i<BUFSIZ; i++)
         {
@@ -1942,14 +1947,14 @@ static void __initialize_virtual_consoles(void)
 
 int kstdio_initialize(void)
 {
-    kstdio_standard_streams_initialized =  FALSE;
+    kstdio_standard_streams_initialized = FALSE;
 
 // Ja temos suporte a print nesse momento por causa
 // das configurações de console. Mas nessa rotina 
 // refaremos as configurações de console.
 
-    debug_print ("kstdio_initialize: [TODO]\n");
-    //printf      ("kstdio_initialize: [TODO]\n");
+    debug_print("kstdio_initialize: [TODO]\n");
+    //printf   ("kstdio_initialize: [TODO]\n");
 
 // ??
 // Input mode
@@ -1990,8 +1995,8 @@ int kstdio_initialize(void)
 // Done
     kstdio_standard_streams_initialized = TRUE;
     return TRUE;
-fail:
-    return FALSE;
+//fail:
+    //return FALSE;
 }
 
 

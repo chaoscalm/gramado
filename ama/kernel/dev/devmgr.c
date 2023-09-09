@@ -52,10 +52,10 @@ file *devmgr_search_in_dev_list(char *path)
                 p = (void*) tmp_dev->mount_point;
                 if ((void*) p != NULL)
                 {
-                    if ( strncmp( p, path, PathSize ) == 0 )
+                    if ( kstrncmp( p, path, PathSize ) == 0 )
                     {
                         // #debug
-                        printf ("Device found!\n");
+                        printf("Device found!\n");
                         refresh_screen();
                         return (file *) tmp_dev->_fp;
                     }

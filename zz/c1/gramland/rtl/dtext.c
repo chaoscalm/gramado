@@ -25,7 +25,7 @@ grDrawString (
     //int cHeight = get_char_height ();
 
     //int is_transparent = transparent;  // from parameters.
-    int is_transparent = TRUE;
+    //int is_transparent = TRUE;
 
     //#todo
     //unsigned int __fg_color = fg_color;
@@ -110,7 +110,7 @@ dtextDrawText (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    unsigned char *string )
+    char *string )
 { 
 
 // Window validation
@@ -140,7 +140,7 @@ dtextDrawText2 (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    unsigned char *string,
+    char *string,
     int flush )
 { 
 
