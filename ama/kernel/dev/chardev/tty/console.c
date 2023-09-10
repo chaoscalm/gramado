@@ -511,6 +511,9 @@ console_init_virtual_console(
 
     // tty is a terminal, so the user logs on a terminal.
     // No user logged yet.
+    // #test
+    // We're gonna set this pointer at the end of the 
+    // kernel initialization. see: kmain.c
     CONSOLE_TTYS[ConsoleIndex].user_info = NULL;
 
     // Security stuff.
@@ -2039,6 +2042,25 @@ int consoleCompareStrings(void)
         // Crear screen and print version string.
         zero_show_banner();
         printf("About: The kernel console\n");
+        goto exit_cmp;
+    }
+
+// user:
+    if ( kstrncmp( prompt, "user", 4 ) == 0 )
+    {
+        if ((void*) CurrentUser == NULL)
+            goto exit_cmp;
+        if (CurrentUser->magic != 1234)
+            goto exit_cmp;
+        if (CurrentUser->initialized != TRUE){
+            goto exit_cmp;
+        }
+        printf("Username: {%s}\n",CurrentUser->__username);
+        if ( CurrentUser->userId == current_user )
+        {
+            if ( is_superuser() == TRUE )
+                printf("It's super\n");
+        }
         goto exit_cmp;
     }
 

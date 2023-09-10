@@ -13,11 +13,9 @@ int init_logon_manager (void)
 // #bugbug
 // Is it the first time? Or not?
 
-    gui = (void *) kmalloc ( sizeof(struct gui_d) );
-
-    if ( (void *) gui == NULL )
-    {
-        panic ("init_logon_manager: [FAIL] gui\n");
+    gui = (void *) kmalloc( sizeof(struct gui_d) );
+    if ((void *) gui == NULL){
+        panic("init_logon_manager: [FAIL] gui\n");
     }
 
 //

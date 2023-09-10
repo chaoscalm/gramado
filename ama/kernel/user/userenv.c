@@ -31,18 +31,17 @@ struct user_info_d *CurrentUser;    // Current user
 unsigned long userList[USER_COUNT_MAX];
 
 
-
 int GetCurrentGroupId (void)
 {
     return (int) current_group;
 }
 
-int GetCurrentUserId (void)
+uid_t GetCurrentUserId(void)
 {
-    return (int) current_user;
+    return (uid_t) current_user;
 }
 
-void SetCurrentUserId (int user_id)
+void SetCurrentUserId(uid_t user_id)
 {
     if ( user_id < 0 || user_id >= USER_COUNT_MAX )
     {
@@ -50,24 +49,20 @@ void SetCurrentUserId (int user_id)
         return;
     }
 
-    current_user = (int) user_id;
+    current_user = (uid_t) user_id;
 }
 
 int is_superuser(void)
 {
     uid_t uid = -1;
-    
-    uid = GetCurrentUserId();
-
-    // Is 'root' ?
-
-    if ( uid == 0 ){  return TRUE;  }
-    
+    uid = (uid_t) GetCurrentUserId();
+    if (uid == 0){
+        return TRUE;
+    }
     return FALSE;
 }
 
-
-int __getusername (char *buffer)
+int __getusername(char *buffer)
 {
     char *login_buffer = (char *) buffer;
 
@@ -133,7 +128,7 @@ fail:
  * configuração dentro da pasta.
  */
 
-struct user_info_d *CreateUser( char *name, int type )
+struct user_info_d *CreateUser(char *name, int type)
 {
     struct user_info_d *New;
     int Index = 0;
@@ -144,7 +139,7 @@ struct user_info_d *CreateUser( char *name, int type )
 // only for a wrong name.
 
     // #alert
-    if ( (void*) name == NULL ){
+    if ((void*) name == NULL){
         debug_print ("CreateUser: [FAIL] name\n");
         panic ("CreateUser: [FIXME] name is not valid\n");
     }
@@ -160,63 +155,70 @@ struct user_info_d *CreateUser( char *name, int type )
 // Maybe copy the name into a local buffer.
 // strlen(name);
 
-
 // Structure.
+    New = (void *) kmalloc( sizeof(struct user_info_d) ); 
+    if ((void *) New == NULL){
+        panic("CreateUser: New\n");
+    }
 
-    New = (void *) kmalloc ( sizeof(struct user_info_d) ); 
+    New->initialized = FALSE;
 
-    if ( (void *) New == NULL ){
-        panic ("CreateUser: New\n");
-    } else {
+    New->used = TRUE;
+    New->magic = 1234;
+    New->userType = type; 
+    New->path = NULL;
 
-        New->used  = TRUE;
-        New->magic = 1234;
-        New->userType = type; 
-        New->path = NULL;
-        
-        // The name.
-        // The name size.
+// Clear the name
+    for (i=0; i<64; i++){
+        New->__username[i]=0;
+    };
 
-        if ( (void*) name != NULL )
-        {
-            strcpy( New->__username, (const char *) name);
-            New->userName_len = strlen(name);
+
+// The name.
+// The name size.
+    if ((void*) name != NULL)
+    {
+        strcpy( New->__username, (const char *) name);
+        New->userName_len = strlen(name);
             
             // #todo
             // Check limits for this size.
             // There is a standard definition for that size.
             //if ( New->userName_len >= ???? ){}
-        }
+    }
  
-        //Session.
-        //room. Window Station. (Desktop pool).
-        //Desktop.
+//Session.
+//room. Window Station. (Desktop pool).
+//Desktop.
 
-        New->usessionId = current_usersession;
-        New->roomId     = current_room;
-        New->desktopId  = current_desktop;
+    New->usessionId = current_usersession;
+    New->roomId     = current_room;
+    New->desktopId  = current_desktop;
     
-        // Inicializando a lista de objetos permitidos.
-        // Proibindo tudo.
-        for (i=0; i<128; i++){ New->permissions[i]=0; };
-
-        //Inicializa tokens. (rever)
-        //New->k_token = KERNEL_TOKEN_NULL;
-        //New->e_token = EXECUTIVE_TOKEN_NULL;
-        //New->m_token = MICROKERNEL_TOKEN_NULL;
-        //New->h_token = HAL_TOKEN_NULL;
-        //...
+// Inicializando a lista de objetos permitidos.
+// Proibindo tudo.
+    for (i=0; i<128; i++){
+        New->permissions[i]=0;
     };
 
+    //Inicializa tokens. (rever)
+    //New->k_token = KERNEL_TOKEN_NULL;
+    //New->e_token = EXECUTIVE_TOKEN_NULL;
+    //New->m_token = MICROKERNEL_TOKEN_NULL;
+    //New->h_token = HAL_TOKEN_NULL;
+    //...
+
 // Procurando uma entrada livre na lista.
+    Index=0;
     while ( Index < USER_COUNT_MAX )
     {
-        if ( (void *) userList[Index] == NULL )
+        if ((void *) userList[Index] == NULL)
         {
             // User Id. 
-            New->userId = Index;
+            New->userId = (uid_t) Index;
             userList[Index] = (unsigned long) New;
             // printf("CreateUser: Done.\n");
+            New->initialized = TRUE;
             return (struct user_info_d *) New;
         }
 
@@ -231,6 +233,67 @@ fail:
     return NULL;
 }
 
+
+// Called by I_kmain() in kmain.c.
+int userCreateRootUser(void)
+{
+    // Nothing yet!
+    RootUser = NULL;
+    CurrentUser = NULL;
+
+// Ok, let's create the user structure for the root user.
+// USER_NAME_ROOT
+    RootUser = 
+        (struct user_info_d *) CreateUser("root",USER_TYPE_INTERACTIVE);
+
+    if ((void*) RootUser == NULL){
+        printf("userCreateRootUser: RootUser\n");
+    }
+    if (RootUser->magic != 1234){
+        printf("userCreateRootUser: RootUser validation\n");
+    }
+
+// User ID.
+    if (RootUser->userId != 0){
+        panic("userCreateRootUser: root is not 0\n");
+    }
+
+
+// #debug
+// Print the username.
+    printf("Username: {%s}\n",RootUser->__username);
+    //refresh_screen();
+    //while(1){}
+
+// Lets associate the user structure and the fg console.
+// #todo: We need a method for this routine.
+
+    if (fg_console < 0 || fg_console > 3){
+        panic("userCreateRootUser: Invalid fg_console\n");
+    }
+    if (CONSOLE_TTYS[fg_console].initialized != TRUE){
+        panic("userCreateRootUser: fg_console not initialized\n");
+    }
+    CONSOLE_TTYS[fg_console].user_info = 
+        (struct user_info_d *) RootUser;
+
+// Set the current user.
+// We need a method for this.
+    CurrentUser = (struct user_info_d *) RootUser;
+
+// Set the current user ID.
+    SetCurrentUserId(CurrentUser->userId);
+
+    int isSuper = is_superuser();
+    if ( isSuper != TRUE )
+        panic("userCreateRootUser: Not super user\n");
+
+// Done
+    return TRUE;
+fail:
+    refresh_screen();
+    return FALSE;
+}
 
 int User_initialize(void)
 {

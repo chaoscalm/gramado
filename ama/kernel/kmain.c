@@ -688,10 +688,35 @@ void I_kmain(int arch_type)
 // Initialize the default kernel virtual console.
 // It depends on the run_level.
 // See: kgwm.c
-    if (UseDebugMode == TRUE)
-    {
+    if (UseDebugMode == TRUE){
         __enter_debug_mode();
     }
+
+
+//
+// The root user
+//
+
+// Initialize the user list.
+    register int u=0;
+    for (u=0; u<USER_COUNT_MAX; u++){
+        userList[u] = 0;
+    };
+
+
+// #test
+// At this point we already have almost all we need to 
+// pass the control to the init process.
+// So, lets setup the the user for all the resources we created.
+
+    int UserStatus = FALSE;
+    UserStatus = (int) userCreateRootUser();
+    if (UserStatus != TRUE)
+        panic("I_kmain: on userCreateRootUser\n");
+
+    // #debug Breakpoint
+    //refresh_screen();
+    //while(1){}
 
 StartSystemEnd:
 

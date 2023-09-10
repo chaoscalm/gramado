@@ -172,6 +172,20 @@ struct tty_d
     tid_t __owner_tid;
 
 //
+// == Security ============================================
+//
+
+// What is the user logged in this terminal?
+// see: user.h
+    struct user_info_d *user_info;
+// Security: user session, room, desktop.
+    struct usession_d  *user_session;
+    struct room_d      *room;
+    struct desktop_d   *desktop;
+// ===================================================
+
+
+//
 // == Storage ========
 //
 
@@ -207,19 +221,6 @@ struct tty_d
 
 // If a process try to write in a stopped TTY it will be blocked.
     int stopped;
-
-//
-// == Security ============================================
-//
-
-// What is the user logged in this terminal?
-// see: user.h
-    struct user_info_d *user_info;
-// Security: user session, room, desktop.
-    struct usession_d  *user_session;
-    struct room_d      *room;
-    struct desktop_d   *desktop;
-// ===================================================
 
 //
 // == transmition ========

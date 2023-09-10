@@ -76,7 +76,6 @@ struct ws_info_d  WindowServerInfo;
 int KGWS_initialize(void)
 {
     grInit();
-    init_logon_manager();
     return 0;
 }
 

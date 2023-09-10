@@ -183,9 +183,14 @@ struct user_info_d
 {
     object_type_t  objectType;
     object_class_t objectClass;
-    int userId;
+    
+    uid_t userId;
+    
     int used;
     int magic;
+
+// This structure was initialized.
+    int initialized;
 
 // Security
 // User session, room (window station) and desktop.    
@@ -265,12 +270,17 @@ extern unsigned long userList[USER_COUNT_MAX];
 //
 
 int GetCurrentGroupId (void);
-int GetCurrentUserId (void);
-void SetCurrentUserId (int user_id);
+
+uid_t GetCurrentUserId(void);
+void SetCurrentUserId(uid_t user_id);
+
 int is_superuser(void);
 int __getusername(char *buffer);
 int __setusername(const char *new_username);
 struct user_info_d *CreateUser( char *name, int type );
+
+int userCreateRootUser(void);
+
 int User_initialize(void);
 
 #endif    

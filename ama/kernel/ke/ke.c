@@ -457,6 +457,8 @@ int keInitialize(int phase)
         PROGRESS(":: kgws, ws, ws callback\n"); 
         // Graphics infrastruture.
         KGWS_initialize();
+        // Desktop stuff.
+        init_logon_manager();
         // ws registration support.
         ws_init();
         // ws callback support.
