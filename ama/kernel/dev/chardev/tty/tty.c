@@ -630,7 +630,7 @@ int tty_reset_termios(struct tty_d *tty)
 // This is the control thread of the window with focus on kgws.
 // See: tty.h
 
-struct tty_d *tty_create(void)
+struct tty_d *tty_create(short type, short subtype)
 {
     file *__file;
     struct tty_d  *__tty;
@@ -641,8 +641,7 @@ struct tty_d *tty_create(void)
 
 // Create structure.
     __tty = (struct tty_d *) kmalloc( sizeof(struct tty_d) );
-    if ((void *) __tty == NULL)
-    {
+    if ((void *) __tty == NULL){
         panic ("tty_create: __tty\n");   
     }
     memset( __tty, 0, sizeof(struct tty_d) );
@@ -651,6 +650,10 @@ struct tty_d *tty_create(void)
     __tty->objectClass = ObjectClassKernelObjects;
     __tty->used = TRUE;
     __tty->magic = 1234;
+
+// Type/subtype
+    __tty->type = type;
+    __tty->subtype = subtype;
 
 // Uninitialized.
     __tty->__owner_tid = (int) -1;
@@ -702,8 +705,6 @@ struct tty_d *tty_create(void)
 // Quantos processos estao usando essa tty.
     //__tty->pid_count=0;
     
-    __tty->type = 0;
-    __tty->subtype = 0;
     __tty->flags = 0;
 // not stopped
     __tty->stopped = FALSE;

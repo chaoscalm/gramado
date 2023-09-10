@@ -166,12 +166,11 @@
 // TTY ------------------
 //
 
-// tty
+
 #include "dev/tty/ttyldisc.h"
 #include "dev/tty/ttydrv.h"
 #include "dev/tty/tty.h"
 #include "dev/tty/pty.h"
-#include "dev/tty/vt.h"
 #include "dev/tty/console.h"
 
 //

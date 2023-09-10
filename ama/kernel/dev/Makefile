@@ -79,10 +79,9 @@ ata.o atadma.o atahdd.o atainfo.o atairq.o atapci.o \
 disk_r.o disk_w.o storage.o \
 bldisp.o \
 xpixel.o line.o rect.o bitblt.o bg.o font.o char.o text.o graphics.o kgwm.o \
-console.o vt.o \
+tty.o console.o pty.o \
 i8042.o kbdmap.o ps2kbd.o ps2mouse.o keyboard.o mouse.o \
 serial.o \
-tty.o \
 e1000.o \
 devmgr.o io.o grinput.o \
 pci.o pciinfo.o pciscan.o     
@@ -128,7 +127,7 @@ all:
 # tty
 	$(CC) -c chardev/tty/tty.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tty.o
 	$(CC) -c chardev/tty/console.c  $(KERNEL_INCLUDE) $(CFLAGS) -o console.o 
-	$(CC) -c chardev/tty/vt.c       $(KERNEL_INCLUDE) $(CFLAGS) -o vt.o
+	$(CC) -c chardev/tty/pty.c      $(KERNEL_INCLUDE) $(CFLAGS) -o pty.o
 # ps2
 	$(CC) -c chardev/i8042.c   $(KERNEL_INCLUDE) $(CFLAGS) -o i8042.o
 

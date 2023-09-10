@@ -678,6 +678,18 @@ void I_kmain(int arch_type)
         goto fail;
     }
 
+
+// #test
+// Creating the legacy pty maste and pty slave.
+// see: pty.c
+    // #debug
+    //printf (":: Creating legacy ptys\n");
+    //refresh_screen();
+
+    PROGRESS(":: Create lecacy PTYs\n");
+    tty_initialize_legacy_pty();
+
+
 //
 // Runlevel switch:
 //

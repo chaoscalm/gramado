@@ -506,6 +506,11 @@ console_init_virtual_console(
 // Uninitialized
     CONSOLE_TTYS[ConsoleIndex].__owner_tid = (int) -1;
 
+// tty: Console/Master.
+    CONSOLE_TTYS[ConsoleIndex].type = TTY_TYPE_CONSOLE;
+    CONSOLE_TTYS[ConsoleIndex].subtype = TTY_SUBTYPE_CONSOLE_MASTER;
+
+
     // No thread for now.
     //CONSOLE_TTYS[ConsoleIndex].control = NULL;
 
@@ -1843,6 +1848,33 @@ static void __test_tty(void)
     printf("%c\n",data1[0]);
     printf("%c\n",data1[1]);
     printf("%c\n",data1[2]);
+
+// -------------------------
+// #test
+// Testing the legacy pty.
+
+// master
+    if ((void*) legacy_pty_master == NULL)
+        return;
+    if (legacy_pty_master->magic == 1234)
+        printf("legacy_pty_master OK\n");
+    //if (legacy_pty_master->subtype == TTY_SUBTYPE_PTY_MASTER)
+        //printf("legacy_pty_master OK\n");
+    printf("type %d\n",legacy_pty_master->type);
+    printf("subtype %d\n",legacy_pty_master->subtype);
+
+// slave
+    if ((void*) legacy_pty_slave == NULL)
+        return;
+    if (legacy_pty_slave->magic == 1234)
+        printf("legacy_pty_slave OK\n");
+    //if (legacy_pty_slave->subtype == TTY_SUBTYPE_PTY_SLAVE)
+        //printf("legacy_pty_slave OK\n");
+    printf("type %d\n",legacy_pty_slave->type);
+    printf("subtype %d\n",legacy_pty_slave->subtype);
+
+// 
+    printf("Done\n");
 }
 
 

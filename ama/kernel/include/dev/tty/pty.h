@@ -8,13 +8,10 @@
 #ifndef ____PTY_H
 #define ____PTY_H  1
 
-// credits: linux
-// pty subtypes;
-// lembrando que pty usa a mesma estrutura do tty.
+extern struct tty_d *legacy_pty_master;
+extern struct tty_d *legacy_pty_slave;
 
-#define  PTY_TYPE_MASTER  0x0001
-#define  PTY_TYPE_SLAVE   0x0002
-
+void tty_initialize_legacy_pty(void);
 
 #endif    
 

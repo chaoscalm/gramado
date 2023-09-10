@@ -893,14 +893,14 @@ void ps_initialize_process_common_elements(struct process_d *p)
 // tty support
 //
 
-    //printf ("ps_initialize_process_common_elements: calling tty_create[DEBUG]\n");
-
 //++
-    p->tty = ( struct tty_d *) tty_create(); 
+// IN: type, subtype.
+    p->tty = (struct tty_d *) tty_create(
+        TTY_TYPE_PTY,
+        TTY_SUBTYPE_UNDEFINED ); 
 
-    if ( (void *) p->tty == NULL )
-    {
-        panic ("ps_initialize_process_common_elements: Couldn't create tty\n");
+    if ((void *) p->tty == NULL){
+        panic("ps_initialize_process_common_elements: Couldn't create tty\n");
     }
     tty_start(p->tty);
 //--
@@ -1971,11 +1971,12 @@ struct process_d *create_and_initialize_process_object(void)
 
 // tty
 //++
-    new_process->tty = ( struct tty_d *) tty_create();
+    new_process->tty = (struct tty_d *) tty_create(
+        TTY_TYPE_PTY,
+        TTY_SUBTYPE_UNDEFINED );
     if ( (void *) new_process->tty == NULL ){
          panic ("create_and_initialize_process_object: Couldn't create TTY\n");
     }
-
     tty_start(new_process->tty);
 //--
 

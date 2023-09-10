@@ -16,15 +16,18 @@
 //TTY_DRIVER_TYPE_PTY
 
 // type
-#define TTY_TYPE_CONSOLE    1000
-#define TTY_TYPE_SERIAL     2000
-#define TTY_TYPE_USBSERIAL  3000
-#define TTY_TYPE_PTY        4000
+#define TTY_TYPE_UNDEFINED  0
+#define TTY_TYPE_CONSOLE    1000  //(Kernel Console)
+#define TTY_TYPE_PTY        2000  //(Virtual terminal)
+#define TTY_TYPE_SERIAL     3000 
 // ...
 
 // subtype
-#define TTY_SUBTYPE_PTY_MASTER   100
-#define TTY_SUBTYPE_PTY_SLAVE    200
+#define TTY_SUBTYPE_UNDEFINED  0
+#define TTY_SUBTYPE_CONSOLE_MASTER  100
+#define TTY_SUBTYPE_CONSOLE_SLAVE   200
+#define TTY_SUBTYPE_PTY_MASTER      300
+#define TTY_SUBTYPE_PTY_SLAVE       400
 // ...
 
 //These bits are used in the flags field of the tty structure.
@@ -149,6 +152,8 @@ struct tty_queue
 // uma janela de terminal virtual.
 */
 
+
+
 struct tty_d
 {
     object_type_t  objectType;
@@ -170,6 +175,23 @@ struct tty_d
 // Ownership
 
     tid_t __owner_tid;
+
+// type
+//#define TTY_TYPE_CONSOLE    1000 (Kernel Console)
+//#define TTY_TYPE_PTY        2000 (Virtual terminal)
+//#define TTY_TYPE_SERIAL     3000 
+
+// ...
+// type of tty
+    short type;
+
+// subtype
+//#define TTY_SUBTYPE_PTY_MASTER   100
+//#define TTY_SUBTYPE_PTY_SLAVE    200
+// ...
+// subtype of tty
+    short subtype;
+
 
 //
 // == Security ============================================
@@ -250,12 +272,11 @@ struct tty_d
 // graphics, text ...
     //int vt_mode;
 
+//?
 // Qual eh o modo de operacao do console virtual.
 // graphics, text ...
     int vc_mode;
 
-    short type;       // type of tty
-    short subtype;    // subtype of tty 
 
 // tty flags.
     unsigned long flags;
@@ -392,7 +413,7 @@ tty_write (
 
 int tty_reset_termios (struct tty_d *tty);
 
-struct tty_d *tty_create(void);
+struct tty_d *tty_create(short type, short subtype);
 
 struct tty_d *file_tty (file *f);
 int tty_delete ( struct tty_d *tty );
