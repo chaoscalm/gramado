@@ -44,6 +44,8 @@ extern struct tty_d  CONSOLE_TTYS[CONSOLETTYS_COUNT_MAX];
 extern int fg_console;
 #define DEFAULT_FG_DEFAULT_CONSOLE  DEFAULT_CONSOLE
 
+extern struct tty_struct *redirect;
+
 // Se o console esta atuando como um shell comparando palavras.
 // See: console.c and kgwm.c.
 extern int ShellFlag;

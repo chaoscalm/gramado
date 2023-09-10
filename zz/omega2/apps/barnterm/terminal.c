@@ -8,6 +8,7 @@
 // #test:
 // Testing ioctl()
 #include <termios.h>
+#include <sys/ioctls.h>
 
 // network ports.
 #define PORTS_WS  4040
@@ -427,6 +428,19 @@ static void __test_ioctl(void)
 // It's working.
 
     //printf ("~ioctl: Tests...\n");
+
+// #test
+// Changing the output console tty.
+// A implementaçao que trata do fd=1 eh console_ioctl
+// e nao tty_ioctl.
+    printf("\n");
+    printf("Changing the output console\n");
+    // IN: fd, request, arg.
+    int ioctl_return;
+    ioctl_return = (int) ioctl( STDOUT_FILENO, TIOCCONS, 0 );
+    printf("ioctl_return: {%d}\n",ioctl_return);
+    //printf("Done\n");
+
 
 // Setup cursor position.
     //ioctl(1, 1001, 10);  // Cursor x
@@ -1126,7 +1140,8 @@ static void compareStrings(int fd)
     }
 
 // Testing ioctl
-    if ( strncmp(prompt,"ioctl",5) == 0 ){
+    if ( strncmp(prompt,"ioctl",5) == 0 )
+    {
         __test_ioctl();
         goto exit_cmp;
     }

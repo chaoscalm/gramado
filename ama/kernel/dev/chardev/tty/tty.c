@@ -3,6 +3,7 @@
 
 #include <kernel.h>  
 
+
 // #todo
 // We need a wrapper to write a single byte into a tty.
 // tty_read_byte()
@@ -1039,6 +1040,7 @@ int tty_init_module (void)
 // See: 
 // termios.h
 // ioctls.h
+// https://man7.org/linux/man-pages/man2/ioctl_tty.2.html
 
 int 
 tty_ioctl ( 
@@ -1046,13 +1048,21 @@ tty_ioctl (
     unsigned long request, 
     unsigned long arg )
 {
+
+// Get the linked pair.
+    struct tty_d *tty;
+    struct tty_d *other_tty;
+
+    pid_t current_process = -1;
     struct process_d *p;
     file *f;
-    struct tty_d *tty;
-    pid_t current_process = -1;
 
 
     debug_print ("tty_ioctl: TODO\n");
+
+//#debug
+    //if (request == TIOCCONS)
+        //printf("request == TIOCCONS\n");
 
     if ( fd < 0 || fd >= OPEN_MAX ){
         return (int) (-EBADF);
@@ -1091,11 +1101,38 @@ tty_ioctl (
 // Is it a tty object?
 // Get tty struct!
     if (f->____object != ObjectTypeTTY){
-        debug_print ("tty_ioctl: [FAIL] Not a tty file\n");
-        return -1;
+        debug_print("tty_ioctl: [FAIL] Not a tty file\n");
+        return (int) -EINVAL;
     }
+
+// -------------
+// Get the tty
     tty = f->tty;
 
+    if ( (void*) tty == NULL )
+        return (int) -EINVAL;
+    if (tty->magic != 1234)
+        return (int) -EINVAL;
+
+// -------------
+// Get the other tty
+    int is_linked = FALSE;
+    other_tty = (struct tty_d *) tty->link;
+    if ( (void*) other_tty == NULL )
+        is_linked = FALSE;
+    if (other_tty->magic != 1234)
+    {
+        is_linked = FALSE;
+        other_tty = NULL;
+    }
+    if (other_tty->magic == 1234){
+        //printf("is_linked\n");
+        is_linked = TRUE;
+    }
+    // Not a pty. Cant connect.
+    if (other_tty->type != TTY_TYPE_PTY)
+        other_tty = NULL;
+// ----------------------------
 // The command!
 
     switch (request){
@@ -1160,6 +1197,57 @@ tty_ioctl (
         //tty->_rbuffer->_p = tty->_rbuffer->_base; 
         //tty->_rbuffer->_cnt = tty->_rbuffer->_lbfsize;
         //for( xxxi=0; xxxi<BUFSIZ; xxxi++){ tty->_rbuffer->_p[xxxi] = 0; };
+        break;
+
+// Redirecting console output
+// Redirecionador do output do console virtual no Linux 1.0.
+// A ideia eh redirecionar o output do console, 
+// que e' uma tty, para o child do terminal virtual, 
+// que e' uma pty. Para o shell por exemplo.
+// Tanto terminal quando o child pode chamar essa funçao.
+// A funçao ioctl() com o comando TIOCCONS, 
+// atualiza o redirecionador de tty.
+//  + Entao, havendo um ponteiro valido de redirecionador, 
+//    o output vai para o child do terminal virtual, 
+//    que e' o ponteiro ao qual o redirecionador se refere.
+//  + Se nao houver um ponteiro valido de redirecionador, 
+//    entao o output vai para o console virtual em foreground.
+
+    case TIOCCONS:
+        printf("tty_ioctl: TIOCCONS (Redirecting output)\n");
+        refresh_screen();
+        // Se a tty eh um console.
+        if (tty->type == TTY_TYPE_CONSOLE) 
+        {
+            if ( is_superuser() != TRUE )
+            {
+                // #debug
+                printf("Not a superuser\n");
+                return (int) -EPERM;
+            }
+            redirect = NULL;
+            return 0;
+        }
+        // Se ja temos um redirecionador.
+        if ((void*)redirect != NULL)
+            return -EBUSY;
+        if ( is_superuser() != TRUE )
+            return -EPERM;
+        if (tty->subtype == TTY_SUBTYPE_PTY_MASTER){
+            if (is_linked == TRUE){
+                redirect = other_tty;
+            }
+            if (is_linked != TRUE){
+                redirect = NULL;
+                printf("Not linked\n");
+                return -1;
+            }
+        } else if (tty->subtype == TTY_SUBTYPE_PTY_SLAVE){
+            redirect = tty;
+        } else {
+            return -ENOTTY;
+        };
+        return 0;
         break;
 
     default:

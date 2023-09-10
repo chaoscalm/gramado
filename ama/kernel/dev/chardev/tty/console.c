@@ -48,6 +48,11 @@ int ShellFlag=FALSE;
 // global
 // Foreground console.
 int fg_console=0;
+// O redirecionador.
+// Redirecting console to this pointer.
+// see: tty_ioctl: TIOCCONS
+struct tty_struct *redirect;
+
 // 0=apaga 1=acende 
 int consoleTextCursorStatus=0;
 // Cursor
@@ -3109,6 +3114,11 @@ int VirtualConsole_initialize(void)
 
     register int i=0;
 
+// Console em primeiro plano.
+    fg_console = CONSOLE0;
+// Redirecionador.
+    redirect = NULL;
+
 // No embedded shell for now.
 // No input in prompt[].
     ShellFlag = FALSE;
@@ -3227,6 +3237,15 @@ console_ioctl (
     unsigned long request, 
     unsigned long arg )
 {
+
+// Get the linked pair.
+    //struct tty_d *tty;
+    //struct tty_d *other_tty;
+
+    //pid_t current_process = -1;
+    //struct process_d *p;
+    //file *f;
+
 
     debug_print ("console_ioctl: TODO\n");
     //printf ("console_ioctl: TODO\n");
@@ -3492,6 +3511,12 @@ console_ioctl (
 // Get cursor y
     case 1012:
         return (int) get_cursor_y();
+        break;
+
+
+// REdirecionando o output do console para pty slave.
+    case TIOCCONS:
+        printf ("console_ioctl: TIOCCONS\n");
         break;
 
     // ...
