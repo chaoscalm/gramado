@@ -1,4 +1,4 @@
-# core - The Gramado kernel
+# ama - Bootloader and kernel.
 
 ## What is Gramado?
 
@@ -60,7 +60,7 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 
 ```
 	$ make
-	$ cd core
+	$ cd ama
 	$ ./run
 	$ make qemu-test
 ```

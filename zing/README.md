@@ -1,4 +1,4 @@
-# userland
+# zing - Init, display server and network server.
 
 ## Where is the Display Server?
 
@@ -31,22 +31,13 @@ The main library for the GUI applications is libs/libgws/.
 
 ## Folders
 
-
 ```
- * apps/:
-    * Client-side GUI applications.
- * commands/:
-    * Posix commands.
- * demos:
-    * 3D demos.
- * games/:
-   * Games.
- * libs/:
-   * Libraries.
- * services/:
-   * Ring 3 servers.
- * shell/:
-   * The shell command.
+ * graminit/:
+    * Init process.
+ * gramlan0/:
+    * Display server.
+ * netd:
+    * Network server and first client.
 ```
 
 ## Quotes:

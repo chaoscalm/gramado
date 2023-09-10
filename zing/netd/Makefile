@@ -2,10 +2,13 @@ all:
 
 	make -C libs/
 # The Gramado Network Server
-	make -C server
+	make -C server/
 # First client for GNS.
-	make -C client    
+	make -C client/ 
 	
+clean:
+	-rm -f libs/libgns/obj/*.o
+	-rm -f libs/rtl/obj/*.o
 
-
+	-rm -f bin/*.BIN
 
