@@ -1,0 +1,15 @@
+
+--------------------
+J.
+graminit/
+	Init process for the zing/ layer.
+
+--------------------
+H.S.
+gramlad0/
+	eng/ and gramland/
+
+--------------------
+G.
+netd/
+	NETCTLD and NETCTL.

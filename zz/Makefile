@@ -1,22 +1,29 @@
 
-# zz/ depends on zing/libs/.
-
 all:
-	make -C libs/
-	make -C c1/
-#	make -C games
-	make -C winapps
+
+# omega1
+	make -C omega1/
+# omega2
+	make -C omega2/
+# omega3
+# data
 
 clean-all:
 
-	-rm -f libs/libdisp/obj/*.o
-	-rm -f libs/libgr/obj/*.o
-	-rm -f libs/libgr3d/obj/*.o
-	-rm -f libs/libgws/obj/*.o
+# omega1
+	-rm -f omega1/libs/libdisp/obj/*.o
+	-rm -f omega1/libs/libgr/obj/*.o
+	-rm -f omega1/libs/libgr3d/obj/*.o
+	-rm -f omega1/libs/libgws/obj/*.o
 
-	-rm c1/eng/bin/*.BIN
-	-rm c1/gramland/bin/*.BIN
-#	-rm games/game1/bin/*.BIN
-	-rm winapps/bin/*.BIN
+# omega2
+	-rm -f omega2/apps/bin/*.BIN
+	-rm -f omega2/commands/bin/*.BIN
+	-rm -f omega2/drivers/bin/*.BIN
+	-rm -f omega2/servers/bin/*.BIN
+
+# omega3
+#data
+
 
 

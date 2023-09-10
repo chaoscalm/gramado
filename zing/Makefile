@@ -12,57 +12,22 @@ VERSION_BUILD = ?
 
 all:
 
-# ----------------
-# libs
-# First of all :)
-	make -C libs/
-
-# ----------------
-# The shell command.
-	make -C barnsh/
-
-# ----------------
-# c2 - NICCTL
-	make -C c2/
+# init
+	make -C graminit/
+# gramland
+	make -C gramlan0/
 # c3 - NETCTL
-	make -C c3/
-
-# ----------------
-# Ring 3 posix-like commands.
-	make -C commands/
-
-
-# ----------------
-# Services
-	make -C services/
-
-# ----------------
-# wdemos/
-# Graphics engine. (3D demos)
-# zz
-#	make -C wdemos/
-
-# ----------------
-# wgames
-
-# ----------------
-# Client-side GUI applications.
-# zz
-#	make -C winapps/
+	make -C netd/
 
 clean-all:
 
-	-rm -f barnsh/bin/*.BIN
+# init
+	-rm graminit/init/bin/*.BIN
 
-	-rm -f c2/bin/*.BIN
-	-rm -f c3/bin/*.BIN
+# gramland and eng
+	-rm gramlan0/eng/bin/*.BIN
+	-rm gramlan0/gramland/bin/*.BIN
 
-	-rm -f commands/bin/*.BIN
-
-	-rm -f libs/libgns/obj/*.o
-	-rm -f libs/libgns2/obj/*.o
-	-rm -f libs/libio01/obj/*.o
-	-rm -f libs/rtl/obj/*.o
-
-	-rm -f services/bin/*.BIN
+# NETCTL
+	-rm -f netd/bin/*.BIN
 

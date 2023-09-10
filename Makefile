@@ -12,7 +12,12 @@ all: userland-domain core-domain
 PHONY := userland-domain
 userland-domain:
 # Warning: Respect the order!
+
+# graminit, gramlan0 and netd.
+# zing has all the dependencies.
 	make -C  zing/
+
+# omega1, omega2 and omega3.
 	make -C  zz/
 
 # Step 2
@@ -32,39 +37,57 @@ PHONY := clean-userland
 clean-userland:
 # Clear the userland domain.
 
+# ------------
 # zing/
-	-rm -f zing/barnsh/bin/*.BIN
-	-rm -f zing/c3/bin/*.BIN
-	-rm -f zing/c3/bin/*.BIN
-	-rm -f zing/commands/bin/*.BIN
-	-rm -f zing/services/bin/*.BIN
-# zz
-	-rm -f zz/c1/eng/bin/*.BIN
-	-rm -f zz/c1/gramland/bin/*.BIN
-	-rm -f zz/winapps/bin/*.BIN
+
+# graminit
+	-rm -f zing/graminit/init/bin/*.BIN
+# gramland and eng
+	-rm -f zing/gramlan0/eng/bin/*.BIN
+	-rm -f zing/gramlan0/gramland/bin/*.BIN
+# NETCTL
+	-rm -f zing/netd/bin/*.BIN
+
+# ------------
+# zz/
+
+# omega1
+	-rm -f zz/omega1/libs/libdisp/obj/*.o
+	-rm -f zz/omega1/libs/libgr/obj/*.o
+	-rm -f zz/omega1/libs/libgr3d/obj/*.o
+	-rm -f zz/omega1/libs/libgws/obj/*.o
+
+# omega2
+	-rm -f zz/omega2/apps/bin/*.BIN
+	-rm -f zz/omega2/commands/bin/*.BIN
+	-rm -f zz/omega2/drivers/bin/*.BIN
+	-rm -f zz/omega2/servers/bin/*.BIN
+
+# omega3
+#data
+
 
 PHONY := clean-core
 clean-core:
+
 # Clear the core domain.
 	-rm ama/GRAMADO.VHD
 	-rm ama/MBR0.BIN
-# Clear the init process.
-	-rm ama/c0/init/*.o
-	-rm ama/c0/init/bin/*.BIN
-	-rm ama/hals/newm0/MOD0.BIN
-	-rm ama/hals/newm1/MOD1.BIN
 	-rm ama/kernel/KERNEL.BIN
+
+	-rm ../aa/hals/newm0/MOD0.BIN
+	-rm ../aa/hals/newm1/MOD1.BIN
 
 PHONY := clean-base
 clean-base:
 # Clear the base domain.
 # Clear the disk cache
-	-rm -rf aa/base/*.BIN 
-	-rm -rf aa/base/*.BMP
-	-rm -rf aa/base/EFI/BOOT/*.EFI 
-	-rm -rf aa/base/GRAMADO/*.BIN 
-	-rm -rf aa/base/PROGRAMS/*.BIN 
-	-rm -rf aa/base/USERS/*.BIN 
+	-rm -rf zz/omega3/base/*.BIN 
+	-rm -rf zz/omega3/base/*.BMP
+	-rm -rf zz/omega3/base/EFI/BOOT/*.EFI 
+	-rm -rf zz/omega3/base/GRAMADO/*.BIN 
+	-rm -rf zz/omega3/base/PROGRAMS/*.BIN 
+	-rm -rf zz/omega3/base/USERS/*.BIN 
 
 PHONY := clean-cancun 
 clean-cancun:

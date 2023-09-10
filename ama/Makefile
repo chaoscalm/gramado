@@ -1,4 +1,4 @@
-# Makefile in the core/ folder.
+# Makefile in the ama/ folder.
 # Gramado Kernel
 # License: BSD License
 # Compiling on gcc 9.4.0
@@ -58,7 +58,7 @@ clean
 # --------------------------------------
 # build: Developer comand 1.
 # install
-# Build the images and put them all into ../aa/base/ folder.
+# Build the images and put them all into ../zz/omega3/base/ folder.
 PHONY := install
 install: do_install
 do_install: \
@@ -68,7 +68,7 @@ build-gramado-os
 # --------------------------------------
 # build: Developer comand 2.
 # image
-# Copy all the files from ../aa/base/ to the VHD.
+# Copy all the files from ../zz/omega3/base/ to the VHD.
 PHONY := image
 image: do_image
 do_image: \
@@ -102,12 +102,12 @@ build-gramado-os:
 	$(Q)$(NASM) boot/vd/fat/stage1.asm \
 	-I boot/vd/fat/ \
 	-o MBR0.BIN
-	sudo cp MBR0.BIN  ../aa/base/
+	sudo cp MBR0.BIN  ../zz/omega3/base/
 
 # ::Build BM.BIN. (legacy, no dialog)
 	$(Q)$(MAKE) -C boot/x86/bm/ 
 # Copy to the target folder.
-	sudo cp boot/x86/bin/BM.BIN  ../aa/base/
+	sudo cp boot/x86/bin/BM.BIN  ../zz/omega3/base/
 
 # #BUGBUG 
 # Suspended!!!!
@@ -118,47 +118,39 @@ build-gramado-os:
 # ::Build BM2.BIN. (Interface with dialog)
 	$(Q)$(MAKE) -C boot/x86/bm2/ 
 # Copy to the target folder.
-	sudo cp boot/x86/bin/BM2.BIN  ../aa/base/
+	sudo cp boot/x86/bin/BM2.BIN  ../zz/omega3/base/
 
 # ::Build BL.BIN.
 	$(Q)$(MAKE) -C boot/x86/bl/ 
 # Copy to the target folder.
-	sudo cp boot/x86/bin/BL.BIN  ../aa/base/
+	sudo cp boot/x86/bin/BL.BIN  ../zz/omega3/base/
 
+
+#----------------------------------
+# ::Build the ring0 module image.
+	$(Q)$(MAKE) -C ../aa/hals/newm0/
+# Copy the ring0 module image.
+	sudo cp ../aa/hals/newm0/MOD0.BIN  ../zz/omega3/base/
+
+# ::Build the ring0 module image.
+	$(Q)$(MAKE) -C ../aa/hals/newm1/
+# Copy the ring0 module image.
+	sudo cp ../aa/hals/newm1/MOD1.BIN  ../zz/omega3/base/
+
+#----------------------------------
 # ::Build kernel image.
 	$(Q)$(MAKE) -C kernel/
 # Copy to the target folder.
-	sudo cp kernel/KERNEL.BIN  ../aa/base/GRAMADO
+	sudo cp kernel/KERNEL.BIN  ../zz/omega3/base/GRAMADO
 
-# ::Build the ring0 module image.
-	$(Q)$(MAKE) -C hals/newm0/
-# Copy the ring0 module image.
-	sudo cp hals/newm0/MOD0.BIN  ../aa/base/
+#----------------------------------
+#Copy the init process
+	sudo cp ../zing/graminit/init/bin/INIT.BIN  ../zz/omega3/base/
 
-# ::Build the ring0 module image.
-	$(Q)$(MAKE) -C hals/newm1/
-# Copy the ring0 module image.
-	sudo cp hals/newm1/MOD1.BIN  ../aa/base/
-
-#todo
-# ::Build the ring0 module image.
-#	$(Q)$(MAKE) -C newm1/
-# Copy the ring0 module image.
-#	sudo cp newm1/MOD1.BIN  ../aa/base/
-
-# ::Build libraries.
-	$(Q) $(MAKE) -C libs/
-# Don't copy to the disk.
-
-# :: init.bin 
-# Building init process.
-	$(Q) $(MAKE) -C c0/init/
-# Copy to the target folder.
-	-sudo cp c0/init/bin/INIT.BIN  ../aa/base/ 
-
+#----------------------------------
 # Install BMPs
-#	sudo cp ../aa/assets/themes/amazing/*.BMP  ../aa/base/
-	sudo cp ../aa/assets/themes/honey/*.BMP    ../aa/base/
+#	sudo cp ../zz/omega3/assets/themes/amazing/*.BMP  ../zz/omega3/base/
+	sudo cp ../zz/omega3/assets/themes/honey/*.BMP    ../zz/omega3/base/
 
 	@echo "~build-gramado-os end?"
 
@@ -169,67 +161,69 @@ copy-extras:
 
 	@echo "copy-extras"
 
+#-----------------------------
 # zing
 # Copying every image from zing/.
 	@echo ":: Copying every image from zing"
 
-	-sudo cp ../zing/barnsh/bin/SHELL.BIN     ../aa/base/PROGRAMS/
-
-# Copy to the target folder.
-	-sudo cp ../zing/commands/bin/SHUTDOWN.BIN  ../aa/base/
-	-sudo cp ../zing/commands/bin/REBOOT.BIN    ../aa/base/
-	-sudo cp ../zing/commands/bin/CAT.BIN       ../aa/base/
-	-sudo cp ../zing/commands/bin/UNAME.BIN     ../aa/base/
-
-	-sudo cp ../zing/commands/bin/VGA1.BIN      ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/TPRINTF.BIN   ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/SHOWFUN.BIN   ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/CMP.BIN       ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/SUM.BIN       ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/TASCII.BIN    ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/FALSE.BIN     ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/TRUE.BIN      ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/GRAMCNF.BIN   ../aa/base/PROGRAMS/
-	#...
-
-# c2
-	-sudo cp ../zing/c2/bin/NICCTL.BIN     ../aa/base/
-	-sudo cp ../zing/c2/bin/NICCTLD.BIN  ../aa/base/
-
+#graminit : Already did right above.
+#	sudo cp ../zing/graminit/init/bin/INIT.BIN  ../zz/omega3/base/
+# Graphics engine
+	-sudo cp ../zing/gramlan0/eng/bin/ENG.BIN  ../zz/omega3/base/
+# Display server.
+	-sudo cp ../zing/gramlan0/gramland/bin/GRAMLAND.BIN  ../zz/omega3/base/
 # c3
-	-sudo cp ../zing/c3/bin/NETCTL.BIN     ../aa/base/
-	-sudo cp ../zing/c3/bin/NETCTLD.BIN  ../aa/base/
+	-sudo cp ../zing/netd/bin/NETCTL.BIN   ../zz/omega3/base/
+	-sudo cp ../zing/netd/bin/NETCTLD.BIN  ../zz/omega3/base/
 
-	-sudo cp ../zing/commands/bin/N9.BIN   ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/N10.BIN  ../aa/base/PROGRAMS/
-	-sudo cp ../zing/commands/bin/N11.BIN  ../aa/base/PROGRAMS/
-
-
+#-----------------------------
 # zz
 # Copying every image from zz/.
 	@echo ":: Copying every image from zz"
 
-# zz/c1/
-
-# Graphics engine
-	-sudo cp ../zz/c1/eng/bin/ENG.BIN  ../aa/base/
-# Display server.
-	-sudo cp ../zz/c1/gramland/bin/GRAMLAND.BIN  ../aa/base/
-
 # winapps (Students)
 
 # winapps: Unit 3
-	-sudo cp ../zz/winapps/bin/GWS.BIN   ../aa/base/
-	-sudo cp ../zz/winapps/bin/GDM.BIN   ../aa/base/
-	-sudo cp ../zz/winapps/bin/GDM2.BIN  ../aa/base/
+	-sudo cp ../zz/omega2/apps/bin/GWS.BIN   ../zz/omega3/base/
+	-sudo cp ../zz/omega2/apps/bin/GDM.BIN   ../zz/omega3/base/
+	-sudo cp ../zz/omega2/apps/bin/GDM2.BIN  ../zz/omega3/base/
 # winapps: Unit 2
-	-sudo cp ../zz/winapps/bin/TERMINAL.BIN  ../aa/base/
+	-sudo cp ../zz/omega2/apps/bin/TERMINAL.BIN  ../zz/omega3/base/
 # winapps: Unit 1
-	-sudo cp ../zz/winapps/bin/EDITOR.BIN   ../aa/base/
-	-sudo cp ../zz/winapps/bin/FILEMAN.BIN  ../aa/base/
-	-sudo cp ../zz/winapps/bin/CMDLINE.BIN  ../aa/base/PROGRAMS/
-	-sudo cp ../zz/winapps/bin/BROWSER.BIN  ../aa/base/
-	-sudo cp ../zz/winapps/bin/DOCV.BIN     ../aa/base/PROGRAMS/
+	-sudo cp ../zz/omega2/apps/bin/EDITOR.BIN   ../zz/omega3/base/
+	-sudo cp ../zz/omega2/apps/bin/FILEMAN.BIN  ../zz/omega3/base/
+	-sudo cp ../zz/omega2/apps/bin/CMDLINE.BIN  ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/apps/bin/BROWSER.BIN  ../zz/omega3/base/
+	-sudo cp ../zz/omega2/apps/bin/DOCV.BIN     ../zz/omega3/base/PROGRAMS/
+
+
+# Copy to the target folder.
+	-sudo cp ../zz/omega2/commands/bin/SHELL.BIN     ../zz/omega3/base/
+	-sudo cp ../zz/omega2/commands/bin/SHUTDOWN.BIN  ../zz/omega3/base/
+	-sudo cp ../zz/omega2/commands/bin/REBOOT.BIN    ../zz/omega3/base/
+	-sudo cp ../zz/omega2/commands/bin/CAT.BIN       ../zz/omega3/base/
+	-sudo cp ../zz/omega2/commands/bin/UNAME.BIN     ../zz/omega3/base/
+
+	-sudo cp ../zz/omega2/commands/bin/VGA1.BIN      ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/TPRINTF.BIN   ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/SHOWFUN.BIN   ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/CMP.BIN       ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/SUM.BIN       ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/TASCII.BIN    ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/FALSE.BIN     ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/TRUE.BIN      ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/GRAMCNF.BIN   ../zz/omega3/base/PROGRAMS/
+	#...
+
+	-sudo cp ../zz/omega2/commands/bin/N9.BIN   ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/N10.BIN  ../zz/omega3/base/PROGRAMS/
+	-sudo cp ../zz/omega2/commands/bin/N11.BIN  ../zz/omega3/base/PROGRAMS/
+
+# c2
+	-sudo cp ../zz/omega2/drivers/nicd/bin/NICCTL.BIN   ../zz/omega3/base/
+	-sudo cp ../zz/omega2/drivers/nicd/bin/NICCTLD.BIN  ../zz/omega3/base/
+
+	-sudo cp ../zz/omega2/drivers/bin/VGA1.BIN  ../zz/omega3/base/
 
 	@echo "~ copy-extras"
 
@@ -253,13 +247,13 @@ vhd-mount:
 # --------------------------------------
 #::4
 # ~ Step 4 vhd-copy-files - Copying files into the mounted VHD.
-# Copying the ../aa/base/ folder into the mounted VHD.
+# Copying the ../zz/omega3/base/ folder into the mounted VHD.
 vhd-copy-files:
 	@echo "========================="
 	@echo "Build: Copying files into the mounted VHD ..."
-	# Copy ../aa/base/
+	# Copy ../zz/omega3/base/
 	# sends everything from disk/ to root.
-	sudo cp -r ../aa/base/*  /mnt/gramadoxvhd
+	sudo cp -r ../zz/omega3/base/*  /mnt/gramadoxvhd
 
 # --------------------------------------
 #:::5
@@ -300,28 +294,27 @@ clean-all: clean
 
 # Clear boot images
 	-rm -rf boot/x86/bin/*.BIN
+
 # Clear newos kernel image
 	-rm -rf kernel/KERNEL.BIN
+
 # Clear the ring0 module images
-	-rm -rf hals/newm0/MOD0.BIN
-	-rm -rf hals/newm1/MOD1.BIN
-# ==================
-# Clear the disk cache
-	-rm -rf ../aa/base/*.BIN 
-	-rm -rf ../aa/base/*.BMP
-	-rm -rf ../aa/base/EFI/BOOT/*.EFI 
-	-rm -rf ../aa/base/GRAMADO/*.BIN 
-	-rm -rf ../aa/base/PROGRAMS/*.BIN 
-	-rm -rf ../aa/base/USERS/*.BIN 
+	-rm -rf ../aa/hals/newm0/MOD0.BIN
+	-rm -rf ../aa/hals/newm1/MOD1.BIN
+
 # ==================
 # Clear the init process.
-	-rm c0/init/bin/*.BIN
-	-rm c0/init/*.o
+	-rm ../zing/gramlan0/init/bin/*.BIN
+	-rm ../zing/gramlan0/init/*.o
+
 # ==================
-# Clear the dependencies.
-	-rm libs/fonts/bin/*.FON
-	-rm libs/libio01/obj/*.o
-	-rm libs/rtl/obj/*.o
+# Clear the disk cache
+	-rm -rf ../zz/omega3/base/*.BIN 
+	-rm -rf ../zz/omega3/base/*.BMP
+	-rm -rf ../zz/omega3/base/EFI/BOOT/*.EFI 
+	-rm -rf ../zz/omega3/base/GRAMADO/*.BIN 
+	-rm -rf ../zz/omega3/base/PROGRAMS/*.BIN 
+	-rm -rf ../zz/omega3/base/USERS/*.BIN 
 
 	@echo "~clean-all"
 

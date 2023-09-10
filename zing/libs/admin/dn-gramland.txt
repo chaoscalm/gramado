@@ -1,5 +1,0 @@
-
-
-    Toolkit called gramland.
-
-    gramland_create_window()

@@ -1,0 +1,10 @@
+
+--------------
+omega1/
+	libs, toolkits and APIs.
+--------------
+omega2/
+	commands, apps, drivers and server.
+--------------
+omega3/
+	data
