@@ -526,23 +526,21 @@ int main ( int argc, char *argv[] )
     gws_debug_print ("setup.bin: Unlock taskswitching and scheduler \n");
     printf          ("setup.bin: Unlock taskswitching and scheduler \n");
 
-    gramado_system_call (641,0,0,0);
-    gramado_system_call (643,0,0,0);
+    sc80 (641,0,0,0);
+    sc80 (643,0,0,0);
 
 // Create the rectangle
     gws_debug_print ("setup.bin: Create rectangle \n");
     printf          ("setup.bin: Create rectangle \n");
 
-    gramado_system_call(897,0,0,0);
-
+    sc80(897,0,0,0);
 
 //
 // hang
 //
-    //while(1){
-    //    gramado_system_call(897,0,0,0);
+    //while (1){
+    //    sc80(897,0,0,0);
     //}
-
 
 //================================
    

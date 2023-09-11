@@ -123,13 +123,12 @@ static int __init_heap(void)
 // #important
 // O kernel tem uma thread em ring0.
 // Usada pelo window server.
-// Se essa libc for usada por ela, então o pid pode ser
-// o pid 0, do kernel.
+// Se essa libc for usada por ela, então o pid pode ser o pid 0, do kernel.
 
-    int thisprocess_id = (int) gramado_system_call ( 85, 0, 0, 0); 
+    int thisprocess_id = (int) sc80 ( 85, 0, 0, 0); 
     //if (thisprocess_id <= 0 ){
-    if (thisprocess_id < 0 ){
-        debug_print ("__init_heap: [FAIL] thisprocess_id  ~~>  :) \n");
+    if (thisprocess_id < 0){
+        debug_print ("__init_heap: thisprocess_id\n");
         goto fail;
     }
 
@@ -140,12 +139,11 @@ static int __init_heap(void)
 // Pegamos o endereço do heap do processo.
 // Isso precisa ser um ponteiro em uma região em ring3
 // compartilhada com esse processo.
-
     unsigned char *heaptest = 
-        (unsigned char *) gramado_system_call ( 184, thisprocess_id, 0, 0 );
-    if ( (void*) heaptest == NULL )
+        (unsigned char *) sc80 ( 184, thisprocess_id, 0, 0 );
+    if ((void*) heaptest == NULL)
     {
-        debug_print ("__init_heap: [FAIL] heaptest \n");
+        debug_print("__init_heap: heaptest\n");
         goto fail;
     }
 
@@ -1226,9 +1224,6 @@ void *zmalloc (size_t size)
 // #todo
 // Call the shell application?
 
-int system (const char *command)
-{
-
 // #todo: 
 // Checar se comando é válido, se os primeiros caracteres
 // são espaço. Ou talvez somente compare, sem tratar o argumento.
@@ -1238,6 +1233,13 @@ int system (const char *command)
 // OBS: 
 // ESSES SÃO OS COMANDOS DO SISTEMA, USADOS POR TODOS OS PROGRAMAS
 // QUE INCLUIREM A LIBC. 
+
+int system(const char *command)
+{
+
+    if ( (void*) command == NULL )
+        return -1;
+
 
 // test - Exibe uma string somente para teste.
     if ( stdlib_strncmp ( (char *) command, "test", 4 ) == 0 )
@@ -1250,17 +1252,13 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "ls", 2 ) == 0 )
     {
         printf("system: @todo: ls ...\n");
+        // call ls.bin
         goto exit;
     }
 
 // makeboot - Cria arquivos e diretórios principais.
     if ( stdlib_strncmp ( (char *) command, "makeboot", 8 ) == 0 )
     {
-        printf("system: @todo: makeboot ...\n");
-        //ret_value = fs_makeboot();
-        //if(ret_value != 0){
-        //    printf("shell: makeboot fail!");
-        //};
         goto exit;
     }
 
@@ -1268,7 +1266,6 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "format", 6 ) == 0 )
     {
         printf("system: @todo: format ...\n");
-        //fs_format(); 
         goto exit;
     }
 
@@ -1283,7 +1280,6 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "dir", 3 ) == 0 )
     {
         printf("system: @todo: dir ...\n");
-        //fs_show_dir(0); 
         goto exit;
     }
 
@@ -1291,7 +1287,6 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "newfile", 7 ) == 0 )
     {
         printf("system: ~newfile - Create empty file.\n");
-        //fs_create_file( "novo    txt", 0);
         goto exit;
     }
 
@@ -1299,7 +1294,6 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "newdir", 7 ) == 0 )
     {
         printf("system: ~newdir - Create empty folder.\n");
-        //fs_create_dir( "novo    dir", 0);
         goto exit;
     }
 
@@ -1337,15 +1331,13 @@ int system (const char *command)
 // cls.
     if ( stdlib_strncmp ( (char *) command, "cls", 3 ) == 0 )
     {
-        //black
-        //api_clear_screen(0);
         goto exit;
     }
 
 // save.
     if ( stdlib_strncmp ( (char *) command, "save", 4 ) == 0 )
     {
-        printf("system: ~save root\n");
+        printf("system: ~save\n");
         goto exit;
     }
 
@@ -1355,15 +1347,6 @@ int system (const char *command)
     if ( stdlib_strncmp ( (char *) command, "install", 7 ) == 0 )
     {
         printf("system: ~install\n");
-        //fs_install();
-        goto exit;
-    }
-
-// boot - Inicia o sistema.
-    if ( stdlib_strncmp ( (char *) command, "boot", 4 ) == 0 )
-    {
-        printf("system: ~boot\n");
-        //boot();
         goto exit;
     }
 
@@ -1394,23 +1377,13 @@ int system (const char *command)
         goto fail;
     }
 
-// reboot.
-    if ( stdlib_strncmp ( (char *) command, "reboot", 6 ) == 0 )
+// reboot
+    if ( stdlib_strncmp( (char *) command, "reboot", 6 ) == 0 )
     {
-        //stdlib_system_call ( 110, (unsigned long) 0, (unsigned long) 0, 
-        //    (unsigned long) 0 );
-
-        gramado_system_call ( 
-            110, 
-            (unsigned long) 0, 
-            (unsigned long) 0, 
-            (unsigned long) 0 );
-
-        //apiReboot(); 
+        rtl_reboot();
         goto fail;
     }
-
-// shutdown.
+// shutdown
     if ( stdlib_strncmp ( (char *) command, "shutdown", 8 ) == 0 )
     {
         //apiShutDown();

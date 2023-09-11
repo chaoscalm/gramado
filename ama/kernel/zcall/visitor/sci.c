@@ -1021,6 +1021,7 @@ void *sci0 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// E25 - The queen.
 // Getting requests from ring3 applications via systemcalls.
 // #test
 // It's ok when init.bin calls this systemcall.
@@ -1594,7 +1595,7 @@ void *sci0 (
         // IN: flags.
         // see: ke/sys.c
         int reb_ret=-1;
-        case SYS_REBOOT: 
+        case SYS_REBOOT:
             debug_print("sci0: SYS_REBOOT\n");
             reb_ret = (int) sys_reboot(0);
             return (void *) (reb_ret & 0xFFFFFFFF);
@@ -2023,6 +2024,7 @@ void *sci1 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// A15 - The vomit.
 // Getting requests from ring3 applications via systemcalls.
 // #test
 // It's ok when gramland calls this systemcall.
@@ -2101,7 +2103,12 @@ void *sci1 (
 
     case 1:
         return NULL;
-        break;  
+        break;
+
+    // 110 - Reboot
+    case SYS_REBOOT:
+        keReboot();
+        break;
 
     // ...
 
@@ -2125,6 +2132,7 @@ void *sci2 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// D8 - The k.
 // Getting requests from ring3 applications via systemcalls.
 // #test
 // It's ok when the network server calls this systemcall.

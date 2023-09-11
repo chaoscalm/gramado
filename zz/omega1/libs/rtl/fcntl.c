@@ -107,7 +107,7 @@ int openat(int dirfd, const char *pathname, int flags)
 
 // Carrega um arquivo dado o nome e um modo.
     value = 
-        (int) gramado_system_call ( 
+        (int) sc80 ( 
                   246, 
                   (unsigned long) dirfd, 
                   (unsigned long) pathname, 
@@ -157,17 +157,16 @@ int open(const char *pathname, int flags, mode_t mode)
 
 // Get file size.
 // Limits: 1MB.
-    
-    /*
-    FileSize = (size_t) gramado_system_call ( 178, 
-                            (unsigned long) tmp_path, 0, 0 );
 
+/*
+    FileSize = 
+        (size_t) sc80 ( 178, (unsigned long) tmp_path, 0, 0 );
     if ( FileSize <= 0 || FileSize >= (1024*1024) )
     {
         printf ("open: [FAIL] FileSize\n");
         return (int) (-1);
     }
-    */
+*/
 
 // Syscall 16.
 // O conteúdo do arquivo é carregado num buffer em ring0.
@@ -175,7 +174,7 @@ int open(const char *pathname, int flags, mode_t mode)
 // IN: service, pathname, flags, mode 
 
     value = 
-        (int) gramado_system_call( 
+        (int) sc80( 
                   16,  
                   (unsigned long) tmp_path, 
                   (unsigned long) flags, 

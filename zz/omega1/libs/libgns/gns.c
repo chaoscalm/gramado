@@ -1,6 +1,6 @@
 
 // gns.c
-// This is a client-side library for the GNSSRV.
+// This is a client-side library for the GNSSRV. NETCTLD
 
 #include <types.h>
 #include <stddef.h>
@@ -115,7 +115,7 @@ static int __gns_hello_request(int fd)
 
         for (i=0; i<11; i++)
         {
-            //gramado_system_call (265,0,0,0); //yield thread.
+            //sc80 (265,0,0,0); //yield thread.
             //gnst_yield();
             rtl_yield();
         }
@@ -130,7 +130,7 @@ static int __gns_hello_request(int fd)
 
 static int __gns_hello_response(int fd)
 {
-    unsigned long *message_buffer = (unsigned long *) &__gns_buffer[0];   
+    unsigned long *message_buffer = (unsigned long *) &__gns_buffer[0];
     int n_reads = 0;    // For receiving responses.
     int i=0;
     char response_buffer[128];
@@ -143,7 +143,7 @@ static int __gns_hello_response(int fd)
 // Read
 //
     // #debug
-    //debug_print ("__gns_hello_response: reading ...\n");      
+    //debug_print ("__gns_hello_response: reading ...\n");
 
     n_reads = 
         (int) read ( 

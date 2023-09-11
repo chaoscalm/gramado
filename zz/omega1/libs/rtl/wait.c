@@ -6,26 +6,19 @@
 
 #include <sys/types.h>    //for pid_t
 //#include <unistd.h>     //for pid_t
-#include <sys/wait.h>   
+#include <sys/wait.h> 
 #include <rtl/gramado.h>  
 
 
-/*
- * wait:
- *
- */
-
-pid_t wait( int *status )
+pid_t wait(int *status)
 {
     //if( (void*) status == NULL )
         //return -1;
     return (pid_t) waitpid( (pid_t) -1, (int *) status, (int) 0 );
 }
 
-
 /*
  * waitpid:
- *
  */
 //acho que isso é o retorno.??sei lá.
 //< -1	meaning wait for any child process whose process group ID is equal to the absolute value of pid.
@@ -39,23 +32,24 @@ pid_t waitpid (pid_t pid, int *status, int options)
      // Criar o identificador da system call 43
     // SYSTEMCALL_WAIT4PID 
 
-	// #importante
-	// >>se o retorno indicar que já havia um processo filho no estado zombie 
-	// e retornou seu pid, então apenas retornamos o pid para o aplicativo que 
-	// chamou wait.
-	// >>se o retorno indicar que não há um processo filho terminado
-	// então devemos esperar até que algum processo filho termine.
+// #importante
+// >> se o retorno indicar que já havia um processo filho no estado zombie 
+// e retornou seu pid, então apenas retornamos o pid para o aplicativo que 
+// chamou wait.
+// >> se o retorno indicar que não há um processo filho terminado
+// então devemos esperar até que algum processo filho termine.
 
-    pid_t __pid;
+    pid_t __pid = -1;
 
 again:
 
-    __pid = (pid_t) gramado_system_call ( 83, 
-                         (unsigned long) pid, 
-                         (unsigned long) status, 
-                         (unsigned long) options );
+    __pid = (pid_t) sc80 ( 
+                        83, 
+                        (unsigned long) pid, 
+                        (unsigned long) status, 
+                        (unsigned long) options );
 
-    if ( __pid > 0 ){
+    if (__pid > 0){
         return (pid_t) __pid;
     }
 

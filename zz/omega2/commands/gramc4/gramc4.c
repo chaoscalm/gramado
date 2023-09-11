@@ -1248,7 +1248,7 @@ int main (int argc, char **argv)
         }
         else if (i == RUN) { 
             //a = open ((char *)sp[1], *sp,0);
-            register_a = (int) gramado_system_call (900,(unsigned long)register_sp[1],0,0); 
+            register_a = (int) sc80 (900,(unsigned long)register_sp[1],0,0); 
             waitpid (-1,&Wait_status,0); 
         
         }

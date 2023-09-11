@@ -60,29 +60,20 @@ void rtl_elegant_exit_on_fail(void);
 
 // =====================================================
 
-// system call
-// 0x80
-void *gramado_system_call ( 
-    unsigned long a,  //Service number. 
-    unsigned long b, 
-    unsigned long c, 
-    unsigned long d );
-
-
 void *sc80 ( 
-    unsigned long a,  //Service number. 
+    unsigned long a,  //Service number
     unsigned long b, 
     unsigned long c, 
     unsigned long d );
 
 void *sc81 ( 
-    unsigned long a,  //Service number. 
+    unsigned long a,  //Service number
     unsigned long b, 
     unsigned long c, 
     unsigned long d );
 
 void *sc82 ( 
-    unsigned long a,  //Service number. 
+    unsigned long a,  //Service number
     unsigned long b, 
     unsigned long c, 
     unsigned long d );
@@ -270,6 +261,7 @@ rtl_copy_text (
     int height );
 
 
+int __rtl_reboot_imp(unsigned long flags);
 int rtl_reboot(void);
 
 int rtl_sleep_if_socket_is_empty(int fd);

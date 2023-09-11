@@ -324,7 +324,7 @@ static void compareStrings(int fd)
     {
          gws_redraw_window(fd,game_window,TRUE);
          //#define SYSTEMCALL_SETCURSOR  34
-         gramado_system_call ( 34, 2, 2, 0 );
+         sc80 ( 34, 2, 2, 0 );
          goto exit_cmp;
     }
 
@@ -653,7 +653,7 @@ static void print_ascii_table(int fd)
 
     gws_redraw_window(fd,game_window,TRUE);
     //#define SYSTEMCALL_SETCURSOR  34
-    gramado_system_call ( 34, 2, 2, 0 );
+    sc80 ( 34, 2, 2, 0 );
 
     for(i=0; i<256; i++)
     {
@@ -702,19 +702,19 @@ int main(int argc, char *argv[])
     //gws_debug_print ("cmdline.bin: Unlock taskswitching and scheduler \n");
     //printf          ("cmdline.bin: Unlock taskswitching and scheduler \n");
 
-    //gramado_system_call (641,0,0,0);
-    //gramado_system_call (643,0,0,0);
+    //sc80 (641,0,0,0);
+    //sc80 (643,0,0,0);
 
 // Create the rectangle
     //gws_debug_print ("cmdline.bin: Create rectangle \n");
     //printf          ("cmdline.bin: Create rectangle \n");
-    //gramado_system_call(897,0,0,0);
+    //sc80(897,0,0,0);
 
 //
 // hang
 //
-    //while(1){
-    //    gramado_system_call(897,0,0,0);
+    //while (1){
+    //    sc80(897,0,0,0);
     //}
 
 //================================
@@ -1069,7 +1069,7 @@ int main(int argc, char *argv[])
 //
 
 // Set cursor position.
-    gramado_system_call ( 34, 2, 2, 0 );
+    sc80 ( 34, 2, 2, 0 );
 
     printf ("cmdline.bin: Gramado OS\n");
 

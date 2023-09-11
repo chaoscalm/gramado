@@ -1,7 +1,6 @@
-/*
- * File: signal.c
- *
- */
+
+// signal.c
+// 
 
 #include <types.h>
 #include <sys/types.h>
@@ -102,28 +101,24 @@ int kill (pid_t pid, int sig)
 {
     debug_print ("kill: [TODO] \n");
 
-
     if(pid<0)
     {
         errno=EINVAL;
         return (int) -1;
     }
 
-
-	// #todo
-	/*
+// #todo
+/*
 	int ret;
-	
-	ret = (int) gramado_system_call ( ?, ?, ?, ? );
+	ret = (int) sc80 ( ?, ?, ?, ? );
 	
     if (ret < 0)
 	{
 		errno = -ret;
 		return (-1);
 	}
-	
 	return (ret);
-	*/
+*/
 
     return (int) (-1);
 }

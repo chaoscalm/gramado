@@ -115,7 +115,7 @@ static int __gns_hello_request(int fd)
 
         for (i=0; i<11; i++)
         {
-            //gramado_system_call (265,0,0,0); //yield thread.
+            //sc80 (265,0,0,0); //yield thread.
             //gnst_yield();
             rtl_yield();
         }

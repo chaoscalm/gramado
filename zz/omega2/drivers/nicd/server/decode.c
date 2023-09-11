@@ -187,25 +187,23 @@ int gnssrv_decode_buffer(unsigned long buffer_address)
     return 1;
 }
 
-
 // ?
 void gnssrv_send_packet(void)
 {
-    while(1){
-        gramado_system_call( 891, 
+    while (1){
+        sc80( 891, 
             (unsigned long)test_packet,  //buf
             (unsigned long)1500,         //len
             0);
     }    
 }
 
-
 void gnssrv_get_and_decode_buffer(void)
 {
     char buf[4096];
 
 // Pega o pacote
-    gramado_system_call( 
+    sc80( 
         890, 
         (unsigned long) &buf[0],  //buf
         (unsigned long) 1500,     //len
@@ -233,7 +231,8 @@ void network_test_buffer(void)
     while(1){
         
         //pega o pacote
-        gramado_system_call( 890, 
+        sc80(
+            890, 
             (unsigned long)&buf[0],   //buf
             (unsigned long)1500,      //len
             0);

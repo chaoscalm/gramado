@@ -166,7 +166,7 @@ do_compare:
     unsigned long __mm_size_mb = 0;    
     if ( strncmp( prompt, "mm-size", 7 ) == 0 )
     {
-        __mm_size_mb = (unsigned long) gramado_system_call (292,0,0,0);
+        __mm_size_mb = (unsigned long) sc80 (292,0,0,0);
         printf ("Memory size = %d MB \n",__mm_size_mb);
         goto exit_cmp;
     }
@@ -175,8 +175,8 @@ do_compare:
     if ( strncmp ( prompt, "current-process", 15 ) == 0 )
     {
         //printf("\n");
-        //gramado_system_call ( SYSTEMCALL_CURRENTPROCESSINFO, 0, 0, 0 );
-        gramado_system_call ( 80, 0, 0, 0 );
+        //sc80 ( SYSTEMCALL_CURRENTPROCESSINFO, 0, 0, 0 );
+        sc80 ( 80, 0, 0, 0 );
         goto exit_cmp; 
     }
 
@@ -184,7 +184,7 @@ do_compare:
     if ( strncmp ( prompt, "process-info", 12 ) == 0 )
     {
         //printf("\n");
-        gramado_system_call ( 82, 0, 0, 0 );
+        sc80 ( 82, 0, 0, 0 );
         goto exit_cmp; 
     }
 

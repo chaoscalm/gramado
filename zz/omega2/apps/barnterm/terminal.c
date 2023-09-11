@@ -1436,12 +1436,11 @@ void test_tty_support(int fd)
 
     gws_debug_print("test_tty_support:\n");
 
-    int ____this_tty_id = (int) gramado_system_call ( 266, getpid(), 0, 0 );
-
+    int ____this_tty_id = (int) sc80( 266, getpid(), 0, 0 );
 
 
    // lançando um processo filho.  
-   gramado_system_call ( 900, 
+   sc80 ( 900, 
        (unsigned long) "true.bin", 0, 0 );
 
     int i=0;
@@ -1537,13 +1536,13 @@ void test_standard_stream(int fd)
     //f = fopen("g.txt", "r+");
 
     // Testar   
-    //gramado_system_call ( 900, 
+    //sc80 ( 900, 
         //(unsigned long) "tprintf.bin", 0, 0 );
 
-   //gramado_system_call ( 900, 
+   //sc80 ( 900, 
      //  (unsigned long) "tprintf.bin", 0, 0 );
 
-   //gramado_system_call ( 900, 
+   //sc80 ( 900, 
      //  (unsigned long) "tprintf.bin", 0, 0 );
      
     //fseek(f, 0, SEEK_END);   // seek to end of file
@@ -1574,11 +1573,15 @@ void test_standard_stream(int fd)
     prompt_pos = 0;
     for(ii=0;ii<32;ii++) {prompt[ii]=0;}
 
-    //gramado_system_call ( 900, 
+    //sc80 ( 900, 
       //(unsigned long) "tprintf.bin", 0, 0 );
 
-    gramado_system_call ( 900, 
-      (unsigned long) "shell.bin", 0, 0 );
+// Clone and execute.
+    sc80 ( 
+      900, 
+      (unsigned long) "shell.bin", 
+      0, 
+      0 );
 
     return;
     //while(1);
@@ -1620,7 +1623,8 @@ void
 test_child_message(void)
 {
    // lançando um processo filho.  
-   gramado_system_call ( 900, 
+   // #todo: use clone_and_execute.
+   sc80 ( 900, 
        (unsigned long) "sh1.bin", 0, 0 );
 
 }
@@ -2672,7 +2676,7 @@ int __terminal_clone_and_execute ( char *name )
     //    return -1;
     //if(*name == 0)
     //    return -1;
-    return (int) gramado_system_call ( 900, (unsigned long) name, 0, 0 );
+    return (int) sc80 ( 900, (unsigned long) name, 0, 0 );
 }
 
 void _draw(int fd, int c)
@@ -2881,7 +2885,7 @@ static int __input_GRAMADOTXT(int fd)
 
 // O kernel seleciona qual será 
 // o arquivo para teclado ps2.
-    gramado_system_call(
+    sc80(
         8002,
         fileno(new_stdin),
         0,
@@ -2936,7 +2940,7 @@ static int __input_STDOUT(int fd)
 // O kernel seleciona qual será 
 // o arquivo para teclado ps2.
 
-    gramado_system_call(
+    sc80(
         8002,
         fileno(new_stdin),
         0,
@@ -3046,7 +3050,7 @@ static int __input_STDIN(int fd)
 
 // O kernel seleciona qual será 
 // o arquivo para teclado ps2.
-    gramado_system_call(
+    sc80(
         8002,
         fileno(new_stdin),
         0,
@@ -3718,7 +3722,7 @@ int terminal_init(void)
 // cls
      gws_redraw_window(client_fd,Terminal.client_window_id,TRUE);
      //#define SYSTEMCALL_SETCURSOR  34
-     gramado_system_call ( 34, 2, 2, 0 );
+     sc80 ( 34, 2, 2, 0 );
 //=================
 */
 

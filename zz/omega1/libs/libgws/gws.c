@@ -3323,18 +3323,18 @@ setup_surface_retangle (
     unsigned long width, 
     unsigned long height )
 {
-    unsigned long buf[5];    
+    unsigned long buf[5];
     buf[0] = (unsigned long) left;
     buf[1] = (unsigned long) top;
     buf[2] = (unsigned long) (width  & 0xFFFF);
     buf[3] = (unsigned long) (height & 0xFFFF);
     buf[4] = 0;
-    gramado_system_call ( 892, (unsigned long) &buf[0], 0, 0 );
+    sc80 ( 892, (unsigned long) &buf[0], 0, 0 );
 }
 
 void invalidate_surface_retangle(void)
 {
-    gramado_system_call( 893, 0, 0, 0 );
+    sc80( 893, 0, 0, 0 );
 }
 
 // Invalidate window.
@@ -3562,8 +3562,8 @@ void gws_start_thread (void *thread)
     }
 
     //SYSTEMCALL_STARTTHREAD,
-    gramado_system_call ( 
-        94,  
+    sc80 ( 
+        94, 
         (unsigned long) thread, 
         (unsigned long) thread, 
         (unsigned long) thread );
@@ -3878,7 +3878,7 @@ int gws_create_empty_file (char *file_name)
     }
 
     Value = 
-        (unsigned long) gramado_system_call ( 
+        (unsigned long) sc80 ( 
                             43, 
                             (unsigned long) file_name, 
                             0, 
@@ -3916,7 +3916,7 @@ int gws_create_empty_directory (char *dir_name)
 // TRUE or FALSE ?
 
     Value = 
-        (unsigned long) gramado_system_call ( 
+        (unsigned long) sc80 ( 
                             44, 
                             (unsigned long) dir_name, 
                             0, 

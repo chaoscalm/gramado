@@ -30,7 +30,7 @@ int register_ns(void)
 
 // Desktop:
     __ns_desktop = 
-        (struct desktop_d *) gramado_system_call (519,0,0,0);
+        (struct desktop_d *) sc80 (519,0,0,0);
 
     if ( (void *) __ns_desktop == NULL ){
         debug_print ("register_ns: __ns_desktop fail\n");
@@ -45,7 +45,7 @@ int register_ns(void)
     }
 
 // Register this pid as ns.
-    gramado_system_call ( 
+    sc80 ( 
         (unsigned long) 521, 
         (unsigned long) __ns_desktop, 
         (unsigned long) (__ns_pid & 0xFFFFFFFF), 
