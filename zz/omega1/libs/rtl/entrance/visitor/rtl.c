@@ -2004,7 +2004,6 @@ rtl_load_path (
     return (int) status;
 }
 
-
 ssize_t rtl_console_beep(void)
 {
     char BeepChar = '\a';
@@ -2014,23 +2013,47 @@ ssize_t rtl_console_beep(void)
                          1 );
 }
 
+// Nice.
 // Raising up the broken to life.
 void rtl_broken_vessels(void)
 {
     sc82( 777, 0, 0, 0 );
 }
 
+
 // OUT: Child's PID.
-int rtl_clone_and_execute(char *name)
+int 
+__rtl_clone_and_execute_imp(
+    char *name,
+    unsigned long flags )
 {
+// Worker: Clone and execute implementation.
+
+//
+// Parameters
+//
+
+// Service number
+    unsigned long ServiceNumber = 900;
+// Address for the image name.
+    unsigned long NameAddress;
+// Reserved parameter.
+    unsigned long clone_flags=0;  // (flags for clone_process()).
+// Reserved parameter.
+    unsigned long long2=0;  // 
+
+// Return value.
+    int ret_value=0;
+
     if ((void *) name == NULL){
         printf ("rtl_clone_and_execute: [FAIL] name\n");
-        return (int) -1;
+        goto fail;
     }
-    if ( *name == 0 ){
+    if (*name == 0){
         printf ("rtl_clone_and_execute: [FAIL] *name\n");
-        return (int) -1;
+        goto fail;
     }
+    NameAddress = (unsigned long) name;
 
     //rewind(stdin);
     //fprintf(stdin,"%s",name);
@@ -2041,11 +2064,26 @@ int rtl_clone_and_execute(char *name)
 // Maybe we can provide a default parameters vector.
 // Maybe we can send a raw command line.
 
-    return (int) sc82( 900, (unsigned long) name, 0, 0 );
+    ret_value = 
+        (int) sc82( (unsigned long) ServiceNumber, 
+                    (unsigned long) NameAddress, 
+                    (unsigned long) clone_flags, 
+                    (unsigned long) long2 );
+
+    // Child's PID.
+    return (int) ret_value;
+fail:
+    return (int) -1;
+}
+
+int rtl_clone_and_execute(char *name)
+{
+    unsigned long clone_flags = 0;
+    return (int) __rtl_clone_and_execute_imp(name,clone_flags);
 }
 
 
-int rtl_spawn_process( const char *path )
+int rtl_spawn_process(const char *path)
 {
     if ( (void *) path == NULL ){
         printf ("rtl_spawn_process: [FAIL] name\n");

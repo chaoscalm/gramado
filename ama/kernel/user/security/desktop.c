@@ -3,27 +3,23 @@
 
 #include <kernel.h>
 
-/*
- * init_desktop_list:
- *     Inicializa o array de ponteiros de desktop.
- */
-void init_desktop_list (void)
+// init_desktop_list:
+// Inicializa o array de ponteiros de desktop.
+void init_desktop_list(void)
 {
     register int i=0;
-
     while (i<DESKTOP_COUNT_MAX){
         desktopList[i] = 0;
         i++; 
     };
 }
 
-
 /*
  * init_desktop:
  *     Inicializa o desktop 0.
  *     int ?
  */
-void init_desktop (void)
+void init_desktop(void)
 {
     register int i=0;
 
@@ -31,7 +27,6 @@ void init_desktop (void)
     //printf("init_desktop: Initializing..\n");
 
     desktops_count = 0;
-
 // List
     init_desktop_list();
 
@@ -40,13 +35,12 @@ void init_desktop (void)
 //
 
 // Creating the desktop0. 
-    desktop0 = (void *) kmalloc ( sizeof(struct desktop_d) );
-    if ( (void *) desktop0 == NULL ){
+    desktop0 = (void *) kmalloc( sizeof(struct desktop_d) );
+    if ((void *) desktop0 == NULL){
         panic ("init_desktop: desktop0\n");
     }
-
     desktop0->id = 0;
-    desktop0->used  = TRUE;
+    desktop0->used = TRUE;
     desktop0->magic = 1234;
 
     //todo: object
@@ -59,20 +53,21 @@ void init_desktop (void)
         desktop0->list[i] = 0;
     };
 
-// #todo
-// Depois precisamos colocar aqui
-// o pid do processo kernel.
-// Cada desktop terá sem ws e sua wm.
+    desktop0->__init_process_pid   = (pid_t) -1;
+    desktop0->__display_server_pid = (pid_t) -1;
+    desktop0->__network_server_pid = (pid_t) -1;
 
-        desktop0->ws = -1;
-        desktop0->wm = -1;
-        // ...
+    if ((void*) InitProcess != NULL)
+    {
+        if (InitProcess->magic == 1234)
+            desktop0->__init_process_pid = (pid_t) InitProcess->pid;            
+    }
 
 // Registrando na lista
     desktopList[0] = (unsigned long) desktop0;
 
 // RegisterDesktop (desktop0); 
-    set_current_desktop (desktop0);  
+    set_current_desktop(desktop0);  
 
     //desktop0->room = NULL;
 }
@@ -156,7 +151,7 @@ void *CreateDesktop (struct room_d *room)
 
 // #todo: 
 // O usuário precisa de permissão pra criar desktops.
-    Current = (void *) kmalloc ( sizeof(struct desktop_d) );
+    Current = (void *) kmalloc( sizeof(struct desktop_d) );
     if ( (void *) Current == NULL ){
         panic ("CreateDesktop: Current\n");
     } else {
@@ -180,29 +175,5 @@ void *CreateDesktop (struct room_d *room)
     };
 
     return NULL;
-}
-
-int desktop_setup_ws ( struct desktop_d *desktop, int ws_pid )
-{
-    debug_print ("desktop_setup_ws: \n");
-
-    if ( (void *) desktop != NULL ){
-        desktop->ws = ws_pid;
-        return 0;    
-    }
-
-    return -1;
-}
-
-int desktop_setup_wm ( struct desktop_d *desktop, int wm_pid )
-{
-    debug_print ("desktop_setup_wm: \n");
-
-    if ( (void *) desktop != NULL ){
-        desktop->wm = wm_pid;
-        return 0;
-    }
-
-    return -1;
 }
 

@@ -5,15 +5,17 @@
 
 #include <kernel.h>  
 
-
 // Random base number for new port numbers for the clients.
 #define BASE_NEW_CLIENT_PORT_NUMBER  11000
-static unsigned short __new_client_port_number = BASE_NEW_CLIENT_PORT_NUMBER;
+static unsigned short __new_client_port_number = 
+    BASE_NEW_CLIENT_PORT_NUMBER;
 
 unsigned char localhost_ipv4[4] = { 127, 0, 0, 1 };
 
 // Internal
-#define SYS_SOCKET_IP(a, b, c, d)  (a << 24 | b << 16 | c << 8 | d)
+#define SYS_SOCKET_IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
+
 
 // globals
 // see: socket.h
@@ -129,7 +131,6 @@ struct socket_d *create_socket_object(void)
     s->clientfd_on_server = -1;
 
     // ...
-
 
     s->used = TRUE;
     s->magic = 1234;

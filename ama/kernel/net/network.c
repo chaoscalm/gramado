@@ -168,20 +168,38 @@ network_register_ring3_display_server(
 // 513 - SYS_SET_WS_PID
 // Syscall implementation.
 
+    struct process_d *p;
     pid_t current_process = (pid_t) get_current_process();
 
+// parameter:
     if ((void*) desktop == NULL )
         goto fail;
     if (desktop->magic != 1234)
         goto fail;
 
+// parameter:
 // Invalid caller.
     if (caller_pid != current_process){
-        panic("__register_ring3_display_server: Invalid pid\n");
+        panic("network_register_ring3_display_server: caller_pid\n");
     }
 
+//
+// Process
+// 
+    if ( current_process < 0 ||
+         current_process >= PROCESS_COUNT_MAX )
+    {
+        panic("network_register_ring3_display_server: current_process\n");
+    }
+    p = (struct process_d *) processList[current_process];
+    if ((void*) p == NULL)
+        panic("network_register_ring3_display_server: p\n");
+    if (p->magic != 1234)
+        panic("network_register_ring3_display_server: p magic\n");
+
+
 // Register_ws_process(current_process);
-    desktop->ws = (pid_t) current_process;
+    desktop->__display_server_pid = (pid_t) current_process;
 
 // #todo
 // Maybe this method belongs to the sys_bind() routine.
@@ -195,6 +213,9 @@ network_register_ring3_display_server(
 // Setup c1/
 // Change the foreground console.
     console_set_current_virtual_console(CONSOLE1);
+
+// Setup the new layer for this process.
+    p->_layer = (int) LAYER_GRAMLAND;
 
     return TRUE;
 

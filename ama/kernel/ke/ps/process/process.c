@@ -634,7 +634,7 @@ struct process_d *processObject(void)
 {
     struct process_d *p;
     p = (void *) kmalloc( sizeof(struct process_d) );
-    if ( (void *) p == NULL ){
+    if ((void *) p == NULL){
         return NULL;
     }
 // #todo
@@ -979,9 +979,9 @@ struct process_d *create_process (
     //=================================
 
 // @todo:
-// Melhorar esse esquema de numera��o e 
+// Melhorar esse esquema de numeraçao e 
 // contagem de processos criados.
-// processNewPID � global ?
+// processNewPID eh global ?
 
     //if ( processNewPID < GRAMADO_PID_BASE || 
     //     processNewPID >= PROCESS_COUNT_MAX )
@@ -1000,7 +1000,12 @@ struct process_d *create_process (
     }
     memset( Process, 0, sizeof(struct process_d) );
 
+
     Process->personality = (int) Personality;
+
+// see: layer.h
+    Process->_layer = LAYER_UNDEFINED;
+
     Process->exit_in_progress = FALSE;
     Process->base_priority = BasePriority;
     Process->priority = Priority;
@@ -1008,9 +1013,9 @@ struct process_d *create_process (
 //get_next:
 
 // Get empty.
-// Obt�m um �ndice para um slot vazio na lista de processos.
-// Se o slot estiver ocupado tentaremos o pr�ximo.
-// Na verdade podemos usar aquela fun��o que procura por um vazio. 
+// Obtem um indice para um slot vazio na lista de processos.
+// Se o slot estiver ocupado tentaremos o proximo.
+// Na verdade podemos usar aquela funçao que procura por um vazio. 
 
     while (1){
         PID = (int) getNewPID();
@@ -1934,6 +1939,9 @@ struct process_d *create_and_initialize_process_object(void)
 
 // Default personality
     new_process->personality = PERSONALITY_GRAMADO;
+
+// see: layer.h
+    new_process->_layer = LAYER_UNDEFINED;
 
 // #test
 // No environment yet.

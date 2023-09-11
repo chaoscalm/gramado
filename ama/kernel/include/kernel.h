@@ -332,6 +332,10 @@
 // + (11) Kernel-mode callable interfaces.
 //
 
+#include "zcall/zing.h"
+#include "zcall/zz.h"
+#include "zcall/layer.h"
+
 // syscalls. (Called by the interrups 0x80 and 0x82).
 #include "zcall/sys/sci0.h"
 #include "zcall/sys/sci1.h"

@@ -1,6 +1,13 @@
 
- + commands
- + apps
- + drivers
- + servers
+    Priority levels in omega2.
+
+L1:
+ + apps         (GUI interactive)
+L2:
+ + commands     (CLI interactive)
+L3:
+ + drivers      (Not interactive)
+L4:
+ + servers      (Not interactive)
+  
  

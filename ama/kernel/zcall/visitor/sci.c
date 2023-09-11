@@ -481,7 +481,7 @@ static void *__extra_services (
             if ( __desktop->used  == TRUE && 
                  __desktop->magic == 1234 )
             {
-                return (void *) __desktop->ws; 
+                return (void *) __desktop->__display_server_pid; 
             }
         }
         // It means pid=0.
@@ -528,7 +528,7 @@ static void *__extra_services (
                     panic("__extra_services: [SYS_SET_WS_PID] arg3 != current_process\n");
                 }
                 //register_ws_process(current_process);
-                __desktop->ws = (pid_t) current_process;
+                __desktop->__display_server_pid = (pid_t) current_process;
 
                 // #todo
                 // Maybe this method belongs to the sys_bind() routine.
@@ -585,47 +585,18 @@ static void *__extra_services (
         return NULL; //fail
     }   
 
+// #deprecated
 // 514 - get wm PID for a given desktop
-// IN: desktop
-    if ( number == SYS_GET_WM_PID )
-    {
-       debug_print("__extra_services: SYS_GET_WM_PID\n");
-        // pega o wm de um dado desktop.
-        __desktop = ( struct desktop_d *) arg2;
-        if ( (void *) __desktop != NULL )
-        {
-            if ( __desktop->used  == TRUE && 
-                 __desktop->magic == 1234 )
-            {
-                return (void *) __desktop->wm; 
-            }
-        }
-        return NULL; //#bugbug: Isso pode significar pid 0.
+    if ( number == SYS_GET_WM_PID ){
+        panic("__extra_services: SYS_GET_WM_PID\n");
+        return NULL;
     }
 
+// #deprecated
 // 515 - set wm PID for a given desktop
-// Register a ring3 wm.
-// IN: desktop, pid
-    if ( number == SYS_SET_WM_PID )
-    {
-       debug_print("__extra_services: SYS_SET_WM_PID\n");
-        __desktop = ( struct desktop_d *) arg2;
-        if ( (void *) __desktop != NULL )
-        {
-            if ( __desktop->used  == TRUE && 
-                 __desktop->magic == 1234 )
-            {
-                //register_wm_process(arg3);
-                 __desktop->wm = (pid_t) arg3;
-
-                socket_set_gramado_port(
-                    GRAMADO_PORT_WM,
-                    (pid_t) current_process );
-
-                return (void *) TRUE;  //ok 
-            }
-        }
-        return NULL; //fail
+    if (number == SYS_SET_WM_PID){
+        panic("__extra_services: SYS_SET_WM_PID\n");
+        return NULL;
     }
 
 // #bugbug
@@ -636,20 +607,21 @@ static void *__extra_services (
         return (void *) CurrentDesktop;
     }
 
+
 // network server
 // 521 - set ns PID for a given desktop
 // Register a network server.
 // gramado_ports[11] = ws_pid
     if (number == 521)
     {
-        __desktop = ( struct desktop_d *) arg2;
+        __desktop = (struct desktop_d *) arg2;
         if ( (void *) __desktop != NULL )
         {
             if ( __desktop->used == TRUE && 
                  __desktop->magic == 1234 )
             {
-                __desktop->ns = (int) arg3;
-                
+                __desktop->__network_server_pid = (pid_t) arg3;
+
                 socket_set_gramado_port(
                     GRAMADO_PORT_NS,
                     (pid_t) current_process );
@@ -1050,6 +1022,8 @@ void *sci0 (
     unsigned long arg4 )
 {
 // Getting requests from ring3 applications via systemcalls.
+// #test
+// It's ok when init.bin calls this systemcall.
 
     struct process_d  *p;
     //struct thread_d  *t;
@@ -1066,6 +1040,7 @@ void *sci0 (
     //char *aa4 = (char *) arg4;
 
     pid_t current_process = (pid_t) get_current_pid();
+    int layer = LAYER_UNDEFINED;
 
     //int desktopID=0;
 
@@ -1121,6 +1096,8 @@ void *sci0 (
         panic("sci0: p validation\n");
     }
 
+    layer = p->_layer;
+
 // Feito pra rodar no Gramado OS.
     if (p->personality != PERSONALITY_GRAMADO)
     {
@@ -1166,7 +1143,8 @@ void *sci0 (
     // desktopID = (int) get_current_desktop_id ();
 
 // Extra services
-    if (number>256){
+    if (number > 256)
+    {
         return (void *) __extra_services(number,arg2,arg3,arg4);
     }
 
@@ -2046,10 +2024,13 @@ void *sci1 (
     unsigned long arg4 )
 {
 // Getting requests from ring3 applications via systemcalls.
+// #test
+// It's ok when gramland calls this systemcall.
 
     debug_print ("sci1: [TODO]\n");
 
     pid_t current_process = (pid_t) get_current_process();
+    int layer = LAYER_UNDEFINED;
 
 //cpl
     unsigned long *cpl_buffer = (unsigned long *) &sci1_cpl;
@@ -2145,6 +2126,8 @@ void *sci2 (
     unsigned long arg4 )
 {
 // Getting requests from ring3 applications via systemcalls.
+// #test
+// It's ok when the network server calls this systemcall.
 
     struct process_d  *p;
     struct thread_d  *t;
@@ -2156,6 +2139,7 @@ void *sci2 (
     //unsigned long *a4 = (unsigned long*) arg4;
 
     pid_t current_process = (pid_t) get_current_process();
+    int layer = LAYER_UNDEFINED;
 
 //cpl
     unsigned long *cpl_buffer = (unsigned long *) &sci2_cpl;
@@ -2208,6 +2192,9 @@ void *sci2 (
         debug_print("sci2: Personality\n");
         panic      ("sci2: Personality\n");
     }
+
+// The layer.
+    layer = p->_layer;
 
 // Counting syscalls ...
     p->syscalls_counter++;
@@ -2303,13 +2290,13 @@ void *sci2 (
         return NULL;
     }
 
-// 777 - nice
-    if (number == 777)
-    {
+// 777 - kinda nice() 
+    if (number == 777){
         sys_broken_vessels(current_thread);
         return NULL;   
     }
 
+// ---------------------------
 // 900 - copy process
 // Business Logic: 
 // Clona e executa o filho dado o nome do filho.
@@ -2317,9 +2304,14 @@ void *sci2 (
 // #bugbug: Isso às vezes falha na máquina real.
 // #todo: Use more arguments.
 // See: clone.c
-// IN: file name, parent pid, clone flags.
+// IN: 
+//   + file name, 
+//   + parent pid, 
+//   + clone flags.
 // OUT: Child's PID.
 
+    unsigned long clone_flags = (unsigned long) arg3;
+    //unsigned long extra = (unsigned long) arg4;
     if (number == 900)
     {
         debug_print("sci2: [900] clone and execute\n");
@@ -2328,7 +2320,7 @@ void *sci2 (
         return (void *) copy_process( 
                             (const char *) arg2, 
                             (pid_t) current_process, 
-                            (unsigned long) arg3 );
+                            (unsigned long) clone_flags );
     }
 
 // 8000 - Business Logic: ioctl() implementation.

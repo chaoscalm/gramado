@@ -24,12 +24,11 @@ struct desktop_d
     char __name[64];
     int name_lenght;
 
-// The window server and the window manager for this desktop.
-    pid_t ws;   // display server. #todo: Change this to 'ds'?
-    pid_t wm;   // window manager
-    pid_t ns;   // network server
-    //pid_t fs;   // file system
-    // ...
+
+// Main PIDs
+    pid_t __init_process_pid;     // init process
+    pid_t __display_server_pid;   // display server
+    pid_t __network_server_pid;   // network server
 
 // #importante
 // #quantidades
@@ -85,10 +84,7 @@ int get_current_desktop_id (void);
 
 int RegisterDesktop (struct desktop_d *d);
 
-void *CreateDesktop (struct room_d *room);
-
-int desktop_setup_ws ( struct desktop_d *desktop, int ws_pid );
-int desktop_setup_wm ( struct desktop_d *desktop, int wm_pid );
+void *CreateDesktop(struct room_d *room);
 
 #endif    
 

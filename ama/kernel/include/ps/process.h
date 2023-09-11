@@ -198,6 +198,9 @@ struct process_d
 // fazer adaptaçoes para compatibilidade.
     int personality;
 
+// see: layer.h
+    int _layer;
+
 // Process environment.
 // Que tipo de aplicaçao gramado eh esse processo.
 // Eh um kernel, um init, um serviço do sistema, um cliente de servico.

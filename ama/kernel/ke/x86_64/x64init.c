@@ -278,6 +278,9 @@ static int I_x64CreateInitialProcess(void)
     InitProcess->base_priority = BasePriority;    
     InitProcess->priority = Priority;
 
+// see: layer.h
+    InitProcess->_layer = LAYER_INIT;
+
 // The init process.
     InitProcess->process_env = PROCESS_ENV_INIT;
 
@@ -821,6 +824,9 @@ static int I_x64CreateKernelProcess(void)
 
     KernelProcess->base_priority = BasePriority;
     KernelProcess->priority = Priority;
+
+// see: layer.h
+    KernelProcess->_layer = LAYER_KERNEL;
 
 // This is the kernel process.
     KernelProcess->process_env = PROCESS_ENV_KERNEL;
