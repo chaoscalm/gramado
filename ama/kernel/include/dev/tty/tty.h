@@ -268,13 +268,14 @@ struct tty_d
 // ==  properties ========================
 //
 
-// Qual eh o modo de operacao do terminal virtual.
-// graphics, text ...
-    //int vt_mode;
-
-//?
 // Qual eh o modo de operacao do console virtual.
-// graphics, text ...
+// The kernel can print string into the display device.
+//#define VC_MODE_KERNEL_VERBOSER  1000
+// The kernel can print string only when reached the kernel panic.
+//#define VC_MODE_KERNEL_KP        2000
+// The GUI application can paint into the display device.
+//#define VC_MODE_USER_PAINTER     3000
+
     int vc_mode;
 
 

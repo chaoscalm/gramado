@@ -685,6 +685,11 @@ struct tty_d *tty_create(short type, short subtype)
     __tty->room         = NULL;  // CurrentRoom;
     __tty->desktop      = NULL;  // CurrentDesktop;
 
+
+// The kernel can print string into the display device.
+    __tty->vc_mode = 
+        (int) VC_MODE_KERNEL_VERBOSER;
+
 // file pointer
 // this file handles this tty object
 // isso sera tratado la em baixo.
@@ -903,9 +908,9 @@ void tty_flush(struct tty_d *tty)
         return;
 }
 
-void tty_start (struct tty_d *tty)
+void tty_start(struct tty_d *tty)
 {
-    if ( (void *) tty == NULL ){
+    if ((void *) tty == NULL){
         debug_print("tty_start: tty\n");
         return;
     }
@@ -915,6 +920,19 @@ void tty_start (struct tty_d *tty)
         return;
     }
     tty->stopped = FALSE;
+
+/*
+// Is it a console?
+// Set the keyboard LEDs.
+    file *fp;
+    fp = (file *) tty->fp;
+    if ( (void*) fp != NULL )
+    {
+        if (fp->____object == ObjectTypeVirtualConsole)
+            set_leds(?);
+    }
+*/
+
 }
 
 void tty_stop (struct tty_d *tty)
@@ -929,6 +947,19 @@ void tty_stop (struct tty_d *tty)
         return;
     }
     tty->stopped = TRUE;
+
+/*
+// Is it a console?
+// Set the keyboard LEDs.
+    file *fp;
+    fp = (file *) tty->fp;
+    if ( (void*) fp != NULL )
+    {
+        if (fp->____object == ObjectTypeVirtualConsole)
+            set_leds(?);
+    }
+*/
+
 }
 
 // #todo: 

@@ -661,7 +661,9 @@ console_init_virtual_console(
 
     CONSOLE_TTYS[ConsoleIndex].termios.c_lflag = ECHO;
 
-    //CONSOLE_TTYS[ConsoleIndex].vc_mode = 0;
+// The kernel can print string into the display device.
+    CONSOLE_TTYS[ConsoleIndex].vc_mode = 
+        (int) VC_MODE_KERNEL_VERBOSER;
 
 //
 // Charset support.
@@ -736,16 +738,18 @@ console_init_virtual_console(
     CONSOLE_TTYS[ConsoleIndex].initialized = TRUE; 
 }
 
-void console_set_current_virtual_console(int n)
+void console_set_current_virtual_console(int console_number)
 {
-    if (n == fg_console){
+// Set the new fg_console.
+
+    if (console_number == fg_console){
         return;
     }
-    if ( n < 0 || n >= 4 ){
+    if ( console_number < 0 || console_number >= 4 ){
         debug_print ("console_set_current_virtual_console: Limits\n");
         return;
     }
-    fg_console = (int) n;
+    fg_console = (int) console_number;
 }
 
 int console_get_current_virtual_console(void)
