@@ -22,10 +22,10 @@
 #define PT_GRAMADO_WORKSTATION_STRING  "Workstation"
 // Regular desktop machine.
 #define PT_GRAMADO_DESKTOP         3000
-#define PT_GRAMADO_DESKTOP_STRING  "Desktop" 
+#define PT_GRAMADO_DESKTOP_STRING  "Desktop"
 // IOT devices
 #define PT_GRAMADO_IOT         4000
-#define PT_GRAMADO_IOT_STRING  "IOT" 
+#define PT_GRAMADO_IOT_STRING  "IOT"
 
 // Current product type
 // Updated by the builder.

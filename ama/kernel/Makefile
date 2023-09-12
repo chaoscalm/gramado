@@ -1,5 +1,5 @@
 
-# It builds the kernel image.
+# Makefile for the gramado kernel.
 
 linkTarget = KERNEL.BIN
 
@@ -35,18 +35,18 @@ RUBY	= ruby
 # Config
 #
 
-# verbose
-# Quiet compilation or not.
+# Quit mode?
 ifndef CONFIG_USE_VERBOSE
 	CONFIG_USE_VERBOSE = 0
 endif
 
+# ' ' = Print
+# '@' = Do not print.
 ifeq ($(CONFIG_USE_VERBOSE),1)
 	Q =
 else
 	Q = @
 endif
-
 
 # test: gramado 64bit
 # See: https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html
