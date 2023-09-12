@@ -1,6 +1,6 @@
 
-# mm/
-# Compile all the files and create ar_mm.o
+# user/
+# Compile all the files and create ar_user.o
 
 AS	= as
 LD	= ld
@@ -17,7 +17,6 @@ PYTHON	= python
 PYTHON2	= python2
 PYTHON3	= python3
 RUBY	= ruby
-
 
 # test: gramado 64bit
 # See: https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html
@@ -54,7 +53,6 @@ CFLAGS := \
 	-fno-omit-frame-pointer \
 	-fno-optimize-sibling-calls    
 
-# deprecated?
 # Exported files. Kernel api;
 # Used by the kernel modules and user space applications.
 USER_INCLUDE   := -I ../include/uapi/
@@ -70,30 +68,45 @@ KERNEL_INCLUDE := -I ../include/ $(USER_INCLUDE)
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-# Everything is a file.
-OBJS = globals.o \
-mm.o \
-mminfo.o \
-mmpool.o \
-pages.o \
-mmrt.o    
+OBJS = debug.o \
+info.o \
+panic.o \
+reboot.o \
+request.o \
+system.o \
+mod.o \
+kmain.o \
+zero.o \
+sys.o \
+sci.o    
 
 
 all:
-	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
-	$(CC) -c mm.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mm.o
-	$(CC) -c mminfo.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
-	$(CC) -c mmpool.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
-	$(CC) -c pages.c   $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
-	$(CC) -c mmrt.c    $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
 
+# Helpers
+	$(CC) -c helpers/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
+	$(CC) -c helpers/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
+	$(CC) -c helpers/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
+	$(CC) -c helpers/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
+	$(CC) -c helpers/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
+	$(CC) -c helpers/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
+	$(CC) -c helpers/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
 
+# kmain
+	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
+
+# APIs
+	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
+	$(CC) -c apis/visitor/sci.c  $(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
+	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
+
+# ----------------------------------------------
 # link
-	$(LD) -r -o ar_mm.o $(OBJS)
-	cp ar_mm.o ../
+	$(LD) -r -o ar_zcall.o $(OBJS)
+	cp ar_zcall.o ../
 	rm *.o
 	
 clean:
-	rm *.o    
+	rm *.o     
 	
 	

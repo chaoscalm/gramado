@@ -1,2 +1,0 @@
-
-	newos_xxxx functions goes here.

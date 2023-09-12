@@ -102,30 +102,27 @@ KERNEL_INCLUDE := -I include/ $(USER_INCLUDE)
 
 # ========================
 # Objects
-# Classes: Head | Body | Hooks
+# Classes: Head | Body 
+# ========================
 
-# Head
-objects-y := head_64.o kmain.o zero.o ar_crt.o  
-# Body (Kernel subsystems).
-objects-y += ar_dev.o  
-objects-y += ar_fs.o  
-objects-y += ar_ke.o  
+# ========================
+# :: Head
+# See: arch/
+objects-y := head_64.o 
+
+# ========================
+# :: Body 
+# (Kernel subsystems)
 objects-y += ar_mm.o  
-objects-y += ar_net.o  
+objects-y += ar_crt.o  
+objects-y += ar_dev.o  
 objects-y += ar_user.o    
-# Hooks
-objects-y += debug.o  
-objects-y += info.o  
-objects-y += globals.o  
-objects-y += panic.o  
-objects-y += reboot.o  
-objects-y += request.o  
-objects-y += system.o  
-objects-y += sys.o    
-objects-y += mod.o    
-objects-y += sci.o    
-
-
+objects-y += ar_ke.o  
+objects-y += ar_net.o  
+objects-y += ar_fs.o  
+objects-y += ar_zcall.o
+    
+# ========================
 PHONY := all
 all: k1 k2 k3 \
 link-kernel \
@@ -133,78 +130,36 @@ clean
 
 	@echo "Done?"
 
-# The boot \o/
-# The x86 head of the monster.
-k1:
+
+#--------------------
 #kernel-header:
+# The x86 head of the monster.
+# The boot \o/
+k1:
 # Top layer.
+	@echo "Compiling: Compiling k1/"
+# Build head_64.o
+	$(MAKE) -C arch/
 
-	@echo "Compiling: Compiling kernel header..."
-
-# top
-# Head
-# head_64.o
-	$(NASM) arch/x86_64/startup/head_64.asm \
-	$(KERNEL_INCLUDE) \
-	-I arch/x86_64/startup/ \
-	-f elf64 -o head_64.o
-
-# top
-# Ring0 libc.
-# crt/
-	$(MAKE) -C crt/
-
-# More
-	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
-	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
-
-k2:
+#--------------------
 #kernel-content:
+k2:
 # Middle layer.
- 
-	@echo "Compiling: Compiling kernel content ..."
-
+	@echo "Compiling: Compiling k2/"
+	$(MAKE) -C crt/
 	$(MAKE) -C dev/
 	$(MAKE) -C fs/
 	$(MAKE) -C ke/
 	$(MAKE) -C mm/
 	$(MAKE) -C net/
-
-k3:
-#kernel-footer:
-# Bottom layer.
-
-	@echo "Compiling: Compiling kernel footer ..."
 	$(MAKE) -C user/
-	# ...
 
-# kernel services
-	$(CC) -c zcall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
-	$(CC) -c zcall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
-	$(CC) -c zcall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
-	$(CC) -c zcall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
-	$(CC) -c zcall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
-
-# syscalls
-	$(CC) -c zcall/sys/sys.c     $(KERNEL_INCLUDE) $(CFLAGS) -o sys.o
-	$(CC) -c zcall/sys/system.c  $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
-
-# Initializations
-	$(CC) -c zcall/zero/zero.c  $(KERNEL_INCLUDE) $(CFLAGS) -o zero.o
-
-# Module interface.
-# mod.o
-	$(CC) -c zcall/mod/mod.c \
-	$(KERNEL_INCLUDE) \
-	$(CFLAGS) \
-	-o mod.o    
-
-# Systemcall interface.
-# sci.o
-	$(CC) -c zcall/visitor/sci.c \
-	$(KERNEL_INCLUDE) \
-	$(CFLAGS) \
-	-o sci.o    
+#--------------------
+#kernel-footer:
+k3:
+# Bottom layer.
+	@echo "Compiling: Compiling k3/"
+	$(MAKE) -C zcall/
 
 link-kernel:
 	@echo "Linking: Linking the kernel image ..."
