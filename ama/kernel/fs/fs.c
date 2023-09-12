@@ -2662,7 +2662,7 @@ int fsInit (void)
         //fileList[ ? ] = (unsigned long) pipe_gramadocore_init_execve;
 
         // 0
-        Pipes[0] = (unsigned long) pipe_gramadocore_init_execve;
+        pipeList[0] = (unsigned long) pipe_gramadocore_init_execve;
     };
 
 

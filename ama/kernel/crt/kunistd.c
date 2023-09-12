@@ -3,8 +3,8 @@
 
 #include <kernel.h>    
 
-
-// Host name
+// __gethostname:
+// Get host name.
 // pegando host name
 // faremos igual fizemos com usuário.
 // suporte a rotina da libc.
@@ -23,7 +23,7 @@ int __gethostname(char *buffer)
 // see: host.h
     if ((void *) HostInfo == NULL)
     {
-        printf ("__gethostname: HostInfo\n");
+        printf("__gethostname: HostInfo\n");
         refresh_screen();
         goto fail;
     }
@@ -39,7 +39,8 @@ fail:
     return (int) -1;
 }
 
-// Host name
+// __sethostname:
+// Set host name.
 // #todo
 // configurando o hostname.
 // do mesmo jeito que configuramos o username,
@@ -55,14 +56,13 @@ int __sethostname(const char *new_hostname)
         goto fail;
     }
 
-    StringLen = (size_t) strlen (new_hostname);
+    StringLen = (size_t) strlen(new_hostname);
     StringLen = (size_t) (StringLen + 1);
 
 // Estrutura HostInfo em host.h 
 // (network)
     if ((void *) HostInfo == NULL){
-        printf ("__sethostname: HostInfo\n");
-        refresh_screen();
+        printf("__sethostname: HostInfo\n");
         goto fail;
     }
     HostInfo->hostName_len = (size_t) StringLen;
@@ -75,16 +75,17 @@ int __sethostname(const char *new_hostname)
 
     return 0;
 fail:
+    refresh_screen();
     return (int) -1;
 }
 
-long fpathconf (int fildes, int name)
+long fpathconf(int fildes, int name)
 {
     debug_print("fpathconf: [TODO]\n");
     return -1;
 }
 
-long pathconf (const char *pathname, int name)
+long pathconf(const char *pathname, int name)
 {
     debug_print("pathconf: [TODO]\n");    
     return -1;
@@ -150,15 +151,16 @@ off_t sys_lseek(int fd, off_t offset, int whence)
 // See: kstdio.c
     k_fseek( (file *) f, (long) offset, (int) whence );
 
-    if ( f->_p < f->_base )
+    if (f->_p < f->_base)
     {
         panic("sys_lseek: #fixme f->_p < f->_base\n");
     }
 
     off_t FinalResult = 
-        (off_t) ( f->_p - f->_base );
+        (off_t) (f->_p - f->_base);
 
     return (off_t) FinalResult;
+
 fail:
     return (off_t) -1;
 }

@@ -7,11 +7,19 @@
 // File pointers.
 //
 
+// Global list of files.
+unsigned long file_table[NUMBER_OF_FILES]; 
+
+// Global list of pipes.
+unsigned long pipeList[NUMBER_OF_PIPES];
+
 // Standard stream.
 // Initialized by kstdio_initialize() in kstdio.c
 file *stdin;
 file *stdout;
 file *stderr;
+
+int kstdio_standard_streams_initialized=FALSE;
 
 // VFS
 // Not initialized yet.
@@ -32,6 +40,27 @@ file *pipe_gramadocore_init_execve;
 // 1
 //Pipe usado pela rotina execve.
 file *pipe_execve;
+
+int g_inputmode=0;
+
+// The prompt[] support for input() and standard streams.
+char prompt[PROMPT_SIZE];      //buffer para stdin
+char prompt_out[PROMPT_SIZE];  //buffer para stdout
+char prompt_err[PROMPT_SIZE];  //buffer para strerr
+unsigned long prompt_pos=0;
+unsigned long prompt_max=0; 
+unsigned long prompt_status=0;
+
+// ?
+int stdio_terminalmode_flag=0;
+// ?
+int stdio_verbosemode_flag=0;
+
+// Global sync stuff.
+// see: kstdio.h
+unsigned long syncList[SYNC_COUNT_MAX];
+
+
 
 // ---------------------------
 static void __clear_prompt_buffers(void);
@@ -143,6 +172,9 @@ int is_socket(file *f)
 {
 // Fail
     if ((void *) f == NULL){
+        return FALSE;
+    }
+    if (f->magic != 1234){
         return FALSE;
     }
 // Yes
@@ -291,15 +323,14 @@ fail:
 // IN:
 //     **str // #dangerdanger
 //     c
-
-void printchar (char **str, int c)
+void printchar(char **str, int c)
 {
 
 // Valid pointer.
 // We have a string.
     if (str){
 
-        if ( c == '\n' ){
+        if (c == '\n'){
             // tty->print_pending = 1;
         }
         
@@ -318,7 +349,7 @@ void printchar (char **str, int c)
 // Used for tests.
 void putchar_K(void)
 {
-    putchar ('K');
+    putchar('K');
 }
 
 /*
@@ -341,17 +372,19 @@ int putchar(int ch)
 // for the console font.
 
     if (ch<0){
-        return (int)(-1);
+        goto fail;
     }
-    if (fg_console<0){
-        return (int)(-1);
+    if (fg_console<0 || fg_console > 3){
+        goto fail;
     }
 
 // + Draw char.
 // + Do not refresh char.
-    console_outbyte ( ch, fg_console );
+    console_outbyte( ch, fg_console );
 
     return (int) ch;
+fail:
+    return (int)(-1);
 }
 
 

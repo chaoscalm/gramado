@@ -66,10 +66,9 @@ int k_atoi(const char *str)
         str++;
     };
 
-
-    if (sign){ 
+    if (sign){
         return (int) (-rv);
-    }else{ 
+    }else{
         return (int) (rv);
     };
 
@@ -150,17 +149,17 @@ void *kmalloc(size_t size)
     }
 // size
     if (_lsize < 0){
-        debug_print ("kmalloc: _lsize\n");
+        debug_print("kmalloc: _lsize\n");
         return NULL;
     }
     if (_lsize == 0){
-        debug_print ("kmalloc: _lsize ajust\n");
+        debug_print("kmalloc: _lsize ajust\n");
         _lsize=1;
     }
 // Allocate
     ptr = (void *) __kmalloc_impl(_lsize,FALSE);
     if ((void *) ptr == NULL){
-        debug_print ("kmalloc: ptr\n");
+        debug_print("kmalloc: ptr\n");
         return NULL;
     }
 // Increment the usage conter for each process.
@@ -213,7 +212,6 @@ void kfree(void *ptr)
 
 // kcalloc: 
 // Alloca e preenche com zero.
-
 void *kcalloc(size_t count, size_t size)
 {
     //void *ptr;

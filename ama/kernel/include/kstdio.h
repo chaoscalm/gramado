@@ -7,7 +7,7 @@
 // input() function support?
 #define INPUT_MODE_LINE              0
 #define INPUT_MODE_MULTIPLE_LINES    1
-int g_inputmode;
+extern int g_inputmode;
 
 #define REVERSE_ATTRIB  0x70
 #define PAD_RIGHT  1
@@ -71,37 +71,32 @@ int g_inputmode;
 //you must provide to hold a filename.
 //#define FILENAME_MAX (8+3)
 
-// See:
-// gramado/limits.h
+// See: limits.h
 #ifndef FILENAME_MAX
 #define FILENAME_MAX    GRAMADO_FILENAME_MAX
 #endif
-
 
 
 // The size of the file table.
 // The macro yields the maximum number of files that the target 
 // environment permits to be simultaneously open 
 // (including stderr, stdin, and stdout).
-// See:
-// gramado/limits.h
+// See: limits.h
 
 #define FOPEN_MAX          GRAMADO_FOPEN_MAX
 #define NUMBER_OF_FILES    GRAMADO_FOPEN_MAX
 #define _NFILE             GRAMADO_FOPEN_MAX
 #define NR_OPEN            GRAMADO_FOPEN_MAX
 
-
 //BUFFER
 //_IOFBF, _IOLBF and _IONBF
 //_IONBF: The macro yields the value of the mode argument to 
 // setvbuf to indicate no buffering. (Flush the stream buffer at the end of each write operation.)
 
-
 /*
 #define  _IONBF  0       //unbuffered 
 #define  _IOLBF  256     //Uma linha.       
-#define  _IOFBF  4096    //Full buffer (uma p�gina)
+#define  _IOFBF  4096    //Full buffer (uma pagina)
 */
 
 // bsd-like
@@ -111,7 +106,6 @@ int g_inputmode;
 
 // See:  limits.h
 #define BUFSIZ  GRAMADO_BUFSIZ 
-
 
 #ifndef SEEK_SET
 #define SEEK_SET  0
@@ -131,7 +125,6 @@ int g_inputmode;
 #define GRAMADO_SEEK_CLEAR  1000
 #endif
 
-
 // #define  TMP_MAX    32767
 // #define  L_tmpnam    1024    /* XXX must be == PATH_MAX */
 // #define  P_tmpdir    "/tmp/"
@@ -141,50 +134,38 @@ int g_inputmode;
 // == prompt =============================
 //
 
-//#define PROMPT_SIZE         256 
-//#define PROMPT_MAX_DEFAULT  256
-
-// #test
 #define PROMPT_SIZE         BUFSIZ
 #define PROMPT_MAX_DEFAULT  BUFSIZ
-
-char prompt[PROMPT_SIZE];      //buffer para stdin
-char prompt_out[PROMPT_SIZE];  //buffer para stdout
-char prompt_err[PROMPT_SIZE];  //buffer para strerr
-
-unsigned long prompt_pos; 
-unsigned long prompt_max; 
-unsigned long prompt_status;
-
+extern char prompt[PROMPT_SIZE];      //buffer para stdin
+extern char prompt_out[PROMPT_SIZE];  //buffer para stdout
+extern char prompt_err[PROMPT_SIZE];  //buffer para strerr
+extern unsigned long prompt_pos; 
+extern unsigned long prompt_max; 
+extern unsigned long prompt_status;
 
 // =======================================
-
 // Print char flags. (_outbyte)
 // usada para rotinas de pintura da libC.
 // ou seja, dentro do terminal. 
-
-//
 //#importante: 
-//
 //  +++ Nao se escreve fora do terminal com printf. +++
-//
-// Como n�o se escreve fora no terminal com printf.
-// essa flag s� faz sentido dentro de stdio.c
-//
+// Como nao se escreve fora no terminal com printf.
+// essa flag so faz sentido dentro de stdio.c
 // Para rotinas de pintura fora do terminal poderemos 
 // usar os dois tipos de draw char.
-//
 // flag usada por _outbyte para decidir
-// se desenha um char transparente ou n�o.
-int stdio_terminalmode_flag;
+// se desenha um char transparente ou nao.
 
+// ?
+extern int stdio_terminalmode_flag;
 
 //verbose mode do kernel.
 //permite que a tela do kernel funcione igual a um 
 //terminal, imprimindo os printfs um abaixo do outro.
 //sempre reiniciando x.
-int stdio_verbosemode_flag;
 
+// ?
+extern int stdio_verbosemode_flag;
 
 
 /* 
@@ -286,9 +267,8 @@ struct kstdio_sync_d
 
 #define SYNC_COUNT_MAX  1024
 // Lista global de objetos do tipo sync.
-// os processos utilizarao um id para
-// a lista global.
-unsigned long syncList[SYNC_COUNT_MAX];
+// os processos utilizarao um id para a lista global.
+extern unsigned long syncList[SYNC_COUNT_MAX];
 
 
 //
@@ -300,10 +280,8 @@ unsigned long syncList[SYNC_COUNT_MAX];
  *     File structure.
  *     ring 0.
  */
-
 struct file_d
 {
-
     // #todo: Change this to ____object_type.
     object_type_t ____object;
 
@@ -421,8 +399,6 @@ struct file_d
 // we need to synchronize the readers.
     int fd_counter;
 
-    //pipe ??
-
     int iopl;
 
 // The list of threads that are waiting for this object.
@@ -434,8 +410,10 @@ struct file_d
 };
 
 // The file structure type.
-typedef struct file_d  file; 
-typedef struct file_d  object; 
+typedef struct file_d  file;
+typedef struct file_d  kfile;
+typedef struct file_d  object;
+typedef struct file_d  kobject;
 
 //-----------------------------------------------
 
@@ -460,15 +438,14 @@ extern file *volume2_rootdir_fp;
 // file table.
 //
  
-unsigned long file_table[NUMBER_OF_FILES]; 
+extern unsigned long file_table[NUMBER_OF_FILES]; 
 
 //-----------------------------------------------
 
+extern int kstdio_standard_streams_initialized;
 
-int kstdio_standard_streams_initialized;
 
-
-// N� usaremos o array de estrutura.
+// Nao usaremos o array de estrutura.
 //#define stdin     (_io_table[0])
 //#define stdout    (_io_table[1])
 //#define stderr    (_io_table[2])
@@ -491,7 +468,7 @@ extern file *pipe_execve;
 //Continua ...
 
 #define NUMBER_OF_PIPES  8
-unsigned long Pipes[NUMBER_OF_PIPES];
+extern unsigned long pipeList[NUMBER_OF_PIPES];
 
 // ========================================================
 
@@ -531,7 +508,7 @@ static __inline int __sputc(int _c, FILE *_p) {
 
 
 /*adaptado do bsd*/
-// rotina em ring0 para colocar conte�do numa stream.
+// rotina em ring0 para colocar conteudo numa stream.
 /*
 static __inline int bsd__sputc (int _c, FILE *_p)
 {
@@ -549,24 +526,23 @@ static __inline int bsd__sputc (int _c, FILE *_p)
 
 //#importante:
 //Podemos usar isso para compatibilidade com as
-//rotinas de baixo n�vel do bsd.
+//rotinas de baixo nivel do bsd.
 //#define __sgetc(p) fgetc(p)
 //#define __sputc(x, p) fputc(x, p)
-
 
 //
 // == prototypes ============================
 //
 
-int __feedSTDIN( unsigned long ch );
-
-int is_socket (file *f);
+int is_socket(file *f);
 int is_virtual_console (file *f);
 
-unsigned long kinput ( unsigned long ch );
+int __feedSTDIN(unsigned long ch);
 
-void printchar (char **str, int c);
-int putchar (int ch);
+unsigned long kinput(unsigned long ch);
+
+void printchar(char **str, int c);
+int putchar(int ch);
 
 //#test
 void putchar_K(void);
@@ -592,19 +568,18 @@ printi (
     int pad, 
     int letbase );
 
-int print ( char **out, int *varg );
+int print( char **out, int *varg );
 
 //=============================================
 
-
 // service 8002
-int sys_setup_stdin( int stdin_fd );
+int sys_setup_stdin(int stdin_fd);
 
 // #suspensa
 // Essa implementação foi feita para 32bit e não funciona
 // por inteiro em long mode.
 // Usaremos kinguio_printf por enquanto.
-int printk_old ( const char *format, ... );
+int printk_old( const char *format, ... );
 
 // ===================================
 
@@ -616,17 +591,14 @@ int kputs ( const char *str );
 int sprintf_old ( char *str, const char *format, ... );
 int mysprintf(char *buf, const char *fmt, ...);
 
-
 // ===================================
+// The kinguio support for printf().
+// Credits: Nelson Cole.
 void kinguio_i2hex(unsigned int val, char* dest, int len);
-char *kinguio_itoa (int val, char *str);
-
-
-
+char *kinguio_itoa(int val, char *str);
 int kinguio_vsprintf(char * str,const char * fmt, va_list ap);
 void kinguio_puts(const char* str);
 int kinguio_printf(const char *fmt, ...);
-
 // ===================================
 
 int k_ungetc ( int c, file *f );
@@ -652,20 +624,16 @@ regularfile_ioctl (
     unsigned long request, 
     unsigned long arg );
 
-int kstdio_initialize (void);
-
+int kstdio_initialize(void);
 
 //
 // == printk ===============================================
 //
 
 //https://en.wikipedia.org/wiki/Printk
-//#define  printf printk
-//#define kprintf printk
 #define printf   kinguio_printf
 #define printk   kinguio_printf
 #define sprintf  mysprintf
-
 
 #endif    
 

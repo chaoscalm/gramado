@@ -1501,7 +1501,7 @@ void console_outbyte2 (int c, int console_number)
     y = (unsigned long) (CONSOLE_TTYS[n].cursor_y * __cHeight);
     refresh_rectangle ( x, y, __cWidth, __cHeight );
 
-    if(Increment)
+    if (Increment)
         CONSOLE_TTYS[n].cursor_x++;
 }
 
@@ -1638,7 +1638,7 @@ static void __ConsoleOutbyte (int c, int console_number)
 // então precisamos, antes de uma string efetuar a
 // sincronização do retraço vertical e não a cada char.
 
-void console_putchar (int c, int console_number)
+void console_putchar(int c, int console_number)
 {
 // + Draw char.
 // + Refresh char.
@@ -1674,7 +1674,7 @@ void console_putchar (int c, int console_number)
 // Copy a small rectangle to the framebuffer.
 
     //if( c != 0)
-    console_outbyte ( (int) c, console_number );
+    console_outbyte( (int) c, console_number );
 
 // #danger
 // We will no be able to refresh if the routine above
@@ -1683,7 +1683,7 @@ void console_putchar (int c, int console_number)
 
     x = (unsigned long) (CONSOLE_TTYS[console_number].cursor_x * cWidth);
     y = (unsigned long) (CONSOLE_TTYS[console_number].cursor_y * cHeight);
-    refresh_rectangle ( x, y, cWidth, cHeight );
+    refresh_rectangle( x, y, cWidth, cHeight );
 
 // flag off
     stdio_terminalmode_flag = FALSE; 
