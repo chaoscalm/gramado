@@ -3,10 +3,10 @@ NASM = nasm
 
 # Exported files. Kernel api;
 # Used by the kernel modules and user space applications.
-USER_INCLUDE   := -I ../include/uapi/
+USER_INCLUDE   := -I ../admin/include/uapi/
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I ../include/ $(USER_INCLUDE)    
+KERNEL_INCLUDE := -I ../admin/include/ $(USER_INCLUDE)    
 
 STARTUP_INCLUDE := -I x86_64/startup/  
 

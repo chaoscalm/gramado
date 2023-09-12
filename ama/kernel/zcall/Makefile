@@ -55,11 +55,11 @@ CFLAGS := \
 
 # Exported files. Kernel api;
 # Used by the kernel modules and user space applications.
-USER_INCLUDE   := -I ../include/uapi/
+USER_INCLUDE   := -I ../admin/include/uapi/
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I ../include/ $(USER_INCLUDE)  
+KERNEL_INCLUDE := -I ../admin/include/ $(USER_INCLUDE)  
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -83,14 +83,14 @@ sci.o
 
 all:
 
-# Helpers
-	$(CC) -c helpers/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
-	$(CC) -c helpers/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
-	$(CC) -c helpers/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
-	$(CC) -c helpers/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
-	$(CC) -c helpers/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
-	$(CC) -c helpers/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
-	$(CC) -c helpers/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
+# Overall routines.
+	$(CC) -c overall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
+	$(CC) -c overall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
+	$(CC) -c overall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
+	$(CC) -c overall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
+	$(CC) -c overall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
+	$(CC) -c overall/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
+	$(CC) -c overall/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
 
 # kmain
 	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o

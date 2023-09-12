@@ -41,6 +41,7 @@
 #include "admin/config/gramado/system.h"
 // ==================================
 
+
 //
 // + (2) Main supervisor configuration.
 //
@@ -58,16 +59,15 @@
 #include "admin/config/superv/gspin.h"
 #include "admin/config/superv/gwd.h"     // whatch dogs.
 #include "admin/config/superv/pints.h"   // profiler
-// #todo: Move it from here.
-#include "request.h"
-#include "admin/config/superv/info.h"    // last one?
+//#include "admin/config/superv/info.h"    // last one?
 #include "admin/config/superv/kinit.h"   // kernel initialization.
-
 // ===============================
 
+#include "zcall/overall/info.h"    // last one?
+#include "zcall/overall/request.h"
+#include "zcall/overall/debug.h"
 
 // Gramado configuration.
-#include "gramado/debug.h"
 #include "gramado/jiffies.h"
 
 // Setup input mode.
@@ -321,11 +321,9 @@
 #include "user/user.h"
 #include "user/security.h"
 
-#include "public/reboot.h"
 
-// ==============================
-
-#include "gramado/mod.h"
+#include "zcall/overall/reboot.h"
+#include "zcall/overall/mod.h"
 
 
 //
@@ -337,14 +335,14 @@
 #include "zcall/layer.h"
 
 // syscalls. (Called by the interrups 0x80 and 0x82).
-#include "zcall/sys/sci0.h"
-#include "zcall/sys/sci1.h"
-#include "zcall/sys/sci2.h"
-#include "zcall/sys/syscalls.h"
+#include "zcall/apis/sys/sci0.h"
+#include "zcall/apis/sys/sci1.h"
+#include "zcall/apis/sys/sci2.h"
+#include "zcall/apis/sys/syscalls.h"
 // zero. (Used during the kernel initialization)
-#include "zcall/zero/zero.h"
+#include "zcall/apis/zero/zero.h"
 // newos. (Called by the interrups 0x80 and 0x82).
-#include "zcall/newos/newos.h"
+#include "zcall/apis/newos/newos.h"
 
 // ==============================
 // #bugbug: O resto das coisas daqui pra 

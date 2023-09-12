@@ -57,11 +57,11 @@ CFLAGS := \
 
 # Exported files. Kernel api;
 # Used by the kernel modules and user space applications.
-USER_INCLUDE   := -I ../include/uapi/
+USER_INCLUDE   := -I ../admin/include/uapi/
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I ../include/ $(USER_INCLUDE)  
+KERNEL_INCLUDE := -I ../admin/include/ $(USER_INCLUDE)  
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -89,13 +89,30 @@ sched.o schedi.o
 
 all:
 
+#--------
+# ps/
+	$(CC) -c ps/msg/msg.c          $(KERNEL_INCLUDE) $(CFLAGS) -o msg.o
+	$(CC) -c ps/process/process.c  $(KERNEL_INCLUDE) $(CFLAGS) -o process.o
+	$(CC) -c ps/process/plib.c     $(KERNEL_INCLUDE) $(CFLAGS) -o plib.o
+	$(CC) -c ps/thread/thread.c    $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
+	$(CC) -c ps/thread/tlib.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
+	$(CC) -c ps/x86_64/x64fault.c  $(KERNEL_INCLUDE) $(CFLAGS) -o x64fault.o
+	$(CC) -c ps/create.c           $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
+	$(CC) -c ps/clone.c            $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
+# Entrance 
+	$(CC) -c ps/intake/disp/ts.c              $(KERNEL_INCLUDE)  $(CFLAGS) -o ts.o  
+	$(CC) -c ps/intake/disp/dispatch.c        $(KERNEL_INCLUDE)  $(CFLAGS) -o dispatch.o  
+	$(CC) -c ps/intake/disp/spawn.c           $(KERNEL_INCLUDE)  $(CFLAGS) -o spawn.o  
+	$(CC) -c ps/intake/disp/x86_64/x64cont.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o x64cont.o  
+	$(CC) -c ps/intake/sched/sched.c          $(KERNEL_INCLUDE)  $(CFLAGS) -o sched.o  
+	$(CC) -c ps/intake/sched/schedi.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedi.o  
+
+#--------
+# x86_64/
+
 	$(CC) -c x86_64/x64init.c  \
 $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
 
-	$(CC) -c ke.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
-
-# hal/
-	$(CC) -c hal.c  $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
 	$(CC) -c x86_64/detect.c  $(KERNEL_INCLUDE) $(CFLAGS) -o detect.o
 
 	#Interrupts
@@ -109,35 +126,15 @@ $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
 	$(CC) -c x86_64/x64.c      $(KERNEL_INCLUDE) $(CFLAGS) -o x64.o
 	$(CC) -c x86_64/x64info.c  $(KERNEL_INCLUDE) $(CFLAGS) -o x64info.o
 
-# ps
+#--------
 
-	$(CC) -c ps/process/process.c  $(KERNEL_INCLUDE) $(CFLAGS) -o process.o
-	$(CC) -c ps/process/plib.c     $(KERNEL_INCLUDE) $(CFLAGS) -o plib.o
+	$(CC) -c callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
+	$(CC) -c queue.c     $(KERNEL_INCLUDE) $(CFLAGS) -o queue.o
+	$(CC) -c mk.c        $(KERNEL_INCLUDE) $(CFLAGS) -o mk.o
+	$(CC) -c ws.c        $(KERNEL_INCLUDE) $(CFLAGS) -o ws.o
+	$(CC) -c ke.c        $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
+	$(CC) -c hal.c       $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
 
-	$(CC) -c ps/thread/thread.c  $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
-	$(CC) -c ps/thread/tlib.c    $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
-
-	$(CC) -c ps/msg/msg.c     $(KERNEL_INCLUDE) $(CFLAGS) -o msg.o
-
-	$(CC) -c ps/create.c    $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
-	$(CC) -c ps/clone.c     $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
-
-	$(CC) -c ps/callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
-
-	$(CC) -c ps/x86_64/x64fault.c  $(KERNEL_INCLUDE) $(CFLAGS) -o x64fault.o
-	$(CC) -c ps/queue.c  $(KERNEL_INCLUDE) $(CFLAGS) -o queue.o
-	$(CC) -c ps/mk.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mk.o
-
-	$(CC) -c ps/ws.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ws.o
-
-
-# Entrance 2
-	$(CC) -c ps/intake/disp/ts.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o ts.o  
-	$(CC) -c ps/intake/disp/dispatch.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o dispatch.o  
-	$(CC) -c ps/intake/disp/spawn.c     $(KERNEL_INCLUDE)  $(CFLAGS) -o spawn.o  
-	$(CC) -c ps/intake/disp/x86_64/x64cont.c   $(KERNEL_INCLUDE)  $(CFLAGS) -o x64cont.o  
-	$(CC) -c ps/intake/sched/sched.c   $(KERNEL_INCLUDE)  $(CFLAGS) -o sched.o  
-	$(CC) -c ps/intake/sched/schedi.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o schedi.o  
 
 # link
 	$(LD) -r -o ar_ke.o $(OBJS)
