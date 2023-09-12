@@ -1,10 +1,7 @@
 ;; VBR para a partição de boot.
 ;; O volume começa no setor 63 com esse VBR (boot sector do volume).
-;;
 ;; A FAT1 fica no setor 67, a FAT2 fica no setor ??, o root dir fica 
 ;; no setor 559 a área de dados começa no setor 591.
-;;
-
 
 ;;	
 ;;  ## VBR ##	
@@ -22,7 +19,6 @@ vbr1_OsName:
 vbr1_OsVersion:
     DB  "5.0"
 
-
 ;; unsigned short BytesPerSector;
 ;; 0x0200
 ;;Bytes per Sector. The size of a hardware sector. 
@@ -36,7 +32,6 @@ db 0x00, 0x02
 ;; and the file system.
 db 0x01
 
-
 ;; ? 
 ;; unsigned short NumberOfReservedSectors;
 ;; O número de setores reservados que ficam entre o vbr e a primeira fat.
@@ -47,7 +42,6 @@ db 0x01
 ;; If the value is greater than 1, it means that the bootstrap code 
 ;; is too long to fit completely in the Partition Boot Sector.
 db 0x04, 0x00 
-
 
 ;; unsigned char NumberOfFATs;
 ;; Number of file allocation tables (FATs). 
@@ -65,9 +59,6 @@ db 0x02
 ;; typically 511, but you will run out of entries sooner if you 
 ;; use long filenames.
 db 0x00, 0x02
-
-
-
 
 ;; ??
 ;; unsigned short TotalSectorCount16;
@@ -90,8 +81,6 @@ db 0xFE, 0xE3
 ; db 0xFE, 0x43 
 ;; 0x43FE = 17406 setores  = 8703 KB.
 
-
-
 ;; ??
 ;; unsigned char Media;
 ;; media descriptor. ok.
@@ -108,9 +97,6 @@ db 0xF8
 ;;the root folder begins. By using the number of entries in the root folder, 
 ;;you can also compute where the user data area of the volume begins.
 db 0xF6, 0x00 
-
-
-
 
 ;; ??
 ;; unsigned short SectorsPerTrack;
@@ -136,8 +122,6 @@ db 0x3F, 0x00, 0x00, 0x00 ;;@todo: talvez sejam os 63 escondidos.
 ;;this field contains the total number of sectors in the volume. 
 ;;If Small Sectors is nonzero, this field contains zero.
 db 0x00, 0x00, 0x00, 0x00 
-
-
 
 ;; unsigned char DriveNumber;
 ;; Physical Disk Number. This is related to the BIOS physical disk number. 
@@ -210,8 +194,6 @@ db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-
-
 
 ;; unsigned short Signature;
 db 0x55, 0xAA

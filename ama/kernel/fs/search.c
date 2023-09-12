@@ -1,5 +1,8 @@
 
 // search.c
+// #todo
+// This routines belongs to fat16
+// we need to move it to fat/
 
 #include <kernel.h>
 

@@ -212,6 +212,12 @@ fs_load_fat(
     unsigned long fat_lba, 
     size_t fat_size )
 {
+
+// #todo
+// We need a structure to track the state
+// of the table in the memory.
+// maybe 'FATState'
+
     unsigned long __fatAddress=0;
     unsigned long __fatLBA=0;
     size_t        __fatSizeInSectors=0;
@@ -263,6 +269,12 @@ fs_load_rootdir(
     unsigned long root_lba, 
     size_t root_size )  // in sectors.
 {
+
+// #todo
+// We need a structure to track the state
+// of the directory in the memory.
+// maybe 'RootdirState'
+
     unsigned long RootAddress=0;
     unsigned long RootLBA=0;
     size_t        RootSize=0;

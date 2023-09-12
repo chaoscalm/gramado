@@ -636,7 +636,8 @@ pciHandleDevice (
     unsigned char _irq_line=0;
     unsigned char _irq_pin=0;
 // Name support.
-    char __tmpname[64];
+    size_t SizeOfTmpNameBuffer = 64;
+    char __tmpname[SizeOfTmpNameBuffer];
     char *newname;
 
     // #debug
@@ -884,21 +885,35 @@ pciHandleDevice (
 
 //buffer1
 
-    // clear buffer
-    memset( __tmpname, 0, 64 );
+    // Clear local buffer for tmp name.
+    memset( __tmpname, 0, SizeOfTmpNameBuffer );
+    // Save the tmp name into the local buffer.
     sprintf( 
         (char *) __tmpname, 
-        "/DEV_%x_%x", 
+        "DEV_%x_%x", 
         D->Vendor, 
         D->Device );
 
+    size_t SizeOfNewName = 0;
+    SizeOfNewName = (size_t) strlen(__tmpname);
+
+// -----------
+
+    // size of name buffer
+    size_t SizeOfNameBuffer = 64;
+
 //buffer2
-    newname = (char *) kmalloc(64);
-    if ( (void*) newname == NULL ){
+    newname = (char *) kmalloc(SizeOfNameBuffer);
+    if ((void*) newname == NULL){
         panic("pciHandleDevice: [FAIL] newname\n");
     }
     // clear buffer
-    memset( newname, 0, 64 );
+    memset( newname, 0, SizeOfNameBuffer );
+
+    if (SizeOfNewName >= SizeOfNameBuffer){
+        printf("pciHandleDevice: SizeOfNewName\n");
+    }
+    // Save!
     strcpy( newname, __tmpname );
 
 // #bugbug
@@ -916,9 +931,8 @@ pciHandleDevice (
 // pode ir para uma função privada. Um worker.
 
     file *__file;
-
     __file = (file *) kmalloc( sizeof(file) );
-    if ( (void *) __file == NULL ){
+    if ((void *) __file == NULL){
         panic("pciHandleDevice: __file\n");
     }
     memset( __file, 0, sizeof(struct file_d) );

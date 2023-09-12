@@ -799,13 +799,12 @@ struct tty_d *tty_create(short type, short subtype)
     int Index = (int) (__tty->index & 0xFFFF);
 // clear buffer
     memset( __tmpname, 0, 64 );
-    sprintf ( __tmpname, "/TTY%d", Index );
+    sprintf( __tmpname, "TTY%d", Index );
 
     //size_t NameSize = (size_t) strlen(__tmpname);
 // ----
-
     char *newname = (char *) kmalloc(64);
-    if ( (void*) newname == NULL ){
+    if ((void*) newname == NULL){
         panic("tty_create: newname\n");
     }
 // clear buffer
@@ -818,20 +817,17 @@ struct tty_d *tty_create(short type, short subtype)
 // #importante: 
 // Ele precisa de um arquivo 'file'.
     
-    __file = (file *) kmalloc ( sizeof(file) );
-    if ( (void *) __file == NULL ){
-        panic ("tty_create: __file\n");
+    __file = (file *) kmalloc( sizeof(file) );
+    if ((void *) __file == NULL){
+        panic("tty_create: __file\n");
     }
-
     __file->used = TRUE;
     __file->magic = 1234;
     __file->____object = ObjectTypeTTY;
-
     __file->isDevice = TRUE;
 // #todo
     __file->dev_major = 0;
     __file->dev_minor = 0;
-
 // A estrutura de tty associada com esse arquivo.
     __file->tty = __tty;
 // Esse é o arquivo que aponta para essa estrutura.
@@ -876,12 +872,10 @@ struct tty_d *tty_create(short type, short subtype)
         __tty );             // This is a tty device.
 
 // ==========================================
-
 // last check.
-    if ( (void *) __tty == NULL ){
-        panic ("tty_create: [FAIL] __tty");
+    if ((void *) __tty == NULL){
+        panic("tty_create: [FAIL] __tty\n");
     }
-
 // ok.
     return (struct tty_d *) __tty;
 }

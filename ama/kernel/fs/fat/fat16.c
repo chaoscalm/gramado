@@ -29,6 +29,110 @@ struct system_fat_d sfMainFAT;
 unsigned short fat16ClustersToSave[CLUSTERS_TO_SAVE_MAX];
 
 
+struct fat16_directory_entry_d *vol_label_directory_entry;
+
+// -------------------------------
+
+//#test
+void test_fat16_find_volume_info(void)
+{
+// #test
+// This is a test.
+// No not call this routine yet.
+
+    vol_label_directory_entry = 
+        (void*) kmalloc( sizeof(struct fat16_directory_entry_d) );
+    if ( (void*) vol_label_directory_entry == NULL ){
+        printf("on kmalloc\n");
+        goto fail;  
+    }
+
+// Get info
+// IN:
+//   + entry = Put the info here in this structure.
+//   + directory_va = 
+//   + entry_number = desired Index. 
+//   + entry_max = max index. (limit=512)
+    int status = -1;
+    status = (int) fat16_get_entry_info( 
+        vol_label_directory_entry,
+        VOLUME1_ROOTDIR_ADDRESS,
+        0,
+        512 );
+ 
+    if (status != 0)
+        goto fail;
+ 
+// Put the name into a local buffer.
+    char name_buffer[16];
+    memset(name_buffer, 0, 16);
+    register int i=0;
+    for (i=0; i<(8+3); i++)
+    {
+        name_buffer[i] = 
+            vol_label_directory_entry->FileName[i];
+    };
+
+// Show info:    
+    printf("Disk name: {%s}\n",name_buffer);
+    refresh_screen();
+
+    return;
+
+fail:
+    return;
+}
+
+
+// fat16_get_entry_info:
+// IN:
+//   + entry = Put the info here in this structure.
+//   + directory_va = 
+//   + entry_number = desired Index. 
+//   + entry_max = max index. (limit=512)
+// OUT:
+// 0 = OK
+// < 0 = fail
+int 
+fat16_get_entry_info(
+    struct fat16_directory_entry_d *entry,
+    unsigned long directory_va,
+    int entry_number,
+    int entry_max )
+{
+// #test
+// Get the entry info.
+
+    register int i=0;
+// Local pointer.
+    struct fat16_directory_entry_d *p;
+    p = entry;
+
+    if ((void*) p == NULL)
+        panic("fat16_get_entry_info: p\n");
+    if (directory_va == 0)
+        panic("fat16_get_entry_info: directory_va\n");
+    if (entry_number < 0 || entry_number > 512)
+        panic("fat16_get_entry_info: entry_number\n");
+    if (entry_max < 0 || entry_max > 512)
+        panic("fat16_get_entry_info: entry_max\n");
+
+
+    size_t entry_size = sizeof(struct fat16_directory_entry_d);
+    unsigned long pos_address = 
+      (unsigned long) (directory_va + (entry_size*entry_number)); 
+    char *src = (char *) pos_address;
+    char *dst = (char *) p;
+
+    for (i=0; i<entry_size; i++){
+        dst[i] = src[i];
+    };
+
+    return 0;
+
+fail:
+    return -1;
+}
 
 // #todo: Describe this routine.
 // credits: hoppy os.

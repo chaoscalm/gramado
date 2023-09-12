@@ -5,6 +5,9 @@
 #include <kernel.h>
 
 
+
+
+
 // Canonical:
 // The list of the main directories in the system.
 // These are the first directories searched when
@@ -2740,11 +2743,10 @@ void fs_init_structures (void)
 
     debug_print ("fs_init_structures: root\n");
 
-    root = (void *) kmalloc ( sizeof(struct filesystem_d) );
+    root = (void *) kmalloc( sizeof(struct filesystem_d) );
     if ( (void *) root == NULL ){
-        panic ("fs_init_structures: Couldn't create the root structure.\n");
+        panic("fs_init_structures: Couldn't create the root structure.\n");
     }
-
     root->objectType  = ObjectTypeFileSystem;
     root->objectClass = ObjectClassKernelObjects;
     root->used = TRUE;
@@ -2767,7 +2769,7 @@ void fs_init_structures (void)
 
 // Save is in the 'storage' low level structure.
 
-    if ( (void*) storage == NULL ){
+    if ((void*) storage == NULL){
          panic("fs_init_structures: storage");
     }
 

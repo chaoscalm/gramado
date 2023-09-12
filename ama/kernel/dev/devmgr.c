@@ -152,7 +152,7 @@ struct device_d *devmgr_device_object(void)
     struct device_d  *d;
     register int i=0;
     unsigned long __tmp=0;
-    char __noname[] = "no-name";
+    //char __noname[] = "no-name";
 
 // Procura um slot vazio.
 
@@ -165,7 +165,7 @@ struct device_d *devmgr_device_object(void)
             // Device structure.
             // #bugbug
             // Maybe it will spend a lot of memory.
-            d = (struct device_d *) kmalloc ( sizeof (struct device_d) );
+            d = (struct device_d *) kmalloc( sizeof (struct device_d) );
             if ((void *) d == NULL)
             {
                 // #fatal
@@ -226,11 +226,11 @@ devmgr_register_device (
     char buf[PathSize];
     char *new_mount_point;
 
-    debug_print ("devmgr_register_device:\n");
+    debug_print("devmgr_register_device:\n");
 
     new_mount_point = (char *) kmalloc(PathSize);
     if ((void*) new_mount_point == NULL){
-        panic ("devmgr_register_device: new_mount_point\n");
+        panic("devmgr_register_device: new_mount_point\n");
     }
 
 // =======================
@@ -244,12 +244,13 @@ devmgr_register_device (
     if (f->isDevice != TRUE){
         panic ("devmgr_register_device: This file is NOT a device\n");
     }
+
 // =======================
 // Device structure. 
 // (It is NOT the pci device struct)
     d = (struct device_d *) devmgr_device_object();        
     if ((void *) d == NULL){
-        panic ("devmgr_register_device: d\n");
+        panic("devmgr_register_device: d\n");
     }
     if ( d->used != TRUE || d->magic != 1234 ){
         panic ("devmgr_register_device: d validation\n");
@@ -257,47 +258,60 @@ devmgr_register_device (
 // id
     id = d->index;
     if ( id < 0 || id >= DEVICE_LIST_MAX ){
-        panic ("devmgr_register_device: id\n");
+        panic("devmgr_register_device: id\n");
     }
+
+// Save parameters.
+    d->__class = (unsigned char) dev_class;
+    d->__type  = (unsigned char) dev_type;
+
+
+
 // file
 // The file pointer.
     //if( (void*) f == NULL ){
     //    panic ("devmgr_register_device: f\n");
     //}
 
+//
+// major/minor
+//
+
 // #todo
     f->dev_major = 0;
 // Device index into the deviceList[].
     f->dev_minor = (short) (d->index & 0xFFFF);
 
-
 // Device structure.
     f->device = (struct device_d *) d;
 // Save the file pointer.
     d->_fp  = (file *) f;
-    d->__class = (unsigned char) dev_class;
-    d->__type  = (unsigned char) dev_type;
 
 // name
 
 // Clear buffer
     memset( buf, 0, PathSize );
 
+// ----------------------
 // Se um nome não foi indicado.
     if ((void*) name == NULL)
     {
-        sprintf ( buf, "/DEV%d", id );
+        sprintf( buf, "/DEV/%d", id );
         strcpy( new_mount_point, buf );
     }
+// ----------------------
 // Se um nome foi indicado.
     if ((void*) name != NULL)
     {
         NameSize = (size_t) strlen(name);
-        if (NameSize >= PathSize){
-            panic("devmgr_register_device: NameSize");
+        if (NameSize >= (PathSize-5) )
+        {
+            panic("devmgr_register_device: NameSize\n");
         }
-        sprintf( buf, name );
+        //sprintf( buf, name );
         // #todo: Copy n bytes using strncpy.
+        //strcpy( new_mount_point, buf );
+        sprintf( buf, "/DEV/%s", name );
         strcpy( new_mount_point, buf );
     }
 

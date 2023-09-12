@@ -48,10 +48,20 @@ struct system_fat_d
 extern struct system_fat_d sfMainFAT;
 
 
+extern struct fat16_directory_entry_d *vol_label_directory_entry;
 
 // 
 // == prototypes ==========================================
 //
+
+void test_fat16_find_volume_info(void);
+
+int 
+fat16_get_entry_info(
+    struct fat16_directory_entry_d *entry,
+    unsigned long directory_va,
+    int entry_number,
+    int entry_max );
 
 void from_FAT_name(char *src, char *dst);
 void to_FAT_name(char *src, char *dst);

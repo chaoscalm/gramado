@@ -73,14 +73,16 @@
 MBR_main:
 
 ; ----------------------------------
-; Stage 1. The MBR.
+; >> Stage 1. The MBR.
+;-----------------------------------
     %include "stage1.asm"
 ; Padding for setting up the VBR at the right place.
 eof:                                                      ; 
     times (63*512) - (eof-MBR_main) db 'b' ;63 sec.
 
 ; ----------------------------------
-; The VBR of the first partition.
+; >> The VBR of the first partition.
+;-----------------------------------
 ; Sector 63.
 ; FAT16 for EFI support.
 ; Maybe it needs to be FAT32.
@@ -88,52 +90,83 @@ fs_fat16_vbr:
     %include "vbr1.asm"    
 
 ; ----------------------------------
-; Three hidden sectors.
+; >> Three hidden sectors.
+;-----------------------------------
 fs_hidden_sectors:
     times (512) db 'h'  ;64
     times (512) db 'h'  ;65
     times (512) db 'h'  ;66
 
 ; ----------------------------------
-; First FAT.
+; >> FAT I
+;-----------------------------------
 ; Sector 67.
 ; 246 sectors size.
 fs_fat16_fat1: 
 .firstSector:
-    db 0xf8, 0xff, 0xff, 0xff
+    db 0xf8, 0xff  
+    db 0xff, 0xff  
     times (512)-(4) db 0
 .allTheRest:
     times (245*512) db 0 
 
 ; ----------------------------------
-; Second FAT.
+; >> FAT II
+;-----------------------------------
 ; Sector 313.
 ; 246 sectors size.
 fs_fat16_fat2:
 .firstSector:
-    db 0xf8, 0xff, 0xff, 0xff
+    db 0xf8, 0xff  
+    db 0xff, 0xff  
     times (512)-(4) db 0
 .allTheRest:
     times (245*512) db 0 
 
 ; ----------------------------------
-; Root dir.
+; >> Root dir.
+;-----------------------------------
 ; Sector 559.
 ; Size?
 ; The first two entries are labels.
 fs_fat16_rootdir:
 .firstEntry:   
 ; Volume label: (GRAMAVOL)
+
+; Filename (8)
     db 0x47, 0x52, 0x41, 0x4D, 0x41, 0x56, 0x4F, 0x4C
-    db 0x20, 0x20, 0x20, 0x08, 0x00, 0x00, 0x00, 0x00 
-    db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xEE, 0x7B
-    db 0x1B, 0x4B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+; Filename ext (3)
+    db 0x20, 0x20, 0x20
+; Attributes (1)
+; 0x08 - (Volume label)
+    db 0x08
+; Reserved (1)
+    db 0x00
+; Creation time (3)
+    db 0x00 
+    db 0x00, 0x00 
+; Creation date
+    db 0x00, 0x00
+; Optional last accesse date. (2 byte)
+    db 0x00, 0x00
+; (First Cluster High) (2)
+    db 0x00, 0x00
+; Modification time. (2)
+    db 0xEE, 0x7B
+; Modification date. (2)
+    db 0x1B, 0x4B
+; // (First Cluster Low) (2)
+    db 0x00, 0x00
+; File size. (4)
+    db 0x00, 0x00, 0x00, 0x00
+
 ; Padding to fill the whole directory.
 ; Each entry has 32 bytes and the directory has 512 entries.
     times (32*512) - (32) db  0
 
 ; ----------------------------------
-; Data area
+; >> Data area
+;-----------------------------------
 ; Sector 591
 ; Size?
 ; 32MB of data area.
@@ -146,7 +179,8 @@ end_of_disk:
 
 
 ; ----------------------------------
-; VHD footer.
+; >> VHD footer.
+;-----------------------------------
 ; M$
 ; This is the last component,
 ; maybe it helps on Windows machines.

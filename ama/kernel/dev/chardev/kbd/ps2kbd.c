@@ -81,7 +81,7 @@ void ps2kbd_initialize_device (void)
 // Registrando o dispositivo.
     devmgr_register_device ( 
         (file *) fp, 
-        "/DEV/KBD0",         // pathname 
+        "PS2KBD",         // pathname 
         DEVICE_CLASS_CHAR,   // class (char, block, network)
         DEVICE_TYPE_LEGACY,  // type (pci, legacy)
         NULL,                // Not a pci device.

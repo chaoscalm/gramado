@@ -2051,10 +2051,21 @@ int consoleCompareStrings(void)
     }
 
 // volume: Show some volume information.
-    if ( kstrncmp(prompt,"volume",6) == 0 ){
+    if ( kstrncmp(prompt,"volume",6) == 0 )
+    {
         volume_show_info();
         goto exit_cmp;
     }
+// #test
+// Get volume label from the first entry.
+// see: fat16.c
+    if ( kstrncmp(prompt,"vol-label",9) == 0 )
+    {
+        test_fat16_find_volume_info();
+        goto exit_cmp;
+    }
+
+
 
 // device: Device list.
 // Show tty devices, pci devices and devices with regular file.
@@ -3169,6 +3180,8 @@ int VirtualConsole_initialize(void)
             bg_colors[i],
             fg_colors[i] );
 
+        //#todo
+        // We need to register all the tty device.
         //tmp_tty = (struct tty_d *) &CONSOLE_TTYS[i];
         // Register tty device.
         //devmgr_register_device ( 
