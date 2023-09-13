@@ -1,7 +1,9 @@
 
 ; sw1.asm
 ; This file handles syscall for x86_64 processors.
-; 0x80, 0x81, 0x82
+; ints 0x80, 0x81, 0x82
+; int 0xC7
+; ...
 
 align 16
 __sw_local_fpu_buffer:
@@ -24,9 +26,8 @@ align 16
 ;     #todo: 
 ;     Maybe we can receive more values using more registers.
 
-extern _sci0
+extern _mi80h
 extern _sci0_cpl
-
 ; Capture context
 global _int128
 _int128:
@@ -72,7 +73,7 @@ _int128:
 
 ; cpl
 ; Get the first 2 bits of cs.
-; see: sci.c
+; see: x64mi.c sci.c
 ; #importante: temos que pegar cs na pilha e nao no registrador.
 ; talvez durante a systemcall o processador mude o cs para o valor 
 ; do seletor indicado na entrada da idt.
@@ -83,7 +84,7 @@ _int128:
 
     fxsave [__sw_local_fpu_buffer]
 
-    call _sci0
+    call _mi80h
 
 ; ---------------
     fxrstor [__sw_local_fpu_buffer]
@@ -149,8 +150,7 @@ _int128:
 ;
 ;;-----
 
-;extern _xxxxINT129_DEBUG_MESSAGE
-extern _sci1
+extern _mi81h
 extern _sci1_cpl
 ; Capture context
 global _int129
@@ -198,7 +198,7 @@ _int129:
 
 ; cpl
 ; Get the first 2 bits of cs.
-; see: sci.c
+; see: x64mi.c sci.c
 ; #importante: temos que pegar cs na pilha e nao no registrador.
 ; talvez durante a systemcall o processador mude o cs para o valor 
 ; do seletor indicado na entrada da idt.
@@ -210,7 +210,7 @@ _int129:
 
     fxsave [__sw_local_fpu_buffer]
 
-    call _sci1
+    call _mi81h
 
 ;-----------------------
     fxrstor [__sw_local_fpu_buffer]
@@ -273,8 +273,7 @@ _int129:
 ;     Maybe we can receive more values using more registers.
 ;;-----
 
-;extern _xxxxINT130_DEBUG_MESSAGE
-extern _sci2
+extern _mi82h
 extern _sci2_cpl
 ; Capture context
 global _int130
@@ -321,7 +320,7 @@ _int130:
 
 ; cpl
 ; Get the first 2 bits of cs.
-; see: sci.c
+; see: x64mi.c sci.c
 ; #importante: temos que pegar cs na pilha e nao no registrador.
 ; talvez durante a systemcall o processador mude o cs para o valor 
 ; do seletor indicado na entrada da idt.
@@ -332,7 +331,7 @@ _int130:
 
     fxsave [__sw_local_fpu_buffer]
 
-    call _sci2
+    call _mi82h
 
 ; ----------------------
     fxrstor [__sw_local_fpu_buffer]
@@ -409,6 +408,10 @@ _int130:
 
 global _int199
 _int199:
+    jmp miC7H
+    jmp $
+miC7H:
+; Maskable interrupt
     pop qword [.frameRIP]
     pop qword [.frameCS]
     pop qword [.frameRFLAGS]

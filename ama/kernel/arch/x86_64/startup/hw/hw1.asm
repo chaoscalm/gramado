@@ -120,6 +120,7 @@ extern _irq0_TIMER
 ; Capture context
 global _irq0
 _irq0:
+; Maskable interrupt
 
     cli
 
@@ -147,17 +148,13 @@ _irq0:
     mov qword [_contextRDI], rdi 
     mov qword [_contextRSI], rsi 
 
-; Segments
-
+; Data segments
+; gs,fs,es,ds
     xor rax, rax
-
-    ; Is it used?
     mov ax, gs
     mov word [_contextGS], ax
-    ; Is it used?
     mov ax, fs
     mov word [_contextFS], ax
-    
     mov ax, es
     mov word [_contextES], ax
     mov ax, ds
@@ -166,9 +163,7 @@ _irq0:
 ; FPU
 ; See:
 ; https://wiki.osdev.org/SSE
-
     fxsave [_context_fpu_buffer]
-
 
 ; #todo
 ; Media, float pointers, debug.
@@ -190,12 +185,11 @@ _irq0:
     mov [_contextCPL], rax
 
 ; Timer and taskswitching.
-; See: ke/hal/x86_64/pit.c
+; See: pit.c
 
     call _irq0_TIMER
 
 ; FPU
-
     fxrstor [_context_fpu_buffer]
 
 ; Release a bandit.
@@ -233,6 +227,7 @@ extern _irq1_KEYBOARD
 ; Capture context
 global _irq1  
 _irq1:
+; Maskable interrupt
 
     cli
 
@@ -281,7 +276,6 @@ _irq1:
 
     fxrstor [__hw_fpu_buffer]
 
-
     popfq
     pop rsp
     pop gs
@@ -328,16 +322,6 @@ _irq1:
 ;;===========================
 
 
-
-
-
-
-
-
-
-
-
-
 ;=======================================================
 ; IRQ 3 - serial port controller for serial port 2 
 ; (shared with serial port 4, if present)
@@ -349,6 +333,7 @@ _irq1:
 ; Capture context
 global _irq3
 _irq3:
+; Maskable interrupt
 
     cli
     
@@ -374,11 +359,10 @@ _irq3:
     push fs
     push gs
 
-
     ;call _serial2_handler
     ;call _serial4_handler
 
-    ;; EOI - Only the first PIC.
+; EOI - Only the first PIC.
     mov al, 0x20
     out 0x20, al
     IODELAY  
@@ -415,11 +399,6 @@ _irq3:
 ;; ==========================================
 
 
-
-
-
-
-
 ;====================================================
 ; IRQ 4 - serial port controller for serial port 1 
 ;(shared with serial port 3, if present)
@@ -431,6 +410,7 @@ _irq3:
 ; Capture context
 global _irq4
 _irq4:
+; Maskable interrupt
 
     cli
     ;pushad
@@ -455,12 +435,10 @@ _irq4:
     push fs
     push gs
 
-
     ;call _serial1_handler
     ;call _serial3_handler
 
-
-    ;; EOI - Only the first PIC.
+; EOI - Only the first PIC.
     mov al, 0x20
     out 0x20, al
     IODELAY  
@@ -496,15 +474,10 @@ _irq4:
 ;================================
 
 
-
-
-
-
 ;--------------
 ; IRQ 5 - parallel port 2 and 3  or  sound card
 ;_irq5:
 ;    iretd
-
 
 
 ;--------------
@@ -531,6 +504,7 @@ _irq4:
 ; Capture context
 global _irq7
 _irq7:
+; Maskable interrupt
 
     cli
     ;pushad
@@ -615,11 +589,6 @@ ExitParallelPort_WithoutEOI:
 
     sti
     iretq
-    
-    
-    
-
-
 
 ;================================================
 ; _irq8:
@@ -630,6 +599,7 @@ ExitParallelPort_WithoutEOI:
 ; Capture context
 global _irq8
 _irq8:
+; Maskable interrupt
 
     cli
     ;pushad
@@ -654,11 +624,10 @@ _irq8:
     push fs
     push gs
 
-
     ;call _irq8_RTC
 
-    ;; EOI.
-    ;; Order: Second, first.
+; EOI
+; Order: Second, first.
     mov al, 0x20
     out 0xA0, al  
     IODELAY  
@@ -693,19 +662,16 @@ _irq8:
     
     sti
     iretq
-
 ;;============================
-
 
 ;=========================================================
 ; IRQ 9
-
 ;extern _xxxe1000handler
-
 ; Capture context
 global _irq9
 _irq9:
-    
+; Maskable interrupt
+
     ;; #test
     jmp unhandled_irq
     jmp $
@@ -789,6 +755,7 @@ _irq9:
 ; Capture context
 global _irq10
 _irq10:
+; Maskable interrupt
 
     ;; #test
     jmp unhandled_irq
@@ -871,6 +838,7 @@ extern _irq_E1000
 ; Capture context
 global _nic_handler
 _nic_handler:
+; Maskable interrupt
 
     cli
 
@@ -910,13 +878,11 @@ _nic_handler:
     ;mov ss, ax ; Is it used ?
 
 ; See: 
-
     fxsave [__hw_fpu_buffer]
 
     call _irq_E1000
 
     fxrstor [__hw_fpu_buffer]
-
 
     popfq
     pop rsp
@@ -941,21 +907,19 @@ _nic_handler:
     pop rbx
     pop rax
 
-
-    ; EOI: Order: Second, first.
+; EOI: Order: Second, first.
     mov al, 0x20
     out 0xA0, al
     IODELAY  
     out 0x20, al
     IODELAY
 
-    ;; The acumulator.
+    ;The acumulator
     pop rax
 
     sti
     iretq
 ;===========================
-
 
 ;=======================================
 ; IRQ 11 - The Interrupt is left open for 
@@ -965,6 +929,7 @@ _nic_handler:
 ; Capture context
 global _irq11
 _irq11:
+; Maskable interrupt
 
     ;; #test
     jmp unhandled_irq
@@ -1044,6 +1009,7 @@ extern _irq12_MOUSE
 ; Capture context
 global _irq12
 _irq12:
+; Maskable interrupt
 
     cli
 ; Acumulator.
@@ -1130,6 +1096,7 @@ _irq12:
 ; Capture context
 global _irq13
 _irq13:
+; Maskable interrupt
 
     ;; #test
     jmp unhandled_irq
@@ -1216,7 +1183,8 @@ extern _irq14_PRIMARY_IDE
 ; Capture context
 global _irq14
 _irq14:
-   
+; Maskable interrupt
+
     cli 
     
     ;push eax
@@ -1242,17 +1210,14 @@ _irq14:
     push fs
     push gs
 
-
     fxsave [__hw_fpu_buffer]
 
     call _irq14_PRIMARY_IDE
 
     fxrstor [__hw_fpu_buffer]
 
-
-
-    ;; EOI.
-    ;; Order: Second, first.
+; EOI
+; Order: Second, first.
     MOV AL,020h
     OUT 0A0h,AL
     IODELAY
@@ -1313,6 +1278,7 @@ extern _irq15_SECONDARY_IDE
 ; Capture context
 global _irq15
 _irq15:
+; Maskable interrupt
 
     cli
     
@@ -1346,14 +1312,13 @@ _irq15:
 
     fxrstor [__hw_fpu_buffer]
 
+; #bugbug
+; #todo
+; Spurious int for irq15.
+; It's different from irq7
 
-    ;; #bugbug
-    ;; #todo
-    ;; Spurious int for irq15.
-    ;; It's different from irq7
-
-    ;; EOI.
-    ;; Order: Second, first.
+; EOI
+; Order: Second, first.
     MOV AL, 020h
     OUT 0A0h, AL
     IODELAY
@@ -1361,8 +1326,7 @@ _irq15:
     OUT 020h, AL
     IODELAY
     IODELAY  
-    
-    
+
     ;POPAD
     ;pop eax
     pop gs
@@ -1390,7 +1354,6 @@ _irq15:
     pop rbx
     pop rax
 
-    
     sti
     IRETQ
 

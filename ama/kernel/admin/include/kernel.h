@@ -344,6 +344,9 @@
 // newos. (Called by the interrups 0x80 and 0x82).
 #include "zcall/apis/newos/newos.h"
 
+// Maskable interrupts
+#include "ps/x64mi.h"
+
 // ==============================
 // #bugbug: O resto das coisas daqui pra 
 // baixo são incluidas mais de uma vez, pois não te ifndef pra elas

@@ -80,7 +80,7 @@ ke.o \
 hal.o \
 apic.o \
 pit.o ports64.o rtc.o \
-x64init.o x64.o x64info.o x64nmi.o \
+x64init.o x64.o x64info.o x64nmi.o x64mi.o \
 queue.o \
 mk.o \
 ws.o \
@@ -97,6 +97,7 @@ all:
 	$(CC) -c ps/thread/thread.c    $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
 	$(CC) -c ps/thread/tlib.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
 	$(CC) -c ps/x86_64/x64nmi.c    $(KERNEL_INCLUDE) $(CFLAGS) -o x64nmi.o
+	$(CC) -c ps/x86_64/x64mi.c     $(KERNEL_INCLUDE) $(CFLAGS) -o x64mi.o
 	$(CC) -c ps/create.c           $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
 	$(CC) -c ps/clone.c            $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
 # Entrance 
