@@ -2866,7 +2866,6 @@ crazy_fail:
     return -1;
 }
 
-
 // Put the text into the buffer
 // if the window is an editbox window.
 int serviceSetText(void)
@@ -2879,7 +2878,10 @@ int serviceSetText(void)
     int window_id = -1;      // index 4
     unsigned long x;         // index 5
     unsigned long y;         // index 6
-    unsigned long color;     // index 7
+    unsigned int color;      // index 7
+
+    register int i=0;
+
 // Device context
     //unsigned long deviceLeft   = 0;
     //unsigned long deviceTop    = 0;
@@ -2895,7 +2897,7 @@ int serviceSetText(void)
     window_id = (int) message_address[4];
     x         = (unsigned long) message_address[5];
     y         = (unsigned long) message_address[6];
-    color     = (unsigned long) message_address[7];
+    color     = (unsigned int) (message_address[7] & 0xFFFFFFFF);
     window_id = (window_id & 0xFFFF);
     x = (x & 0xFFFF);
     y = (y & 0xFFFF);
@@ -2926,7 +2928,6 @@ int serviceSetText(void)
 // Get string from message
 // #todo: Talvez poderiamos receber o tamanho da string.
     unsigned char buf[256+1];
-    register int i=0;
     int string_off=8;
     char *p = (char *) &message_address[string_off];
     for (i=0; i<256; i++)
@@ -2952,7 +2953,6 @@ int serviceSetText(void)
 // Se a janela alvo tem um índice fora dos limites
 
 // wid
-
     if ( window_id < 0 || window_id >= WINDOW_COUNT_MAX )
     {
         printf("Invalid wid\n");
@@ -2961,7 +2961,7 @@ int serviceSetText(void)
 
 // window structure.
     window = (struct gws_window_d *) windowList[window_id];
-    if ( (void*) window == NULL ){ 
+    if ((void*) window == NULL){ 
         printf("Invalid window\n");
         goto fail;
     }
@@ -2973,7 +2973,8 @@ int serviceSetText(void)
 /*
 // If this window is overlapped window,
 // so paint into the client area.
-    if (window->type == WT_OVERLAPPED){
+    if (window->type == WT_OVERLAPPED)
+    {
         x += window->rcClient.left;
         y += window->rcClient.top;
     }
@@ -2982,7 +2983,7 @@ int serviceSetText(void)
     if ( window->type != WT_EDITBOX_SINGLE_LINE &&
          window->type != WT_EDITBOX_MULTIPLE_LINES )
     {
-        printf("Invalid widnow type\n");
+        printf("Invalid window type\n");
         goto fail;
     }
 
@@ -3052,12 +3053,15 @@ int serviceGetText(void)
     int window_id = -1;      // index 4
     unsigned long x;         // index 5
     unsigned long y;         // index 6
-    unsigned long color;     // index 7
+    //unsigned int color;     // index 7
 // Device context
-    unsigned long deviceLeft  = 0;
-    unsigned long deviceTop = 0;
-    unsigned long deviceWidth = (__device_width  & 0xFFFF);
-    unsigned long deviceHeight = (__device_height & 0xFFFF);
+    //unsigned long deviceLeft  = 0;
+    //unsigned long deviceTop = 0;
+    //unsigned long deviceWidth = (__device_width  & 0xFFFF);
+    //unsigned long deviceHeight = (__device_height & 0xFFFF);
+
+    register int i=0;
+    int gotten=0;
 
     // #debug
     // gwssrv_debug_print ("gwssrv: serviceDrawText\n");
@@ -3068,7 +3072,7 @@ int serviceGetText(void)
     window_id = (int) message_address[4];
     x         = (unsigned long) message_address[5];
     y         = (unsigned long) message_address[6];
-    color     = (unsigned long) message_address[7];
+    //color     = (unsigned int) (message_address[7] & 0xFFFFFFFF);
     window_id = (window_id & 0xFFFF);
     x = (x & 0xFFFF);
     y = (y & 0xFFFF);
@@ -3110,13 +3114,11 @@ int serviceGetText(void)
 
 // window structure.
     window = (struct gws_window_d *) windowList[window_id];
-    if ( (void*) window == NULL )
-    {
+    if ((void*) window == NULL){
         printf("Invalid window\n");
         return -1;
     }
-    if (window->magic != 1234)
-    {
+    if (window->magic != 1234){
         printf("Invalid magic\n");
         return -1;
     }
@@ -3138,11 +3140,8 @@ int serviceGetText(void)
     next_response[2] = 1234;
     next_response[3] = 5678;
 
-
-    register int i=0;
     int string_off=8;
     char *p = (char *) &next_response[string_off];
-    int gotten=0;
 
     if ( window->type != WT_EDITBOX &&
          window->type != WT_EDITBOX_MULTIPLE_LINES )
@@ -3151,25 +3150,22 @@ int serviceGetText(void)
         return -1;
     }
 
-    if (window->textbuffer_size_in_bytes < 64)
-    {
+    if (window->textbuffer_size_in_bytes < 64){
         printf("textbuffer_size_in_bytes\n");
         return -1;
     }
-
-    if ( (void*) window->window_text == NULL )
-    {
+    if ((void*) window->window_text == NULL){
         printf("window_text\n");
         return -1;
     }
-
     //window->text_size_in_bytes = 0;  // No text
 
-    //128
+// ----------------
+// Get from structure.
+// Copy the bytes from the window buffer to the
+// message buffer and finalize the message buffer.
     for (i=0; i<64; i++)
     {
-        // Copy the bytes from the window buffer to the
-        // message buffer and finalize the message buffer.
         *p = window->window_text[i];
         p++;
         gotten++;
@@ -3178,8 +3174,8 @@ int serviceGetText(void)
 // Finalize the string into the message buffer.
     *p = 0;
 
-    if (gotten <= 0)
-    {
+// We have nothing.
+    if (gotten <= 0){
         printf("Fail on getting text from window buffer\n");
         return -1;
     }

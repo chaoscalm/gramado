@@ -443,14 +443,18 @@ editorProcedure(
 // Set text and Get text into an editbox window.
 static void __test_text(int fd, int wid)
 {
-// Testing new requests.
-
-    //char *p;
+    char string_buffer[256];
+    char *p;
+    int Status=0;
 
     if (fd<0)
         return;
     if (wid<0)
         return;
+
+// Setup the local buffer.
+    memset(string_buffer,0,256);
+    sprintf(string_buffer,"dirty");
 
 // Inject
     gws_set_text (
@@ -465,10 +469,9 @@ static void __test_text(int fd, int wid)
     //return;
 
 // Get back
-    char string_buffer[256];
-    memset(string_buffer,0,256);
-    sprintf(string_buffer,"dirty");
-    int status = 
+
+
+    Status = 
     gws_get_text (
         (int) fd,     // fd,
         (int) wid,    // window id,
@@ -483,22 +486,19 @@ static void __test_text(int fd, int wid)
     //}
 
     //#debug
-    printf("__test_text: {%s}\n",string_buffer);
+    //printf("__test_text: {%s}\n",string_buffer);
     //while(1){}
 
-/*
-// Print out
-    if ( (void*) p != NULL )
-    {
-        gws_draw_text (
-            (int) fd,      // fd,
-            (int) wid,    // window id,
-            (unsigned long)  1, 
-            (unsigned long)  1, 
-            (unsigned long) COLOR_RED,
-            p );
-    }
-*/
+// ------------------
+// Print into the window.
+    p = string_buffer;
+    gws_draw_text (
+        (int) fd,      // fd
+        (int) wid,     // window id
+        (unsigned long)  8, 
+        (unsigned long)  8, 
+        (unsigned long) COLOR_RED,
+        p );
 }
 
 // #test
@@ -838,12 +838,15 @@ int main( int argc, char *argv[] )
 
 
 // =======================
-// #test
-// Testing new requests.
-// Injecting a text into the editbox window.
+// #test (It's working)
+// Injecting a text into the editbox window 
+// and getting it back.
     //__test_text(client_fd, client_window);
-    //gws_refresh_window (client_fd, client_window);
+    //gws_refresh_window(client_fd, client_window);
 
+// =======================
+// #test
+// Load file
     //__test_load_file(client_fd, client_window);
     //gws_refresh_window (client_fd, client_window);
 
