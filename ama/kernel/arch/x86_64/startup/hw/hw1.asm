@@ -1643,21 +1643,16 @@ _fault_N31:
 ; rdi for first parameter.
 ; New calling conventions for x86_64.
 ; Chama código em C. 
-; (x64fault.c)
-
+; (x64nmi.c)
 ; #todo
 ; Temos que salvar o contexto,
 ; pois vamos retornar após alguns tipos de fault,
 ; como é o caso de PF.
-
-extern _faults
-
+extern _x64_nmi
 all_faults:
 
 ; Save context.
-
     cli
-
 
     pop qword [_contextRIP]     ; rip
     pop qword [_contextCS]      ; cs
@@ -1699,10 +1694,10 @@ all_faults:
     mov [_contextCPL], rax
 
 
-; Call c routine in x64fault.c.
+; Call c routine in x64nmi.c.
     mov rax, qword [_save_fault_number]
     mov rdi, rax 
-    call _faults 
+    call _x64_nmi 
     
     ;jmp _AllFaultsHang
 
@@ -1760,8 +1755,6 @@ all_faults:
     sti
     iretq
 
-
-
 ; #todo
 ; We're gonna restore the execution in some cases,
 ; just like PF.
@@ -1774,7 +1767,6 @@ _AllFaultsHang:
     cli
     hlt
     jmp _AllFaultsHang
-
 
 
 ; Salva aqui o número da fault.	

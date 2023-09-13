@@ -1,5 +1,5 @@
 
-// x64fault.c
+// x64nmi.c
 
 #include <kernel.h>
 
@@ -11,11 +11,9 @@ static int __kill_process(void);
 // Criar uma rotina onde, 
 // se o window server falhar, 
 // tem que pedir para o init reinicializar o window server.
-
 // #bugbug: #todo
-// E se a excessão ocorrer durante a fase em ring 0 de um proceso
-// em ring 3?
-
+// E se a excessão ocorrer durante a fase em ring 0 
+// de um proceso em ring 3?
 static int __kill_process(void)
 {
 // #todo: Explain it better.
@@ -114,7 +112,7 @@ fail:
 }
 
 // Called by 'all_faults:' in hw1.asm.
-void faults(unsigned long number)
+void x64_nmi(unsigned long number)
 {
 // Quote: 'You've never failed and You won't start now'.
 
@@ -132,8 +130,8 @@ void faults(unsigned long number)
     //unsigned long fault_pa=0;       //from cr2
     //unsigned long fault_pml4_pa=0;  //from cr3
 
-    debug_print ("~faults:\n");
-    
+    debug_print("x64_nmi:\n");
+
     //printf("\n");
     printf("\n");
     printf("\n");
@@ -247,19 +245,24 @@ void faults(unsigned long number)
 // https://en.wikipedia.org/wiki/Demand_paging
 // https://wiki.osdev.org/Exceptions
 
+//      - Division Error,            0
 // (GP) - General Protection Fault, 13 (0xD) 
 // (PF) - Page Fault,               14 (0xE) 
 
-    if ( number == 13 || 
+    if ( number == 0  ||
+         number == 13 || 
          number == 14 )
     {
-        printf("faults: {%d}\n",number);
+        printf("x64_nmi: {%d}\n",number);
 
         // Kill process
+        // #bugbug: Precisamos checar o ring que o processo
+        // estava no momento da falta. Se foi em ring0
+        // entao temos problema.
         // 0=OK | -1 = FAIL.
         killstatus= (int) __kill_process();
         if (killstatus != 0){
-            x_panic("faults: Coudn't kill process");
+            x_panic("x64_nmi: Coudn't kill process");
         }
         if (killstatus == 0)
         {
@@ -310,17 +313,17 @@ void faults(unsigned long number)
         // Se ocorrer em cpl 0, terminamos o sistema.
         // Se ocorrer em cpl 3, terminamos o processo.
         case 0: 
-            x_panic("faults: 0"); 
+            x_panic("x64_nmi: 0"); 
             break;
 
         // Debug
         case 1:
-            x_panic("faults: 1");
+            x_panic("x64_nmi: 1");
             break;
 
         // Non-maskable Interrupt
         case 2:
-            x_panic("faults: 2");
+            x_panic("x64_nmi: 2");
             break;
 
         // Debug breakpoint - 3 (0x3) 
@@ -337,53 +340,53 @@ void faults(unsigned long number)
             refresh_screen();
             // Esse tipo funciona mesmo antes do console
             // ter sido inicializado.
-            x_panic("faults: 3"); 
+            x_panic("x64_nmi: 3"); 
             break;
 
         // Overflow
         case 4:
-            x_panic("faults: 4");
+            x_panic("x64_nmi: 4");
             break;
 
         // Bound Range Exceeded
         case 5:
-            x_panic("faults: 5");
+            x_panic("x64_nmi: 5");
             break;
 
         // Invalid Opcode - 6 (0x6) 
         case 6:
-            x_panic("faults: 6");
+            x_panic("x64_nmi: 6");
             break;
 
         // Device Not Available
         // Math co-processor not available.
         case 7: 
-            x_panic("faults: 7 - No 80387");
+            x_panic("x64_nmi: 7 - No 80387");
             break;
 
         // Double fault.
         case 8:
-            x_panic("faults: 8 - DOUBLE");
+            x_panic("x64_nmi: 8 - DOUBLE");
             break;
         
         // Coprocessor Segment Overrun?
         case 9:
-            x_panic("faults: 9");
+            x_panic("x64_nmi: 9");
             break;
 
         // Invalid TSS
         case 10:
-            x_panic("faults: 10 - Invalid tss");
+            x_panic("x64_nmi: 10 - Invalid tss");
             break;
 
         // Segment Not Present
         case 11:
-            x_panic("faults: 11");
+            x_panic("x64_nmi: 11");
             break;
 
         // Stack-Segment Fault
         case 12:
-            x_panic("faults: 12");
+            x_panic("x64_nmi: 12");
             break;
 
         // (GP) - General Protection Fault
@@ -393,7 +396,7 @@ void faults(unsigned long number)
             refresh_screen();
             // Esse tipo funciona mesmo antes do console
             // ter sido inicializado.
-            x_panic("faults: 13"); 
+            x_panic("x64_nmi: 13"); 
             break;
 
         // (PF) - Page Fault
@@ -405,59 +408,59 @@ void faults(unsigned long number)
             //}
             show_slots();
             refresh_screen();
-            x_panic("faults: 14"); 
+            x_panic("x64_nmi: 14"); 
             break;
 
         // Intel reserved.
         case 15:
-            x_panic("faults: 15 - Intel reserved");
+            x_panic("x64_nmi: 15 - Intel reserved");
             break;
 
         // x87 Floating-Point Exception
         // Co-processor error on 486 and above.
         case 16:
-            x_panic("faults: 16 - Coprocessor error");
+            x_panic("x64_nmi: 16 - Coprocessor error");
             break;
 
         // Alignment Check
         case 17:
-            x_panic("faults: 17");
+            x_panic("x64_nmi: 17");
             break;
 
         // Machine Check
         case 18:
-            x_panic("faults: 18");
+            x_panic("x64_nmi: 18");
             break;
 
         // Intel reserved faults
         // 19~31
 
         // 19 - SIMD Floating-Point Exception
-        case 19: x_panic("faults: 19"); break;
+        case 19: x_panic("x64_nmi: 19"); break;
         // 20 - Virtualization Exception
-        case 20: x_panic("faults: 20"); break;
+        case 20: x_panic("x64_nmi: 20"); break;
         // 21 - Control Protection Exception
-        case 21: x_panic("faults: 21"); break;
-        case 22: x_panic("faults: 22"); break;
-        case 23: x_panic("faults: 23"); break;
-        case 24: x_panic("faults: 24"); break;
-        case 25: x_panic("faults: 25"); break;
-        case 26: x_panic("faults: 26"); break;
-        case 27: x_panic("faults: 27"); break;
+        case 21: x_panic("x64_nmi: 21"); break;
+        case 22: x_panic("x64_nmi: 22"); break;
+        case 23: x_panic("x64_nmi: 23"); break;
+        case 24: x_panic("x64_nmi: 24"); break;
+        case 25: x_panic("x64_nmi: 25"); break;
+        case 26: x_panic("x64_nmi: 26"); break;
+        case 27: x_panic("x64_nmi: 27"); break;
         // 28 - Hypervisor Injection Exception
-        case 28: x_panic("faults: 28"); break;
+        case 28: x_panic("x64_nmi: 28"); break;
         // 29 - VMM Communication Exception
-        case 29: x_panic("faults: 29"); break;
+        case 29: x_panic("x64_nmi: 29"); break;
         // 30 - Security Exception
-        case 30: x_panic("faults: 30"); break;
-        case 31: x_panic("faults: 31"); break;
+        case 30: x_panic("x64_nmi: 30"); break;
+        case 31: x_panic("x64_nmi: 31"); break;
 
         default:
-            x_panic("faults: Unknown"); 
+            x_panic("x64_nmi: Unknown"); 
             break;
     };
     
-    x_panic("faults() fail");
+    x_panic("x64_nmi: Fail");
 }
 
 

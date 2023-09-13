@@ -599,10 +599,11 @@ void I_x64ExecuteInitialProcess(void);
 
 // ===========================
 
-void gramado_shutdown (int how);
+// see: x64nmi.c 
+void x64_nmi(unsigned long number);
 
 // Finalizations support.
-void faults(unsigned long number);
-void panic ( const char *format, ... );
+void gramado_shutdown(int how);
+void panic( const char *format, ... );
 void soft_die(void);
-void die (void);
+void die(void);
