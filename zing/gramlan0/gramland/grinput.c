@@ -58,44 +58,37 @@ char mouse_packet_scroll = 0;
 char saved_mouse_x =0;
 char saved_mouse_y =0;
 
-//Estado dos botões do mouse
-int mouse_buttom_1;
-int mouse_buttom_2;
-int mouse_buttom_3;
-
+// Estado dos botões do mouse
+int mouse_buttom_1=0;
+int mouse_buttom_2=0;
+int mouse_buttom_3=0;
 //Estado anterior dos botões do mouse.
-int old_mouse_buttom_1;
-int old_mouse_buttom_2;
-int old_mouse_buttom_3;
+int old_mouse_buttom_1=0;
+int old_mouse_buttom_2=0;
+int old_mouse_buttom_3=0;
 
-//Ae ouve alguma modificação no estado dos botões.
-int mouse_button_action;
+// Se ouve alguma modificação no estado dos botões.
+int mouse_button_action=0;
 
 //=============================
 // mouse control
 
 // habilitar e desabilitar o mouse.
 // usada pelos aplicativos.
-int ps2_mouse_status;
+int ps2_mouse_status=0;
 
-int ps2_mouse_has_wheel;
+int ps2_mouse_has_wheel=0;
 
 // 1=pressionado 0=liberado
-int ps2_button_pressed;
+int ps2_button_pressed=0;
 
-int ps2_mouse_moving;
-int ps2_mouse_drag_status;
-//int ps2_mouse_drop_status;
+int ps2_mouse_moving=0;
+int ps2_mouse_drag_status=0;
+//int ps2_mouse_drop_status=0;
 
-int window_mouse_over;
-
-
-
-
+int window_mouse_over=0;
 
 // =============================================================
-
-
 
 
 /*
