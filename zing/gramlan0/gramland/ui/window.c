@@ -548,6 +548,7 @@ void *doCreateWindow (
         return NULL;
     }
 
+// #test
 // Window class.
     window->window_class.ownerClass = gws_WindowOwnerClassNull;
     window->window_class.kernelClass = gws_KernelWindowClassNull;

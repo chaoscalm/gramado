@@ -262,7 +262,8 @@ typedef enum {
     //...
 }gws_client_window_classes_t;
 
-//estrutura para window class
+// #test
+// Estrutura para window class
 struct gws_window_class_d
 {
 // Que tipo de window class.

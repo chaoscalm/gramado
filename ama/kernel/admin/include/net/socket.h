@@ -29,6 +29,12 @@
 #define PORTS_TN  4046  // Telnet server
 // ...
 
+// Alias
+// Alias
+#define __PORTS_DISPLAY_SERVER  PORTS_WS
+#define __PORTS_NETWORK_SERVER  PORTS_NS
+
+
 
 
 //=====================================================

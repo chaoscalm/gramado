@@ -2021,9 +2021,9 @@ sys_connect (
             goto fail;
         }
 
-        // 4040 - WS
-        // Se a porta for , então usaremos o pid do window server.
-        if (addr_in->sin_port == PORTS_WS)
+        // 4040 - Display server
+        // Se a porta for , então usaremos o pid do display server.
+        if (addr_in->sin_port == __PORTS_DISPLAY_SERVER)
         {
             target_pid = (pid_t) gramado_ports[GRAMADO_PORT_WS];
             if (Verbose==TRUE)
@@ -2039,9 +2039,9 @@ sys_connect (
             break;
         }
 
-        // 4041 - NS
+        // 4041 - Network server
         // Se a porta for , então usaremos o pid do Network server.
-        if (addr_in->sin_port == PORTS_NS)
+        if (addr_in->sin_port == __PORTS_NETWORK_SERVER)
         {
             target_pid = (pid_t) gramado_ports[GRAMADO_PORT_NS]; 
             if (Verbose==TRUE)

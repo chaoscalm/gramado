@@ -9,13 +9,6 @@ typedef int __wid_t;
 typedef int wid_t;
 
 
-// internal
-// used only by the lib
-#define __PORTS_WS  4040
-#define __PORTS_NS  4041
-#define __PORTS_FS  4042
-// ...
-
 #define __IP(a, b, c, d) \
     (a << 24 | b << 16 | c << 8 | d)
 

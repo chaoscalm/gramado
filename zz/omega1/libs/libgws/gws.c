@@ -4160,15 +4160,14 @@ struct gws_display_d *gws_open_display(char *display_name)
     int DisplayID = 0; //?
     int client_fd = -1;
 
-// ??
-// O header está incluido?
-
+// ---------------------------------
     struct sockaddr_in  addr_in;
     addr_in.sin_family      = AF_INET;
-    addr_in.sin_port        = __PORTS_WS;
+    addr_in.sin_port        = __PORTS_DISPLAY_SERVER;
     addr_in.sin_addr.s_addr = __IP(127,0,0,1);
     int addrlen=0;
     addrlen = sizeof(addr_in);
+// ---------------------------------
 
 // #todo
 // Open the display device

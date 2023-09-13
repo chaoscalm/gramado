@@ -503,6 +503,18 @@ public BGREntry vga_palette4_gray[16] = {
 #define LIGHT_PINK2_FF99CC   0x00FF99CC
 #define LIGHT_GRAY_E0E0E0    0x00E0E0E0
 
+/*
+struct gws_color_def_d
+{
+    unsigned int color;
+
+    unsigned char alpha;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+};
+*/
+
 #endif    
 
 
