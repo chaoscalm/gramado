@@ -24,69 +24,93 @@ static int __kill_process(void)
     struct thread_d *t;
     pid_t pid=-1;
     tid_t tid=-1;
-    
+
+// The current process
     pid = (pid_t) get_current_process();
+// The current thread.
     tid = (tid_t) current_thread;
 
+//
+// PID
+//
 
 //pid
-    if(pid<0 || pid >= PROCESS_COUNT_MAX)
-        return -1;
+    if (pid<0 || pid >= PROCESS_COUNT_MAX)
+        goto fail;
 
 // We can't close the Kernel process or the Init process.
-    if (pid==GRAMADO_PID_KERNEL){
-        return -1;
+    if (pid == GRAMADO_PID_KERNEL){
+        goto fail;
     }
-    if (pid==GRAMADO_PID_INIT){
-        return -1;
+    if (pid == GRAMADO_PID_INIT){
+        goto fail;
     }
 
+//
+// Process structure
+//
+
     p = (void*) processList[pid];
+    if (p->used != TRUE)
+        goto fail;
     if (p->magic != 1234)
-        return -1; 
+        goto fail;
 
 // We can't close the Kernel process or the Init process.
     if (p == KernelProcess)
-        return -1;
+        goto fail;
     if (p == InitProcess)
-        return -1; 
+        goto fail;
+
+//
+// TID
+//
 
 //tid
-    if(tid<0 || tid >= THREAD_COUNT_MAX)
-        return -1;
-
-// We can't close the Iit thread.
+    if (tid<0 || tid >= THREAD_COUNT_MAX)
+        goto fail;
+// We can't close the Init thread.
 // #bugbug: Change name. The init is NOT a client application.
 // It is just the first ring 3 tid and the idle thread for now.
 // See: create.c
-    //if(tid == CLIENT0_TID)  //init thread
-    if(tid == 0)  // The first thread    
-        return -1;
+// The first thread
+// The control thread of the init process.
+    if (tid == INIT_TID)
+        goto fail;
+
+//
+// Thread structure
+//
+
     t = (void*) threadList[tid];
+    if (t->used != TRUE)
+        goto fail;
     if (t->magic != 1234)
-        return -1;
+        goto fail;
 
 // We can't close the Iit thread.
     if (t == InitThread)
-        return -1;
+        goto fail;
 
 //
-// kill the process
+// Kill the process
 //
 
-    if (p->control == t){
-        p->control = NULL;
-    }
+// --------------
+// Destroy the process structure.
     p->magic = 0;
     p->used = FALSE;
     p=NULL;
-    
-// kill the thread
+// --------------
+// Destroy the thread structure.
     t->magic = 0;
     t->used = FALSE;
     t = NULL;
 
-    return 0; //ok
+// OK
+    return 0;
+fail:
+    return (int) -1;
 }
 
 // Called by 'all_faults:' in hw1.asm.
@@ -110,18 +134,19 @@ void faults(unsigned long number)
 
     debug_print ("~faults:\n");
     
-    printf("\n");
+    //printf("\n");
     printf("\n");
     printf("\n");
     printf ("number: %d\n",number);
 
-//see: clone.c    
-    if(copy_process_in_progress==TRUE)
+// see: clone.c    
+    if (copy_process_in_progress == TRUE){
         printf("Fault while copying a process\n");
+    }
 
-    //#debug: We dont need this in every pagefault.
+//#debug: 
+// We dont need this in every pagefault.
     refresh_screen();
-
 
 /*
 // #todo
@@ -208,33 +233,76 @@ void faults(unsigned long number)
     // next process.
     tid_t target_tid = INIT_TID;
     pid_t target_pid = GRAMADO_PID_INIT;
-    
-    // GP, PF and reserved by intel
-    //if (number == 13 || number == 14 || number == 15)
-    if (number == 13 || number == 14)
+
+//
+// Kill the process.
+//
+
+// #todo
+// See ... we're killing the process
+// when we reach a PF. But its not our goal.
+// Maybe we're gonna implement some kind os
+// allocation of falting pages. (Demand paging)
+// See:
+// https://en.wikipedia.org/wiki/Demand_paging
+// https://wiki.osdev.org/Exceptions
+
+// (GP) - General Protection Fault, 13 (0xD) 
+// (PF) - Page Fault,               14 (0xE) 
+
+    if ( number == 13 || 
+         number == 14 )
     {
-        printf("fault: %d\n",number);
-        
+        printf("faults: {%d}\n",number);
+
+        // Kill process
+        // 0=OK | -1 = FAIL.
         killstatus= (int) __kill_process();
-        
-        if(killstatus==0)
+        if (killstatus != 0){
+            x_panic("faults: Coudn't kill process");
+        }
+        if (killstatus == 0)
         {
-            current_thread = (tid_t) target_tid; 
-            IncrementDispatcherCount (SELECT_DISPATCHER_COUNT);
+            printf("The process was killed\n");
+            
+            //
+            // Resume init thread
+            //
+
+            // Set the INIT_TID as the next current thread.
+            //current_thread = (tid_t) target_tid;
+            set_current_thread((tid_t) target_tid);
+            
+            // Count the dispatcher method.
+            IncrementDispatcherCount(SELECT_DISPATCHER_COUNT);
+            
+            // Change the thread state.
             // MOVEMENT 4 (Ready --> Running).
-            // update cr3 and context.
+            // Update cr3 and context.
             dispatcher(DISPATCHER_CURRENT);  
-            //#todo: precisamos atualizar os contadores da proxima thread.
-            //update the global variable
-            set_current_process(target_pid);
-            printf("kill process and resume init\n");
+            
+            // Se the next current process.
+            // #todo: 
+            // Precisamos atualizar os contadores da proxima thread.
+            // update the global variable
+            set_current_process((pid_t)target_pid);
+            
+            // Final message.
+            printf("Resuming the init thread\n");
             refresh_screen();
-            return; // retorna pra assembly para efetuar iretq.
+            
+            // Retorna pra assembly para efetuar iretq.
+            return;
         }
     }
 
+//
+// More numbers.
+//
+
     switch (number){
 
+        // Division Error
         // Divisão por zero, ou resultado muito longo?
         // Se a falta ocoreu em ring 0, então precisamos
         // encerrar o sistema, mas se a falta aconteceu em ring3,
@@ -242,12 +310,20 @@ void faults(unsigned long number)
         // Se ocorrer em cpl 0, terminamos o sistema.
         // Se ocorrer em cpl 3, terminamos o processo.
         case 0: 
-            x_panic("faults() 0"); 
+            x_panic("faults: 0"); 
             break;
-        
-        case 1: x_panic("faults() 1"); break;
-        case 2: x_panic("faults() 2"); break;
 
+        // Debug
+        case 1:
+            x_panic("faults: 1");
+            break;
+
+        // Non-maskable Interrupt
+        case 2:
+            x_panic("faults: 2");
+            break;
+
+        // Debug breakpoint - 3 (0x3) 
         // #todo: Accept arguments.
         // service, arg1 and arg2.
         // So, we need to put some arguments in the faults() function.
@@ -261,46 +337,66 @@ void faults(unsigned long number)
             refresh_screen();
             // Esse tipo funciona mesmo antes do console
             // ter sido inicializado.
-            
-            x_panic("faults() 3"); 
-            
+            x_panic("faults: 3"); 
             break;
 
-        case 4: x_panic("faults() 4"); break;
-        case 5: x_panic("faults() 5"); break;
-        case 6: x_panic("faults() 6"); break;
-        
+        // Overflow
+        case 4:
+            x_panic("faults: 4");
+            break;
+
+        // Bound Range Exceeded
+        case 5:
+            x_panic("faults: 5");
+            break;
+
+        // Invalid Opcode - 6 (0x6) 
+        case 6:
+            x_panic("faults: 6");
+            break;
+
+        // Device Not Available
         // Math co-processor not available.
         case 7: 
-            x_panic("fault 7: No 80387");
+            x_panic("faults: 7 - No 80387");
             break;
-        
+
         // Double fault.
-        case 8: 
-            x_panic("fault 8: DOUBLE");
+        case 8:
+            x_panic("faults: 8 - DOUBLE");
             break;
         
-        case 9: x_panic("faults() 9"); break;
-        
+        // Coprocessor Segment Overrun?
+        case 9:
+            x_panic("faults: 9");
+            break;
+
+        // Invalid TSS
         case 10:
-            x_panic("fault 10: Invalid tss");
+            x_panic("faults: 10 - Invalid tss");
             break;
-        
-        case 11: x_panic("faults() 11"); break;
-        case 12: x_panic("faults() 12"); break;
 
+        // Segment Not Present
+        case 11:
+            x_panic("faults: 11");
+            break;
 
-        //General Protection Fault
+        // Stack-Segment Fault
+        case 12:
+            x_panic("faults: 12");
+            break;
+
+        // (GP) - General Protection Fault
         case 13: 
             printf ("== GP ==\n");  
             //show_slots();
             refresh_screen();
             // Esse tipo funciona mesmo antes do console
             // ter sido inicializado.
-            x_panic("faults() 13"); 
+            x_panic("faults: 13"); 
             break;
-        
-        // Page Fault
+
+        // (PF) - Page Fault
         // #todo: Com assembly inline podemos pegar cr2 e cr3.
         case 14: 
             printf ("== PF ==\n");  
@@ -309,41 +405,55 @@ void faults(unsigned long number)
             //}
             show_slots();
             refresh_screen();
-            x_panic("faults() 14"); 
+            x_panic("faults: 14"); 
             break;
 
         // Intel reserved.
-        // Se ocorrer em ring3 podemos fechar o processo.
         case 15:
-            x_panic("fault 15: Intel reserved");
-            break;
-        
-        // Co-processor error on 486 and above.
-        case 16: 
-            x_panic("fault 16: Coprocessor error");
+            x_panic("faults: 15 - Intel reserved");
             break;
 
-        case 17: x_panic("faults() 17"); break;
-        case 18: x_panic("faults() 18"); break;
-        
+        // x87 Floating-Point Exception
+        // Co-processor error on 486 and above.
+        case 16:
+            x_panic("faults: 16 - Coprocessor error");
+            break;
+
+        // Alignment Check
+        case 17:
+            x_panic("faults: 17");
+            break;
+
+        // Machine Check
+        case 18:
+            x_panic("faults: 18");
+            break;
+
         // Intel reserved faults
         // 19~31
-        case 19: x_panic("faults() 19"); break;
-        case 20: x_panic("faults() 20"); break;
-        case 21: x_panic("faults() 21"); break;
-        case 22: x_panic("faults() 22"); break;
-        case 23: x_panic("faults() 23"); break;
-        case 24: x_panic("faults() 24"); break;
-        case 25: x_panic("faults() 25"); break;
-        case 26: x_panic("faults() 26"); break;
-        case 27: x_panic("faults() 27"); break;
-        case 28: x_panic("faults() 28"); break;
-        case 29: x_panic("faults() 29"); break;
-        case 30: x_panic("faults() 30"); break;
-        case 31: x_panic("faults() 31"); break;
+
+        // 19 - SIMD Floating-Point Exception
+        case 19: x_panic("faults: 19"); break;
+        // 20 - Virtualization Exception
+        case 20: x_panic("faults: 20"); break;
+        // 21 - Control Protection Exception
+        case 21: x_panic("faults: 21"); break;
+        case 22: x_panic("faults: 22"); break;
+        case 23: x_panic("faults: 23"); break;
+        case 24: x_panic("faults: 24"); break;
+        case 25: x_panic("faults: 25"); break;
+        case 26: x_panic("faults: 26"); break;
+        case 27: x_panic("faults: 27"); break;
+        // 28 - Hypervisor Injection Exception
+        case 28: x_panic("faults: 28"); break;
+        // 29 - VMM Communication Exception
+        case 29: x_panic("faults: 29"); break;
+        // 30 - Security Exception
+        case 30: x_panic("faults: 30"); break;
+        case 31: x_panic("faults: 31"); break;
 
         default:
-            x_panic("faults() default"); 
+            x_panic("faults: Unknown"); 
             break;
     };
     
