@@ -608,9 +608,8 @@ void Compositor_Thread(void)
 {
     // #debug
     printf ("f\n");
-    wmRefreshDirtyRectangles();
+    wmReactToPaintEvents();
 }
-
 
 // dispacher:
 // Get client's request from socket.
@@ -1595,6 +1594,8 @@ int serviceAsyncCommand(void)
 {
 // Business Logic:
 // Asunchronous Command.
+// + We're a receiving asynchronous events
+//   and reacting to these events.
 
     unsigned long *message_address = (unsigned long *) &__buffer[0];
 
@@ -1652,15 +1653,12 @@ int serviceAsyncCommand(void)
     switch (request_id){
 
     // 1 =  Exit GWS
-    // #todo:
-    // Close all the clients and close the server.
+    // Shutdown the server.
     case 1:
-        gwssrv_debug_print ("serviceAsyncCommand: [1]  Exit GWS\n");
-        //printf ("serviceAsyncCommand: [request 1] Closing server\n");
-        printf("serviceAsyncCommand: Exit GWS\n");
-        serviceExitGWS();
-        printf("serviceAsyncCommand: [FAIL] fail when closing the GWS\n");
-        exit(0);
+        gwssrv_debug_print("serviceAsyncCommand: [1] Exit\n");
+        printf            ("serviceAsyncCommand: [1] Exit\n");
+        gwssrv_quit();
+        //ServerShutdown();
         goto done;
         break;
 
@@ -1749,7 +1747,7 @@ int serviceAsyncCommand(void)
         if (data<0){
             goto done;
         }
-        set_focus_by_id( (int) data );
+        set_focus_by_id((int) data);
         goto done;
         break;
 
@@ -1757,8 +1755,8 @@ int serviceAsyncCommand(void)
     // drawing a rect using ring0 and ring3 routines.
     // TRUE = use kgws ; FALSE =  do not use kgws.
     case 10:
-        gwssrv_debug_print ("serviceAsyncCommand: [10]\n");
-                    printf ("serviceAsyncCommand: [10]\n");
+        gwssrv_debug_print("serviceAsyncCommand: [10]\n");
+                    printf("serviceAsyncCommand: [10]\n");
 
         rectBackbufferDrawRectangle0(
             10, 10, 40, 40,
@@ -1823,7 +1821,7 @@ int serviceAsyncCommand(void)
         // Calling the kernel to make the full ps2 initialization.
         // #todo: Create a wrapper fot that syscall.
         // #todo: Allow only the ws pid to make this call.
-        sc82 ( 22011, 0, 0, 0 );
+        sc82( 22011, 0, 0, 0 );
         // Enable the use of mouse here in the server.
         gUseMouse = TRUE;
         goto done;
@@ -1834,7 +1832,7 @@ int serviceAsyncCommand(void)
     // Set flag to quit the server.
     case 88:
         printf("88: IsTimeToQuit\n");
-        IsTimeToQuit = TRUE;
+        gwssrv_quit();
         goto done;
         break;
 
@@ -3869,6 +3867,8 @@ static int ServerInitialization(int dm)
             //close(newconn);
         }
 
+        //
+
         // ##
         // We're calling this because we don't have a
         // callback anymore.
@@ -3889,7 +3889,7 @@ static int ServerInitialization(int dm)
     ServerState.state = SERVER_STATE_SHUTTINGDOWN;
 
     if (IsTimeToQuit != TRUE){
-        debug_print("gramland: Invalid IsTimeToQuit\n");
+        printf("gramland: Invalid IsTimeToQuit\n");
         return -1;
     }
 

@@ -4474,154 +4474,6 @@ __probe_window_hover(
     //printf ("Not Found\n");
 }
 
-// Talvez precisaremos de mais parametros.
-// The keyboard input messages will affect
-// the window with focus.
-// For the mouse input, the window has a NULL pointer.
-unsigned long 
-wmProcedure(
-    struct gws_window_d *window,
-    int msg,
-    unsigned long long1,
-    unsigned long long2 )
-{
-    int Status=FALSE;
-    unsigned long r=0;
-    char name_buffer[64];
-// Active window id.
-    //int aw_wid = -1;
-
-    // #debug
-    //printf("wmProcedure: w=? m=%d l1=%d l2=%d\n", 
-        //msg, long1, long2 );
-
-// See:
-// globals.h
-
-    switch(msg){
-
-    case GWS_Create:
-        printf("wmProcedure: [1] GWS_Create\n");
-        break;
-    case GWS_Destroy:
-        printf("wmProcedure: [2] GWS_Destroy\n");
-        break;
-    case GWS_Move:
-        printf("wmProcedure: [3] GWS_Move\n");
-        //gwssrv_change_window_position ( 
-            //(struct gws_window_d *) window, 
-            //(unsigned long) long1,   // x 
-            //(unsigned long) long2 );  // y
-        break;
-    case GWS_Size: //get size?
-        printf("wmProcedure: [4] GWS_Size\n");
-        break;
-    case GWS_Resize: //set size ?
-        printf("wmProcedure: [5] GWS_Resize\n");
-        //gws_resize_window ( 
-            //(struct gws_window_d *) window, 
-            //(unsigned long) long1,    //w 
-            //(unsigned long) long2 );  //h
-        break;
-    // ...
-    case GWS_Close:
-        printf("wmProcedure: [7] GWS_Close\n");
-        if (long1==0){
-            printf("Closing root window.\n");
-            //exit(0);
-        }
-        break;
-    case GWS_Paint:
-        printf("wmProcedure: [8] GWS_Paint\n");
-        break;
-    case GWS_SetFocus: // set focus
-        printf("wmProcedure: [9] GWS_SetFocus\n");
-        //set_focus(window);
-        break;
-    case GWS_KillFocus: //kill focus
-        printf("wmProcedure: [10] GWS_KillFocus\n");
-        break;
-    case GWS_Activate:
-        printf("wmProcedure: [11] GWS_Activate\n");
-        //set_active_window(window);
-        break;
-    case GWS_ShowWindow:
-        //printf("wmProcedure: [12] GWS_ShowWindow\n");
-        // gws_show_window_rect(window);
-        break;
-    case GWS_SetCursor:
-        printf("wmProcedure: [13] GWS_SetCursor\n");
-        break;
-    case GWS_Hide:
-        printf("wmProcedure: [14] GWS_Hide\n");
-        break;
-    case GWS_Maximize:
-        printf("wmProcedure: [15] GWS_Maximize\n");
-        break;
-    case GWS_Restore:
-        printf("wmProcedure: [16] GWS_Restore\n");
-        break;
-    case GWS_ShowDefault:
-        printf("wmProcedure: [17] GWS_ShowDefault\n");
-        break;
-    case GWS_SetFocus2:
-        printf("wmProcedure: [18] GWS_SetFocus2\n");
-        //set_focus(window);
-        //set_focus_by_id(long1); //IN: wid
-        break;
-    case GWS_GetFocus2:
-        printf("wmProcedure: [19] GWS_GetFocus2\n");
-        break;
-
-
-// #todo
-// Esse procedimento não gerencia mais esses eventos de mouse.
-// see: wmProcessMouseEvent(...)
-
-    //case GWS_MouseMove:
-    //    break;
-    //case GWS_MousePressed:
-    //    break;
-    //case GWS_MouseReleased:
-    //    break;
-
-// #todo
-// Esse procedimento não gerencia mais esses eventos de teclado
-// see: on_keyboars_event(...)
-
-    //case GWS_KeyDown:
-    //    break;
-    //case GWS_KeyUp:
-    //    break;
-    //case GWS_SysKeyDown:
-    //    break;
-    //case GWS_SysKeyUp:
-    //    break;
-
-
-    // 9090 - ( Shift + F12 )
-    case GWS_SwitchFocus:
-        __switch_focus();
-        return 0;
-        break;
-
-    //case MSG_REPAINT:
-        //redraw_window (
-          //(struct gws_window_d *) window, 
-          //(unsigned long) long1 );  //flags
-        //if (window == __root_window){
-        //    wm_update_desktop(TRUE,TRUE);
-        //}
-        //break;
-
-    default:
-        return 0;
-        break;
-    };
-
-    return 0;
-}
-
 unsigned long wmGetLastInputJiffie(int update)
 {
     if (update==TRUE){
@@ -4849,6 +4701,8 @@ inline int is_combination(int msg_code)
 // respecting the circular queue.
 int wmInputReader(void)
 {
+// + Get input events from the thread's event queue.
+// + React to the events.
 // Getting input events from the event queue
 // inside the control thread structure.
 
@@ -4876,6 +4730,7 @@ int wmInputReader(void)
     }
 
 new_event:
+
     msg = (int) (RTLEventBuffer[1] & 0xFFFFFFFF);
     long1 = (unsigned long) RTLEventBuffer[2];
     long2 = (unsigned long) RTLEventBuffer[3];

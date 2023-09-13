@@ -32,7 +32,8 @@ void flush_frame(void);
 //
 
 // A worker for wmCompose().
-void wmRefreshDirtyRectangles(void);
+void reactRefreshDirtyWindows(void);
+void wmReactToPaintEvents(void);
 // A worker for wmCompose().
 void compose(void);
 void 

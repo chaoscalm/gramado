@@ -184,13 +184,6 @@ unsigned long wmGetLastInputJiffie(int update);
 
 void wmInitializeGlobals(void);
 
-unsigned long 
-wmProcedure(
-    struct gws_window_d *window,
-    int msg,
-    unsigned long long1,
-    unsigned long long2 );
-
 void wm_Update_TaskBar( char *string, int flush );
 
 // Associa a estrutura de janela

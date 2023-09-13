@@ -85,7 +85,7 @@ void flush_frame(void)
 }
 
 /*
- * wmRefreshDirtyRectangles: 
+ * reactRefreshDirtyWindows: 
  */
 // Called by compose().
 // O compositor deve ser chamado para compor um frame 
@@ -104,7 +104,7 @@ void flush_frame(void)
 // Flush the window's rectangle and invalidate the window.
 // see: rect.c
 
-void wmRefreshDirtyRectangles(void)
+void reactRefreshDirtyWindows(void)
 {
 // Called by compose.
 // + We need to encapsulate the variables used by this routine
@@ -152,6 +152,20 @@ void wmRefreshDirtyRectangles(void)
             }
         }
     };
+}
+
+// wmReact:
+// Refresh only the components that was changed by the painter.
+// #todo
+// Maybe in the future we can react to 
+// changes in other components than windows.
+void wmReactToPaintEvents(void)
+{
+// Refresh only the components that was changed by the painter.
+// It means that we're reacting to all the paint events.
+
+    reactRefreshDirtyWindows();
+    // ...
 }
 
 /*
@@ -380,9 +394,8 @@ void compose(void)
         return;
     }
 
-// Rectangles
-// Refresh the rectangles of the windows.
-    wmRefreshDirtyRectangles();
+// Refresh only the components that was changed by the painter.
+    wmReactToPaintEvents();
 
 //
 // #suspended
