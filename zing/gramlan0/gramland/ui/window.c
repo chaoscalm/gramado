@@ -548,6 +548,14 @@ void *doCreateWindow (
         return NULL;
     }
 
+// Window class.
+    window->window_class.ownerClass = gws_WindowOwnerClassNull;
+    window->window_class.kernelClass = gws_KernelWindowClassNull;
+    window->window_class.serverClass = gws_ServerWindowClassNull;
+    window->window_class.clientClass = gws_ClientWindowClassNull;
+    window->window_class.procedure_is_server_side = 0;
+    window->window_class.procedure = 0;
+
 // Type
     window->type = (unsigned long) type;
 // Style
@@ -561,7 +569,7 @@ void *doCreateWindow (
     window->view = (int) view;
 
     window->bg_color = (unsigned int) frame_color;
-    window->clientrect_bg_color = (unsigned int) client_color;
+    window->clientarea_bg_color = (unsigned int) client_color;
 
     // Default color for 'when mouse hover'.
     window->bg_color_when_mousehover = 
@@ -776,6 +784,7 @@ void *doCreateWindow (
 // Window area.
 //
 
+// #todo: Inside dimensions clipped by parent.
 // Initial configuration for the window rectangle.
 // Relative values. (l,t,w,h)
     window->rcWindow.left   = (unsigned long) 0;
@@ -833,15 +842,17 @@ void *doCreateWindow (
     //    clientRect.height -=24;
 
 
+// Saving.
 // Client rectangle:
+// The Client area.
+// This is the viewport for some applications, just like browsers.
+// >> Inside dimensions clipped by parent.
     window->rcClient.left   = clientRect.left;
     window->rcClient.top    = clientRect.top;
     window->rcClient.width  = clientRect.width;
     window->rcClient.height = clientRect.height;
 
 // =================================
-
-
 //++
 // Margens.
 // Deslocando em relaçao a janela mãe.
@@ -850,6 +861,7 @@ void *doCreateWindow (
 // If this is the first of all windows.
 
 // Relative
+// >> Inside dimensions clipped by parent.
     window->left = WindowX;
     window->top  = WindowY;
 
@@ -861,7 +873,7 @@ void *doCreateWindow (
 // Pois é o lugar padrão para criar janelas cliente.
 // Isso só não será válido, se uma flag especial 
 // permitir criar uma janela fora da área de cliente.
-
+// >> Not clipped by parent.
     if ((void*) window->parent == NULL)
     {
         window->absolute_x = WindowX;
@@ -869,6 +881,7 @@ void *doCreateWindow (
     }
 
 // Calcula o absoluto
+// >> Not clipped by parent.
     if ((void*) window->parent != NULL)
     {
         if (window->parent->type != WT_OVERLAPPED)
@@ -906,6 +919,7 @@ void *doCreateWindow (
     }
 
 // Right and bottom.
+// >> Not clipped by parent.
     window->absolute_right = 
         (unsigned long) (window->absolute_x + window->width);
     window->absolute_bottom = 
@@ -932,6 +946,7 @@ void *doCreateWindow (
     }
 
 // Fullscreen OK
+// Inside dimensions not clipped by parent.
     if (Fullscreen == TRUE)
     {
         window->absolute_x = fullWindowX;
@@ -968,7 +983,7 @@ void *doCreateWindow (
 // #todo
 // If this window is overlapped, so, we need to respect the theme.
     window->bg_color = (unsigned int) frame_color;
-    window->clientrect_bg_color = (unsigned int) client_color;
+    window->clientarea_bg_color = (unsigned int) client_color;
 
 // #todo: As outras características do cursor.
 // Características.
@@ -1003,27 +1018,6 @@ void *doCreateWindow (
 // serão acionadas mais tarde, na hora da pintuda, 
 // de acordo com o tipo de janela à ser pintada.
 
-// Client window 
-// (#important)
-// Client window support.
-// Obs: A área de cliente será um retângulo e não uma janela.
-// Mas nda impede da estrutra gerenciar uma janela que fique 
-// em cima da área de cliente.
-    window->client_window = NULL;
-
-// Terminal window:
-// #importante
-// Terminal support.
-// Suporte não tradicional à terminais.
-// manipulando variáveis ao invés de uma estrutura.
-    window->terminal_used = (int) 0;
-    window->terminal_magic = (int) 0;
-    //#suspenso
-    //window->terminal_tab   = (int) 0;
-    //window->terminal_left = (unsigned long) 0;
-    //window->terminal_top = (unsigned long) 0;
-    //window->terminal_width = (unsigned long) 0;
-    //window->terminal_height = (unsigned long) 0;
 
 // Desktop support
     //window->desktop = (void*) Desktop; //configurado anteriormente.
@@ -1095,7 +1089,7 @@ void *doCreateWindow (
     window->borderUsed     = FALSE;  // 5
     window->menubarUsed    = FALSE;  // 6
     window->toolbarUsed    = FALSE;  // 7
-    window->clientAreaUsed = FALSE;  // 8
+    window->clientareaUsed = FALSE;  // 8
     window->scrollbarUsed  = FALSE;  // 9
     window->statusbarUsed  = FALSE;  // 10
 
@@ -1163,7 +1157,7 @@ void *doCreateWindow (
         window->titlebarUsed   = TRUE;
         window->controlsUsed   = TRUE;
         window->borderUsed     = TRUE;
-        window->clientAreaUsed = TRUE;
+        window->clientareaUsed = TRUE;
         window->background_style = 0;
         break;
 

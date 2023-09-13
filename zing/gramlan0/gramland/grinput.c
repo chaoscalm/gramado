@@ -90,14 +90,12 @@ int window_mouse_over=0;
 
 // =============================================================
 
-
 /*
  * =====================================================
  * update_mouse:
  *     Updates the mouse position.
  */
-
-void update_mouse (void)
+void update_mouse(void)
 {
 
 //======== X ==========
@@ -160,7 +158,7 @@ quit:
     return;
 }
 
-void parse_data_packet ( char data, char x, char y)
+void parse_data_packet( char data, char x, char y)
 {
 
     //if (fd<0) 
@@ -324,14 +322,10 @@ void parse_data_packet ( char data, char x, char y)
 /*
  **************** 
  * top_at: 
- * 
  */
-
 // #todo
 // z order not initialized yet.
-
-
-// pega a janela que está mais ao topo da zorder e que
+// Pega a janela que está mais ao topo da zorder e que
 // corresponda às cordenadas do mouse.
 // retorna window id
 
@@ -420,14 +414,9 @@ int mouse_scan_windows (void)
     return -1;
 }
 
-
-
 void input_dummy(void)
 {
-	
 }
-
-
 
 /*
 [ Input ]
@@ -440,7 +429,6 @@ When a client  request the next event, the display server will check the queue t
 */
 
 // char __system_message_buffer[512];
-
 
 // get system message
 // it comes from the kernel.

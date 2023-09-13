@@ -595,9 +595,10 @@ wmProcessMouseEvent(
         // painting the pointer in the right position.
         // Lets update the position. See: comp.c
         comp_set_mouse_position(saved_x,saved_y);
-        // Check the window we are inside of.
+        // Check the window we are inside of 
+        // and update the mouse_hover pointer.
         __probe_window_hover(saved_x,saved_y);
-        
+
         return;
     }
 
@@ -3500,7 +3501,7 @@ void set_clientrect_bg_color_by_id( int wid, unsigned int color )
     if (w->magic != 1234){ return; }
 
 // Set client rect bg color
-    w->clientrect_bg_color = (unsigned int) color;
+    w->clientarea_bg_color = (unsigned int) color;
 }
 
 void set_focus_by_id(int wid)

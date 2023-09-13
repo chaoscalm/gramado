@@ -214,50 +214,53 @@ struct gws_rect_d
 
 // Enumerando classe de janela.
 typedef enum {
-    
-    gws_WindowClassNull,
-    gws_WindowClassClient,  //1 cliente
-    gws_WindowClassKernel,  //2 kernel
-    gws_WindowClassServer,  //3 servidor
+    gws_WindowOwnerClassNull,    // 0 null
+    gws_WindowOwnerClassServer,  // 1 The display server
+    gws_WindowOwnerClassKernel,  // 2 kernel
+    gws_WindowOwnerClassClient,  // 3 client
+}gws_wc_ownerclass_t;
 
-}gws_wc_t;
-
-// Classes de janelas controladas pelos aplicativos.
+// '1'
+// ex: The window represents a surface
+// managed by the kernel.
 typedef enum {
-    gws_WindowClassApplicationWindow,
-    //...
-}gws_client_window_classes_t;
-
-
-//??bugbug: tá errado.
-//classes de janelas controladas exclusivamente pelo kernel.
-typedef enum {
-    gws_WindowClassKernelWindow,    //janelas criadas pelo kernel ... coma a "tela azul da morte"
-    gws_WindowClassTerminal,  //janela de terminal usada pelos aplicativos que não criam janela e gerenciada pelo kernel	
-    gws_WindowClassButton,
-    gws_WindowClassComboBox,
-    gws_WindowClassEditBox,
-    gws_WindowClassListBox,
-    gws_WindowClassScrollBar,
-    gws_WindowClassMessageOnly, //essa janela não é visível, serve apenas para troca de mensagens ...
-    gws_WindowClassMenu,
-    gws_WindowClassDesktopWindow,
-    gws_WindowClassDialogBox,
-    gws_WindowClassMessageBox,
-    gws_WindowClassTaskSwitchWindow,
-    gws_WindowClassIcons,
-    gws_WindowClassControl,   //??
-    gws_WindowClassDialog,
-    gws_WindowClassInfo,
-    //...
+    gws_KernelWindowClassNull,
+    gws_KernelWindowClassSurface
 }gws_kernel_window_classes_t;
 
-//classes de janelas controladas pelos servidores.
+// '2'
+// Classes de janelas controladas pelo display server;
+// Como no caso da taskbar, ja que o wm esta embutido.
 typedef enum {
-    gws_WindowClassServerWindow,
+    gws_ServerWindowClassNull,
+    gws_ServerWindowClassServerWindow,
     //...
 }gws_server_window_classes_t;
 
+// '3'
+// Classes de janelas controladas pelos aplicativos.
+typedef enum {
+    gws_ClientWindowClassNull,
+    gws_ClientWindowClassApplicationWindow,
+    gws_ClientWindowClassKernelWindow,  //janelas criadas pelo kernel ... coma a "tela azul da morte"
+    gws_ClientWindowClassTerminal,      //janela de terminal usada pelos aplicativos que não criam janela e gerenciada pelo kernel	
+    gws_ClientWindowClassButton,
+    gws_ClientWindowClassComboBox,
+    gws_ClientWindowClassEditBox,
+    gws_ClientWindowClassListBox,
+    gws_ClientWindowClassScrollBar,
+    gws_ClientWindowClassMessageOnly,  //essa janela não é visível, serve apenas para troca de mensagens ...
+    gws_ClientWindowClassMenu,
+    gws_ClientWindowClassDesktopWindow,
+    gws_ClientWindowClassDialogBox,
+    gws_ClientWindowClassMessageBox,
+    gws_ClientWindowClassTaskSwitchWindow,
+    gws_ClientWindowClassIcons,
+    gws_ClientWindowClassControl,   //??
+    gws_ClientWindowClassDialog,
+    gws_ClientWindowClassInfo
+    //...
+}gws_client_window_classes_t;
 
 //estrutura para window class
 struct gws_window_class_d
@@ -265,18 +268,21 @@ struct gws_window_class_d
 // Que tipo de window class.
 // do sistema, dos processos ...
 // tipo de classe.
-    gws_wc_t windowClass; 
-//1
-    gws_client_window_classes_t clientClass;
-//2
+    gws_wc_ownerclass_t ownerClass; 
+
     gws_kernel_window_classes_t kernelClass;
-//3
     gws_server_window_classes_t serverClass;
+    gws_client_window_classes_t clientClass;
+
 // Endereço do procedimento de janela.
-// (eip da thread primcipal do app)
+// (rip da thread primcipal do app ou no display server)
+    int procedure_is_server_side;
     unsigned long procedure;
+
     // ...
 };
+
+// ------------------------------
 
 // Input pointer device type.
 typedef enum {
@@ -387,13 +393,16 @@ struct gws_window_d
     struct windowframe_d  frame;
 
 // The frame's rectangle.
+// #bugbug: Is it relative or absolute?
     struct gws_rect_d  rcWindow;
 // The Client area.
 // This is the viewport for some applications, just like browsers.
+// >> Inside dimensions clipped by parent.
     struct gws_rect_d  rcClient;
 
 // Absolute
 // Relativo a tela.
+// Not clipped by parent.
     unsigned long absolute_x;
     unsigned long absolute_y;
     unsigned long absolute_right;
@@ -402,19 +411,21 @@ struct gws_window_d
 // Relative
 // This is the window rectangle. (rcWindow)
 // Relativo a parent.
+// >> Inside dimensions clipped by parent.
     unsigned long left;
     unsigned long top;
     unsigned long width;
     unsigned long height;
 
 // Margins and dimensions when this window is in fullscreen mode.
-// #todo: Maybe we can use a sctructure for that.
+// #todo: Maybe we can use a structure for that.
+// Inside dimensions not clipped by parent.
     unsigned long full_left;
     unsigned long full_top;
-    unsigned long full_right; 
-    unsigned long full_bottom;
     unsigned long full_width;
     unsigned long full_height;
+    unsigned long full_right; 
+    unsigned long full_bottom;
 
     // #todo    
     //unsigned long border_color;
@@ -478,10 +489,6 @@ struct gws_window_d
 // rebuilding some window list.
     // int zorder_index;
 
-// The window belongs to this client.
-// Talvez a tid da control thread do cliente 
-// pode ficar nessa estrutura.
-    struct gws_client_d  *client;
 // #importante
 // Para sabermos quem receberá o reply no caso de eventos.
 // Quando um cliente solicitar por eventos em uma dada janela
@@ -627,13 +634,13 @@ struct gws_window_d
 
 // =========================================================
 // 8
-// Client window
+// Client area Support.
+// We're using a rectangle, declared right above
+// in the top of the structure.
 
-    struct gws_window_d *client_window; 
-    unsigned int clientrect_bg_color;
-    unsigned long clientwindow_height;
+    unsigned int clientarea_bg_color;
     int clientarea_style;
-    int clientAreaUsed;
+    int clientareaUsed;
 
 // =========================================================
 // 9
@@ -687,15 +694,15 @@ struct gws_window_d
 // Flag par indicar se a janela é um item de menu ou um botão.
 // Isso ajuda na pintura de janelas.
 
-    int isButton;   //#importante: Indica que a janela é um botão.
-    int isCheckBox;
-    int isControl;  // Window control ...
-    int isEditBox;  //#importante: Indica que a janela é um editbox.
+    int isTitleBar;
     int isIcon;
+    int isControl;   
     int isMenu;   
     int isMenuItem;
-    int isStatusBar;
-    int isTitleBar; 
+    int isButton;
+    int isEditBox;
+    int isCheckBox;
+    int isStatusBar; 
     // ...
 
 //==================================================	
@@ -735,51 +742,7 @@ struct gws_window_d
 // faz parte do subsistema de segurança e gerenciamento de memoria.
     int desktop_id;
 
-//
-// == Terminal =========================================
-//
-
-// Obs: 
-// Essas variáveis só serão inicializadas se o 
-// aplicativo decidir que conterá um terminal em sua janela.
-// Um aplicativo só poderá ter um terminal dentro de cada janela.
-// Ou seja, se um aplicativo quiser ter mais de um terminal virtual, 
-// vai precisar de uma janela para cada terminal dentro do aplicativo.
-// isso permite facilmente que um mesmo aplicativo rode vários
-// programas, um em cada aba.
-// Ao invés de criar um frame para cada aplicativo que rode em terminal,
-// é só criar uma nova aba no gerenciador de terminais virtuais ...
-// esse gerenciador de terminais virtuais poderia ser o shell.bin.
-
-//flags
-
-// Configura o status do terminal dentro da janela.
-    int terminal_used;     //Se é um terminal ou não.
-
-// Validade e reusabilidade das variáveis de terminal 
-// dentro da estrutura de janela.
-    int terminal_magic;
-
-// tab
-// número da tab.
-// indica qual tab o terminal está usando.
-// @todo:
-// Criar uma forma de contar as tabs de terminal 
-// dentro do gerenciador de terminais.
-// em qual tab do gerenciador de terminais está o terminal.
-    
-    //#suspenso
-    //int terminal_tab; 
-
-// Terminal's rectangle.
-    unsigned long teminal_left;
-    unsigned long teminal_top;
-    unsigned long teminal_width;
-    unsigned long teminal_height;
-
-    unsigned long teminal_right;
-    unsigned long teminal_bottom;
-
+// ?
 // Seu status de relacionamento com outras janelas.
     unsigned long relationship_status;   
 
@@ -849,6 +812,9 @@ struct gws_window_d
 //
 // == Input pointer =========================================
 //
+
+// #todo
+// We can create a substructure to handle the input info.
 
     // Valido apenas para essa janela.
 
@@ -923,21 +889,23 @@ struct gws_window_d
 
 // =========================================================
 // Window Class support.
-    struct gws_window_class_d *window_class;
+// Who own this window?
+// Where is the window procedure?
+    struct gws_window_class_d  window_class;
 
 // =========================================================
 // Navigation windows:
 
+// We have an associated window when we are iconic.
+// When minimized, we see this window.
+// Or this window can stay at the taskbar.
+    //struct gws_window_d *assoc_wind;
 // The owner
     struct gws_window_d  *parent;
 // We need to redraw all the child windows.
     struct gws_window_d  *child_list;
 // Brother or sister with at least 'one' parent in common.
     struct gws_window_d *subling_list;
-
-// We have an associated window when we are iconic.
-    //struct gws_window_d *assoc_wind;
-
 // Navigation
     struct gws_window_d  *prev;
     struct gws_window_d  *next;
