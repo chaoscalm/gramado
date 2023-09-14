@@ -1897,6 +1897,18 @@ int consoleCompareStrings(void)
     //debug_print("consoleCompareStrings: \n");
     printf("\n");
 
+// smp
+// #todo
+// Use the structure smp_info 
+// to show the information about the smp initialization.
+    if ( kstrncmp(prompt,"smp",3) == 0 )
+    {
+        printf("Processor count: {%d}\n",
+            smp_info.number_of_processors );
+        goto exit_cmp;
+    }
+
+
 // test mbr
 // see: storage.c
     if ( kstrncmp(prompt,"mbr",3) == 0 )
@@ -3636,12 +3648,6 @@ clear_console (
         goto fail;
     }
 
-// Clear background.
-// #todo:
-// This worker belongs to the display device driver,
-// so we need a name that represents it.
-// ex: display_device_draw_background().
-    backgroundDraw(bg_color);
     CONSOLE_TTYS[console_number].bg_color = (unsigned int) bg_color;
     CONSOLE_TTYS[console_number].fg_color = (unsigned int) fg_color;
 
@@ -3651,7 +3657,14 @@ clear_console (
 // Refreshing the whole screen.
 // #todo: Call the faster routine for that job.
 
-    refresh_screen();
+// Clear background.
+// #todo:
+// This worker belongs to the display device driver,
+// so we need a name that represents it.
+// ex: display_bg_paint().
+    // IN: color, refresh
+    displayInitializeBackground(bg_color,TRUE);
+    
     return 0;
 fail:
     return (int) -1;

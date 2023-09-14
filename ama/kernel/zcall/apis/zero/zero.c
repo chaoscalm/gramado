@@ -34,7 +34,7 @@ void zero_initialize_video(void)
 // dev/chardev/display/bg.c
 void zero_initialize_background(void)
 {
-    Background_initialize(COLOR_KERNEL_BACKGROUND);
+    displayInitializeBackground(COLOR_KERNEL_BACKGROUND,TRUE);
     PROGRESS("zero_initialize_background: ok\n");
 }
 

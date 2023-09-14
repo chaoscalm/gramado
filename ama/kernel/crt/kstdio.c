@@ -2023,7 +2023,9 @@ int kstdio_initialize(void)
     __initialize_virtual_consoles();
 
 // Background (Second time).
-    Background_initialize(COLOR_KERNEL_BACKGROUND);
+    displayInitializeBackground(
+        COLOR_KERNEL_BACKGROUND,
+        TRUE );
 
 // Done
     kstdio_standard_streams_initialized = TRUE;

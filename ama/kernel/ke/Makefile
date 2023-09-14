@@ -80,7 +80,7 @@ ke.o \
 hal.o \
 apic.o \
 pit.o ports64.o rtc.o \
-x64init.o x64.o x64info.o x64nmi.o x64mi.o \
+x64.o x64info.o x64init.o x64mi.o x64nmi.o x64smp.o \
 queue.o \
 mk.o \
 ws.o \
@@ -96,8 +96,6 @@ all:
 	$(CC) -c ps/process/plib.c     $(KERNEL_INCLUDE) $(CFLAGS) -o plib.o
 	$(CC) -c ps/thread/thread.c    $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
 	$(CC) -c ps/thread/tlib.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
-	$(CC) -c ps/x86_64/x64nmi.c    $(KERNEL_INCLUDE) $(CFLAGS) -o x64nmi.o
-	$(CC) -c ps/x86_64/x64mi.c     $(KERNEL_INCLUDE) $(CFLAGS) -o x64mi.o
 	$(CC) -c ps/create.c           $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
 	$(CC) -c ps/clone.c            $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
 # Entrance 
@@ -111,9 +109,6 @@ all:
 #--------
 # x86_64/
 
-	$(CC) -c x86_64/x64init.c  \
-$(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
-
 	$(CC) -c x86_64/detect.c  $(KERNEL_INCLUDE) $(CFLAGS) -o detect.o
 
 	#Interrupts
@@ -124,8 +119,13 @@ $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
 	$(CC) -c x86_64/pit.c      $(KERNEL_INCLUDE) $(CFLAGS) -o pit.o
 	$(CC) -c x86_64/ports64.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ports64.o
 	$(CC) -c x86_64/rtc.c      $(KERNEL_INCLUDE) $(CFLAGS) -o rtc.o
+
 	$(CC) -c x86_64/x64.c      $(KERNEL_INCLUDE) $(CFLAGS) -o x64.o
 	$(CC) -c x86_64/x64info.c  $(KERNEL_INCLUDE) $(CFLAGS) -o x64info.o
+	$(CC) -c x86_64/x64init.c  $(KERNEL_INCLUDE) $(CFLAGS) -o x64init.o
+	$(CC) -c x86_64/x64mi.c    $(KERNEL_INCLUDE) $(CFLAGS) -o x64mi.o
+	$(CC) -c x86_64/x64nmi.c   $(KERNEL_INCLUDE) $(CFLAGS) -o x64nmi.o
+	$(CC) -c x86_64/x64smp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o x64smp.o
 
 #--------
 

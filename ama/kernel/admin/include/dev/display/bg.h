@@ -6,8 +6,17 @@
 #ifndef __BG_H
 #define __BG_H    1
 
-int Background_initialize(unsigned int color);
-void backgroundDraw (unsigned int color);
+struct bg_info_d
+{
+    int initialized;
+    unsigned int bg_color;
+    unsigned long paint_cnt;
+    //...
+};
+// see: bg.c
+extern struct bg_info_d  background_info;
+
+int displayInitializeBackground(unsigned int color,int show);
 
 #endif    
 

@@ -94,13 +94,11 @@ void kgws_enable(void)
 
 void kgws_disable(void)
 {
-    debug_print("kgws_disable: Disable KGWS\n");
-         printf("kgws_disable: Disable KGWS\n");
+    debug_print("kgws_disable:\n");
+         printf("kgws_disable:\n");
 
-    backgroundDraw(COLOR_RED);
+    displayInitializeBackground(COLOR_RED,TRUE);
 
-    refresh_screen();
-        
     // Using unix-like TTY mode for input.
     // using the stdin.
     // current_input_mode = INPUT_MODE_TTY;

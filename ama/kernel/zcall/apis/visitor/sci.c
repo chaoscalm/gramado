@@ -448,8 +448,8 @@ static void *__extra_services (
 // Clear the screen.
     if (number==390)
     {
-        debug_print ("__extra_services: [390] :)\n");
-        //Background_initialize();
+        debug_print("__extra_services: [390] :)\n");
+        //displayInitializeBackground(,COLOR_BLUE,TRUE);
         return NULL;
     }
 

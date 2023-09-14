@@ -165,6 +165,7 @@ struct entry_io_apic_d
 };
 */
 
+// see: x64smp.c
 struct smp_info_d
 {
     int initialized;
@@ -173,17 +174,19 @@ struct smp_info_d
 // Array of pointers.
     unsigned long processors[32];
     unsigned int number_of_processors;
+
+// ...
+
 };
-// see: x64.c
+// see: x64smp.c
 extern struct smp_info_d  smp_info;
 
 //
 // prototypes ==========
 //
 
-// See: x64.c
-int x64_probe_smp(void);
-int x64_probe_smp_via_acpi(void);
+// See: x64smp.c
+int x64_initialize_smp(void);
 
 #endif   
 

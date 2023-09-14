@@ -534,7 +534,7 @@ wmProcedure (
                     //post_message_to_ws( (int) 77110, 0, 0 );
                 }
                 if (shift_status == TRUE){
-                    Background_initialize(COLOR_KERNEL_BACKGROUND);
+                    displayInitializeBackground(COLOR_KERNEL_BACKGROUND,TRUE);
                     show_slots();   //See: tlib.c
                     //pages_calc_mem();
                     //post_message_to_ws( (int) 88110, 0, 0 );

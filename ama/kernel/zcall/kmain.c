@@ -691,21 +691,6 @@ void I_kmain(int arch_type)
 
 
 //
-// Runlevel switch:
-//
-
-// Enter into the debug console instead of jumpinp 
-// into the init thread.
-// ::: Initialization on debug mode
-// Initialize the default kernel virtual console.
-// It depends on the run_level.
-// See: kgwm.c
-    if (UseDebugMode == TRUE){
-        __enter_debug_mode();
-    }
-
-
-//
 // The root user
 //
 
@@ -726,9 +711,40 @@ void I_kmain(int arch_type)
     if (UserStatus != TRUE)
         panic("I_kmain: on userCreateRootUser\n");
 
+
+// Last thing
+
+    int smp_status = FALSE;
+    int processor_type = -1;
+    if (USE_SMP == 1)
+    {
+        processor_type = (int) hal_probe_processor_type();
+        if ( processor_type == Processor_AMD ||
+             processor_type == Processor_INTEL )
+        {
+            smp_status = (int) x64_initialize_smp();
+            //if (smp_status != TRUE)
+                //panic("smp\n");
+        }
+    } 
+
     // #debug Breakpoint
     //refresh_screen();
     //while(1){}
+
+//
+// Runlevel switch:
+//
+
+// Enter into the debug console instead of jumpinp 
+// into the init thread.
+// ::: Initialization on debug mode
+// Initialize the default kernel virtual console.
+// It depends on the run_level.
+// See: kgwm.c
+    if (UseDebugMode == TRUE){
+        __enter_debug_mode();
+    }
 
 StartSystemEnd:
 
