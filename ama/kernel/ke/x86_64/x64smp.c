@@ -1,6 +1,7 @@
 
 // x64smp.c
-// smp support.
+// Symmetric multiprocessing
+
 // Initialization
 // Probing if smp is supported.
 // + Via MP.
@@ -11,6 +12,8 @@
 // The routines are found in another place. 
 // see: apic/ioapic routines.
 // 2022: Created by Fred Nora.
+// see:
+// https://en.wikipedia.org/wiki/Symmetric_multiprocessing
 
 #include <kernel.h>
 

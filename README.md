@@ -19,33 +19,63 @@ Gramado is a hobby operating system, not a commercial operating system,
 because it is a small system and has only some few features, 
 not all the features needed by a commercial operating system.
 
-## What are the features of Gramado Operating System?
+## Kernel features. (see: ama/kernel/)
 
-The core features are:
+> * hw - cpu: Intel and AMD. 64bit only.
+> * hw - mm: Paging. Chunck of 2MB, using 4KB pages.
+> * hw - blk device: IDE PATA.
+> * hw - char device: ps/2 keyboard. 
+> * hw - char device: ps/2 mouse works fine only on qemu.
+> * hw - char device: Serial port. (COM). Used for debug. 
+> * hw - network device: e1000 Intel NIC. Works on Oracle virtual box.
 
-> * Paging.
-> * Threads.
-> * FAT16 file system.
-> * e1000 NIC driver.
-> * IDE PATA. 
-> * ps/2 keyboard. 
-> * ps/2 mouse works fine only on qemu.
-> * Serial port. 
+> * sw - Processes: Process structure and Thread structure.
+> * sw - Scheduler: Round robin. (Threads only).
+> * sw - Syscalls using software interrups. (Traps).
+> * sw - IPC: sockets.
+> * sw - IPC: System messages using a queue in the thread structure. 
+> * sw - tty: It has 4 ring 0 kernel virtual consoles in fullscreen raw mode. 
+> * sw - tty: General use ttys and ptys for ring3 virtual terminals. 
+> * sw - fs: FAT16 file system for boot partition. No system partition yet.
+> * sw - posix libc: Ring0 implementation of libc functions called by the ring3 libraries.
+> * sw - network: Small support for sockets.
+> * sw - network: Small ring0 implementation of protocol stack. (ETHERNET, ARP, IP, UDP, TCP and DHCP).
+> * sw - display: Bootloader display device. VESA.
+> * sw - user: Very small implementation of user structure.
+> * sw - APIs: See zcall/ folder.
+> * sw - One loadable ring0 module, using static address.
 
-The desktop features are:
+## Userland features.
 
-> * Display Server. See: userland/services/gramland/.
-> * Window Manager. Embedded into the Display Server.
-> * Terminal. See: userland/apps/terminal/.
-> * Shell. See: userland/shell/.
-> * Display Manager. See: userpand/apps/gdm/
+> * Display Server. See: userland/services/gramland/
+> * Unix-like commands running in the virtual console.
 > * Some few clients connected to the display server via unix-sockets.
-> * Unix-like commands running in the virtual console not connected with the terminal application yet.
+> * Ring3 processes can access the i/o ports via syscall. (For ring3 drivers only).
 
-The libraries are:
 
-> * unix-like library. (rtl)
-> * Lib for the client-side GUI applications. (libgws)
+## userland system programs.
+
+> * zing/graminit/ - The init process.
+> * zing/gramlan0/ - Gramland, the display server.
+> * zing/netd/     - The network server.
+
+## userland libraries, toolkits and apis.
+
+> * posix libc - (rtl)
+> * Client-sie library for GUI applications - (libgws)
+> * see: zz/omega1/libs/ for all the libraries, toolkits and apis.
+
+## userland user programs.
+
+> * see: zz/omega2/apps/ for Client-side GUI application.
+> * see: zz/omega2/commands/ for posix commands.
+> * see: zz/omega2/drivers/ for ring3 drivers.
+> * see: zz/omega2/servers/ for ring3 servers.
+
+## userland system data.
+
+> * zz/omega3/assets - Icons for the User Interface.
+> * zz/omega3/base   - All binaries go here to build the final virtual disk.
 
 ## The source code.
 
@@ -65,33 +95,26 @@ desktop/ is a place for the graphical user interface.
     The next few lines has a brief description of the subdirectories:
 
 ```
- * `aa/base/` - The root directory for the boot partition.
+ * `aa/` - Ring 0 first loadable module.
 
  * `ama/` - Low level basic components of the system.  
    * `boot` - The boot loader.
-   * `hals/` - Ring 0 loadable module.
-   * `init` - The init process.
    * `kernel` - The Gramado OS kernel.
-   * `libs` - Libraries.
-   * `netd` - Network server and first client.
 
+ * `boring/cancun/` - Running gramado commands on Linux host.
  * `boring/docs/` - Documentation.
- * `boring/meta/` - metadata.
 
  * `zing/` - Desktop Environment (DE).
-   * `barnsh` - The shell command.
-   * `commands` - The posix commands.
-   * `libs` - Libraries.
-   * `services` - Servers.
-
- * `zing/` - Desktop Environment (DE).
-   * `demos` - Demos.
-     * `eng` - 3D demo.
-   * `games` - Games.
+   * `graminit` - The init process
    * `gramland` - Display server. (GRAMLAND.BIN)
-   * `winapps` - Client-side GUI applications.
+   * `netd` - The network server.
+
+ * `zz` - 
+   * `omega1` - Libraries, toolkits and apis. 
+   * `omega2` - apps, commands, drivers and servers. 
+   * `omega3` - data 
 ```
-   
+
 ## Who are the developers?
 
 The main developer is Fred Nora, a brazilian developer.
@@ -128,6 +151,13 @@ LTS releases.
 ```
     Host machine: Ubuntu 22.04.2 LTS
     Linux 5.15.0-78-generic x86_64
+    gcc (Ubuntu) 11.4.0 
+    GNU ld (GNU Binutils for Ubuntu) 2.38
+    NASM version 2.15.05
+```
+```
+    Host machine: Ubuntu 22.04.2 LTS
+    Linux 5.15.0-83-generic x86_64
     gcc (Ubuntu) 11.4.0 
     GNU ld (GNU Binutils for Ubuntu) 2.38
     NASM version 2.15.05
