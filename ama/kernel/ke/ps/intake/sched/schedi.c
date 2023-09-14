@@ -4,6 +4,34 @@
 #include <kernel.h>  
 
 
+void do_credits(struct thread_d *thread)
+{
+    if ((void*) thread == NULL)
+        return;
+    if (thread->used != TRUE)
+        return;
+    if (thread->magic != 1234){
+        return;
+    }
+    thread->credits++;
+}
+
+void do_credits_by_tid(tid_t tid)
+{
+    struct thread_d *thread;
+
+    if (tid<0 || tid>=THREAD_COUNT_MAX)
+    {
+        return;
+    }
+
+    thread = (struct thread_d *) threadList[tid];
+    if ((void*) thread != NULL){
+        do_credits(thread);
+    }
+}
+
+
 /*
  * psScheduler:
  *    Interface para chamar a rotina de scheduler.
@@ -318,13 +346,12 @@ void sleep_until (tid_t tid, unsigned long ms)
 
 void drop_quantum(struct thread_d *thread)
 {
-    if ( (void*) thread == NULL ){
+    if ((void*) thread == NULL){
         return;
     }
     if (thread->magic != 1234){
         return;
     }
-
     thread->quantum = QUANTUM_MIN;
 }
 

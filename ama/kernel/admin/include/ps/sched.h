@@ -76,9 +76,12 @@ void scheduler_lock (void);
 void scheduler_unlock (void);
 unsigned long scheduler_get_status (void);
 
-void cut_round( struct thread_d *last_thread );
+void cut_round(struct thread_d *last_thread);
 
 tid_t psScheduler(void);
+
+void do_credits(struct thread_d *thread);
+void do_credits_by_tid(tid_t tid);
 
 // Switching states.
 void do_thread_initialized(tid_t tid);

@@ -177,7 +177,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
         if ( (void *) TmpThread != NULL )
         {
             // ---------------------------
-            // :: Waiting threads
+            // :: WAITING threads
             // Wake up some threads, given them a chance. 
             // and not putting waiting threads into the round.
             // Alarm and wakeup.
@@ -214,9 +214,8 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                 } 
             }
 
-            // #test
             // ---------------------------
-            // :: zombie threads            
+            // :: ZOMBIE threads
             if ( TmpThread->used == TRUE && 
                  TmpThread->magic == 1234 && 
                  TmpThread->state == ZOMBIE )
@@ -245,9 +244,10 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
             }
 
             // ---------------------------
-            // :: Ready threads.
-            // Scheduler.
-            // A thread esta pronta.
+            // :: READY threads
+            // Schedule regular ready threads.
+            // + Check the credits.
+            // + Set the quantum.
             if ( TmpThread->used == TRUE && 
                  TmpThread->magic == 1234 && 
                  TmpThread->state == READY )
@@ -315,9 +315,9 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
             }
 
             // ---------------------------
-            // Exit
+            // :: Exit
             // exit in progress
-            if (TmpThread->magic==1234)
+            if (TmpThread->magic == 1234)
             {
                 // Vira zombie e não sera selecionada para o proximo round
                 // se não for a idle thread nem a init thread.
@@ -345,6 +345,18 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                         // fazer loop.
                         // TmpThread->tid == x->wait4tid
                     }
+                }
+            }
+            
+            // #test
+            // credits
+            if ( TmpThread->magic == 1234 )
+            {
+                // Set the credits.
+                if (TmpThread->credits >= 2)
+                {
+                    TmpThread->quantum = (TmpThread->quantum + 1);
+                    TmpThread->credits = 0;
                 }
             }
         }

@@ -182,6 +182,10 @@ struct thread_d *create_init_thread(void)
     // Jiffies
     t->step = 0; 
 
+// Credits:
+// O acumulo de creditos gera incremento de quantum.
+    t->credits = 0;
+
     t->quantum           = QUANTUM_NORMAL_THRESHOLD;
     t->quantum_limit_min = QUANTUM_MIN;
     t->quantum_limit_max = QUANTUM_MAX;

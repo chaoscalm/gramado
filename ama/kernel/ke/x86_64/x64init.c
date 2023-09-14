@@ -250,7 +250,7 @@ static int I_x64CreateInitialProcess(void)
                      (unsigned long) init_pml4_va,
                      (unsigned long) kernel_mm_data.pdpt0_va,
                      (unsigned long) kernel_mm_data.pd0_va,
-                     PERSONALITY_GRAMADO );
+                     PERSONALITY_GRAMADO_AMAZING );
 
 // validation
     if ((void *) InitProcess == NULL){
@@ -282,8 +282,8 @@ static int I_x64CreateInitialProcess(void)
 // see: layer.h
     InitProcess->_layer = LAYER_INIT;
 
-// The init process.
-    InitProcess->process_env = PROCESS_ENV_INIT;
+// The init process. This is part og the gramland subsystem.
+    InitProcess->env_subsystem = EnvSubsystemGramland;
 
 
     if ( init_mm_data.used != TRUE || 
@@ -800,7 +800,7 @@ static int I_x64CreateKernelProcess(void)
                      (unsigned long ) gKernelPML4Address,
                      (unsigned long ) kernel_mm_data.pdpt0_va,
                      (unsigned long ) kernel_mm_data.pd0_va,
-                     PERSONALITY_GRAMADO );
+                     PERSONALITY_GRAMADO_AMAZING );
 
 // Struct and struct validation.
     if ( (void *) KernelProcess == NULL ){
@@ -830,7 +830,7 @@ static int I_x64CreateKernelProcess(void)
     KernelProcess->_layer = LAYER_KERNEL;
 
 // This is the kernel process.
-    KernelProcess->process_env = PROCESS_ENV_KERNEL;
+    KernelProcess->env_subsystem = EnvSubsystemKernel;
 
 //
 // mm

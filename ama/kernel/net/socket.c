@@ -934,6 +934,7 @@ int sys_socket( int family, int type, int protocol )
     */
 
     debug_print ("sys_socket:\n");
+    do_credits_by_tid(current_thread);
 
 // Filters
 
@@ -1256,6 +1257,7 @@ sys_accept (
 
     // #debug
     // debug_print ("sys_accept:\n");
+    do_credits_by_tid(current_thread);
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -1600,6 +1602,7 @@ sys_bind (
 
     // #debug
     //debug_print ("sys_bind:\n");
+    do_credits_by_tid(current_thread);
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -1828,6 +1831,8 @@ sys_connect (
     unsigned char *given_ip;
 // The client is trying to connect to to localhost.
     int in_localhost = FALSE;
+
+    do_credits_by_tid(current_thread);
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -2506,6 +2511,8 @@ int sys_listen(int sockfd, int backlog)
     file *f;
     struct socket_d  *s;
     int Backlog=0;
+
+    do_credits_by_tid(current_thread);
 
     pid_t current_process = (pid_t) get_current_process();
 

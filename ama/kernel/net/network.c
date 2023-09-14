@@ -93,13 +93,13 @@ static void __initialize_ws_info(pid_t pid)
 
 // ----------------
 // Process Personality
-    p->personality = (int) PERSONALITY_GRAMADO;
-    WindowServerInfo.pid_personality = (int) PERSONALITY_GRAMADO;
+    p->personality = (int) PERSONALITY_GRAMADO_AMAZING;
+    WindowServerInfo.pid_personality = (int) PERSONALITY_GRAMADO_AMAZING;
 
 // ----------------
 // The environment.
 // The display server.
-    p->process_env = PROCESS_ENV_DISPLAY_SERVER;
+    p->env_subsystem = EnvSubsystemGramland;
 
     WindowServerInfo.initialized = TRUE;
 }

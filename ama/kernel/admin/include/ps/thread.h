@@ -471,6 +471,9 @@ struct thread_d
 
 
 // Credits:
+// O acumulo de creditos gera incremento de quantum.
+    unsigned long credits;
+
 // Quantum. 
 // time-slice or quota. 
 // Quantos jiffies a thread pode rodar em um round.

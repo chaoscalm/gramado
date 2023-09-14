@@ -135,6 +135,7 @@ io_ioctl (
     // see: net/socket.c ?
     case ObjectTypeSocket:
         debug_print ("io_ioctl: ObjectTypeSocket\n");
+        //do_credits_by_tid(current_thread);
         return (int) socket_ioctl ( 
                          (int) fd, 
                          (unsigned long) request, 

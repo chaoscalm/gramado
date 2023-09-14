@@ -643,7 +643,8 @@ sys_read (
     if (fp->____object == ObjectTypeSocket)
     {
         // debug_print("sys_read: [DEBUG] Trying to read a socket object\n");
-            
+        do_credits_by_tid(current_thread);
+
         // not reading yet
         if ((fp->_flags & __SRD) == 0) 
         {
@@ -1108,9 +1109,10 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
 // #bugbug
 // Nao podemos fazer a copia se os dois sockets 
 // estiverem com a conexao pendente.
-
-    if ( fp->____object == ObjectTypeSocket )
+    if (fp->____object == ObjectTypeSocket)
     {
+        do_credits_by_tid(current_thread);
+        
         // Can't write.
         if ((fp->_flags & __SWR) == 0){
             debug_print("sys_write: [FAIL] flag __SWR \n");

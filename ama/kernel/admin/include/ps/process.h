@@ -30,33 +30,19 @@ extern int copy_process_in_progress;
 // Process environment
 //
 
-// p->process_env = 0;
-
-// Fail
-#define PROCESS_ENV_UNKNOWN  0
-// The kernel process.
-#define PROCESS_ENV_KERNEL  1000
-// The init process.
-#define PROCESS_ENV_INIT  2000
-
-// The display server.
-#define PROCESS_ENV_DISPLAY_SERVER  4000
-// The client-side application for the display server.
-#define PROCESS_ENV_DISPLAY_CLIENT  4001
-
-// Server: system services.
-#define PROCESS_ENV_SYSTEM_SERVICE  8000
-// Client: client-side for system services.
-#define PROCESS_ENV_SYSTEM_CLIENT  8001
-
-// It calls the kernel directly using syscalls.
-// Posix commands or game engines.
-#define PROCESS_ENV_NATIVE  9000
+// -----------------------------
+// Environment subsystems.
+typedef enum {
+    EnvSubsystemUnknown,
+    EnvSubsystemKernel,
+    EnvSubsystemGramland
+    // ...
+} env_subsystem_t;
 
 // -----------------------------
 
 // This process was made to Gramado OS.
-#define PERSONALITY_GRAMADO  1000
+#define PERSONALITY_GRAMADO_AMAZING  1000
 // ...
 
 // Processes:
@@ -201,10 +187,9 @@ struct process_d
 // see: layer.h
     int _layer;
 
-// Process environment.
-// Que tipo de aplicaçao gramado eh esse processo.
-// Eh um kernel, um init, um serviço do sistema, um cliente de servico.
-    int process_env;
+// The environment subsystem that this process is running into.
+// unknown, kernel, gramland.
+    env_subsystem_t env_subsystem;
 
     int exit_in_progress;
 

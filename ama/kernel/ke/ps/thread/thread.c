@@ -1099,6 +1099,10 @@ try_next_slot:
 
     Thread->step = 0;
 
+// Credits:
+// O acumulo de creditos gera incremento de quantum.
+    Thread->credits = 0;
+
 // Quantum.
     Thread->quantum           = QUANTUM_NORMAL_THRESHOLD;
     Thread->quantum_limit_min = QUANTUM_MIN; 
