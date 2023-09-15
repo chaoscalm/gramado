@@ -205,15 +205,11 @@ static void update_clients(int fd)
 // #todo: 
 // We need a list o clients. maybe clients[i]
 
-// #test
-// Get window info.
+    gws_set_focus(fd,client_window);
 
-//#todo: test buttons validation.
     gws_redraw_window(fd, addressbar_window, TRUE);
     gws_redraw_window(fd, savebutton_window, TRUE);
     gws_redraw_window(fd, client_window,     TRUE);
-
-    gws_set_focus(fd,client_window);
 }
 
 static int editor_init_globals(void)

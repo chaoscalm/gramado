@@ -146,17 +146,14 @@ static void update_clients(int fd)
         cwClientWindow.w,
         cwClientWindow.h );
 
+// ...
 
-
-//...
+    gws_set_focus(fd,__addressbar_window);
 
 // At the end ...
     gws_redraw_window(fd, __addressbar_window, TRUE);
     gws_redraw_window(fd, __button_window, TRUE);
     gws_redraw_window(fd, __client_window, TRUE);
-
-    // ...
-    gws_set_focus(fd,__addressbar_window);
 }
 
 

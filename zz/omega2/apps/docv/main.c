@@ -37,6 +37,19 @@ static int __addressbar_window = -1;
 static int __button_window = -1;
 static int __client_window = -1;
 
+struct child_window_d
+{
+    unsigned long l;
+    unsigned long t;
+    unsigned long w;
+    unsigned long h;
+};
+struct child_window_d cwAddressBar;
+struct child_window_d cwButton;
+struct child_window_d cwClientWindow;
+// ...
+
+
 
 
 //#define __VERSION__ "0.1"
@@ -62,6 +75,7 @@ int no_output;
 static int gramcnf_initialize(void);
 static void usage(char **argv);
 static void debugShowStat(void);
+static void update_clients(int fd);
 // =====================================================
 
 //
@@ -358,6 +372,93 @@ static void usage(char **argv)
         __VERSION__ );
 }
 
+
+static void update_clients(int fd)
+{
+    // Local
+    struct gws_window_info_d lWi;
+
+    if (fd<0){
+        return;
+    }
+// Get info about the main window.
+//IN: fd, wid, window info structure.
+    gws_get_window_info(
+        fd, 
+        __main_window,   // The app window.
+        (struct gws_window_info_d *) &lWi );
+
+// ---------------------------------------------
+// address bar
+    cwAddressBar.l = (( lWi.cr_width/8 )*2);
+    cwAddressBar.t = 4;
+    cwAddressBar.w = (( lWi.cr_width/8 )*3);
+    cwAddressBar.h = 24;
+    gws_change_window_position( 
+        fd,
+        __addressbar_window,
+        cwAddressBar.l,
+        cwAddressBar.t );
+    gws_resize_window(
+        fd,
+        __addressbar_window,
+        cwAddressBar.w,
+        cwAddressBar.h );
+
+//---------------------------------------------
+// Button
+    cwButton.l = (( lWi.cr_width/8 )*7);
+    cwButton.t = 4;
+    cwButton.w = (( lWi.cr_width/8 )*1);
+    cwButton.h = 24;
+    gws_change_window_position( 
+        fd,
+        __button_window,
+        cwButton.l,
+        cwButton.t );
+    gws_resize_window(
+        fd,
+        __button_window,
+        cwButton.w,
+        cwButton.h );
+
+//-----------------------
+// the client window
+// Save
+// Save
+    cwClientWindow.l = 0;
+    cwClientWindow.t = (cwAddressBar.t + cwAddressBar.h + 2);
+    cwClientWindow.w = lWi.cr_width;
+    cwClientWindow.h = (lWi.cr_height - cwClientWindow.t);
+
+    gws_change_window_position( 
+        fd,
+        __client_window,
+        cwClientWindow.l,
+        cwClientWindow.t );
+    gws_change_window_position( 
+        fd,
+        __client_window,
+        cwClientWindow.l,
+        cwClientWindow.t );
+    gws_resize_window(
+        fd,
+        __client_window,
+        cwClientWindow.w,
+        cwClientWindow.h );
+
+// ...
+
+    gws_set_focus(fd,__addressbar_window);
+
+// At the end ...
+    gws_redraw_window(fd, __addressbar_window, TRUE);
+    gws_redraw_window(fd, __button_window, TRUE);
+    gws_redraw_window(fd, __client_window, TRUE);
+}
+
+
+
 static int 
 docvProcedure(
     int fd, 
@@ -413,14 +514,18 @@ docvProcedure(
     // #todo;
     // Create the worker update_clients();
     case MSG_PAINT:
-        if (event_window == __main_window)
-        {
+        if (event_window == __main_window){
+            update_clients(fd);
+            return 0;
+        }
+        //if (event_window == __main_window)
+        //{
             //gws_redraw_window(fd,__addressbar_window,TRUE);
             //gws_redraw_window(fd,__button_window,TRUE);
             //gws_redraw_window(fd,__client_window,TRUE);
             //gws_set_focus(fd,__addressbar_window);
-            return 0;
-        }
+        //    return 0;
+        //}
         break;
 
     case MSG_CLOSE:

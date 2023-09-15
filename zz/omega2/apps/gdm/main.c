@@ -216,6 +216,9 @@ static void update_clients(int fd)
         cwButton2.h );
 
 // ----------
+
+    gws_set_focus(fd,bar2_window);
+
     gws_redraw_window(fd, bar1_window, TRUE);
     gws_redraw_window(fd, button1_window, TRUE);
     gws_redraw_window(fd, bar2_window, TRUE);
