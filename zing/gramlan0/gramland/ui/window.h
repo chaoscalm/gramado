@@ -1364,7 +1364,7 @@ int dock_window( struct gws_window_d *window, int position );
 
 void set_focus(struct gws_window_d *window);
 struct gws_window_d *get_focus(void);
-void __switch_focus(void);
+void __switch_active_window(int active_first);
 void set_focus_by_id(int wid);
 struct gws_window_d *get_window_with_focus(void);
 void set_window_with_focus(struct gws_window_d * window);

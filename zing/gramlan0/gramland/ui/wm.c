@@ -3976,72 +3976,42 @@ printable:
 }
 
 
-/*
-//local worker
-void __switch_window(void)
+// #test: 
+void __switch_active_window(int active_first)
 {
-}
-*/
+// #todo
+// #test: 
+// Probe the window list and set the next
+// when we found the active, if it is not NULL.
 
-// #todo: explain it better.
-void __switch_focus(void)
-{
-    return;
-
-/*
     struct gws_window_d *w;
+    register int i=0;
+    w = first_window;
 
-// something is wrong
-    if (window_with_focus < 0 ||
-        window_with_focus >= WINDOW_COUNT_MAX)
-    {
-        if( (void*)first_window == NULL )
-            return;
-        if(first_window->magic != 1234)
-            return;
-        window_with_focus = (int) first_window->id;
-        return;
-    }
+    // Update zOrder.
+    while (1){
+        last_window = w;
+        if (w == NULL)
+            break;
+        if (w->magic != 1234)
+            break;
+        if (w->type != WT_OVERLAPPED)
+            break;
+        // Update zIndex
+        w->zIndex = (int) i;           
+        // Next
+        w = w->next;
+    };
 
-    w = (struct gws_window_d *) windowList[window_with_focus];
-    if ( (void*) w == NULL )
-        return;
-    if (w->magic != 1234)
-        return;
-
-     w = (void*) w->next;
-    if ( (void*) w == NULL )
-        return;
-    if (w->magic != 1234)
-        return;
-
-    window_with_focus = (int) w->id;
-
-    //w->border_color1 = COLOR_INACTIVEBORDER;
-    //w->border_color2 = COLOR_INACTIVEBORDER;
-    w->border_size = 2;
-
-//activate window
-    if( w->type == WT_OVERLAPPED )
-    {
-        active_window = (void*) w;
-    }
-
-    w->focus = TRUE;
-    redraw_window(w,FALSE);
-
-// Pede para o kernel mudar a foreground thread.
-// janela que recebera input.
-
-    int tid = w->client_tid;
-    if (tid < 0)
-        return;
-    sc82 (
-        10011,
-        tid, tid, tid);
-
-    invalidate_window(w);
-*/
+    if (active_first == TRUE){
+        set_active_window(first_window);
+        redraw_window(first_window,TRUE);
+        on_update_window(first_window,GWS_Paint);
+    }else{
+        set_active_window(last_window);
+        redraw_window(last_window,TRUE);
+        on_update_window(last_window,GWS_Paint);
+    };
 }
 
 
@@ -4528,12 +4498,16 @@ static int wmProcessCombinationEvent(int msg_code)
         // #test
         // gwssrv_quit();
         //demoCat();
+
+        __switch_active_window(TRUE);  //active first
         return 0;
     }
 
 // Control + c
-    if (msg_code == GWS_Copy){
+    if (msg_code == GWS_Copy)
+    {
         printf("ws: copy\n");
+        __switch_active_window(FALSE);  //active NOT FIRST
         return 0;
     }
 
@@ -6007,6 +5981,7 @@ void set_active_window(struct gws_window_d *window)
     }
 
     active_window = (void*) window;
+    mouse_owner = (void*) window;
 }
 
 void unset_active_window(void)

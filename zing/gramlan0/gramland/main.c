@@ -1780,7 +1780,7 @@ int serviceAsyncCommand(void)
         break;
 
     case 12:
-        __switch_focus();
+        __switch_active_window(TRUE);
         goto done;
         break;
 
