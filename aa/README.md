@@ -1,5 +1,5 @@
 # aa
 
-HALs (loadable static modules)
+mods/ (loadable static modules)
 
 

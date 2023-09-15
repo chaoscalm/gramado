@@ -128,14 +128,14 @@ build-gramado-os:
 
 #----------------------------------
 # ::Build the ring0 module image.
-	$(Q)$(MAKE) -C ../aa/hals/newm0/
+	$(Q)$(MAKE) -C ../aa/mods/newm0/
 # Copy the ring0 module image.
-	sudo cp ../aa/hals/newm0/MOD0.BIN  ../zz/omega3/base/
+	sudo cp ../aa/mods/newm0/MOD0.BIN  ../zz/omega3/base/
 
 # ::Build the ring0 module image.
-	$(Q)$(MAKE) -C ../aa/hals/newm1/
+	$(Q)$(MAKE) -C ../aa/mods/newm1/
 # Copy the ring0 module image.
-	sudo cp ../aa/hals/newm1/MOD1.BIN  ../zz/omega3/base/
+	sudo cp ../aa/mods/newm1/MOD1.BIN  ../zz/omega3/base/
 
 #----------------------------------
 # ::Build kernel image.
@@ -299,8 +299,8 @@ clean-all: clean
 	-rm -rf kernel/KERNEL.BIN
 
 # Clear the ring0 module images
-	-rm -rf ../aa/hals/newm0/MOD0.BIN
-	-rm -rf ../aa/hals/newm1/MOD1.BIN
+	-rm -rf ../aa/mods/newm0/MOD0.BIN
+	-rm -rf ../aa/mods/newm1/MOD1.BIN
 
 # ==================
 # Clear the init process.
