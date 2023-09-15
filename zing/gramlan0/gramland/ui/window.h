@@ -964,6 +964,8 @@ unsigned long zList[ZORDER_MAX];
 // WM suppport
 //
 
+void __set_foreground_tid(int tid);
+
 void __set_default_background_color(unsigned int color);
 unsigned int __get_default_background_color(void);
 

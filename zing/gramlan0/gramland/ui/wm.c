@@ -115,8 +115,6 @@ static unsigned long ____new_time=0;
 // private functions: prototypes ==========================
 //
 
-static void __set_foreground_tid(int tid);
-
 static void animate_window( struct gws_window_d *window );
 static void wm_tile(void);
 
@@ -1162,7 +1160,7 @@ static void on_mouse_released(void)
                     
                     // Set new active and redraw.
                     set_active_window(p);
-                    set_focus(p);
+                    //set_focus(p);
                     redraw_window(p,TRUE);
                     on_update_window(p,GWS_Paint);  // to wwf
                     //on_update_window(p,GWS_Paint);
@@ -3044,7 +3042,7 @@ void wm_update_desktop(int tile, int show)
 // Set focus on last valid. Starting at first one.
 // Activate
     set_active_window(l);
-    set_focus(l);  //no ... focus on client window.
+    //set_focus(l);  //no ... focus on client window.
 
 // Update the taskbar at the bottom of the screen,
 // but do not show it yet.
@@ -3132,7 +3130,7 @@ void wm_update_desktop3(struct gws_window_d *new_top_window)
     top_window = new_top_window;
 
     set_active_window(top_window);
-    set_focus(top_window); //#wrong: The focus goes to the child.
+    //set_focus(top_window); //#wrong: The focus goes to the child.
     redraw_window(top_window,FALSE);
     // Post message to the main window.
     // Paint the childs of the window with focus.
@@ -3238,7 +3236,7 @@ void wm_update_window_by_id(int wid)
     //top_window     = (void *) w;
 
     set_active_window(w);
-    set_focus(w);
+    //set_focus(w);
 
     redraw_window(w,FALSE);
     invalidate_window(w);
@@ -3262,7 +3260,7 @@ struct gws_window_d *get_active(void)
 // Pede para o kernel mudar a foreground thread.
 // A foreground thread será a thread associada com a janela
 // que possui o foco de entrada.
-static void __set_foreground_tid(int tid)
+void __set_foreground_tid(int tid)
 {
     if (tid<0){
         return;
@@ -3274,8 +3272,7 @@ static void __set_foreground_tid(int tid)
 void set_focus(struct gws_window_d *window)
 {
     int tid = -1;
-
-    // keyboard_owner = NULL;
+    struct gws_window_d *old_owner;
 
     if ((void*) window == NULL){
         return;
@@ -3287,20 +3284,14 @@ void set_focus(struct gws_window_d *window)
         return;
     }
 
-// Set the foreground thread.
-// That's the tid associated with this window.
-    tid = (int) window->client_tid;
-    if (tid<0)
-        return;
-    __set_foreground_tid(tid);
-
-
 // We alredy have the focus.
     if (window == keyboard_owner)
         return;
 
+// Save
+    old_owner = keyboard_owner;
 // Set
-    keyboard_owner = (void*) window;
+    //keyboard_owner = (void*) window;
 
 // Is it an editbox?
 // Redraw it with a new style.
@@ -3310,8 +3301,38 @@ void set_focus(struct gws_window_d *window)
     if ( window->type == WT_EDITBOX || 
          window->type == WT_EDITBOX_MULTIPLE_LINES )
     {
+        keyboard_owner = (void*) window;
+        // Repaint the new owner that has the focus.
         redraw_window(window,TRUE);
+        // Repaint the old owner that has not the focus.
+        if ( (void*) old_owner != NULL )
+        {
+            if (old_owner->magic == 1234)
+            {
+                if ( old_owner->type == WT_EDITBOX ||
+                     old_owner->type == WT_EDITBOX_MULTIPLE_LINES )
+                {
+                    redraw_window(old_owner,TRUE);
+                }
+            }
+        }
+
+        // Set the foreground thread.
+        // That's the tid associated with this window.
+        tid = (int) window->client_tid;
+        if (tid<0)
+            return;
+        __set_foreground_tid(tid);
     }
+
+/*
+// Set the foreground thread.
+// That's the tid associated with this window.
+    tid = (int) window->client_tid;
+    if (tid<0)
+        return;
+    __set_foreground_tid(tid);
+*/
 }
 
 // Get the keyboard_owner window.
@@ -4086,16 +4107,26 @@ wmPostMessage(
 // Post
 //
 
-// Add the message into the queue. In tail.
-// IN: tid, message buffer address
-    rtl_post_system_message( 
-        (int) ClientTID, (unsigned long) MessageBuffer );
+    if (ClientTID < 0)
+        return -1;
 
+// New foreground thread.
 // Pede para o kernel mudar a foreground thread.
 // Seleciona o próximo 'input reponder'.
 // Assim o kernel colocará as próximas mensagens
 // na fila dessa thread.
-    sc82 ( 10011, ClientTID, ClientTID, ClientTID );
+
+    // #bugbug
+    // Somente a rotina de set_focus() vai vazer isso.
+    //sc82 ( 10011, ClientTID, ClientTID, ClientTID );
+    //__set_foreground_tid( 10011, ClientTID, ClientTID, ClientTID )
+
+// Post message to a given thread.
+// Add the message into the queue. In tail.
+// IN: tid, message buffer address
+// ?? Podemos mandar qualquer tipo de mensagem?
+    rtl_post_system_message( 
+        (int) ClientTID, (unsigned long) MessageBuffer );
 
     return 0;
 }
@@ -5937,7 +5968,7 @@ int dock_window( struct gws_window_d *window, int position )
 
 
     set_active_window(window);
-    set_focus(window);
+    //set_focus(window);
     redraw_window(window,TRUE);
     // Post message to the main window.
     // Paint the childs of the window with focus.

@@ -2142,10 +2142,20 @@ int serviceCreateWindow(int client_fd)
 // We need to respect the theme is the window
 // is Overlapped window.
 
-    if (my_style == WT_OVERLAPPED)
+    /*
+    // #test
+    if (type == WT_OVERLAPPED)
     {
         frame_color = (unsigned int) get_color(csiWindow);
         client_color = (unsigned int) get_color(csiWindow);
+    }
+    */
+
+    //#hack #test
+    if (type == WT_OVERLAPPED)
+    {
+        x = x+20;
+        y = y+20;
     }
 
     Window = 
@@ -2181,6 +2191,12 @@ int serviceCreateWindow(int client_fd)
 // Save the tid of the client.
     Window->client_pid = (pid_t) ClientPID;
     Window->client_tid = (int) ClientTID;
+
+    if (Window->type == WT_EDITBOX || 
+        Window->type == WT_EDITBOX_MULTIPLE_LINES)
+    {
+        set_focus(Window);
+    }
 
 //===============================================
 // The client fd.
