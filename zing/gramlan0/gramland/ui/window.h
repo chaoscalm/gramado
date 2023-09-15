@@ -467,6 +467,11 @@ struct gws_window_d
 // Se tem o foco de entrada ou não.
 // Isso faz a janela ser pintada ou repintada 
 // contendo o indicador de foco.
+
+// #bugbug: 
+// Delete this element.
+// We dont need this. Use the pointer instead,
+// check agains the current keyboard_owner window.
     int focus;
 
 // 1=solid | 0=transparent

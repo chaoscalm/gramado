@@ -263,10 +263,10 @@ __draw_window_border(
 {
 // + We dont have a border size yet.
 
-    if ( (void*) parent == NULL ){
+    if ((void*) parent == NULL){
         return;
     }
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return;
     }
 
@@ -349,53 +349,56 @@ __draw_window_border(
         // border size:
         // #todo: it can't be hardcoded,
         // We're gonna have themes.
-        if (window->focus == TRUE)
+        //if (window->focus == TRUE)
+        if (window == keyboard_owner)
         {
             window->border_size=2;
-            //window->border_color1 = COLOR_BLACK;
+            window->border_color1 = COLOR_BLACK;   //#test
+            window->border_color2 = COLOR_BLACK;   //#test
         }
-        if (window->focus == FALSE)
+        if (window != keyboard_owner)
         {
             window->border_size=1;
-            //window->border_color1 = 0;
+            window->border_color1 = COLOR_GRAY;   //#test
+            window->border_color2 = COLOR_GRAY;   //#test
         }
 
         // top
         rectBackbufferDrawRectangle( 
             window->absolute_x, 
             window->absolute_y, 
-            window->width, 
-            window->border_size, 
-            window->border_color1, 
-            TRUE, 
-            0 );
+            window->width,         // w
+            window->border_size,   // h
+            window->border_color1, // color
+            TRUE,                  // fill?
+            0 );                   // rop
         // left
         rectBackbufferDrawRectangle( 
             window->absolute_x, 
             window->absolute_y, 
-            window->border_size, 
-            window->height, 
-            window->border_color1, 
-            TRUE, 
-            0 );
+            window->border_size,    // w 
+            window->height,         // h
+            window->border_color1,  // color
+            TRUE,                   // fill?
+            0 );                    // rop
         // right
         rectBackbufferDrawRectangle( 
             (window->absolute_x + window->width - window->border_size), 
             window->absolute_y,  
-            window->border_size, 
-            window->height, 
-            window->border_color2, 
-            TRUE, 
-            0 );
+            window->border_size,  // w 
+            window->height,       // h
+            window->border_color2,  // color
+            TRUE,                   // fill
+            0 );                    // rop
         // bottom
         rectBackbufferDrawRectangle ( 
             window->absolute_x, 
             (window->absolute_y + window->height - window->border_size), 
-            window->width, 
-            window->border_size, 
-            window->border_color2, 
-            TRUE, 
-            0 );
+            window->width,           // w
+            window->border_size,     // h
+            window->border_color2,   // color
+            TRUE,                    // fill
+            0 );                     // rop
         
         // #test
         // Subtract border size.
@@ -694,11 +697,11 @@ redraw_window (
     //é só o botão...
     //caso o botão tenha algum frame, será alguma borda extra.
     int Focus=0;    //(precisa de borda)
-    int Selected=0;
-    unsigned int border1=0;
-    unsigned int border2=0;
-    
+    int Selected=0;   
     unsigned int label_color = COLOR_BLACK;
+    // Change to 'button_border1' and 'button_border2'
+    unsigned int border1 = COLOR_GRAY;
+    unsigned int border2 = COLOR_GRAY;
 
     if (window->type == WT_BUTTON)
     {

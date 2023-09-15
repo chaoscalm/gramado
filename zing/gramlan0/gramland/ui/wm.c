@@ -33,10 +33,17 @@ struct taskbar_d  TaskBar;
 
 struct gws_window_d *__root_window; 
 struct gws_window_d *active_window;  // active
-// Input events:
+
+//
+// Input events
+//
+
+// Owner
 struct gws_window_d *keyboard_owner;
 struct gws_window_d *mouse_owner;  // captured
+// Mouse hover.
 struct gws_window_d *mouse_hover;  // hover
+
 // If the display server has a taskbar.
 // maybe we don't need that.
 struct gws_window_d  *taskbar_window; 
@@ -134,8 +141,8 @@ wmProcessMouseEvent(
 static void on_control_clicked_by_wid(int wid);
 static void on_control_clicked(struct gws_window_d *window);
 
-static void on_mouse_pressed(unsigned long pointer_x, unsigned long  pointer_y);
-static void on_mouse_released(unsigned long  pointer_x, unsigned long  pointer_y);
+static void on_mouse_pressed(void);
+static void on_mouse_released(void);
 static void on_mouse_leave(struct gws_window_d *window);
 static void on_mouse_hover(struct gws_window_d *window);
 
@@ -606,7 +613,7 @@ wmProcessMouseEvent(
 // Pressed:
 // Process but do not send message for now.
     if (event_type == GWS_MousePressed){
-        on_mouse_pressed(saved_x,saved_y);
+        on_mouse_pressed();
         return;
     }
 
@@ -614,7 +621,7 @@ wmProcessMouseEvent(
 // Released:
 // Process and send message.
     if (event_type == GWS_MouseReleased){
-        on_mouse_released(saved_x,saved_y);
+        on_mouse_released();
         return;
     }
 
@@ -625,10 +632,7 @@ not_valid:
     return;
 }
 
-static void 
-on_mouse_pressed(
-    unsigned long  pointer_x, 
-    unsigned long  pointer_y )
+static void on_mouse_pressed(void)
 {
 // #todo
 // When the mouse was pressed over en editbox window.
@@ -776,68 +780,6 @@ on_mouse_pressed(
             return;
         }
     }
-// ===================================
-// Taskbar - (Quick launch buttons)
-// Lidando com os botões da barra de tarefas.
-// Em qual botão da taskbar?
-// Se for igual à um dos botões da tb.
-
-    /*
-    // #bugbug
-    // We don't need this anymore.
-    if ( ButtonID == QuickLaunch.buttons[0] ||
-         ButtonID == QuickLaunch.buttons[1] ||
-         ButtonID == QuickLaunch.buttons[2] ||
-         ButtonID == QuickLaunch.buttons[3] )
-    {
-
-        // #bugbug
-        // Check type
-
-        if (ButtonID == QuickLaunch.buttons[0])
-        {
-        }
-
-        if (ButtonID == QuickLaunch.buttons[1])
-        {
-        }
-
-        if (ButtonID == QuickLaunch.buttons[2])
-        {
-        }
-
-        if (ButtonID == QuickLaunch.buttons[3])
-        {
-        }
-
-        // Redraw the button
-        __button_pressed(ButtonID);
-        return;
-    }
-    */
-
-    // #todo #maybe
-    // Clicamos e o ponteiro esta sobre a janela ativa.
-    //aw_wid = (int) get_active_window();
-    //if( mousehover_window == aw_wid )
-    //{
-        //wm_update_window_by_id(aw_wid);
-        //redraw_window_by_id(mousehover_window,TRUE);
-        //return;
-    //}
-
-//----------------
-
-// #test
-// The mouse is over an editbox window.
-    /*
-    if ( mouse_hover->type == WT_EDITBOX || 
-         mouse_hover->type == WT_EDITBOX_MULTIPLE_LINES )
-    {
-        set_focus(mouse_hover);
-        redraw_window(mouse_hover,TRUE);
-    }
-    */
 }
 
 // When clicked or 'pressed' via keyboard.
@@ -995,11 +937,15 @@ static void on_control_clicked(struct gws_window_d *window)
     }
 }
 
-static void 
-on_mouse_released(
-    unsigned long  pointer_x, 
-    unsigned long  pointer_y )
+static void on_mouse_released(void)
 {
+    // Get these from event.
+    unsigned long saved_x=0;
+    unsigned long saved_y=0;
+    // Relative to the mouse_hover.
+    unsigned long in_x=0;
+    unsigned long in_y=0;
+
     int ButtonWID = -1;
 
     struct gws_window_d *p;
@@ -1012,10 +958,6 @@ on_mouse_released(
     unsigned long x_diff=0;
     unsigned long y_diff=0;
 
-    unsigned long saved_x = pointer_x;
-    unsigned long saved_y = pointer_y;
-    unsigned long in_x=0;
-    unsigned long in_y=0;
 
     // #hackhack
     int event_type = GWS_MouseReleased;
@@ -1084,21 +1026,22 @@ on_mouse_released(
             // então mudamos o input pointer.
             if (event_type == GWS_MouseReleased)
             {
+                // Set the new input pointer for this window.
                 if (in_x>0){
                     mouse_hover->ip_x = (unsigned long) (in_x/8);
                 }
                 if (in_y>0){
                     mouse_hover->ip_y = (unsigned long) (in_y/8);
                 }
-                
-                // Se essa editbox não é a keyboard owner,
-                // então ela passa a ser.
-                if (mouse_hover != keyboard_owner)
-                {
-                    // #todo:
-                    // Nessa função podemos mudar algumas características da janela
-                    // antes de repintarmos.
+ 
+                // Set the new keyboard owner. (focus)
+                if (mouse_hover != keyboard_owner){
                     set_focus(mouse_hover);
+                }
+
+                // Set the new mouse owner.
+                if (mouse_hover != mouse_owner){
+                    mouse_owner = mouse_hover;
                 }
             }
             
@@ -3327,84 +3270,56 @@ static void __set_foreground_tid(int tid)
     sc82 ( 10011, tid, tid, tid );
 }
 
-// Set focus on a window.
-// This is the window that owns the keyboard input.
-// Change the foreground thread.
-// The new foreground thread will be 
-// the thread associated with this given window.
+// Set the keyboard_owner window.
 void set_focus(struct gws_window_d *window)
 {
+    int tid = -1;
 
-    // A janela que ja tinha o foco de entrada.
-    //struct gws_window_d *wOld;
+    // keyboard_owner = NULL;
 
-    if ( (void*) window == NULL ){
+    if ((void*) window == NULL){
         return;
     }
-    if ( window->used != TRUE ) { return; }
-    if ( window->magic != 1234 ){ return; }
-
-/*
-// #test
-// parent
-// Activate the parent window if it is an application window.
-// #bugbug
-// E no caso de termos filhos e netos do tipo overlapped?
-    struct gws_window_d *p;
-    p = (struct gws_window_d *) window->parent;
-    if ( (void*) p != NULL )
-    {
-        if (p->magic == 1234)
-        {
-            if (p->type == WT_OVERLAPPED){
-                set_active_window(p);
-            }
-        }
+    if (window->used != TRUE){
+        return;
     }
-*/
-
-// #todo
-// Pegar a antiga janela com o foco de entra.
-// ela deve perder o foco de entrada.
-    
-    //wOld = (struct gws_window_d *) keyboard_owner;
-    //if (window != wOld)
-    //    kill_focus(wOld);
-
-// #todo
-// Vamos setar alguma coisa na estrutura de janela,
-// para que o redraw redesenhe o elemento
-// contendo alguma indicação de foco.
-
-    //window->focus = TRUE;
-
-// Global variable
-
-// The window that owns the keyboard.
-    //keyboard_owner = (struct gws_window_d *) window;
-// The window with focus.
-    keyboard_owner = (void*) window;
+    if (window->magic != 1234){
+        return;
+    }
 
 // Set the foreground thread.
 // That's the tid associated with this window.
-    __set_foreground_tid( (int) window->client_tid );
+    tid = (int) window->client_tid;
+    if (tid<0)
+        return;
+    __set_foreground_tid(tid);
+
+
+// We alredy have the focus.
+    if (window == keyboard_owner)
+        return;
+
+// Set
+    keyboard_owner = (void*) window;
+
+// Is it an editbox?
+// Redraw it with a new style.
+// This routine need to know if we're the keyboard owner
+// to select the style.
+// IN: window, show
+    if ( window->type == WT_EDITBOX || 
+         window->type == WT_EDITBOX_MULTIPLE_LINES )
+    {
+        redraw_window(window,TRUE);
+    }
 }
 
+// Get the keyboard_owner window.
 // Pega o ponteiro da janela com foco de entrada.
 struct gws_window_d *get_focus(void)
 {
-    struct gws_window_d *w;
-
-    w = (struct gws_window_d *) keyboard_owner;
-    if ( (void*)w==NULL ){
-        return NULL;
-    }
-    if (w->used!=TRUE) { return NULL; }
-    if (w->magic!=1234){ return NULL; }
-
-    return (struct gws_window_d *) w; 
+    return (struct gws_window_d *) get_window_with_focus();
 }
-
 
 // O mouse está sobre essa janela.
 void set_mouseover(struct gws_window_d *window)
@@ -6061,11 +5976,26 @@ void unset_active_window(void)
     active_window = NULL;
 }
 
+// Pega o ponteiro da janela com foco de entrada.
 struct gws_window_d *get_window_with_focus(void)
 {
-    return (struct gws_window_d *) keyboard_owner;
-}
+    struct gws_window_d *w;
 
+    w = (struct gws_window_d *) keyboard_owner;
+    if ((void*)w==NULL){
+        return NULL;
+    }
+    if (w->used != TRUE){
+        keyboard_owner = NULL;
+        return NULL;
+    }
+    if (w->magic != 1234){
+        keyboard_owner = NULL;
+        return NULL; 
+    }
+
+    return (struct gws_window_d *) w; 
+}
 
 void set_window_with_focus(struct gws_window_d * window)
 {
