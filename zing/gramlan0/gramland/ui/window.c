@@ -27,6 +27,9 @@
 
 static int config_use_transparency=FALSE;
 
+
+unsigned long windows_count=0;
+
 // Habilitando/desabilitando globalmente 
 // alguns componentes da janela.
 // #bugbug: Não confie nessas inicializações.

@@ -625,8 +625,13 @@ int main( int argc, char *argv[] )
     unsigned long w_height = (h - 100); //(h>>1);
 
 // Original
+/*
     unsigned long viewwindowx = ( ( w - w_width ) >> 1 );
     unsigned long viewwindowy = ( ( h - w_height) >> 1 ); 
+*/
+
+    unsigned long viewwindowx = 10;
+    unsigned long viewwindowy = 10; 
 
     // test1: Erro de posicionamento.
     //unsigned long viewwindowx = 580;

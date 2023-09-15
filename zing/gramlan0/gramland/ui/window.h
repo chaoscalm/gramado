@@ -100,10 +100,7 @@ typedef int  wid_t;
 #define WINDOW_REALATIONSHIPSTATUS_ZAXIS_BOTTOM   6000
 //...
 
-// #todo: Podemos colocar isso em outro lugar?
-// Contagem de janelas existentes.
-// precisa ser inicializada.
-unsigned long windows_count;
+extern unsigned long windows_count;
 
 // ...
 

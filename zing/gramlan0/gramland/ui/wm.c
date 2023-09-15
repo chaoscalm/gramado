@@ -4417,7 +4417,14 @@ __probe_window_hover(
         }
     }
     };
+
+// #test
+// Assume root when no one was found
     //printf ("Not Found\n");
+
+    on_mouse_leave(mouse_hover);  // repinte a antiga
+    mouse_hover = (void*) __root_window;
+    
 }
 
 unsigned long wmGetLastInputJiffie(int update)

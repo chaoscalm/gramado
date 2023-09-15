@@ -142,6 +142,9 @@ static int __saved_sync_id = -1;
 
 static int running = FALSE;
 
+static unsigned long last_dx = 0;
+static unsigned long last_dy = 0;
+
 //
 // == Private functions: Prototypes ========
 //
@@ -2142,20 +2145,23 @@ int serviceCreateWindow(int client_fd)
 // We need to respect the theme is the window
 // is Overlapped window.
 
+    
     /*
     // #test
-    if (type == WT_OVERLAPPED)
-    {
+    if (type == WT_OVERLAPPED){
         frame_color = (unsigned int) get_color(csiWindow);
         client_color = (unsigned int) get_color(csiWindow);
     }
     */
+    
 
     //#hack #test
     if (type == WT_OVERLAPPED)
     {
-        x = x+20;
-        y = y+20;
+        x = (x+last_dx);
+        y = (y+last_dy);
+        last_dx += 40;
+        last_dy += 40;
     }
 
     Window = 
@@ -3484,6 +3490,9 @@ static int ServerInitialization(int dm)
 // ==========================================
 // Starting the initialization phases.
     Initialization.current_phase = 1;
+
+    last_dx = 0;
+    last_dy = 0;
 
 // #test: Transparence.
     //gws_enable_transparence();

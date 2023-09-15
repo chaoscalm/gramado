@@ -341,10 +341,11 @@ int main( int argc, char *argv[] )
         w_width = 480;
     unsigned long w_height = (h/2);
 
-    unsigned long viewwindowx = ( ( w - w_width ) >> 1 );
-    unsigned long viewwindowy = ( ( h - w_height) >> 1 );
-    //unsigned long viewwindowx = 100;
-    //unsigned long viewwindowy = 100;
+    //unsigned long viewwindowx = ( ( w - w_width ) >> 1 );
+    //unsigned long viewwindowy = ( ( h - w_height) >> 1 );
+    unsigned long viewwindowx = 10;
+    unsigned long viewwindowy = 10;
+    
 
 // #test
 // #bugbug
