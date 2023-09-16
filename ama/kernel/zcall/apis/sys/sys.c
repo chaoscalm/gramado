@@ -463,7 +463,7 @@ int sys_serial_debug_printk(char *s)
 void sys_shutdown(unsigned long flags)
 {
     debug_print("sys_shutdown: [TODO]\n");
-    gramado_shutdown(0);
+    cali_shutdown(0);
 }
 
 // Usada por vários serviços de debug.

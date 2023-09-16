@@ -12,6 +12,21 @@ static int __spawn_eoi_is_necessary = FALSE;
 static int __spawn_is_eoi_needed(void);
 static void __spawn_load_pml4_table(unsigned long phy_addr);
 
+static void __spawn_thread_by_tid_imp(tid_t tid);
+
+void 
+spawn_enter_usermode( 
+    int eoi, 
+    unsigned long entry_va, 
+    unsigned long rsp3_va );
+
+void 
+spawn_enter_kernelmode( 
+    int eoi, 
+    unsigned long entry_va,
+    unsigned long rsp0_va );
+
+
 //=====================
 
 // local
@@ -40,18 +55,18 @@ void spawn_reset_eoi_state(void)
     __spawn_eoi_is_necessary = FALSE;
 }
 
-// spawn_thread:
+//-------------------------------------
+// __spawn_thread_by_tid_imp:
 // main worker.
 // Spawn a new thread.
 // The flag 'new_clone' indicates this is the control thread
 // of a clone process that is running for the first time.
-
-void spawn_thread(tid_t tid)
+static void __spawn_thread_by_tid_imp(tid_t tid)
 {
     struct thread_d *target_thread;
     tid_t next_tid = (tid_t) (tid & 0xFFFF);
 
-    debug_print ("spawn_thread:\n");
+    debug_print("__spawn_thread_by_tid_imp:\n");
 
     // #debug
     //printf ("spawn_thread: SPAWN !\n");
@@ -63,42 +78,42 @@ void spawn_thread(tid_t tid)
 
     if ( next_tid < 0 || next_tid >= THREAD_COUNT_MAX )
     {
-        printf("spawn_thread: next_tid=%d", next_tid );  
+        printf("__spawn_thread_by_tid_imp: next_tid=%d", next_tid );  
         keDie();
     }
     target_thread = (void *) threadList[next_tid]; 
     if ((void *) target_thread == NULL)
     {
-        printf("spawn_thread: target_thread, next_tid={%d}", 
+        printf("__spawn_thread_by_tid_imp: target_thread, next_tid={%d}", 
             next_tid );  
         keDie();
     }
     if ( target_thread->used != TRUE || target_thread->magic != 1234 )
     {
-        panic("spawn_thread: target_thread validation\n");
+        panic("__spawn_thread_by_tid_imp: target_thread validation\n");
     }
 
 // Is it a new clone?
 // new clone
     if (target_thread->new_clone == TRUE){
-        debug_print ("spawn_thread: Spawning the control thread of a new clone\n");
+        debug_print("__spawn_thread_by_tid_imp: Spawning the control thread of a new clone\n");
     }
 
 // Check tid validation
     if (target_thread->tid != next_tid){
-        panic("spawn_thread: target_thread->tid validation\n");
+        panic("__spawn_thread_by_tid_imp: target_thread->tid validation\n");
     }
 
 // State: Needs to be in Standby.
     if (target_thread->state != STANDBY){
-        printf("spawn_thread: TID={%d} not in Standby\n", next_tid );
+        printf("__spawn_thread_by_tid_imp: TID={%d} not in Standby\n", next_tid );
         keDie();
     }
 
 // Saved:
 // If the context is saved, so it is not the first time.
     if (target_thread->saved == TRUE){
-        printf ("spawn_thread: Saved TID={%d}\n", next_tid );
+        printf ("__spawn_thread_by_tid_imp: Saved TID={%d}\n", next_tid );
         keDie();
     }
 
@@ -163,13 +178,13 @@ void spawn_thread(tid_t tid)
 
 // Paranoia: Check state.
     if (target_thread->state != RUNNING){
-        printf ("spawn_thread: State TID={%d}\n", next_tid );
+        printf ("__spawn_thread_by_tid_imp: State TID={%d}\n", next_tid );
         keDie();
     }
 
 // Do we have an owner process?
     if ((void*) target_thread->owner_process == NULL){
-        panic("spawn_thread: target_thread->owner_process\n");
+        panic("__spawn_thread_by_tid_imp: target_thread->owner_process\n");
     }
 
 // Pegamos o pid.
@@ -180,7 +195,7 @@ void spawn_thread(tid_t tid)
     pid_t cur_pid = (pid_t) target_thread->owner_pid;
 
     if ( cur_pid < 0 || cur_pid >= PROCESS_COUNT_MAX ){
-        panic("spawn_thread: cur_pid\n");
+        panic("__spawn_thread_by_tid_imp: cur_pid\n");
     }
 
 // #important
@@ -192,14 +207,14 @@ void spawn_thread(tid_t tid)
 //(tid)
     current_thread = (int) target_thread->tid;
     if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
-        panic("spawn_thread: current_thread\n");
+        panic("__spawn_thread_by_tid_imp: current_thread\n");
     }
 
     IncrementDispatcherCount (SELECT_INITIALIZED_COUNT);
 
 // local
 // Set cr3 and flush TLB.
-    debug_print ("spawn_thread: Load pml4\n");
+    debug_print ("__spawn_thread_by_tid_imp: Load pml4\n");
     __spawn_load_pml4_table(target_thread->pml4_PA);
 
 // #bugbug
@@ -214,7 +229,7 @@ void spawn_thread(tid_t tid)
 // iretq
 //
 
-    debug_print ("spawn_thread: iretq\n");
+    debug_print("__spawn_thread_by_tid_imp: iretq\n");
 
 // #todo
 // Configurar a stackframe para saltar para
@@ -229,7 +244,7 @@ void spawn_thread(tid_t tid)
 
     // #test #debug
     if (eoi_is_needed != TRUE){
-        panic("spawn_thread: eoi_is_needed != TRUE\n");
+        panic("__spawn_thread_by_tid_imp: eoi_is_needed != TRUE\n");
     }
 
 //
@@ -245,8 +260,8 @@ void spawn_thread(tid_t tid)
 */
 
     if (target_thread->cpl != RING3){
-        debug_print("spawn_thread: Invalid cpl\n");
-        panic      ("spawn_thread: Invalid cpl\n");
+        debug_print("__spawn_thread_by_tid_imp: Invalid cpl\n");
+        panic      ("__spawn_thread_by_tid_imp: Invalid cpl\n");
     }
 
 // ===================
@@ -264,10 +279,10 @@ void spawn_thread(tid_t tid)
         // We're not running threads in ring0 for now.
 
         //#debug
-        debug_print ("spawn_thread: RING0\n");
-        //printf      ("spawn_thread: RING0\n");
-        //debug_print ("spawn_thread: RING0 not supported yet\n");
-        panic       ("spawn_thread: RING0 not supported yet\n");
+        debug_print("__spawn_thread_by_tid_imp: RING0\n");
+        //printf     ("spawn_thread: RING0\n");
+        //debug_print("spawn_thread: RING0 not supported yet\n");
+        panic      ("__spawn_thread_by_tid_imp: RING0 not supported yet\n");
 
         // #suspended
         //spawn_enter_kernelmode( 
@@ -311,9 +326,9 @@ void spawn_thread(tid_t tid)
             (unsigned long) target_thread->context.rsp );
     }
 
-// Paranoia
+// The party is over!
     PROGRESS("-- iretq fail --------\n");
-    panic   ("spawn_thread: iretq fail\n");
+    panic("__spawn_thread_by_tid_imp: iretq fail\n");
 }
 
 // do not check parameters.
@@ -323,6 +338,7 @@ spawn_enter_usermode(
     unsigned long entry_va,  // Entry point
     unsigned long rsp3_va )  // Stack pointer.
 {
+// Flying high!
 
 // This is the entry point of the new thread
 // Probably created by a ring 3 process.
@@ -368,6 +384,8 @@ spawn_enter_kernelmode(
     unsigned long entry_va,  // Entry point
     unsigned long rsp0_va )  // Stack pointer.
 {
+// #todo: This feature is suspended.
+
 // This is the entry point of the new thread
     unsigned long entry = (unsigned long) entry_va;
     unsigned long rsp0  = (unsigned long) rsp0_va;
@@ -409,18 +427,19 @@ spawn_enter_kernelmode(
 
 // psSpawnThread:
 // Interface to spawn a thread.
-void psSpawnThread(tid_t tid)
+void psSpawnThreadByTID(tid_t tid)
 {
     debug_print ("psSpawnThread:\n");
     if ( tid < 0 || tid >= THREAD_COUNT_MAX ){
         printf("psSpawnThread: TID=%d\n", tid );
         keDie();
     }
-    spawn_thread(tid);
+    __spawn_thread_by_tid_imp(tid);
 // Not reached
     panic("psSpawnThread:\n");
 }
 
+/*
 // spawn_pid:
 // Spawn the control thread of a process.
 // Remember we need to call this after 
@@ -453,7 +472,9 @@ void spawn_pid(pid_t pid)
 // Not reached
     panic("spawn_pid: Fail\n");
 }
+*/
 
+/*
 void spawn_tid(int tid)
 {
     struct thread_d *t;
@@ -472,4 +493,5 @@ void spawn_tid(int tid)
 // Not reached
     panic("spawn_tid: Fail\n");
 }
+*/
 

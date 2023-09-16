@@ -156,7 +156,7 @@ static void __on_finished_executing(struct thread_d *t)
 static void cry(unsigned long flags)
 {
     if (flags & 0x8000)
-        gramado_shutdown(0);
+        cali_shutdown(0);
 }
 
 /*

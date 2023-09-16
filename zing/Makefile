@@ -15,7 +15,7 @@ all:
 # init
 	make -C graminit/
 # gramland
-	make -C gramlan0/
+	make -C gramado/
 # c3 - NETCTL
 	make -C netd/
 
@@ -27,10 +27,10 @@ clean-all:
 	-rm -f graminit/libs/rtl/obj/*.o
 
 # gramland and eng
-	-rm gramlan0/eng/bin/*.BIN
-	-rm gramlan0/gramland/bin/*.BIN
-	#-rm -f gramlan0/libs/libgns/obj/*.o
-	-rm -f gramlan0/libs/rtl/obj/*.o
+	-rm -f gramado/eng/bin/*.BIN
+	-rm -f gramado/swamp/bin/*.BIN
+	#-rm -f gramado/libs/libgns/obj/*.o
+	-rm -f gramado/libs/rtl/obj/*.o
 
 # NETCTL
 	-rm -f netd/bin/*.BIN

@@ -966,7 +966,7 @@ do_spawn:
         panic("check_for_standby: Can't spawn INIT_TID\n");
     }
 // Spawn
-    psSpawnThread(current_thread);
+    psSpawnThreadByTID(current_thread);
 // Not reached.
 fail:
     panic("check_for_standby: ERROR\n");

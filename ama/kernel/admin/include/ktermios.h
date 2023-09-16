@@ -16,8 +16,8 @@
 //sending signals (ou MSG_)
 // control functions.
 
-#ifndef _TERMIOS_H
-#define _TERMIOS_H    1
+#ifndef __KTERMIOS_H
+#define __KTERMIOS_H    1
 
 // Types.
 // Terminal input output data types.

@@ -866,23 +866,8 @@ void spawn_set_eoi_state(void);
 // The spawn routine do not need to make a eoi.
 void spawn_reset_eoi_state(void);
 
-void 
-spawn_enter_usermode( 
-    int eoi, 
-    unsigned long entry_va, 
-    unsigned long rsp3_va );
 
-void 
-spawn_enter_kernelmode( 
-    int eoi, 
-    unsigned long entry_va,
-    unsigned long rsp0_va );
-
-void spawn_thread(tid_t tid);
-void psSpawnThread(tid_t tid);
-
-void spawn_pid(pid_t pid);
-void spawn_tid(int tid);
+void psSpawnThreadByTID(tid_t tid);
 
 
 #endif    

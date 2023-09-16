@@ -7,11 +7,13 @@
 #include <kernel.h>
 
 
-int elfCheckSignature( unsigned long address )
+int elfCheckSignature(unsigned long address)
 {
+// Worker
+
     unsigned char *buf = (unsigned char *) address;
 
-    if ( (void *) buf == NULL ){
+    if ((void *) buf == NULL){
         printf ("elfCheckSignature: buf \n");
         return (int) (-1);
     }

@@ -935,7 +935,6 @@ int	exec_elf_makecmds(struct proc *, struct exec_package *);
 #define ELF_TARG_VER	1	/* The ver for which this code is intended */
 
 
-
 //
 // == prototypes =============
 //

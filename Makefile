@@ -13,7 +13,7 @@ PHONY := userland-domain
 userland-domain:
 # Warning: Respect the order!
 
-# graminit, gramlan0 and netd.
+# graminit, gramado and netd.
 # zing has all the dependencies.
 	make -C  zing/
 
@@ -43,8 +43,8 @@ clean-userland:
 # graminit
 	-rm -f zing/graminit/init/bin/*.BIN
 # gramland and eng
-	-rm -f zing/gramlan0/eng/bin/*.BIN
-	-rm -f zing/gramlan0/gramland/bin/*.BIN
+	-rm -f zing/gramado/eng/bin/*.BIN
+	-rm -f zing/gramado/swamp/bin/*.BIN
 # NETCTL
 	-rm -f zing/netd/bin/*.BIN
 

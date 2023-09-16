@@ -4,8 +4,8 @@
 all:
 	make -C libs/
 	make -C eng/
-	make -C gramland/
+	make -C swamp/
 	#...
 clean:
 	-rm -f eng/bin/*.BIN
-	-rm -f gramland/bin/*.BIN
+	-rm -f swamp/bin/*.BIN

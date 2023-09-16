@@ -60,6 +60,44 @@ static kernel_subsystem_t __failing_kernel_subsystem =
 struct initialization_d  Initialization;
 
 
+// Drivers support
+// Internal modules support.
+int g_driver_ps2keyboard_initialized=FALSE;   //ps2 keyboard
+int g_driver_ps2mouse_initialized=FALSE;      //ps2 mouse
+int g_driver_video_initialized=FALSE;
+int g_driver_apic_initialized=FALSE;
+int g_driver_hdd_initialized=FALSE;
+int g_driver_pci_initialized=FALSE;
+int g_driver_rtc_initialized=FALSE;
+int g_driver_timer_initialized=FALSE;
+//...
+
+// Internal modules support.
+int g_module_shell_initialized=FALSE;
+int g_module_debug_initialized=FALSE;
+int g_module_disk_initialized=FALSE;
+int g_module_volume_initialized=FALSE;
+int g_module_fs_initialized=FALSE;
+int g_module_gui_initialized=FALSE;
+int g_module_logoff_initialized=FALSE;
+int g_module_logon_initialized=FALSE;
+int g_module_mm_initialized=FALSE;
+int g_module_objectmanager_initialized=FALSE;
+int g_module_runtime_initialized=FALSE;
+int g_module_uem_initialized=FALSE;             //user environment manager.
+//...
+
+
+//se ele esta inicializado ou nao
+int dead_thread_collector_status=0;
+// Se e' para usalo ou nao
+int dead_thread_collector_flag=0;
+
+//pid_t current_dead_process;
+//int current_dead_thread;
+
+
+
 //char InitialUserProcessName[32] = "INIT.BIN"
 
 // ??
@@ -483,11 +521,6 @@ static int preinit(void)
     preinit_OutputSupport();
 
     return 0;
-}
-
-void gramado_shutdown(int how)
-{
-    //hal_shutdown();
 }
 
 

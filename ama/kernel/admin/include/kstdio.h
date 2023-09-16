@@ -412,8 +412,6 @@ struct file_d
 // The file structure type.
 typedef struct file_d  file;
 typedef struct file_d  kfile;
-typedef struct file_d  object;
-typedef struct file_d  kobject;
 
 //-----------------------------------------------
 
@@ -535,7 +533,8 @@ static __inline int bsd__sputc (int _c, FILE *_p)
 //
 
 int is_socket(file *f);
-int is_virtual_console (file *f);
+int is_virtual_console(file *f);
+// ...
 
 int __feedSTDIN(unsigned long ch);
 
@@ -631,9 +630,18 @@ int kstdio_initialize(void);
 //
 
 //https://en.wikipedia.org/wiki/Printk
-#define printf   kinguio_printf
-#define printk   kinguio_printf
+#define printf  kinguio_printf
+#define printk  kinguio_printf
 #define sprintf  mysprintf
+
+// crt/
+#define crt_printf  kinguio_printf
+#define crt_sprintf  mysprintf
+#define crt_fseek  k_fseek
+#define crt_rewind  k_rewind
+#define crt_ftell  k_ftell
+#define crt_fclose  k_fclose
+// ...
 
 #endif    
 

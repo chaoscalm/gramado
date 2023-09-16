@@ -169,9 +169,9 @@ copy-extras:
 #graminit : Already did right above.
 #	sudo cp ../zing/graminit/init/bin/INIT.BIN  ../zz/omega3/base/
 # Graphics engine
-	-sudo cp ../zing/gramlan0/eng/bin/ENG.BIN  ../zz/omega3/base/
+	-sudo cp ../zing/gramado/eng/bin/ENG.BIN  ../zz/omega3/base/
 # Display server.
-	-sudo cp ../zing/gramlan0/gramland/bin/GRAMLAND.BIN  ../zz/omega3/base/
+	-sudo cp ../zing/gramado/swamp/bin/GRAMLAND.BIN  ../zz/omega3/base/
 # c3
 	-sudo cp ../zing/netd/bin/NETCTL.BIN   ../zz/omega3/base/
 	-sudo cp ../zing/netd/bin/NETCTLD.BIN  ../zz/omega3/base/
@@ -304,8 +304,8 @@ clean-all: clean
 
 # ==================
 # Clear the init process.
-	-rm ../zing/gramlan0/init/bin/*.BIN
-	-rm ../zing/gramlan0/init/*.o
+	-rm ../zing/graminit/init/bin/*.BIN
+	-rm ../zing/graminit/init/*.o
 
 # ==================
 # Clear the disk cache

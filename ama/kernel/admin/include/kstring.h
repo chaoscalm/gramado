@@ -1,10 +1,9 @@
-/*
- * File: string.h
- *     Ring 0, string operations.
- */
 
-#ifndef __STRING_H
-#define __STRING_H    1
+// kstring.h
+// Ring 0, string operations.
+
+#ifndef __KSTRING_H
+#define __KSTRING_H    1
 
 // #important
 void *memcpy   ( void *v_dst, const void *v_src, unsigned long n );
@@ -55,9 +54,9 @@ char *k_strtok_r (
     const char *delim, 
     char **last );
 
-char *k_strtok (char *s, const char *delim);
+char *k_strtok(char *s, const char *delim);
 
-char *strdup (const char *str);
+char *strdup(const char *str);
 
 #endif    
 

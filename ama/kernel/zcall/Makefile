@@ -75,6 +75,7 @@ reboot.o \
 request.o \
 system.o \
 mod.o \
+cali.o \
 kmain.o \
 zero.o \
 sys.o \
@@ -91,6 +92,8 @@ all:
 	$(CC) -c overall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
 	$(CC) -c overall/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
 	$(CC) -c overall/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
+
+	$(CC) -c overall/cali.c   $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
 
 # kmain
 	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
