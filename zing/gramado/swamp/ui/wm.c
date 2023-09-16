@@ -6,7 +6,7 @@
  *     2020 - Create by Fred Nora.
  */
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 
 

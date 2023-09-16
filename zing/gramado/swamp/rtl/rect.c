@@ -4,7 +4,7 @@
 // #todo: 
 // Rectangle rotutines belongs to ui/?!
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 //
 // == private functions: prototypes ====================

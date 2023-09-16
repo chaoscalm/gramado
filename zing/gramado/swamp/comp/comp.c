@@ -3,7 +3,7 @@
 // The purpose of these routines is compose the final frame
 // into the backbuffer and display it into the frontbuffer.
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 // The call back can't use the compose()
 // if the display server is using it at the moment.

@@ -1,7 +1,7 @@
 
 // surface.c
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 struct gws_surface_d  *rootSurface;
 

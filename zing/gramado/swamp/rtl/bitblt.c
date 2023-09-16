@@ -2,7 +2,7 @@
 // bitblt.c
 // Bit-block Transfer.
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 int 
 bitblt(

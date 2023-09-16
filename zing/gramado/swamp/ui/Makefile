@@ -1,9 +1,11 @@
 
+# ui/
+
 # GRAMLAND.BIN
 # GWS - Gramland Window Server.
 # 2020 - Created by Fred Nora.
 
-linkTarget = GRAMLAND.BIN
+#linkTarget = GRAMLAND.BIN
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -16,8 +18,8 @@ linkTarget = GRAMLAND.BIN
 #linkFlags  = -m elf_x86_64 \
 #-s -x -static -T ../../link.ld
 
-linkFlags  = -m elf_x86_64 \
--s -x -static -T link.ld
+#linkFlags  = -m elf_x86_64 \
+#-s -x -static -T link.ld
 
 
 VERSION = 0
@@ -79,93 +81,54 @@ CFLAGS += -fno-optimize-sibling-calls
 
 #todo
 #path longo. vamos mudar  as libs de lugar para gramado/libs.
-LIBC        = ../libs/rtl/include/
-LIBCOBJ     = ../libs/rtl/obj
+LIBC        = ../../libs/rtl/include/
+LIBCOBJ     = ../../libs/rtl/obj
 
-LIBDISP     = ../libs/libdisp/include/
-LIBDISPOBJ  = ../libs/libdisp/obj
-LIBGR       = ../libs/libgr/include/
-LIBGROBJ    = ../libs/libgr/obj
+LIBDISP     = ../../libs/libdisp/include/
+LIBDISPOBJ  = ../../libs/libdisp/obj
+LIBGR       = ../../libs/libgr/include/
+LIBGROBJ    = ../../libs/libgr/obj
 
 CINCLUDES  = -I $(LIBC)  
 CINCLUDES += -I $(LIBDISP)
 CINCLUDES += -I $(LIBGR)
 CINCLUDES += -I .    
-
+CINCLUDES += -I ../
+    
 # Objects
-myObjects = crt0.o main.o rtl.o \
-ctype.o stdio.o stdlib.o string.o conio.o socket.o signal.o unistd.o \
-termios.o ioctl.o fcntl.o    
+myObjects = wm.o \
+menu.o \
+font.o \
+painter.o \
+window.o    
 
-myObjects += libdisp.o
-myObjects += libgr.o
 
-myObjects += ar_root.o
-myObjects += ar_rtl.o
-myObjects += ar_os.o
-myObjects += ar_comp.o    
-myObjects += ar_ui.o    
 
 .PHONY: all all-c gws-link finalize clean
 
 all: main.o all-c gws-link finalize clean
 	@echo "Ok?"
 main.o:
-	$(CC) -c  main.c      $(CFLAGS) $(CINCLUDES) -o main.o
-
+#	$(CC)  -c grinput.c  $(CFLAGS) $(CINCLUDES) -o grinput.o
+	$(CC)  -c wm.c    $(CFLAGS) $(CINCLUDES) -o wm.o
 all-c:
-
-	$(CC)  -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
-	$(CC)  -c button.c    $(CFLAGS) $(CINCLUDES) -o button.o
-	$(CC) -c  callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
-	$(CC) -c  client.c    $(CFLAGS) $(CINCLUDES) -o client.o
-	$(CC)  -c demos.c     $(CFLAGS) $(CINCLUDES) -o demos.o
-	$(CC) -c  globals.c   $(CFLAGS) $(CINCLUDES) -o globals.o
-	$(CC)  -c grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
-	$(CC)  -c gws.c       $(CFLAGS) $(CINCLUDES) -o gws.o
-	$(CC)  -c sprite.c    $(CFLAGS) $(CINCLUDES) -o sprite.o
-	$(LD) -r -o ar_root.o \
-bmp.o button.o callback.o client.o demos.o \
-globals.o grinput.o gws.o sprite.o    
-
-	make -C rtl/
-	make -C comp/
-	make -C os/
-	make -C ui/
-
-#
-# == imported objects =============================
-#
-
-# rtl/
-	cp $(LIBCOBJ)/crt0.o .
-	cp $(LIBCOBJ)/rtl.o .
-
-	cp $(LIBCOBJ)/ctype.o .
-	cp $(LIBCOBJ)/stdio.o .
-	cp $(LIBCOBJ)/stdlib.o .
-	cp $(LIBCOBJ)/string.o .
-	cp $(LIBCOBJ)/conio.o .
-	cp $(LIBCOBJ)/unistd.o .
-	cp $(LIBCOBJ)/socket.o .
-	cp $(LIBCOBJ)/signal.o .
-	cp $(LIBCOBJ)/termios.o .
-	cp $(LIBCOBJ)/ioctl.o .
-	cp $(LIBCOBJ)/fcntl.o .
-
-	cp $(LIBDISPOBJ)/libdisp.o .
-	cp $(LIBGROBJ)/libgr.o .
-
+#	$(CC)  -c  rtl/char.c   $(CFLAGS) $(CINCLUDES) -o char.o
+	$(CC)  -c menu.c     $(CFLAGS) $(CINCLUDES) -o menu.o
+	$(CC)  -c font.c     $(CFLAGS) $(CINCLUDES) -o font.o
+	$(CC)  -c painter.c  $(CFLAGS) $(CINCLUDES) -o painter.o
+	$(CC)  -c window.c   $(CFLAGS) $(CINCLUDES) -o window.o
+	
 gws-link:
-	$(LD) $(linkFlags) -o $(linkTarget) $(myObjects)
+#	$(LD) $(linkFlags) -o $(linkTarget) $(myObjects)
+# link
+	$(LD) -r -o ar_ui.o $(myObjects)
+	cp ar_ui.o ../
+	rm *.o
+
 finalize:
 #	cp $(linkTarget) ../bin/
-	cp $(linkTarget) bin/
+#	cp $(linkTarget) bin/
 clean:
 	-rm *.o
-	-rm comp/*.o
-	-rm os/*.o
-	-rm rtl/*.o
-	-rm ui/*.o
-	-rm $(linkTarget)
-
+#	-rm $(linkTarget)
+	

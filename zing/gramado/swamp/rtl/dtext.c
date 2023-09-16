@@ -2,7 +2,7 @@
 // File: dtext.c 
 // Draw text routines.
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 /* 
  * grDrawString:

@@ -1,7 +1,7 @@
 
 // proj.c
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 struct gr_projection_d  *CurrentProjection;
 

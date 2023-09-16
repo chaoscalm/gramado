@@ -1,7 +1,7 @@
 
 // camera.c
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 struct gr_camera_d  *CurrentCamera;
 

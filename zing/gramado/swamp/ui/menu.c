@@ -1,7 +1,7 @@
 
 // menu.c
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 struct gws_menu_d *main_menu;
 

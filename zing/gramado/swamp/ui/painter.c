@@ -1,7 +1,7 @@
 
 // painter.c
 
-#include "gwsint.h"
+#include "../gwsint.h"
 
 static void __draw_button_mark_by_wid( int wid, int button_number );
 //
