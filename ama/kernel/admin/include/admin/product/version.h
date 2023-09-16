@@ -9,7 +9,7 @@
 
 // Current build number
 // Updated by the builder
-#define __CURRENT_BUILD_NUMBER    328
+#define __CURRENT_BUILD_NUMBER    329
 
 // Version
 #define VERSION_MAJOR    1
@@ -19,7 +19,7 @@
 #define VERSION_WORD    0x0109
 // Strings
 #define VERSION_STRING    "1.9"
-#define BUILD_STRING      "328"
+#define BUILD_STRING      "329"
 #define BUILD_CODENAME_STRING  "Amazing"
 #define RELEASE_STRING    PRODUCT_TYPE_STRING
 
