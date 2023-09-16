@@ -127,6 +127,8 @@ struct display_server_d  *display_server;
 
 static int IsAcceptingInput = FALSE;
 static int IsAcceptingConnections = FALSE;
+static int IsComposing = FALSE;
+
 static int connection_status = 0;
 // Number of accepted requests.
 // How many times the accept() routine returned a valid value.
@@ -1035,7 +1037,7 @@ gwsProcedure (
         // #test
         // Handle incoming inputs right after a huge service routine.
         //if ( is_accepting_input() == TRUE )
-        //    wmInputReader();
+        //    xx_wmInputReader();
         //NoReply = FALSE;      // #todo
         break;
 
@@ -2730,7 +2732,7 @@ int serviceRefreshWindow(void)
 
 // Flush
     gws_show_window_rect(window);
-    // wmInputReader();
+    // xx_wmInputReader();
 
 done:
     return 0;
@@ -3484,8 +3486,10 @@ static int ServerInitialization(int dm)
     int CanRead = -1;
 
     IsTimeToQuit = FALSE;
+
     IsAcceptingInput = TRUE;
     IsAcceptingConnections = TRUE;
+    IsComposing= TRUE;
 
 // ==========================================
 // Starting the initialization phases.
@@ -3859,13 +3863,12 @@ static int ServerInitialization(int dm)
 
         if (IsTimeToQuit == TRUE){ break; };
 
-        // Respecting the circular queue.
-        if (IsAcceptingInput == TRUE)
-        {
-            // (Input port)
-            wmInputReader();
+        // Get system messages via thread queue.
+        if (IsAcceptingInput == TRUE){
+            xxGetAndProcessSystemEvents();
         }
 
+        // Get application messages via socket connection.
         if (IsAcceptingConnections == TRUE)
         {
             newconn = (int) accept ( 
@@ -3899,8 +3902,10 @@ static int ServerInitialization(int dm)
         // callback anymore.
         // This was the jog of the callback.
         // #todo: We need a timer.
-        // (Output port)
-        compose();
+        
+        if (IsComposing == TRUE){
+            compose();
+        }
 
         // Not accpeting
         //if (IsAcceptingConnections == FALSE){

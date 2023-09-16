@@ -8,6 +8,8 @@
 
 #include "gwsint.h"
 
+
+
 // #todo
 // Maybe we need a structure for this.
 
@@ -168,6 +170,8 @@ inline int is_combination(int msg_code);
 
 static int wmProcessCombinationEvent(int msg_code);
 
+static void wmProcessTimerEvent(unsigned long long1, unsigned long long2);
+
 // =====================================================
 
 
@@ -290,6 +294,102 @@ fail:
     return;
 }
 
+static void wmProcessTimerEvent(unsigned long long1, unsigned long long2)
+{
+    struct gws_window_d *window;
+
+    //#debug
+    //printf("Tick\n");
+
+// We need the keyboard_owner.
+    window = (struct gws_window_d *) get_focus();
+    if ((void*) window == NULL)
+        return;
+    if (window->magic != 1234)
+        return;
+
+
+// Print a char into the window with focus.
+// It needs to be an editbox?
+
+    // Acende
+    if (window->ip_on != TRUE){
+        // #todo: Create a worker.
+        wm_draw_char_into_the_window(
+            window, (int) '_',  COLOR_BLACK );
+        wm_draw_char_into_the_window(
+            window, (int) VK_BACK,  COLOR_WHITE );
+        window->ip_on = TRUE;
+    // Apaga
+    } else if (window->ip_on == TRUE ){
+        // #todo: Create a worker.
+        wm_draw_char_into_the_window(
+            window, (int) '_',  COLOR_WHITE );
+        wm_draw_char_into_the_window(
+            window, (int) VK_BACK,  COLOR_WHITE );
+        window->ip_on = FALSE;
+    };
+}
+
+void on_enter(void);
+void on_enter(void)
+{
+    struct gws_window_d *window;
+
+    // We need the keyboard_owner.
+    window = (struct gws_window_d *) get_focus();
+    if ((void*) window == NULL)
+        return;
+    if (window->magic != 1234)
+        return;
+
+
+// Nothing for now.
+    if (window->type == WT_EDITBOX_SINGLE_LINE)
+        return;
+
+
+    // APAGADO: Se esta apagado, ok, apenas pinte.
+    if (window->ip_on != TRUE){
+        // Pinte
+        //wm_draw_char_into_the_window(
+            //window, (int) VK_RETURN, COLOR_BLACK );
+        goto position;
+
+    // ACESO: Se esta acesa, apague, depois pinte.
+    }else if (window->ip_on == TRUE){
+            
+            // Apague
+            // #todo: Create a worker.
+            wm_draw_char_into_the_window(
+                window, (int) '_',  COLOR_WHITE );
+            //wm_draw_char_into_the_window(
+                //window, (int) VK_RETURN,  COLOR_WHITE );
+            window->ip_on = FALSE;
+            goto position;
+        }
+
+
+position:
+
+//--------------
+// [Enter]
+         
+    if (window->type == WT_EDITBOX_MULTIPLE_LINES)
+    {
+
+        // bottom reached
+        // Nothing for now
+        if (window->ip_y >= window->height_in_chars){
+            printf("y bottom\n");
+            return;
+        }
+
+        window->ip_y++;
+        //window->ip_x = 0;
+    }
+}
+
 // #todo: explain it
 static unsigned long 
 wmProcessKeyboardEvent(
@@ -340,10 +440,38 @@ wmProcessKeyboardEvent(
         if (window->magic != 1234)
             return 0;
 
+
+        // Enter?
+        if (long1 == VK_RETURN){
+            on_enter();
+            return 0;
+        }
+
         // Print a char into the window with focus.
         // It needs to be an editbox?
-        wm_draw_char_into_the_window(
-            window, (int) long1, fg_color );
+        //#todo: on printable.
+        
+        // APAGADO: Se esta apagado, ok, apenas pinte.
+        if (window->ip_on != TRUE){
+            // Pinte
+            wm_draw_char_into_the_window(
+                window, (int) long1, fg_color );
+        // ACESO: Se esta acesa, apague, depois pinte.
+        }else{
+            
+            // Apague
+            // #todo: Create a worker.
+            wm_draw_char_into_the_window(
+                window, (int) '_',  COLOR_WHITE );
+            wm_draw_char_into_the_window(
+                window, (int) VK_BACK,  COLOR_WHITE );
+            window->ip_on = FALSE;
+
+            // Pinte
+            wm_draw_char_into_the_window(
+                window, (int) long1, fg_color );        
+        }
+        
         // Enqueue a message into the queue that belongs
         // to the window with focus.
         // The client application is gonna get this message.
@@ -629,6 +757,7 @@ wmProcessMouseEvent(
 not_valid:
     return;
 }
+
 
 static void on_mouse_pressed(void)
 {
@@ -3764,6 +3893,10 @@ wm_draw_char_into_the_window(
         return;
     }
 
+// No enter
+    if (ch == VK_RETURN)
+        return;
+
     //#debug
     //if(ascii == 'M'){
     //    printf("M: %d\n",ascii);
@@ -3798,7 +3931,10 @@ wm_draw_char_into_the_window(
 // Isso tem que voltar apagando.
     if (ch == VK_BACK)
     {
-        window->ip_x--;
+        if (window->ip_x > 0){
+            window->ip_x--;
+        }
+
         if (window->ip_x == 0)
         {
             if (window->type == WT_EDITBOX_SINGLE_LINE)
@@ -3808,16 +3944,21 @@ wm_draw_char_into_the_window(
             }
             if (window->type == WT_EDITBOX_MULTIPLE_LINES)
             {
-                window->ip_y--;
+                if (window->ip_y > 0){
+                    window->ip_y--;
+                }
+                
                 if (window->ip_y == 0)
                 {
                     window->ip_y=0;
                 }
+                
                 // #todo #bugbug
                 // Não é pra voltar no fim da linha anterior,
                 // e sim no fim do texto da linha anterior.
-                window->ip_x = (window->width_in_chars -1);
-
+                if (window->ip_y > 0){
+                    window->ip_x = (window->width_in_chars -1);
+                }
                 return;
             }
         }
@@ -3849,21 +3990,7 @@ wm_draw_char_into_the_window(
         return;
     }
 
-// [Enter]
-    if (ch == VK_RETURN)
-    {
-        if (window->type == WT_EDITBOX_MULTIPLE_LINES)
-        {
-            window->ip_y++;
-            if (window->ip_y >= window->height_in_chars)
-            {
-                window->ip_y = (window->height_in_chars-1);
-                return;
-            }
-            window->ip_x = 0;
-        }
-        return;
-    }
+// ----------------------
 
 // Not printable.
 // 32~127
@@ -4638,27 +4765,33 @@ int wmInputReader(void)
     register long i=0;
     long extra_attempts=10;
 
+    // --------
+    // Msg
     int msg=0;
     unsigned long long1=0;
     unsigned long long2=0;
+    // --------
 
     int IsCombination=FALSE;
 
+NextEvent:
+
     status = (int) rtl_get_event();
+
     if (status != TRUE)
     {
         for (i=0; i<extra_attempts; i++)
         {
             status = (int) rtl_get_event();
             if (status == TRUE)
-                goto new_event;
+                goto ProcessEvent;
         };
         goto fail;
     }
 
-new_event:
+ProcessEvent:
 
-    msg = (int) (RTLEventBuffer[1] & 0xFFFFFFFF);
+    msg   = (int) (RTLEventBuffer[1] & 0xFFFFFFFF);
     long1 = (unsigned long) RTLEventBuffer[2];
     long2 = (unsigned long) RTLEventBuffer[3];
 
@@ -4673,6 +4806,12 @@ new_event:
             (int) msg,
             (unsigned long) long1,
             (unsigned long) long2 ); 
+        
+        // Processamos um evento de movimento,
+        // provavelmente teremos outro subsequente.
+        if (msg == GWS_MouseMove)
+            goto NextEvent;
+            
         return 0;
     }
 
@@ -4685,6 +4824,19 @@ new_event:
     {
         wmProcessKeyboardEvent( 
             (int) msg, (unsigned long) long1, (unsigned long) long2 );
+        return 0;
+    }
+
+// ---------------------------------
+// Master timer
+    if (msg == GWS_Timer)
+    {
+        // OK, it's working
+        if (long1 == 1234)
+        {
+            //printf("Tick %d\n",long2);
+            wmProcessTimerEvent(long1,long2);
+        }
         return 0;
     }
 
@@ -4771,6 +4923,7 @@ fail:
 }
 
 // ------------------------------------------------
+// wmInputReader2
 // This is basically the low level input support 
 // for the Gramado OS when running the Gramado Window System.
 // This routine do not pump the messages from a file, just
@@ -4899,6 +5052,11 @@ int wmInputReader2(void)
     };
 
     return 0;
+}
+
+int xxGetAndProcessSystemEvents(void)
+{
+    return (int) wmInputReader();
 }
 
 void wm_change_bg_color(unsigned int color, int tile, int fullscreen)

@@ -821,9 +821,6 @@ struct gws_window_d
 
     // Valido apenas para essa janela.
 
-    // Esta ligado?
-    int ip_on;
-
 // Qual eh o dispositivo de input.
     gws_ip_device_t ip_device;
 
@@ -832,6 +829,10 @@ struct gws_window_d
     // #todo:
     // Use chars, or use only asterisk for password, etc ...
     //int input_glyph_style;
+
+    // Esta ligado?
+    int ip_on;
+    //int ip_lock;
 
     unsigned long ip_x;
     unsigned long ip_y;

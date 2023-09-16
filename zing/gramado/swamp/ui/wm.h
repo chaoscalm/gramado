@@ -177,13 +177,14 @@ void create_taskbar(int issuper, int show);
 // Input support
 //
 
+int xxGetAndProcessSystemEvents(void);
 int wmInputReader(void);
 int wmInputReader2(void);
 int wmSTDINInputReader(void);
-unsigned long wmGetLastInputJiffie(int update);
+
 
 void wmInitializeGlobals(void);
-
+unsigned long wmGetLastInputJiffie(int update);
 void wm_Update_TaskBar( char *string, int flush );
 
 // Associa a estrutura de janela

@@ -891,6 +891,35 @@ int wmTimerEvent(int signature)
     if (signature != 1234)
         return -1;
 
+
+// Master timer.
+// After 1 Sec.
+    if ( (jiffies % (JIFFY_FREQ) ) == 0 )
+    {
+        post_message_to_ws( 
+            MSG_TIMER, 
+            1234, 
+            jiffies );
+    }
+
+    //return 0;
+
+/*
+//#test
+// Polling ps2
+    if ( (jiffies % (16) ) == 0 )
+    {
+        PS2Keyboard.use_polling=TRUE;
+        PS2Keyboard.irq_is_working=FALSE;
+        ps2kbd_poll();
+
+        PS2Mouse.use_polling=TRUE;
+        PS2Mouse.irq_is_working=FALSE;
+        ps2mouse_poll();
+    }
+*/
+
+/*
 //--------------------
 // It is time to flush the dirty rectangles
 // in the window server.
@@ -905,6 +934,9 @@ int wmTimerEvent(int signature)
 // #todo: Podemos ter uma estrutura para eles.
 // Acho que o assembly importa esses valores,
 // e é mais difícil importar de estruturas.
+
+    if (ws_callback_info.initialized != TRUE)
+        return 0;
 
     if (ws_callback_info.initialized == TRUE)
     {
@@ -926,25 +958,7 @@ int wmTimerEvent(int signature)
         }
     }
 //--------------------
-
-/*
-//#test
-// Polling ps2
-    if ( (jiffies % (16) ) == 0 )
-    {
-        PS2Keyboard.use_polling=TRUE;
-        PS2Keyboard.irq_is_working=FALSE;
-        ps2kbd_poll();
-
-        PS2Mouse.use_polling=TRUE;
-        PS2Mouse.irq_is_working=FALSE;
-        ps2mouse_poll();
-    }
 */
-
-// #todo
-// Post timer message in the master timer's thread message queue.
-    // master_timer->tid ?
 
     return 0;
 }
