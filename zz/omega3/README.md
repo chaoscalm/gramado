@@ -1,5 +1,3 @@
-#meta
+# omega3
 
-	?#todo: Describe this thing.
 
-Quote: 'Salvation runs for everyone.'

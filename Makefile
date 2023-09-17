@@ -1,6 +1,8 @@
 # Makefile in the root folder.
 # Build Gramado OS.
 
+BASE = aa/base
+
 # This is the default target
 PHONY := all
 all: userland-domain core-domain
@@ -75,19 +77,19 @@ clean-core:
 	-rm ama/MBR0.BIN
 	-rm ama/kernel/KERNEL.BIN
 
-	-rm ../aa/mods/newm0/MOD0.BIN
-	-rm ../aa/mods/newm1/MOD1.BIN
+	-rm mods/newm0/MOD0.BIN
+	-rm mods/newm1/MOD1.BIN
 
 PHONY := clean-base
 clean-base:
 # Clear the base domain.
 # Clear the disk cache
-	-rm -rf zz/omega3/base/*.BIN 
-	-rm -rf zz/omega3/base/*.BMP
-	-rm -rf zz/omega3/base/EFI/BOOT/*.EFI 
-	-rm -rf zz/omega3/base/GRAMADO/*.BIN 
-	-rm -rf zz/omega3/base/PROGRAMS/*.BIN 
-	-rm -rf zz/omega3/base/USERS/*.BIN 
+	-rm -rf $(BASE)/*.BIN 
+	-rm -rf $(BASE)/*.BMP
+	-rm -rf $(BASE)/EFI/BOOT/*.EFI 
+	-rm -rf $(BASE)/GRAMADO/*.BIN 
+	-rm -rf $(BASE)/PROGRAMS/*.BIN 
+	-rm -rf $(BASE)/USERS/*.BIN 
 
 PHONY := clean-cancun 
 clean-cancun:
