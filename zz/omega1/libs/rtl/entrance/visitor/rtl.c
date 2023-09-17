@@ -371,6 +371,46 @@ rtl_post_system_message(
     return 0;
 }
 
+//====================================================
+
+void 
+rtl_post_to_tid(
+    int tid, 
+    int msg_code, 
+    unsigned long long1, 
+    unsigned long long2 )
+{
+// Send async hello. 44888.
+
+    unsigned long message_buffer[32];
+
+    int target_tid = tid;
+    unsigned long msg = (unsigned long) (msg_code & 0xFFFFFFFF);
+
+// Response support.
+    //int __src_tid = -1;
+    //int __dst_tid = -1;
+
+// The hello message
+    message_buffer[0] = 0; //window
+    message_buffer[1] = (unsigned long) msg;  // message code
+    message_buffer[2] = (unsigned long) long1;   // 
+    message_buffer[3] = (unsigned long) long2;   // 
+    message_buffer[4] = 0;  // Receiver
+    message_buffer[5] = 0;  // Sender
+
+// ---------------------------------
+// Post
+// Add the message into the queue. In tail.
+// IN: tid, message buffer address
+    rtl_post_system_message( 
+        (int) target_tid, 
+        (unsigned long) message_buffer );
+}
+
+
+
+
 //=====================================
 
 // Get an event from the thread's event queue.

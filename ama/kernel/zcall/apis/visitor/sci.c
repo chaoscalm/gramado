@@ -646,7 +646,7 @@ static void *__extra_services (
     }
 
 // 603 - lseek support.
-// See: klib/kunistd.c
+// See: kunistd.c
 // IN: fd, offset, whence.
     if (number == 603){
         return (void *) sys_lseek ( 

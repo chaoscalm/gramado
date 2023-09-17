@@ -151,8 +151,7 @@ off_t sys_lseek(int fd, off_t offset, int whence)
 // See: kstdio.c
     k_fseek( (file *) f, (long) offset, (int) whence );
 
-    if (f->_p < f->_base)
-    {
+    if (f->_p < f->_base){
         panic("sys_lseek: #fixme f->_p < f->_base\n");
     }
 

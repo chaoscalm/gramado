@@ -58,19 +58,40 @@ static int __setup_stdin_cmdline(void)
     char cmdline[64];
 
     memset(cmdline, 0, 64);  
-    cmdline[63]=0;
+    //cmdline[63]=0;
 
-    if ( (void*) stdin == NULL ){
-        return -1;
+// Write
+// Put the command line string into the local buffer.
+
+    // #debug
+    //printf("k: Initializing cmdline\n"); 
+    //refresh_screen();
+
+// Run both modes, cmdline and then server mode.
+    crt_sprintf(
+        cmdline, 
+        "INIT.BIN: --cmd --server");
+
+/*
+// Running only in servermode.
+// Good for headless machine.
+    crt_sprintf(
+        cmdline, 
+        "INIT.BIN: --server");
+*/
+
+    if ((void*) stdin == NULL){
+        panic("__setup_stdin_cmdline: stdin\n");
     }
-    if (stdin->magic!=1234){
-        return -1;
+    if (stdin->magic != 1234){
+        panic("__setup_stdin_cmdline: stdin validation\n");
     }
-// Rewind.
+
+// Rewind
     k_fseek( stdin, 0, SEEK_SET );
-// Clean
+// Write into the file
     file_write_buffer( stdin, cmdline, 64 );
-    k_fseek( stdin, 0, SEEK_SET );
+
     return 0;
 }
 

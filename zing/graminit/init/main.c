@@ -565,13 +565,16 @@ int main( int argc, char **argv)
 
 // Run the command line. 
 // Getting input from stdin.
-    int fRunCommandLine = TRUE;
+    int fRunCommandLine = FALSE;
+
 // Run the event loop. 
 // Getting input from the message queue in the control thread.
 // When the command line exit or fail.
-    int fRunEventLoop = TRUE;
+    int fRunEventLoop = FALSE;
+
 // Was it launched by the kernel?
     int InvalidLauncher = FALSE;
+    
 
     Init.initialized = FALSE;
     Init.argc = (int) argc;
@@ -588,6 +591,30 @@ int main( int argc, char **argv)
         InvalidLauncher = TRUE;
         goto fail;
     }
+
+// ------------------------------
+// Parameters
+    register int i=0;
+    if (argc >= 2)
+    {
+        for (i=1; i < argc; i++)
+        {
+            // Run the embedded cmdline interpreter.
+            if (strcmp("--cmd", argv[i]) == 0)
+                fRunCommandLine = TRUE;
+            
+            // Run the init process in server mode.
+            if (strcmp("--server", argv[i]) == 0)
+                fRunEventLoop = TRUE;
+            
+            //printf ("ARG: %s\n",argv[i]);
+        };
+    }
+
+    //#debug
+    //printf("int.bin: breakpoint\n");
+    //while(1){}
+
 
 //testando se esse codigo esta mesmo em ring3. 
 //#bugbug: this proces is running in ring0.
@@ -668,8 +695,7 @@ int main( int argc, char **argv)
 // Get input from stdin.
 
     int cmdline_status = -1;
-    if (fRunCommandLine == TRUE)
-    {
+    if (fRunCommandLine == TRUE){
         cmdline_status = (int) __stdin_loop();
     }
 
@@ -679,8 +705,7 @@ int main( int argc, char **argv)
 // Now the init process enters in 'server mode'.
 // Getting system messages from it's queue in the control thread.
     int eventloop_status = -1;
-    if (fRunEventLoop == TRUE)
-    {
+    if (fRunEventLoop == TRUE){
         eventloop_status = (int) run_server();
     }
 

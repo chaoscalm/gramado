@@ -6,6 +6,7 @@
 #define __MSG_CLOSE     7
 #define __MSG_COMMAND  40
 
+static char __filename_local_buffer[64];
 
 // The tid of the caller.
 // Sent us a system message.
@@ -124,38 +125,26 @@ __Procedure (
         //printf("init.bin: MSG_COMMAND %d \n",long1);
         switch (long1)
         {
+            // #bugbug
+            // There is something wrong with the filename strings
+            // when calling the launcher rtl_clone_and_execute("?").
+            // #todo: We need a good local buffer for the string.
             case 4001:  //app1
                 printf("init.bin: 4001\n");
-                rtl_clone_and_execute("terminal.bin");
+                memset(__filename_local_buffer,0,64);
+                sprintf(__filename_local_buffer,"terminal.bin");
+                rtl_clone_and_execute(__filename_local_buffer);
                 break;
             case 4002:  //app2
                 printf("init.bin: 4002\n");
-                rtl_clone_and_execute("gdm.bin");
                 break;
             case 4003:  //app3
                 printf("init.bin: 4003\n");
-                rtl_clone_and_execute("editor.bin");
                 break;
             case 4004:  //app4
                 //printf("init.bin: 4004\n");
-                //rtl_clone_and_execute("reboot.bin");
                 break;
-            case 4005:  //app5
-                //printf("init.bin: 4005\n");
-                //rtl_clone_and_execute("terminal.bin");
-                break;
-            case 4006:  //app6
-                //printf("init.bin: 4006\n");
-                //rtl_clone_and_execute("gdm.bin");
-                break;
-            case 4007:  //app7
-                //printf("init.bin: 4007\n");
-                //rtl_clone_and_execute("editor.bin");
-                break;
-            case 4008:  //app8
-                //printf("init.bin: 4008\n");
-                //rtl_clone_and_execute("reboot.bin");
-                break;
+            // ...
             default:
                 break;
         };
@@ -258,6 +247,8 @@ static int __idlethread_loop(void)
 int run_server(void)
 {
     int IdleLoopStatus = -1;
+
+    printf("init.bin: Running in server mode\n");
 
     Caller.tid = -1;
     Caller.initialized = TRUE;

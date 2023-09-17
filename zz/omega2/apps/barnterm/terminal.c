@@ -212,13 +212,13 @@ static void __test_winfo(int fd, int wid);
 
 static void __test_ioctl(void);
 
-static void __test_send_async_hello(void);
+static void __test_post_async_hello(void);
 
 static void __winmax(int fd);
 static void __winmin(int fd);
 
 //====================================================
-static void __test_send_async_hello(void)
+static void __test_post_async_hello(void)
 {
 // Send async hello. 44888.
 
@@ -991,14 +991,30 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-// Sending message to init.bin
-// and wait for response.
+// Sending message to init.bin and
+// do NOT wait for response.
+// But it will send us a message back.
     if ( strncmp(prompt,"msg1",4) == 0 )
     {
         //while(1)
-            __test_send_async_hello();
+            __test_post_async_hello();
         goto exit_cmp;
     }
+
+// Sending message to init.bin and
+// do NOT wait for response.
+// But it will send us a message back.
+    if ( strncmp(prompt,"msg2",4) == 0 )
+    {
+        rtl_post_to_tid(
+            0, // init process tid.
+            44888, // message code
+            1234,
+            5678 );
+            
+        goto exit_cmp;
+    }
+
 
 // Sleep until
 // IN: ms.
@@ -1273,6 +1289,7 @@ static void compareStrings(int fd)
 
 // #todo
 // The kernel is gonna crash if the file was no found.
+// see: libs/libgws/gws.c
 
     //__try_execute(fd);  // Local worker
     gws_clone_and_execute_from_prompt(fd);  // libgws.

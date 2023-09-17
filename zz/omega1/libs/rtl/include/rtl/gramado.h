@@ -231,6 +231,13 @@ rtl_post_system_message(
     int dest_tid, 
     unsigned long message_buffer );
 
+void 
+rtl_post_to_tid(
+    int tid, 
+    int msg_code, 
+    unsigned long long1, 
+    unsigned long long2 );
+
 unsigned long rtl_get_system_message2(unsigned long message_buffer,int index,int restart);
 
 unsigned long rtl_get_system_metrics (int index);
