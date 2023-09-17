@@ -167,7 +167,7 @@ static void on_update_window(struct gws_window_d *window, int event_type);
 
 void __probe_window_hover(unsigned long long1, unsigned long long2);
 
-int control_action(int msg, unsigned long long1);
+static int control_action(int msg, unsigned long long1);
 
 // Button
 void __button_pressed(int wid);
@@ -966,6 +966,7 @@ static void on_control_clicked(struct gws_window_d *window)
 
     struct gws_window_d *w1;
     struct gws_window_d *w2;
+    int ClickedByPointer=FALSE;
 
 // ------------------------------
 // + Post message to close the overlapped
@@ -976,10 +977,17 @@ static void on_control_clicked(struct gws_window_d *window)
     if (window->magic != 1234)
         return;
 
-// It was not clicked.
-// When the mouse is the only valid input device.
-    //if (window != mouse_hover)
-        //return;
+// Nothing to do.
+    if (window->isControl != TRUE)
+        return;
+
+//
+// When some input pointer clicked the control.
+//
+
+// Mouse?
+    if (window == mouse_hover)
+        ClickedByPointer = TRUE;
 
 // ------------
 // Minimize control
@@ -1008,6 +1016,12 @@ static void on_control_clicked(struct gws_window_d *window)
                             //    GWS_Minimize
                             //    0,
                             //    0 );
+
+                           if (WindowManager.initialized == TRUE){
+                                if (WindowManager.is_fullscreen == TRUE)
+                                    wm_exit_fullscreen_mode(TRUE);
+                            }
+
                             return;
                         }
                     }
@@ -1043,6 +1057,13 @@ static void on_control_clicked(struct gws_window_d *window)
                             //    GWS_Maximize,
                             //    0,
                             //    0 );
+                            
+                            set_active_window(w2);
+                            if (WindowManager.initialized == TRUE){
+                                if (WindowManager.is_fullscreen != TRUE)
+                                    wm_enter_fullscreen_mode();
+                            }
+                            
                             return;
                         }
                     }
@@ -1075,10 +1096,7 @@ static void on_control_clicked(struct gws_window_d *window)
                         {
                             printf("Close wid={%d}\n",w2->id);
                             window_post_message ( 
-                                w2->id,
-                                GWS_Close,
-                                0,
-                                0 );
+                                w2->id, GWS_Close, 0, 0 );
                             return;
                         }
                     }
@@ -1086,6 +1104,9 @@ static void on_control_clicked(struct gws_window_d *window)
             }
         }
     }
+
+// Do we have more controls in the title bar?
+
 }
 
 static void on_doubleclick(void)
@@ -1520,7 +1541,7 @@ static void on_update_window(struct gws_window_d *window, int event_type)
 // Vamos pressionar ou liberar um dos botoes de controle
 // que estao na barra de titulos.
 // IN: event, key
-int control_action(int msg, unsigned long long1)
+static int control_action(int msg, unsigned long long1)
 {
 // #todo
 // Explain the parameters.
@@ -1575,6 +1596,8 @@ int control_action(int msg, unsigned long long1)
     if (w->magic != 1234){
         goto fail;
     }
+    if (w->isTitleBar != TRUE)
+        goto fail;
 
 // Is the control support already initialized for this window?
     if (w->Controls.initialized != TRUE){
@@ -5191,38 +5214,29 @@ void wm_enter_fullscreen_mode(void)
 // active window
     //w = (struct gws_window_d *) last_window;
     w = (struct gws_window_d *) get_active_window();
-    if ( (void*) w != NULL )
-    {
-        WindowManager.is_fullscreen = TRUE;
-        WindowManager.fullscreen_window = 
-            (struct gws_window_d *) w;
-        wm_update_window_by_id(w->id);
+    if ((void*) w == NULL)
         return;
-    }
+    if (w->magic != 1234)
+        return;
 
-/*
-// Last window
-    w = (struct gws_window_d *) last_window;
-    if ( (void*) w != NULL ){
-        WindowManager.is_fullscreen = TRUE;
-        WindowManager.fullscreen_window = 
-            (struct gws_window_d *) w;
-        wm_update_window_by_id(w->id);
-        return;
-    }
-*/
+// Set flag
+    WindowManager.is_fullscreen = TRUE;
 
-/*
-// First window
-    w = (struct gws_window_d *) first_window;
-    if ( (void*) w != NULL ){
-        WindowManager.is_fullscreen = TRUE;
-        WindowManager.fullscreen_window = 
-            (struct gws_window_d *) w;
-        wm_update_window_by_id(w->id);
-        return;
-    }
-*/
+// Set the window
+    WindowManager.fullscreen_window = 
+        (struct gws_window_d *) w;
+
+// Update window
+    wm_update_window_by_id(w->id);
+
+// Setup the mouse hover window
+    mouse_hover = NULL;
+
+// Set up the mouse owner.    
+    mouse_owner = NULL;
+
+// Set the window with focus.
+    keyboard_owner = NULL;
 }
 
 void wm_exit_fullscreen_mode(int tile)
@@ -5231,6 +5245,16 @@ void wm_exit_fullscreen_mode(int tile)
         return;
     }
     WindowManager.is_fullscreen = FALSE;
+
+// Setup the mouse hover window
+    mouse_hover = NULL;
+
+// Set up the mouse owner.    
+    mouse_owner = NULL;
+
+// Set the window with focus.
+    keyboard_owner = NULL;
+
     wm_update_desktop(tile,TRUE);
 }
 
