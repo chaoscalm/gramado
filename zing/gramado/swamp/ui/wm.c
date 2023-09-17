@@ -8,6 +8,19 @@
 
 #include "../gwsint.h"
 
+// #test (#bugbgu)
+#define MSG_MOUSE_DOUBLECLICKED   60
+#define MSG_MOUSE_DRAG            61
+#define MSG_MOUSE_DROP            62
+
+//
+// Double click
+//
+
+// Delta?
+static unsigned long DoubleClickSpeed=250;
+unsigned long last_mousebutton_down_jiffie=0;
+static int its_double_click=FALSE;
 
 
 // #todo
@@ -749,6 +762,11 @@ wmProcessMouseEvent(
     if (event_type == GWS_MouseReleased){
         on_mouse_released();
         return;
+    }
+
+    if (event_type == MSG_MOUSE_DOUBLECLICKED)
+    {
+        printf("MSG_MOUSE_DOUBLECLICKED: #todo\n");
     }
 
     // ...
@@ -4771,6 +4789,8 @@ int wmInputReader(void)
     unsigned long long1=0;
     unsigned long long2=0;
     // --------
+    unsigned long long3=0;
+    // #todo: Get the button numberfor mouse clicks.
 
     int IsCombination=FALSE;
 
@@ -4794,6 +4814,8 @@ ProcessEvent:
     msg   = (int) (RTLEventBuffer[1] & 0xFFFFFFFF);
     long1 = (unsigned long) RTLEventBuffer[2];
     long2 = (unsigned long) RTLEventBuffer[3];
+// #test
+    long3 = (unsigned long) RTLEventBuffer[4]; //jiffie
 
 
 // -----------------------
@@ -4802,6 +4824,18 @@ ProcessEvent:
          msg == GWS_MousePressed ||
          msg == GWS_MouseReleased )
     {
+        // #test: For double click.
+        if (msg == GWS_MousePressed){
+        its_double_click = FALSE;
+        if ( (long3-last_mousebutton_down_jiffie) < 250 ){
+            //printf("DOUBLE\n");
+            its_double_click = TRUE;
+            msg = MSG_MOUSE_DOUBLECLICKED;
+        }
+        last_mousebutton_down_jiffie = long3; //jiffie
+        }
+
+        // 
         wmProcessMouseEvent(
             (int) msg,
             (unsigned long) long1,
@@ -5357,91 +5391,93 @@ int gwssrv_initialize_default_color_scheme(void)
     cs->name = "Humility";
     cs->style = 0;
 
-// Colors
-// see: ws.h
 
+// Colors
 // size: 32 elements.
+// see: 
+// ws.h themes/honey.h
+
 
 // 0
     cs->elements[csiNull] = 0;
 
 // 1 - Screen background. (Wallpaper)
     cs->elements[csiDesktop] = 
-        HUMILITY_COLOR_BACKGROUND;  
+        HONEY_COLOR_BACKGROUND;  
 
 //----
 
 // 2 - Window
     cs->elements[csiWindow] = 
-        HUMILITY_COLOR_WINDOW;
+        HONEY_COLOR_WINDOW;
 
 // 3 - Window background
     cs->elements[csiWindowBackground] = 
-        HUMILITY_COLOR_WINDOW_BACKGROUND;
+        HONEY_COLOR_WINDOW_BACKGROUND;
 
 // 4 - Border for active window.
     cs->elements[csiActiveWindowBorder] = 
-        HUMILITY_COLOR_ACTIVE_WINDOW_BORDER;
+        HONEY_COLOR_ACTIVE_WINDOW_BORDER;
 
 // 5 - Border for inactive window.
     cs->elements[csiInactiveWindowBorder] = 
-        HUMILITY_COLOR_INACTIVE_WINDOW_BORDER;
+        HONEY_COLOR_INACTIVE_WINDOW_BORDER;
 
 //----
 
 // 6 - Titlebar for active window.
     cs->elements[csiActiveWindowTitleBar] = 
-        HUMILITY_COLOR_ACTIVE_WINDOW_TITLEBAR;
+        HONEY_COLOR_ACTIVE_WINDOW_TITLEBAR;
 
 // 7 - Titlebar for inactive window.
     cs->elements[csiInactiveWindowTitleBar] = 
-        HUMILITY_COLOR_INACTIVE_WINDOW_TITLEBAR;
+        HONEY_COLOR_INACTIVE_WINDOW_TITLEBAR;
 
 // 8 - Menubar
     cs->elements[csiMenuBar] = 
-        HUMILITY_COLOR_MENUBAR;
+        HONEY_COLOR_MENUBAR;
 
 // 9 - Scrollbar 
     cs->elements[csiScrollBar] = 
-        HUMILITY_COLOR_SCROLLBAR;
+        HONEY_COLOR_SCROLLBAR;
 
 // 10 - Statusbar
     cs->elements[csiStatusBar] = 
-        HUMILITY_COLOR_STATUSBAR;
+        HONEY_COLOR_STATUSBAR;
 
 // 11 - Taskbar
     cs->elements[csiTaskBar] = 
-        HUMILITY_COLOR_TASKBAR;
+        HONEY_COLOR_TASKBAR;
 
 //----
 
 // 12 - Messagebox
     cs->elements[csiMessageBox] = 
-        HUMILITY_COLOR_MESSAGEBOX;
+        HONEY_COLOR_MESSAGEBOX;
 
 // 13 - System font. (Not a good name!)
     cs->elements[csiSystemFontColor] = 
-        HUMILITY_COLOR_SYSTEMFONT;
+        HONEY_COLOR_SYSTEMFONT;
 
 // 14 - Terminal font.
     cs->elements[csiTerminalFontColor] = 
-        HUMILITY_COLOR_TERMINALFONT;
+        HONEY_COLOR_TERMINALFONT;
 
 // 15 - Button.
     cs->elements[csiButton] = 
-        HUMILITY_COLOR_BUTTON;
+        HONEY_COLOR_BUTTON;
 
 // 16 - Window border.
     cs->elements[csiWindowBorder] = 
-        HUMILITY_COLOR_WINDOW_BORDER;
+        HONEY_COLOR_WINDOW_BORDER;
 
 // 17 - wwf border
     cs->elements[csiWWFBorder] = 
-        HUMILITY_COLOR_WWF_BORDER;
+        HONEY_COLOR_WWF_BORDER;
 
 // 18 - Titlebar text color.
     cs->elements[csiTitleBarTextColor] = 
-        HUMILITY_COLOR_TITLEBAR_TEXT;
+        HONEY_COLOR_TITLEBAR_TEXT;
 
 //
 // Mouse hover
@@ -5449,17 +5485,16 @@ int gwssrv_initialize_default_color_scheme(void)
 
 // 19 - When mousehover. (default color)
     cs->elements[csiWhenMouseHover] = 
-        HUMILITY_COLOR_BG_ONMOUSEHOVER;
+        HONEY_COLOR_BG_ONMOUSEHOVER;
 // 20 -
     cs->elements[csiWhenMouseHoverMinimizeControl] = 
-        HUMILITY_COLOR_BG_ONMOUSEHOVER_MIN_CONTROL;
+        HONEY_COLOR_BG_ONMOUSEHOVER_MIN_CONTROL;
 // 21 -
     cs->elements[csiWhenMouseHoverMaximizeControl] = 
-        HUMILITY_COLOR_BG_ONMOUSEHOVER_MAX_CONTROL;
+        HONEY_COLOR_BG_ONMOUSEHOVER_MAX_CONTROL;
 // 22 -
     cs->elements[csiWhenMouseHoverCloseControl] = 
-        HUMILITY_COLOR_BG_ONMOUSEHOVER_CLO_CONTROL;
-
+        HONEY_COLOR_BG_ONMOUSEHOVER_CLO_CONTROL;
 
 // 23 - Textbar text color
     cs->elements[csiTaskBarTextColor] = 

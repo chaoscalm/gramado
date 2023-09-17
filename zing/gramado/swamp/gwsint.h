@@ -30,6 +30,8 @@ extern int current_mode;
 #include "protocol.h"
 #include "globals.h"
 #include "ui/colors.h"
+#include "ui/themes/humility.h"
+#include "ui/themes/honey.h"
 
 // #imported
 // Display device library.

@@ -310,6 +310,16 @@ void *doCreateWindow (
     register struct gws_window_d *window;
     struct gws_window_d *Parent;
 
+    unsigned int FrameColor;
+    unsigned int ClientAreaColor;
+    if (type == WT_OVERLAPPED){
+        FrameColor = (unsigned int) get_color(csiWindow);
+        ClientAreaColor = (unsigned int) get_color(csiWindow);
+    }else{
+        FrameColor = (unsigned int) frame_color;
+        ClientAreaColor = (unsigned int) client_color;
+    };
+
 //
 // Internal flags.
 //
@@ -572,8 +582,9 @@ void *doCreateWindow (
 // View
     window->view = (int) view;
 
-    window->bg_color = (unsigned int) frame_color;
-    window->clientarea_bg_color = (unsigned int) client_color;
+// Colors
+    window->bg_color = (unsigned int) FrameColor;
+    window->clientarea_bg_color = (unsigned int) ClientAreaColor;
 
     // Default color for 'when mouse hover'.
     window->bg_color_when_mousehover = 
@@ -986,8 +997,9 @@ void *doCreateWindow (
 // Background and client area background.
 // #todo
 // If this window is overlapped, so, we need to respect the theme.
-    window->bg_color = (unsigned int) frame_color;
-    window->clientarea_bg_color = (unsigned int) client_color;
+    // Already did above.
+    //window->bg_color = (unsigned int) FrameColor;
+    //window->clientarea_bg_color = (unsigned int) ClientAreaColor;
 
 // #todo: As outras características do cursor.
 // Características.
@@ -1434,9 +1446,10 @@ void *doCreateWindow (
             case WT_CHECKBOX:
             case WT_ICON:
             case WT_BUTTON:
-                window->bg_color = (unsigned int) frame_color;
+                window->bg_color = (unsigned int) FrameColor;
                 break;
             default:
+                // #todo
                 window->bg_color = (unsigned int) COLOR_PINK;
                 break;
         };
@@ -1456,22 +1469,12 @@ void *doCreateWindow (
         // Could we return now if its type is WT_SIMPLE?
     }
 
-// ===============================================
-// ## Client area rectangle ##
 
-    if (ClientArea == TRUE)
-    {
-        // #bugbug
-        // Doing this for the second time.
-        // We already worked on these values
-        // on top of this routine.
-        /*
-        window->rcClient.left   = (unsigned long) window->left;
-        window->rcClient.top    = (unsigned long) window->height;
-        window->rcClient.width  = (unsigned long) window->width;
-        window->rcClient.height = (unsigned long) window->height;
-        */
-    }
+// #todo
+// Nothing to do here.
+    //if (ClientArea == TRUE){
+    //}
+
 
 //
 // == Button ====================
@@ -1484,7 +1487,8 @@ void *doCreateWindow (
 
     unsigned int label_color = COLOR_BLACK; // default
 
-
+// #todo
+// Use color scheme in this routine.
     if ((unsigned long) type == WT_BUTTON)
     {
         // #ps: ButtonState = window status.
@@ -1672,6 +1676,17 @@ void *CreateWindow (
 
     //gwssrv_debug_print ("CreateWindow:\n");
 
+    unsigned int FrameColor;
+    unsigned int ClientAreaColor;
+    if (type == WT_OVERLAPPED){
+        FrameColor = (unsigned int) get_color(csiWindowBackground);
+        ClientAreaColor = (unsigned int) get_color(csiWindow);
+    }else{
+        FrameColor = (unsigned int) frame_color;
+        ClientAreaColor = (unsigned int) client_color;
+    };
+
+
 
     /*
     // #debug
@@ -1810,8 +1825,8 @@ void *CreateWindow (
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
-                         frame_color, 
-                         client_color, 
+                         FrameColor, 
+                         ClientAreaColor, 
                          (unsigned long) __rop_flags ); 
 
         if ((void *) __w == NULL){
@@ -1859,7 +1874,7 @@ void *CreateWindow (
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
-                         frame_color, client_color, 
+                         FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags ); 
 
          if ( (void *) __w == NULL ){
@@ -1917,7 +1932,7 @@ void *CreateWindow (
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
-                         frame_color, client_color, 
+                         FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );
 
          if ((void *) __w == NULL){
@@ -1949,7 +1964,7 @@ void *CreateWindow (
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
-                         frame_color, client_color, 
+                         FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );  
 
          if ( (void *) __w == NULL ){
@@ -1979,11 +1994,11 @@ void *CreateWindow (
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
                          desktopid, 
-                         frame_color, client_color, 
+                         FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );  
 
-         if ( (void *) __w == NULL ){
-             gwssrv_debug_print ("CreateWindow: doCreateWindow fail\n");
+         if ((void *) __w == NULL){
+             gwssrv_debug_print("CreateWindow: doCreateWindow fail\n");
              goto fail;
          }
 
@@ -2038,6 +2053,7 @@ draw_frame:
 // style.
 // #todo: We need the style dependent variables for these colors.
 
+// #todo: use color scheme here.
     if ( type == WT_OVERLAPPED || 
          type == WT_EDITBOX_SINGLE_LINE || 
          type == WT_EDITBOX_MULTIPLE_LINES || 

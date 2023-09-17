@@ -1979,7 +1979,7 @@ int serviceCreateWindow(int client_fd)
     h = (unsigned long) (r.ul7 & 0xFFFF);
 // 8 = Background color.
     r.ul8 = message_address[8];
-    color        = (unsigned int) (r.ul8 & 0x00FFFFFF);
+    color        = (unsigned int) (r.ul8 & 0x00FFFFFF); // bg color
     frame_color  = (unsigned int) color;
     client_color = (unsigned int) color;
 // 9 = type

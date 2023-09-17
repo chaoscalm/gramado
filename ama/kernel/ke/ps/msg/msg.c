@@ -438,8 +438,8 @@ void *sys_get_message(unsigned long ubuf)
     message_address[2] = (unsigned long) m->long1;
     message_address[3] = (unsigned long) m->long2;
 // Get extra entries.
-    message_address[4] = (unsigned long) m->long3;
-    message_address[5] = (unsigned long) m->long4;
+    message_address[4] = (unsigned long) m->long3; // jiffie
+    message_address[5] = (unsigned long) m->long4; // jiffie
     message_address[8] = (unsigned long) m->sender_tid;
     message_address[9] = (unsigned long) m->receiver_tid;
 
