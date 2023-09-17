@@ -33,7 +33,66 @@ static unsigned long shellCompare(void);
 static void doExit(void);
 static void doLF(void);
 
+static void __test_escapesequence(void);
 //======================================
+
+static void __test_escapesequence(void)
+{
+
+    if ( (void*) stdout == NULL )
+        return;
+
+    //printf("\n");
+    //printf("Testing escape sequence:\n");
+
+    //printf("One: \033[m");          //uma sequencia.
+    //printf("Two: \033[m \033[m");   //duas sequencias.
+    printf("~Before \033[m ~Inside \033[m ~ After"); 
+    //printf("\033[1Am"); //ok
+    //printf("\033[2Am X");  // cursor move up.
+    printf("\033[4Bm After cursor down 4 times");  // cursor move down.
+    
+    //printf("\033[sm");     // save cursor position
+    //printf("\033[um");     // restore cursor position
+
+    //#test: Line feed
+    //printf("\033A");
+
+    //#test: Carriage Return 
+    //printf("\033D");
+    
+    
+    
+    // apagar N bytes na mesma linha.
+    //printf("Before --|\033[0Km|-- After \n");  
+    
+    printf("\033D");
+    printf("Before --|\033[1Km|-- After 1 space");  
+    
+    printf("\033D");
+    printf("Before --|\033[2Km|-- After 2 spaces");  
+    
+    printf("\033D");
+    printf("Before --|\033[3Km|-- After 3 spaces");  
+    
+    //printf("\033D");
+    //printf("Before --|\033[4Km|-- After 4 spaces");  
+
+    printf("\033D");
+    //move cursor right
+    printf("\033[8Cm After cursor right 8 timer.");
+
+    printf("\033[2Bm After cursor down 2 times");
+
+    //printf("\033D");
+    //move cursor left
+    printf("\033[2Bm \033[4Dm After cursor left 4 timer.");
+
+    printf("\033D");
+    printf("Done :) ");
+    
+    //fflush(stdout);
+}
 
 static void doExit(void)
 {
@@ -45,7 +104,8 @@ static void doExit(void)
 
 static void doLF(void)
 {
-    printf(".\n");
+    //printf(".\n");
+    printf("\033D");
 }
 
 /*
@@ -81,7 +141,10 @@ static void shellPrompt(void)
     //printf("$\n");
 
 
-    printf("$ ");
+// Line feed (unix)
+    printf("\033D $ ");
+
+    //printf("$ ");
     fflush(stdout);
 }
 
@@ -125,12 +188,26 @@ do_compare:
     //shellInsertLF();
     //printf("\n");
 
+// Let's send 0x00~0x1F to the terminal.
+// Or scape sequencies.
+    if ( strncmp ( prompt, "esc", 3 ) == 0 )
+    {
+        doLF();
+        //printf("shell.bin: This is the shell command\n");
+        //printf("\n");
+        //printf("\033D");
+        printf("Sending escape sequencies: \n");
+        __test_escapesequence();
+        goto exit_cmp;
+    }
+
     // cls
     // #todo: Send escape sequence.
     if ( strncmp(prompt,"cls",3) == 0 )
     {
-        //doLF();
-        printf ("~cls \n");
+        doLF();
+        //printf("\033D");
+        printf ("~cls");
         //fflush(stdout);
         goto exit_cmp;
     }
@@ -139,7 +216,8 @@ do_compare:
     // #todo: Create do_banner();
     if ( strncmp ( prompt, "about", 5 ) == 0 )
     {
-        printf ("shell.bin: This is the shell command\n");
+        doLF();
+        printf("shell.bin: This is the shell command");
         //fflush(stdout);
         goto exit_cmp;
     }
@@ -148,8 +226,9 @@ do_compare:
     int my_pid=0;
     if ( strncmp( prompt, "getpid", 6 ) == 0 )
     {
-        my_pid=getpid();
-        printf ("pid: %d\n",my_pid);
+        my_pid = getpid();
+        doLF();
+        printf("pid: %d",my_pid);
         goto exit_cmp;
     }
 
@@ -157,8 +236,9 @@ do_compare:
     int my_ppid=0;
     if ( strncmp( prompt, "getppid", 7 ) == 0 )
     {
-        my_ppid=getppid();
-        printf ("ppid: %d\n",my_ppid);
+        my_ppid = getppid();
+        doLF();
+        printf("ppid: %d",my_ppid);
         goto exit_cmp;
     }
 
@@ -167,7 +247,8 @@ do_compare:
     if ( strncmp( prompt, "mm-size", 7 ) == 0 )
     {
         __mm_size_mb = (unsigned long) sc80 (292,0,0,0);
-        printf ("Memory size = %d MB \n",__mm_size_mb);
+        doLF();
+        printf("Memory size = %d MB ",__mm_size_mb);
         goto exit_cmp;
     }
 
@@ -176,7 +257,7 @@ do_compare:
     {
         //printf("\n");
         //sc80 ( SYSTEMCALL_CURRENTPROCESSINFO, 0, 0, 0 );
-        sc80 ( 80, 0, 0, 0 );
+        sc80( 80, 0, 0, 0 );
         goto exit_cmp; 
     }
 
@@ -184,18 +265,22 @@ do_compare:
     if ( strncmp ( prompt, "process-info", 12 ) == 0 )
     {
         //printf("\n");
-        sc80 ( 82, 0, 0, 0 );
+        sc80( 82, 0, 0, 0 );
         goto exit_cmp; 
     }
 
 // exit
-    if ( strncmp( prompt, "exit", 4 ) == 0 ){
+    if ( strncmp( prompt, "exit", 4 ) == 0 )
+    {
+        doLF();
         doExit();
         goto exit_cmp;
     }
 
 // quit
-    if ( strncmp( prompt, "quit", 4 ) == 0 ){
+    if ( strncmp( prompt, "quit", 4 ) == 0 )
+    {
+        doLF();
         doExit();
         goto exit_cmp;
     }
@@ -204,6 +289,7 @@ do_compare:
     void *hBuffer;
     if ( strncmp( prompt, "malloc", 6 ) == 0 )
     {
+        doLF();
         printf ("Testing heap: 32KB\n");
         hBuffer = (void *) malloc( 1024*32 );        // 32 kb
         //...
@@ -212,7 +298,7 @@ do_compare:
         }else{
             printf("OK\n");
         };
-        printf("done\n");
+        printf("done");
         goto exit_cmp;
     }
 
@@ -248,8 +334,10 @@ launch_app:
     // comandos com extensao .bin
     //rtl_clone_and_execute(prompt);
 
+    doLF();
     //printf ("Command not found\n");
-    printf("SHELL.BIN: Command not found! \n");
+    //printf("\n");
+    printf("SHELL.BIN: Command not found! ");
     //fflush(stdout);
 
 // #testando escape sequences.
@@ -278,16 +366,6 @@ int main(int argc, char *argv[])
 // (>>> stdout)
 // Still using the kernel console.
 
-    printf("shell.bin: argc={%d} ",argc);
-    fflush(stdout);
-
-    if (argc>0)
-    {
-        for (i=0; i<argc; i++){
-            printf("argv[%d]: %s\n", i, argv[i] );
-        };
-    }
-
 // -----------------------------------
 // (>>> stderr)
 // Now we have a new stdout.
@@ -296,10 +374,14 @@ int main(int argc, char *argv[])
 
     stdout = stderr;
 
-// Send a simple string.
-    printf("SHELL.BIN: Shell is alive! ");
-    fflush(stdout);
-    
+    doLF();
+    printf("shell.bin: argc={%d} \n",argc);
+    if (argc>0){
+        for (i=0; i<argc; i++){
+            printf("argv[%d]: %s\n", i, argv[i] );
+        };
+    }
+
     shellPrompt();
 
 // ------------------------------------------------

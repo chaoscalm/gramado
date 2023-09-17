@@ -40,6 +40,9 @@ __ProcessExtendedKeyboardKeyStroke(
     unsigned long rawbyte )
 {
 // Combinations.
+// ------------------------------------
+// It's an extended keyboard key.
+// Send combination keys to the display server.
 
 /*
  Scancodes:
@@ -68,14 +71,18 @@ __ProcessExtendedKeyboardKeyStroke(
     //refresh_screen();
 
     if (rawbyte >= 0xFF){
-        return -1;
+        goto fail;
     }
 
     unsigned long scancode = (unsigned long) (rawbyte & 0x7F);
 
+    //if (msg < 0)
+        //goto fail;
+
     switch (scancode)
     {
         case 0x1D: //pause, r-control
+            //post_message_to_ws( MSG_INSERT, 0, scancode );
             break;
         case 0x52: //ins
             post_message_to_ws( MSG_INSERT, 0, scancode );
@@ -84,14 +91,18 @@ __ProcessExtendedKeyboardKeyStroke(
             post_message_to_ws( MSG_CLEAR, 0, scancode );
             break;
         case 0x47:  //home
+            //post_message_to_ws( MSG_INSERT, 0, scancode );
             break;
         case 0x49:  //pgup
+            //post_message_to_ws( MSG_INSERT, 0, scancode );
             break;
         case 0x51:  //pgdn
+            //post_message_to_ws( MSG_INSERT, 0, scancode );
             break;
         case 0x4F:  //end
+            //post_message_to_ws( MSG_INSERT, 0, scancode );
             break;
-            
+
         //#bugbug
         //Suspenso o keydown e arrow
         //pois atrapalha as teclas de digitação.
@@ -136,6 +147,8 @@ __ProcessExtendedKeyboardKeyStroke(
     };
 
     return 0;
+fail:
+    return (int) -1;
 }
 
 // ----------------------------------------------
@@ -337,9 +350,9 @@ wmKeyEvent(
     //struct process_d  *__p;
     //struct thread_d   *t;
 
-    unsigned long status = 0;
-    int msg_status = -1;
-    int save_pos = 0;
+    //unsigned long status = 0;
+    //int msg_status = -1;
+    //int save_pos = 0;
 
 // Pegando o argumento e convertendo para ascii
     unsigned char Keyboard_RawByte  =0;
@@ -352,6 +365,8 @@ wmKeyEvent(
     unsigned long Event_LongASCIICode = 0;  //arg3 - ascii code (vk)
     unsigned long Event_LongRawByte   = 0;  //arg4 - raw byte
     //===================
+
+    int Status = -1;
 
 // #test
 // Not working yet.
@@ -761,23 +776,24 @@ done:
     Event_LongRawByte = 
         (unsigned long) (Keyboard_RawByte & 0x000000FF);
 
-// Invalid ascii code?
-// Não tem virtual key '0'.
+// 0 is null in the ascii table.
+// 0x00 ~ 0x7F
     if (Event_LongASCIICode == 0){
         return -1;
     }
 
 // ------------------------------------
-// It is a extended keyboard key.
-// Send combination keys to the window server.
+// It's an extended keyboard key.
+// Send combination keys to the display server.
     if (Prefix == 0xE0 || Prefix== 0xE1)
     {
-        __ProcessExtendedKeyboardKeyStroke(
+        Status = 
+            (int) __ProcessExtendedKeyboardKeyStroke(
                 (int) Prefix,
                 (int) Event_Message, 
                 (unsigned long) Event_LongASCIICode,
                 (unsigned long) Event_LongRawByte );
-        return 0;
+        return (int) Status;
     }
 
 // ==================================
@@ -799,7 +815,15 @@ done:
 // considerarmos a combinação de teclas, 
 // antes de enviarmos o evento.
 // O estado de capslock não importa aqui.
-// see: kstdio.c for __feedSTDIN.
+// see: kstdio.c for kstdio_feed_stdin.
+
+// ASCII Codes (0x00~0x7F)
+// Extended ASCII Codes (0x80~0xFF)
+
+    int __int_ascii_code = (int) (Event_LongASCIICode & 0xFF);
+    //int __int_ascii_code = (int) (Event_LongASCIICode & 0x7F);
+
+    int wbytes = 0;  //written bytes.
 
     // Not in the embedded shell.
     if (ShellFlag != TRUE)
@@ -811,7 +835,8 @@ done:
                  ctrl_status != TRUE && 
                  shift_status != TRUE )
             {
-                __feedSTDIN( (unsigned long) Event_LongASCIICode );
+                wbytes = (int) kstdio_feed_stdin((int) __int_ascii_code);
+
 
                 // #todo
                 // Maybe we're gonna return here depending on
@@ -862,7 +887,6 @@ done:
 // #todo
 // precisamos de uma flag que indique que isso deve ser feito.
 
-    int __Status=-1;
 
 // Quando devemos processar internamente?
 // + Somente quando uma tecla de controle estiver acionada.
@@ -874,13 +898,13 @@ done:
 
     // ShellFlag == TRUE
 
-    __Status = 
+    Status = 
         (int) wmProcedure(
                   (int) Event_Message,
                   (unsigned long) Event_LongASCIICode,
                   (unsigned long) Event_LongRawByte );
 
-    return (int) __Status;
+    return (int) Status;
 }
 
 int wmTimerEvent(int signature)

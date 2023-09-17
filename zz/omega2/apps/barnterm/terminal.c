@@ -1985,10 +1985,13 @@ tputc (
     unsigned char ascii = (unsigned char) c;
     //unsigned char ascii = *c;
 
+// ------------
 // Control codes?
-    //int control = (ascii < '\x20' || ascii == 0177);
+// (0x00~0x1F) and 0x7F.
+
     int is_control=FALSE;
-    if ( ascii < '\x20' || ascii == 0177 )
+    if ( ascii <= 0x1F || 
+         ascii == 0x7F )
     {
         is_control = TRUE;
     }
@@ -2053,7 +2056,7 @@ tputc (
     if (__sequence_status == 0)
     {
         if (is_control == FALSE){
-            terminal_write_char ( fd, window, (int) ascii ); 
+            terminal_write_char( fd, window, (int) ascii ); 
             return;
         }
     }
@@ -2085,7 +2088,8 @@ tputc (
             //case TERMINAL_ESCAPE:
             //case '\e':
             //case '\033':
-            case '\x1b':
+            //case '\x1b':
+            case 0x1B:
                 //printf("FOUND {033}. Start of sequence\n");
                 __sequence_status = 1;
                 Terminal.esc = ESC_START;
@@ -2094,27 +2098,32 @@ tputc (
                 return;
                 break;
 
-
-            case '\016':    /* SO */
-            case '\017':    /* SI */
+            case 0x0E:  // SO - Shift Out
+            case 0x0F:  // SI - Shift In 
                 return;
                 break;
 
-            case '\032':    /* SUB */
-            case '\030':    /* CAN */
+            case 0x1A:  // SUB - Substitute
+            case 0x18:  // CAN - Cancel
                 //csireset ();
                 //terminal_write_char ( fd, window, (int) '$'); //debug
                 //printf (" {reset?} "); //debug
                 return;
                 break;
 
+            case 0x00:  // NUL - (IGNORED)
+            case 0x05:  // ENQ - Enquiry (IGNORED)
+            
+            case 0x11:  // DC1 - device control 1
+            case 0x12:  // DC2 - device control 2
+            case 0x13:  // DC3 - device control 3
+            case 0x14:  // DC4 - device control 4
+                // Nothing
+                return;
 
-            case '\005':    /* ENQ (IGNORED) */
-            case '\000':    /* NUL (IGNORED) */
-            case '\021':    /* XON (IGNORED) */
-            case '\023':    /* XOFF (IGNORED) */
-            //case 0177:    /* DEL (IGNORED) */
-                //Nothing;
+            // DEL - Ignored for now.
+            case 0x7F:
+                //Nothing
                 return;
 
             // ...
@@ -2367,13 +2376,24 @@ tputc (
                 __sequence_status = 0;
                 break;  
 
-            // ESC D - IND      Linefeed.
+            // #test
+            // #todo: A=LINEFEED D=CARRIEGE RETURN.
+            case 'A':
+                Terminal.esc = 0;
+                tputstring(fd,"\n");
+                break;
+             
+            // ESC D - IND 
             /* IND -- Linefeed */
+            // #todo: A=LINEFEED D=CARRIEGE RETURN.
             case 'D': 
                 Terminal.esc = 0;
-                terminal_write_char ( fd, window, (int) '$');  //debug
+                //terminal_write_char ( fd, window, (int) '$');  //debug
                 //printf (" {IND} ");  //debug
+                //tputstring(fd,"\r");
+                tputstring(fd,"\n");
                 break;
+
 
             // ESC E - NEL  Newline.
             /* NEL -- Next line */ 
@@ -3004,8 +3024,8 @@ static int __input_STDERR(int fd)
 
 // Launch the child application (PROGRAMS/SHELL.BIN)
 // "#shell.bin"
-    rtl_clone_and_execute("#shell.bin");
-
+    //rtl_clone_and_execute("#shell.bin");
+    rtl_clone_and_execute("shell.bin");
 // Loop
     while (1){
         C = fgetc(new_stdin);

@@ -1,13 +1,12 @@
 /*
  * File: kbdabnt2.h 
- *     Header de suporte ao teclado abnt2.
+ * Brazilian (pt-br) abnt2 keyboard support.
  */
 
-#ifndef ____KBDABNT2_H
-#define ____KBDABNT2_H    1
+#ifndef __KBD_KBDABNT2_H
+#define __KBD_KBDABNT2_H    1
 
-
-//Usado no mapa de caracteres. 
+// Usado no mapa de caracteres. 
 #define L      0x01    // locking function.
 #define SHF    0x02    // keyboard shift.
 #define ALT    0x04    // alternate shift -- alternate chars.
@@ -17,10 +16,8 @@
 #define ASCII  0x40    // ascii code for this key.
 #define STP    0x80    // stop output.
 
-
 //ASCII
 
-//A disciplina de linhas precisa disso.
 #define KEY_RETURN   28   //13 //sc 28 #bugbug tem que ser 28
 #define KEY_TAB      15
 #define KEY_SHIFT    42   //16
@@ -32,8 +29,6 @@
 #define KEY_SPACE    57   //32
 #define KEY_WINKEY   91   
 #define KEY_DELETE   127  //sc 83
-
-
 
 #define KEY_F1   0x80
 #define KEY_F2   (KEY_F1  + 1)
@@ -63,12 +58,27 @@
 #define KRIGHT (KDOWN + 1)
 */
 
+/*
+ Scancodes:
+ Notebook acer, abnt2. ubuntu.
+ see: vk.h and kbdabnt2.h.
 
-
-//Mouse
-#define KEY_MOUSEBUTTON1   5000
-#define KEY_MOUSEBUTTON2   5000
-#define KEY_MOUSEBUTTON3   5000
+             down | up
+ pause     = 0x1D | 0x9D
+ ins       = 0x52 | 0xD2
+ del       = 0x53 | 0xD3
+ home      = 0x47 | 0xC7
+ pgup      = 0x49 | 0xC9
+ pgdn      = 0x51 | 0xD1
+ end       = 0x4F | 0xCF
+ right     = 0x4D | 0xCD
+ up        = 0x48 | 0xC8
+ down      = 0x50 | 0xD0
+ left      = 0x4B | 0xCB
+ r-control = 0x1D | 0x9D
+ sys menu  = 0x5D | 0xDD
+ altgr     = 0x38 | 0xB8
+ */
 
 
 

@@ -536,7 +536,7 @@ int is_socket(file *f);
 int is_virtual_console(file *f);
 // ...
 
-int __feedSTDIN(unsigned long ch);
+int kstdio_feed_stdin(int ch);
 
 unsigned long kinput(unsigned long ch);
 

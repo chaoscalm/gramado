@@ -74,10 +74,14 @@ static char *_vsputs_r(char *dest, char *src);
 // ---------------------------
 
 // Feed stdin.
-int __feedSTDIN(unsigned long ch)
+int kstdio_feed_stdin(int ch)
 {
-    //char Data = (char) (ch & 0x7F);
+
+// ASCII Codes (0x00~0x7F)
+// Extended ASCII Codes (0x80~0xFF)
+
     char Data = (char) (ch & 0xFF);
+
     char ch_buffer[2];
 
     if ((void*) stdin == NULL){
@@ -90,6 +94,9 @@ int __feedSTDIN(unsigned long ch)
         goto fail;
     }
 
+// #bugbug
+// We're not respecting the flag.
+
 // Can write.
     stdin->sync.can_write = TRUE;
 // Can write and read.
@@ -99,11 +106,15 @@ int __feedSTDIN(unsigned long ch)
 
 // Write
 // Write 1 byte.
+// see: fs.c
 
-    file_write_buffer ( 
-        (file *) stdin, 
-        (char *) ch_buffer, 
-        (int) 1 );
+    int wbytes = 0;
+
+    wbytes = 
+        (int) file_write_buffer ( 
+            (file *) stdin, 
+            (char *) ch_buffer, 
+            (int) 1 );
 
 // Can read.
 // O aplicativo precisa disso.
@@ -111,7 +122,10 @@ int __feedSTDIN(unsigned long ch)
 // Can read.
 // O worker no kernel precisa disso.
     stdin->_flags = __SRD;
-    return 0;
+
+// Return the number of written bytes.
+    return (int) wbytes;
+
 fail:
     return (int) -1;
 }

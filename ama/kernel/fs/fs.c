@@ -52,6 +52,7 @@ unsigned long search_path_dir_entries=0;
 // File read.
 // It's called by sys_read.
 // Copia à partir do início do arquivo.
+// // OUT: number of read bytes.
 int file_read_buffer( file *f, char *buffer, int len )
 {
     char *p;
@@ -122,7 +123,7 @@ int file_read_buffer( file *f, char *buffer, int len )
     if (f->____object == ObjectTypeSocket){
         memcpy ( (void *) buffer, (const void *) f->_base, Count );
         f->_flags |= __SWR;
-        return Count;
+        return (int) Count;
     }
 
 // =================================
@@ -133,7 +134,7 @@ int file_read_buffer( file *f, char *buffer, int len )
     if (f->____object == ObjectTypePipe){
         memcpy ( (void *) buffer, (const void *) f->_base, Count );
         f->_flags |= __SWR;
-        return Count;
+        return (int) Count;
     }
 
 // =================================
@@ -309,13 +310,14 @@ fail:
 // Escreve no arquivo uma certa quantidade de caracteres 
 // de uma dada string.
 // It's called by sys_write.
-
+// OUT: number of written bytes.
 int 
 file_write_buffer ( 
     file *f, 
     char *string, 
     int len )
 {
+
     char *p;
     p = string;
 
@@ -350,14 +352,14 @@ file_write_buffer (
 // escrita ou leitura.
     if (f->____object == ObjectTypeSocket){
         memcpy( (void *) f->_base, (const void *) string, len );
-        return len;
+        return (int) len;
     }
 
 // Pipe file.
 // não concatenaremos
     if (f->____object == ObjectTypePipe){
         memcpy( (void *) f->_base, (const void *) string, len );
-        return len;
+        return (int) len;
     }
 
 // Regular file, TTY file, IO Buffer file.
