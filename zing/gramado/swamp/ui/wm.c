@@ -154,6 +154,8 @@ wmProcessMouseEvent(
 static void on_control_clicked_by_wid(int wid);
 static void on_control_clicked(struct gws_window_d *window);
 
+static void on_doubleclick(void);
+
 static void on_mouse_pressed(void);
 static void on_mouse_released(void);
 static void on_mouse_leave(struct gws_window_d *window);
@@ -767,6 +769,7 @@ wmProcessMouseEvent(
     if (event_type == MSG_MOUSE_DOUBLECLICKED)
     {
         printf("MSG_MOUSE_DOUBLECLICKED: #todo\n");
+        on_doubleclick();
     }
 
     // ...
@@ -840,6 +843,8 @@ static void on_mouse_pressed(void)
     // actually we're grabbing the parent.
     if (mouse_hover->isTitleBar == TRUE)
     {
+        // #suspended
+        /*
         grab_wid = -1; // No grabbed window
         grab_is_active = FALSE;  // Not yet
         // We're not dragging yet.
@@ -866,6 +871,7 @@ static void on_mouse_pressed(void)
                 }
             }
         }
+        */
 
         return;
     }
@@ -1082,6 +1088,51 @@ static void on_control_clicked(struct gws_window_d *window)
     }
 }
 
+static void on_doubleclick(void)
+{
+    struct gws_window_d *w;
+    struct gws_window_d *p;
+
+// Window
+    w = mouse_hover;
+    if ((void*)w == NULL)
+        return;
+    if (w->magic != 1234)
+        return;
+
+
+// is titlebar?
+    if (w->isTitleBar == TRUE)
+    {
+        printf("Titlebar double click\n");
+
+        // Parent
+        p = w->parent;
+        if ((void*)p == NULL)
+            return;
+        if (p->magic != 1234)
+            return;
+        
+        if (p->type == WT_OVERLAPPED)
+        {
+            set_active_window(p);
+
+            // Enter fullscreen mode.
+            if (WindowManager.is_fullscreen != TRUE){
+                wm_enter_fullscreen_mode();
+                return;
+            // Exit fullscreen mode.
+            } else if (WindowManager.is_fullscreen == TRUE){
+                wm_exit_fullscreen_mode(TRUE);
+                return;
+            }
+        }
+    }
+
+    // ...
+
+}
+
 static void on_mouse_released(void)
 {
     // Get these from event.
@@ -1266,7 +1317,11 @@ static void on_mouse_released(void)
          is_dragging == TRUE &&       
          grab_wid > 0 )
     {
-        on_drop();
+        // #suspended
+        //on_drop();
+        grab_is_active = FALSE;
+        is_dragging = FALSE;
+        grab_wid = -1;
         return;
     }
 
@@ -1290,6 +1345,8 @@ static void on_mouse_released(void)
 // Release the titlebar.
     if (mouse_hover->isTitleBar == TRUE)
     {
+        //#suspended
+        /*
         // Get parent.
         p = (struct gws_window_d *) mouse_hover->parent;
         if ((void*) p != NULL)
@@ -1326,6 +1383,7 @@ static void on_mouse_released(void)
                 }
             }
         }
+        */
     }
 
 
