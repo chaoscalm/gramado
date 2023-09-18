@@ -45,9 +45,6 @@ struct gr_mat4x4_d
     float m[4][4];  // = { 0 };
 };
 
-
-
-
 // int
 struct gr_vec3D_d
 {

@@ -1,8 +1,8 @@
 
 // fcntl.h
 
-#ifndef _FCNTL_H
-#define _FCNTL_H    1
+#ifndef __FCNTL_H
+#define __FCNTL_H    1
 
 #include <sys/types.h>
 
@@ -125,17 +125,5 @@ int openat(int dirfd, const char *pathname, int flags);
 int open(const char *pathname, int flags, mode_t mode);
 int creat(const char *pathname, mode_t mode);
 
-
-
-
-#endif /* _FCNTL_H */
-
-//
-// End.
-//
-
-
-
-
-
+#endif    
 

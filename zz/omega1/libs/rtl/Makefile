@@ -78,6 +78,7 @@ libc-content:
 	gcc  -c  ioctl.c    $(CFLAGS) -I. -I include/ -o ioctl.o
 	gcc  -c  signal.c   $(CFLAGS) -I. -I include/ -o signal.o
 	gcc  -c  socket.c   $(CFLAGS) -I. -I include/ -o socket.o
+	gcc  -c  inet.c     $(CFLAGS) -I. -I include/ -o inet.o
 	gcc  -c  stdio.c    $(CFLAGS) -I. -I include/ -o stdio.o
 	gcc  -c  stdlib.c   $(CFLAGS) -I. -I include/ -o stdlib.o
 	gcc  -c  termios.c  $(CFLAGS) -I. -I include/ -o termios.o

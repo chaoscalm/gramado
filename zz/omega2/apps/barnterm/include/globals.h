@@ -1,8 +1,8 @@
 
 // global.h
 
-#ifndef __GLOBALS__
-#define __GLOBALS__    1
+#ifndef __GLOBALS
+#define __GLOBALS   1
 
 //
 // pool

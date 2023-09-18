@@ -26,13 +26,15 @@
 
 // rtl
 #include <types.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <rtl/gramado.h>
 // The client-side library.
@@ -105,6 +107,21 @@ static int blink_status=FALSE;
 
 //int tmp_ip_x=8;
 //int tmp_ip_y=8;
+
+// Program name
+static const char *program_name = "EDITOR";
+// Addressbar title
+static const char *bar1_string = "bar1";
+// Button labe.
+static const char *b1_string = "Save";
+// Client window title.
+static const char *cw_string = "cw";
+
+// text
+static const char *text1_string = "Name:";
+static const char *text2_string = "TEXT.TXT";
+
+// ---------------------------------------
 
 //prototype
 static int 
@@ -694,7 +711,7 @@ int main( int argc, char *argv[] )
                   WT_OVERLAPPED,  // type 
                   WINDOW_STATUS_ACTIVE,  // status 
                   VIEW_NULL,             // view
-                  "EDITOR", 
+                  program_name, 
                   viewwindowx, viewwindowy, w_width, w_height,
                   0, 
                   0x0000,  
@@ -721,8 +738,7 @@ int main( int argc, char *argv[] )
         (unsigned long) 2,          // l 
         (unsigned long) 4 +(24/3),  // t
         (unsigned long) COLOR_BLACK,
-        " Name: ");
-
+        text1_string);
     //#debug
     gws_refresh_window (client_fd, main_window);
 // -----------------------------
@@ -745,7 +761,7 @@ int main( int argc, char *argv[] )
     addressbar_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_EDITBOX,1,1,"address-bar",
+                  WT_EDITBOX,1,1,bar1_string,
                   (( lWi.cr_width/8 )*2),  //l
                   4,                       //t
                   (( lWi.cr_width/8 )*3), 
@@ -771,7 +787,7 @@ int main( int argc, char *argv[] )
             (unsigned long) 8,          // left
             (unsigned long) 8,          // top
             (unsigned long) COLOR_BLACK,
-            "text.txt");
+            text2_string);
     }
     //#debug
     gws_refresh_window (client_fd, main_window);
@@ -793,7 +809,7 @@ int main( int argc, char *argv[] )
                   WT_BUTTON,
                   BS_DEFAULT,  // window status or button state
                   1,
-                  "Save",
+                  b1_string,
                   (( lWi.cr_width/8 )*6),  //l 
                   4,                  //t
                   (( lWi.cr_width/8 )*1), 
@@ -859,7 +875,7 @@ int main( int argc, char *argv[] )
     client_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_EDITBOX_MULTIPLE_LINES, 1, 1, "Client",
+                  WT_EDITBOX_MULTIPLE_LINES, 1, 1, cw_string,
                   cw_left, cw_top, cw_width, cw_height,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 

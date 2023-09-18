@@ -263,7 +263,3 @@ int libcInitRT(void);
 #endif    
 
 
-
-//
-// End
-//

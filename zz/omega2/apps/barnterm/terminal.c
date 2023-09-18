@@ -4,11 +4,18 @@
 //#include <ctype.h>
 // #todo:
 // We need to change the name of this document??
-#include "include/terminal.h"
+
 // #test:
 // Testing ioctl()
 #include <termios.h>
+#include <fcntl.h>
 #include <sys/ioctls.h>
+#include <sys/ioctl.h>
+#include <stdlib.h>
+//#include <stdio.h>
+//#include <unistd.h>
+#include "include/terminal.h"
+
 
 // network ports.
 #define PORTS_WS  4040
@@ -170,6 +177,12 @@ unsigned long __barwidth=0;
 unsigned long __barheight=0;
 
 
+// Program name
+static const char *program_name = "TERMINAL";
+// Client window title
+static const char *cw_string = "Client";
+
+
 //
 // == Private functions: Prototypes ==============
 //
@@ -210,7 +223,7 @@ static void __try_execute(int fd);
 
 static void doHelp(int fd);
 static void doAbout(int fd);
-static libc_test(int fd);
+static void libc_test(int fd);
 
 static void clear_terminal_client_window(int fd);
 static void __send_to_child (void);
@@ -867,7 +880,7 @@ fail:
     return;
 }
 
-static libc_test(int fd)
+static void libc_test(int fd)
 {
     int NumberOfFilesToCreate = 8;
     int file_index=0;
@@ -1077,15 +1090,17 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
+    /*
     if ( strncmp(prompt,"open1",5) == 0 )
     {
-        open("/DEV/KBD0", "a+"); 
-        open("/TTY0", "a+");
-        open("/TTY1", "a+");
-        open("/DEV_1234_1111", "a+");  // Bochs Graphics Adapter.
+        open("/DEV/KBD0", 0,"a+"); 
+        open("/TTY0", 0, "a+");
+        open("/TTY1", 0, "a+");
+        open("/DEV_1234_1111", 0, "a+");  // Bochs Graphics Adapter.
         // ...
         goto exit_cmp;
     }
+    */
 
     if ( strncmp(prompt,"int3",4) == 0 ){
         do_int3();
@@ -1866,7 +1881,7 @@ void __test_escapesequence(int fd)
 }
 
 // 
-void tputstring( int fd, char *s )
+void tputstring(int fd, char *s)
 {
 // #test
 // Print a string inside the client window?
@@ -1875,11 +1890,13 @@ void tputstring( int fd, char *s )
     register int i=0;
     char *b = (char *) s;
 
-    if( (void*) s == NULL )
+// Pointer validation
+    if ( (void*) s == NULL )
         return;
-    if( *s == 0 )
+    if ( *s == 0 )
         return;
 
+// String size
     StringSize = (size_t) strlen(s);
     if (StringSize <= 0){
         return;
@@ -2520,7 +2537,8 @@ terminalGetCharXY (
 {
     if ( x >= __wlMaxColumns || y >= __wlMaxRows )
     {
-        return;
+        // #bugbug
+        return 0;
     }
 
     return (char) LINES[y].CHARS[x];
@@ -3571,7 +3589,7 @@ int terminal_init(void)
                   WT_OVERLAPPED, 
                   WINDOW_STATUS_ACTIVE,  // status
                   VIEW_NULL,             // view
-                  "TERMINAL",
+                  program_name,
                   mwLeft, mwTop, mwWidth, mwHeight,
                   0,
                   WS_TERMINAL,
@@ -3668,7 +3686,7 @@ int terminal_init(void)
     terminal_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_SIMPLE, 1, 1, "ter-client",
+                  WT_SIMPLE, 1, 1, cw_string,
                   wLeft, wTop, wWidth, wHeight,
                   main_window,
                   0x0000,

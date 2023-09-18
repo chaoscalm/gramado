@@ -4,6 +4,9 @@
  *     Header for standard defines. C99.
  */
 
+#ifndef __STDDEF_H
+#define __STDDEF_H    1
+
 
 /* 
 enum {
@@ -63,7 +66,7 @@ typedef int  size_t;
 //#todo: Use this one.
 //#define offsetof(type, member)    __builtin_offsetof(type, member)
 
-//
-// End.
-//
+
+#endif    
+
 

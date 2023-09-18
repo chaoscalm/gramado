@@ -51,15 +51,12 @@
  */
 
 
-#ifndef _NETINET_IN_H_
-#define _NETINET_IN_H_
-
+#ifndef __NETINET_IN_H_
+#define __NETINET_IN_H_  1
 
 #include <sys/ansi.h> 
 
-
-#define  _NETINET_IN_H_
-
+//#define  _NETINET_IN_H_
 
 
 //======================

@@ -2,8 +2,8 @@
 // colors.h
 // Client-side colors.
 
-#ifndef __LIBGWS_COLOURS_H
-#define __LIBGWS_COLOURS_H  1
+#ifndef __LIBGWS_COLORS_H
+#define __LIBGWS_COLORS_H  1
 
 // Basics
 #define rgbBlack    0x000000

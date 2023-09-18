@@ -5,29 +5,50 @@
 #fazer um makefile pra compilar o shell
 #obs: #bugbug tem que arrumas as coisas aqui.
 
+
 VERSION = 0
 PATCHLEVEL = 0
 SUBLEVEL = 0
 EXTRAVERSION =
 #NAME = 
 
-#todo:
-#We need to simplify these flags
+linkFlags  = -m elf_x86_64 \
+-s -x -static -T ../link.ld
 
-CFLAGS = -m64 \
-	-std=gnu89 \
-	-nodefaultlibs \
-	-nostdinc \
-	-nostdlib \
-	-static \
-	-fgnu89-inline \
-	-ffreestanding \
-	-fno-builtin \
-	-fno-pie \
-	-fleading-underscore \
-	-fno-stack-protector \
-	-s \
-	-Werror=strict-prototypes    
+# usermode cross compiler flags.
+CFLAGS = -Wall
+#CFLAGS += -O3
+CFLAGS += -Wundef
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wno-uninitialized
+CFLAGS += -Wno-format-security
+CFLAGS += -Wno-trigraphs
+CFLAGS += -Werror=strict-prototypes
+CFLAGS += -Werror=implicit-function-declaration
+CFLAGS += -Werror=return-type
+CFLAGS += -std=gnu89
+CFLAGS += -m64
+CFLAGS += -s
+CFLAGS += -static
+CFLAGS += -fcommon
+CFLAGS += -fgnu89-inline
+CFLAGS += -finline-functions
+CFLAGS += -fshort-wchar
+CFLAGS += -ffreestanding
+CFLAGS += -fleading-underscore
+CFLAGS += -fstrict-overflow
+CFLAGS += -nostdlib
+CFLAGS += -nodefaultlibs
+CFLAGS += -nostdinc
+CFLAGS += -fno-builtin
+CFLAGS += -fno-stack-protector
+CFLAGS += -fno-strict-aliasing
+CFLAGS += -fno-PIE
+CFLAGS += -fno-pie
+CFLAGS += -fno-omit-frame-pointer
+CFLAGS += -fno-optimize-sibling-calls    
+
+
 
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
@@ -40,7 +61,8 @@ LIBGWSOBJ = ../../../omega1/libs/libgws/obj
 myObjects = crt0.o main.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o unistd.o termios.o \
 ioctl.o socket.o \
-gws.o connect.o events.o rw.o    
+libgws.o   
+
 
 .PHONY: all all-c hello-link finalize clean
 
@@ -64,13 +86,16 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
-	cp $(LIBGWSOBJ)/connect.o .
-	cp $(LIBGWSOBJ)/events.o .
-	cp $(LIBGWSOBJ)/gws.o .
-	cp $(LIBGWSOBJ)/rw.o .
-	
+#	cp $(LIBGWSOBJ)/connect.o .
+#	cp $(LIBGWSOBJ)/events.o .
+#	cp $(LIBGWSOBJ)/gws.o .
+#	cp $(LIBGWSOBJ)/rw.o .
+
+#test
+	cp $(LIBGWSOBJ)/libgws.o .
+
 hello-link:
-	ld -m elf_x86_64 -T ../link.ld -o GDM.BIN $(myObjects)    
+	ld $(linkFlags) -o GDM.BIN $(myObjects)    
 finalize:
 	cp GDM.BIN  ../bin
 clean:

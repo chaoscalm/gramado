@@ -1,8 +1,8 @@
 
 // packet.h
 
-#ifndef __PACKET__
-#define __PACKET__    1
+#ifndef __PACKET
+#define __PACKET   1
 
 // Socket packets.
 // Usados na troca de mensgens via socket.

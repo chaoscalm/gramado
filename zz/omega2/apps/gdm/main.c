@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -58,10 +59,26 @@ struct sockaddr_in addr = {
 };
 */
 
+static const char *program_name = "GDM";
+
+
+// buttons
+static const char *bar1_string = "bar 1";
+static const char *bar2_string = "bar 2";
+
+// buttons
+static const char *b1_string = "button 1";
+static const char *b2_string = "button 2";
+
+// texts
+static const char *t1_string = "text 1";
+static const char *t2_string = "text 2";
+
+static const char *bar1_text_string = "admin";
+
 // Screen
 unsigned long screen_width=0;
 unsigned long screen_height=0;
-
 // gdm
 unsigned long gdm_x=0;
 unsigned long gdm_y=0;
@@ -128,6 +145,9 @@ gdmProcedure(
 
 static void update_clients(int fd);
 static void destroy_windows(int fd);
+
+static int __init_globals(void);
+//int __init_windows(void);
 
 // ========
 
@@ -226,14 +246,15 @@ static void update_clients(int fd)
     gws_redraw_window(fd, button2_window, TRUE);
 }
 
-int fileman_init_globals(void)
+static int __init_globals(void)
 {
     screen_width  = (unsigned long) gws_get_system_metrics(1);
     screen_height = (unsigned long) gws_get_system_metrics(2);
     return 0;
 }
 
-int fileman_init_windows(void)
+/*
+int __init_windows(void)
 {
     register int i=0;
     for (i=0; i<WINDOW_COUNT_MAX; i++){
@@ -241,6 +262,7 @@ int fileman_init_windows(void)
     };
     return 0;
 }
+*/
 
 // Quem deveria fazer isso seria o window server
 // escrevendo na janela com foco de entrada 
@@ -485,9 +507,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
 
-
-// Get globals from server.
-    fileman_init_globals();
+    __init_globals();
 
 // Device info
     if ( screen_width == 0 || screen_height == 0 ){
@@ -544,7 +564,7 @@ int main( int argc, char *argv[] )
                   WT_OVERLAPPED, 
                   WINDOW_STATUS_ACTIVE,  // status 
                   VIEW_NULL,             // view
-                  "GDM", 
+                  program_name, 
                   gdm_x, gdm_y, gdm_width, gdm_height,
                   0, 
                   0x0000,  
@@ -558,7 +578,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // -------------------------------
 //  The first line of elements.
@@ -571,9 +591,9 @@ int main( int argc, char *argv[] )
         (unsigned long) 2, 
         (unsigned long) 4 +(24/3), 
         (unsigned long) COLOR_BLACK,
-        " Login: ");
+        t1_string);
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // bar1_window: (username)
@@ -587,7 +607,7 @@ int main( int argc, char *argv[] )
     bar1_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_EDITBOX, 1, 1, "bar1_window",
+                  WT_EDITBOX, 1, 1, bar1_string,
                   bar1_l, bar1_t, bar1_w, bar1_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
@@ -598,20 +618,22 @@ int main( int argc, char *argv[] )
         exit(1);
     }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // Text inside the address bar.
-    if (bar1_window>0){
+
+    if (bar1_window>0)
+    {
         gws_draw_text (
             (int) client_fd,            // fd
             (int) bar1_window,          // window id
             (unsigned long) 8,          // left
             (unsigned long) 8,          // top
             (unsigned long) COLOR_BLACK,
-            "admin");
+            bar1_text_string);
      }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // button1_window: (reboot button window)
@@ -621,13 +643,14 @@ int main( int argc, char *argv[] )
     unsigned long bu1_t = 4;
     unsigned long bu1_w = (( gdm_width/8 )*2);
     unsigned long bu1_h = 24;
+
     button1_window = 
         (int) gws_create_window ( 
                   client_fd,
                   WT_BUTTON, 
                   BS_DEFAULT, 
                   1, 
-                  "Reboot",
+                  b1_string,
                   bu1_l, bu1_t, bu1_w, bu1_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
@@ -638,7 +661,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // -------------------------------
 //  The second line of elements.
@@ -651,9 +674,9 @@ int main( int argc, char *argv[] )
         (unsigned long)  2,
         (unsigned long)  4 +(24) +4 +(24/3), 
         (unsigned long) COLOR_BLACK,
-        " Password: ");
+        t2_string);
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // bar2_window: password
@@ -665,7 +688,7 @@ int main( int argc, char *argv[] )
     bar2_window = 
         (int) gws_create_window ( 
                   client_fd,
-                  WT_EDITBOX, 1, 1, "password-win",
+                  WT_EDITBOX, 1, 1, bar2_string,
                   bar2_l, bar2_t, bar2_w, bar2_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
@@ -676,7 +699,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // button2_window: (confirm button)
@@ -694,7 +717,7 @@ int main( int argc, char *argv[] )
                   WT_BUTTON, 
                   BS_DEFAULT, 
                   1, 
-                  "Confirm",
+                  b2_string,
                   bu2_l, bu2_t, bu2_w, bu2_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
@@ -705,7 +728,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
     //#debug
-    gws_refresh_window(client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 /*
     int t=0;
@@ -809,7 +832,7 @@ int main( int argc, char *argv[] )
                                    (struct gws_event_d *) &lEvent );
 
         // (Dispath service)
-        if ( (void *) e != NULL ){
+        if ((void *) e != NULL){
             if ( e->used == TRUE && e->magic == 1234 ){
                 gdmProcedure(
                     client_fd, e->window, e->type, e->long1, e->long2 );

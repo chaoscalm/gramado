@@ -2,8 +2,8 @@
 // general.h 
 // -- defines that everybody likes to use.
 
-#ifndef _GENERAL_
-#define _GENERAL_    1
+#ifndef __GENERAL
+#define __GENERAL   1
 
 //#ifndef NULL
 //#define NULL 0x0

@@ -12,6 +12,9 @@ SUBLEVEL = 0
 EXTRAVERSION =
 #NAME = gramcnf
 
+linkFlags  = -m elf_x86_64 \
+-s -x -static -T ../link.ld
+
 # usermode cross compiler flags.
 CFLAGS = -Wall
 #CFLAGS += -O3
@@ -46,6 +49,9 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
+
+
+
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
 
@@ -58,7 +64,9 @@ myObjects = crt0.o main.o rtl.o \
 ctype.o stdlib.o stdio.o string.o unistd.o termios.o ioctl.o fcntl.o \
 globals.o lexer.o parser.o tree.o compiler.o \
 socket.o \
-gws.o connect.o events.o rw.o    
+libgws.o    
+
+#gws.o connect.o events.o rw.o    
 
 .PHONY: all all-c gramcc-link finalize clean
 
@@ -86,10 +94,13 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
-	cp $(LIBGWSOBJ)/connect.o .
-	cp $(LIBGWSOBJ)/events.o .
-	cp $(LIBGWSOBJ)/gws.o .
-	cp $(LIBGWSOBJ)/rw.o .
+#	cp $(LIBGWSOBJ)/connect.o .
+#	cp $(LIBGWSOBJ)/events.o .
+#	cp $(LIBGWSOBJ)/gws.o .
+#	cp $(LIBGWSOBJ)/rw.o .
+
+#test
+	cp $(LIBGWSOBJ)/libgws.o .
 
 
 # from gramc
@@ -100,7 +111,7 @@ all-c:
 	gcc  -c  compiler.c  -I $(LIBC) $(CFLAGS) -o compiler.o
 
 gramcc-link:
-	ld -m elf_x86_64 -T ../link.ld -o DOCV.BIN $(myObjects)    
+	ld $(linkFlags) -o DOCV.BIN $(myObjects)    
 finalize:
 	cp DOCV.BIN  ../bin
 clean:

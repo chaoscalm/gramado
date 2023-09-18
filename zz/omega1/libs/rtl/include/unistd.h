@@ -275,11 +275,9 @@ ssize_t read_tty (int fd, const void *buf, size_t count);
 ssize_t read_VC (int fd, const void *buf, size_t count);
 ssize_t write_VC (int fd, const void *buf, size_t count);
 
-
 // Usam a lista de arquivos abertos do processo. p->Streams[i]
-ssize_t read (int fd, const void *buf, size_t count);
-ssize_t write (int fd, const void *buf, size_t count);
-
+ssize_t read(int fd, const void *buf, size_t count);
+ssize_t write(int fd, const void *buf, size_t count);
 
 // See: http://man7.org/linux/man-pages/man2/pwrite.2.html
 ssize_t pread (int fd, void *buf, size_t count, off_t offset);

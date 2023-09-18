@@ -10,9 +10,8 @@
 // https://en.wikipedia.org/wiki/Berkeley_sockets
 
 
-#ifndef _NETDB_H_
-#define  _NETDB_H_
-
+#ifndef __NETDB_H
+#define __NETDB_H  1
 
 /*
  * Data types

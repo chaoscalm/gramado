@@ -11,8 +11,6 @@
 // We can have a custom status bar in this client.
 // goal: Identity purpose.
 
-
-
 // tutorial example taken from. 
 // https://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
  
@@ -41,52 +39,50 @@
 
 // rtl
 #include <types.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
 #include <sys/socket.h>
-
 #include <rtl/gramado.h>
-
-
 // libgws - The client-side library.
 #include <gws.h>
 
 
-
-#define MYGREEN 0x0b6623
+#define MYGREEN  0x0b6623
 
 
 unsigned long savedW=0;
 unsigned long savedH=0;
+
+int game_status=0;
+
+// area de jogo
+int game_window=0;
+int game_width=0;
+int game_height=0;
+int player_x=0;
+int player_y=0;
+int prize_x=0;
+int prize_y=0;
+
+
+// barra de status
+int status_window;
+
 
     
 //
 // == prototypes =============
 //
 
-int gws (void);
+int gws(void);
+int gameInitialize(int fd,unsigned long w, unsigned long h);
 
-
-int game_status;
-
-// area de jogo
-int game_window;
-int game_width;
-int game_height;
-int player_x;
-int player_y;
-int prize_x;
-int prize_y;
-
-
-
-// barra de status
-int status_window;
-
+// ----------------------------
 
 void init_cursor(int fd)
 {

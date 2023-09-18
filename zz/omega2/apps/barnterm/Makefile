@@ -10,24 +10,42 @@ SUBLEVEL = 0
 EXTRAVERSION =
 #NAME = 
 
-#todo:
-#We need to simplify these flags
+linkFlags  = -m elf_x86_64 \
+-s -x -static -T ../link.ld
 
-CFLAGS = -m64 \
-	-std=gnu89 \
-	-nodefaultlibs \
-	-nostdinc \
-	-nostdlib \
-	-static \
-	-fgnu89-inline \
-	-ffreestanding \
-	-fno-builtin \
-	-fno-pie \
-	-fleading-underscore \
-	-fno-stack-protector \
-	-s \
-	-Werror=strict-prototypes    
-	
+# usermode cross compiler flags.
+CFLAGS = -Wall
+#CFLAGS += -O3
+CFLAGS += -Wundef
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wno-uninitialized
+CFLAGS += -Wno-format-security
+CFLAGS += -Wno-trigraphs
+CFLAGS += -Werror=strict-prototypes
+CFLAGS += -Werror=implicit-function-declaration
+CFLAGS += -Werror=return-type
+CFLAGS += -std=gnu89
+CFLAGS += -m64
+CFLAGS += -s
+CFLAGS += -static
+CFLAGS += -fcommon
+CFLAGS += -fgnu89-inline
+CFLAGS += -finline-functions
+CFLAGS += -fshort-wchar
+CFLAGS += -ffreestanding
+CFLAGS += -fleading-underscore
+CFLAGS += -fstrict-overflow
+CFLAGS += -nostdlib
+CFLAGS += -nodefaultlibs
+CFLAGS += -nostdinc
+CFLAGS += -fno-builtin
+CFLAGS += -fno-stack-protector
+CFLAGS += -fno-strict-aliasing
+CFLAGS += -fno-PIE
+CFLAGS += -fno-pie
+CFLAGS += -fno-omit-frame-pointer
+CFLAGS += -fno-optimize-sibling-calls    
+
 
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
@@ -39,7 +57,9 @@ LIBGWSOBJ = ../../../omega1/libs/libgws/obj
 myObjects = crt0.o main.o terminal.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o \
 unistd.o termios.o ioctl.o socket.o \
-connect.o events.o rw.o gws.o    
+libgws.o   
+
+#connect.o events.o rw.o gws.o    
 
 .PHONY: all all-c hello-link finalize clean
 
@@ -48,7 +68,6 @@ all: main.o all-c hello-link finalize clean
 main.o:
 	gcc -c main.c $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o main.o
 all-c:
-
 	gcc -c terminal.c $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o terminal.o
 
 # Copy
@@ -68,13 +87,17 @@ all-c:
 	cp $(LIBCOBJ)/socket.o  .
 
 	# libgws
-	cp $(LIBGWSOBJ)/connect.o .
-	cp $(LIBGWSOBJ)/events.o .
-	cp $(LIBGWSOBJ)/rw.o .
-	cp $(LIBGWSOBJ)/gws.o .
+#	cp $(LIBGWSOBJ)/connect.o .
+#	cp $(LIBGWSOBJ)/events.o .
+#	cp $(LIBGWSOBJ)/rw.o .
+#	cp $(LIBGWSOBJ)/gws.o .
+
+#test
+	cp $(LIBGWSOBJ)/libgws.o .
+
 
 hello-link:
-	ld -m elf_x86_64 -T ../link.ld -o TERMINAL.BIN $(myObjects)    
+	ld $(linkFlags) -o TERMINAL.BIN $(myObjects)    
 finalize:
 	cp TERMINAL.BIN  ../bin
 clean:

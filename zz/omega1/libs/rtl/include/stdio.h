@@ -9,8 +9,8 @@
  *     2020 - A lot of new functions.
  */
 
-#ifndef __STDIO_H__
-#define __STDIO_H__    1
+#ifndef __STDIO_H
+#define __STDIO_H    1
 
 #include <sys/types.h>
 #include <sys/cdefs.h>
@@ -802,11 +802,9 @@ rtl_GetS(
 int rtl_y_or_n(void);
 int rtl_are_you_sure(void);
 
-int stdio_atoi (char *s);
-void stdio_fntos (char *name);
+int stdio_atoi(char *s);
+void stdio_fntos(char *name);
 
-#endif    //__STDIO_H__
+#endif    
 
-//
-// End.
-//
+

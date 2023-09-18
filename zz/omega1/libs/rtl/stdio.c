@@ -966,6 +966,10 @@ char *gets(char *s)
 {
     register int c=0;
     register char *cs;
+
+    if ( (void*) s == NULL )
+        return NULL;
+
     cs = s;
 
     // #ugly
@@ -982,6 +986,10 @@ char *gets(char *s)
 int puts(const char *s)
 {
     register int c=0;
+
+    if ( (void*) s == NULL )
+        return -1;
+
     while (c = *s++){
         putchar(c);
     };
@@ -2180,8 +2188,7 @@ char *kinguio_utoa(
     return dst;  //#bugbug
 }
 
-
-char *kinguio_itoa (int val, char *str) 
+char *kinguio_itoa(int val, char *str) 
 {
     char *valuestring = (char *) str;
     int value = val;
@@ -2225,7 +2232,7 @@ char *kinguio_itoa (int val, char *str)
 // Credits: Nelson Cole. Project Sirius/Kinguio.
 int kinguio_printf(const char *fmt, ...)
 {
-    int ret=0;
+    register int ret=0;
     char buf[256];
 
     memset(buf,0,256); 
@@ -2283,7 +2290,7 @@ static char *_vsputs_r(char *dest, char *src)
 
 int 
 kinguio_vsprintf( 
-    char * str, 
+    char *str, 
     const char *fmt, 
     va_list ap )
 {
@@ -2303,6 +2310,14 @@ kinguio_vsprintf(
     unsigned long lu=0;
 // 64bit Format Specifier
     int type64bit = FALSE;
+
+// Purify
+
+    if ((void*) str == NULL)
+        return -1;
+    if ((void*) fmt == NULL)
+        return -1;
+
 
 // loop
     while ( fmt[index] )
@@ -2854,7 +2869,7 @@ int gramado_input ( const char *string, va_list arglist )
 // ??
 // E esse retorno ??
 
-unsigned long input (unsigned long ch)
+unsigned long input(unsigned long ch)
 {
 // Convert
     char c = (char) ch;
@@ -4071,7 +4086,6 @@ static char *ksprintn (
  */
 // #bugbug
 // Passing a function via argument is not a good thing for our compiler.
-
 int 
 kvprintf ( 
     char const *fmt, 
@@ -4080,6 +4094,9 @@ kvprintf (
     int radix, 
     va_list ap )
 {
+
+    //if ( (void*) fmt == NULL )
+        //return -1;
 
     // #danger
     //#define PCHAR(c) { int cc=(c); if(func) (*func)(cc,arg); else *d++ = cc; retval++; }

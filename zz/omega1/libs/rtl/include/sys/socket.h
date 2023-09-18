@@ -4,8 +4,8 @@
 // See:
 // https://en.wikipedia.org/wiki/Berkeley_sockets
 
-#ifndef _SOCKET_H
-#define _SOCKET_H    1
+#ifndef __SOCKET_H
+#define __SOCKET_H    1
 
 #include <stddef.h>
 #include <sys/un.h>

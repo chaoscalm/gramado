@@ -76,9 +76,8 @@ struct gws_window_d *top_window;     // z-order
 
 static const char *app1_string = "terminal.bin";
 static const char *app2_string = "editor.bin";
-static const char *app3_string = "browser.bin";
-static const char *app4_string = "gdm.bin";
-//static const char *app4_string = "cmdline.bin";
+//static const char *app3_string = "browser.bin";
+//static const char *app4_string = "gdm.bin";
 
 static unsigned long last_input_jiffie=0;
 
@@ -268,7 +267,7 @@ static void launch_app_by_id(int id)
     char name_buffer[64];
 
 // 4 apps only
-    if (id <= 0 || id > 4 )
+    if (id <= 0 || id > 4)
         goto fail;
 
 // Clear name buffer.
@@ -282,10 +281,10 @@ static void launch_app_by_id(int id)
         strcpy(name_buffer,app2_string);
         break;
     case 3:
-        strcpy(name_buffer,app3_string);
+        strcpy(name_buffer,app1_string);
         break;
     case 4:
-        strcpy(name_buffer,app4_string);
+        strcpy(name_buffer,app2_string);
         break;
     default:
         goto fail;
@@ -562,33 +561,21 @@ wmProcessKeyboardEvent(
         if (long1 == VK_F1){
             __button_released(QuickLaunch.buttons[0]);
             launch_app_by_id(1);
-            //memset(name_buffer,0,64-1);
-            //strcpy(name_buffer,app1_string);
-            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F2){
             __button_released(QuickLaunch.buttons[1]);
             launch_app_by_id(2);
-            //memset(name_buffer,0,64-1);
-            //strcpy(name_buffer,app2_string);
-            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F3){
             __button_released(QuickLaunch.buttons[2]);
             launch_app_by_id(3);
-            //memset(name_buffer,0,64-1);
-            //strcpy(name_buffer,app3_string);
-            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
         if (long1 == VK_F4){
             __button_released(QuickLaunch.buttons[3]);
             launch_app_by_id(4);
-            //memset(name_buffer,0,64-1);
-            //strcpy(name_buffer,app4_string);
-            //rtl_clone_and_execute(name_buffer);
             return 0;
         }
 

@@ -6,8 +6,8 @@
  where everything is slightly backwards. 
  */
 
-#ifndef __FLAGS__
-#define __FLAGS__    1
+#ifndef __FLAGS
+#define __FLAGS    1
  
 #define FLAG_ON  '-'
 #define FLAG_OFF  '+'

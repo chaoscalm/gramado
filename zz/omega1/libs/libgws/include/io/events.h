@@ -5,10 +5,8 @@
  *     This header should be included by including "gws.h".
  */
 
-
 #ifndef __LIBGWS_EVENTS_H
 #define __LIBGWS_EVENTS_H  1
-
 
 struct gws_keyboard_event_d
 {

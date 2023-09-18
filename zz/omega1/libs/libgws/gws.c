@@ -52,10 +52,10 @@ struct gws_event_d *CurrentEvent;
 // ...
 
 // Strings
-// #todo: Use 'const char *'.
-char *title_when_no_title = "Window";
+const char *title_when_no_title = "Window";
 
 char __string_buffer[512];   // dst
+
 
 // #test
 // Tentando deixar o buffer aqui e aproveitar em mais funções.
@@ -197,25 +197,40 @@ static int __gws_clone_and_execute_response(int fd);
 
 // == ... ==========================
 
+static void __gws_clear_msg_buff(void);
+
+
 //
 // == Functions ====================
 //
 
 // System call.
 // System interrupt.
-    
 void *gws_system_call ( 
     unsigned long a, 
     unsigned long b, 
     unsigned long c, 
     unsigned long d )
 {
+/*
     unsigned long ReturnValue=0;
     asm volatile ( " int %1 \n"
                  : "=a"(ReturnValue)
                  : "i"(0x80), "a"(a), "b"(b), "c"(c), "d"(d) );
     return (void *) ReturnValue; 
+*/
+    return (unsigned long) sc80(a,b,c,d);
 }
+
+
+static void __gws_clear_msg_buff(void)
+{
+    register int i=0;
+    for (i=0; i<512; i++){
+        __gws_message_buffer[i] = 0;
+    }; 
+}
+
 
 // Debug via serial port. (COM1)
 void gws_debug_print(char *string)
@@ -240,8 +255,13 @@ int gws_initialize_library(void)
 {
     pid_t ws_pid = -1;    // PID do window server.
 
+    int __ApplicationFD = -1;
+
+    __gws_clear_msg_buff();
+
     ws_pid = (pid_t) gws_initialize_connection();
-    if (ws_pid < 0){
+    if (ws_pid < 0)
+    {
         gws_debug_print("gws_initialize_library: [fail] ws_pid\n");
         return (int) -1;
     }
@@ -528,11 +548,10 @@ static struct gws_event_d *__gws_get_next_event_response (
 
     //gws_debug_print ("__gws_get_next_event_response: rd\n"); 
 
-// crazy fail
-    if ((void*) event == NULL){
+    if (fd<0){
         return NULL;
     }
-    if (fd<0){
+    if ((void*) event == NULL){
         return NULL;
     }
 
@@ -1391,6 +1410,11 @@ __gws_drawtext_request (
         return (int) -1;
     }
 
+    if ( (void*) string == NULL )
+        return -1;
+    if (*string == 0)
+        return -1;
+
     message_buffer[0] = 0;
 // Message code
     message_buffer[1] = GWS_DrawText;
@@ -1554,6 +1578,12 @@ __gws_settext_request (
         return (int) -1;
     }
 
+    if ((void*) string == NULL)
+        return -1;
+    if (*string == 0)
+        return -1;
+
+
     message_buffer[0] = 0;
 // Message code
     message_buffer[1] = GWS_SetText;
@@ -1716,6 +1746,10 @@ __gws_gettext_request (
     if (fd<0){
         return (int) -1;
     }
+    if ((void*) string == NULL)
+        return -1;
+    if (*string == 0)
+        return -1;
 
     message_buffer[0] = 0;
 // Message code
@@ -1896,6 +1930,10 @@ __gws_clone_and_execute_request (
     if (fd<0){
         return (int) -1;
     }
+    if ( (void*) string == NULL )
+        return -1;
+    if (*string == 0)
+        return -1;
 
     message_buffer[0] = 0;
 // Message code
@@ -2072,6 +2110,11 @@ __gws_createwindow_request (
     if (fd<0){
        return (int) -1;
     }
+// name
+    if ( (void*) name == NULL )
+        return -1;
+    if (*name == 0)
+        return -1;
 
 // wid, message code, long1, long2.
     message_buffer[0] = 0;
@@ -2140,6 +2183,9 @@ __gws_createwindow_request (
     }
 
     return (int) n_writes;
+
+fail:
+    return (int) (-1);
 }
 
 // Create window - response.
@@ -2231,8 +2277,8 @@ gws_draw_char (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0)    {return -1;}
-    if (window<0){return -1;}
+    if (fd<0)    {goto fail;}
+    if (window<0){goto fail;}
 
 // Request
     req_status = __gws_drawchar_request (
@@ -2243,7 +2289,7 @@ gws_draw_char (
         (unsigned int) (color & 0xFFFFFFFF),
         (unsigned int) (ch & 0xFF) );
     if (req_status<=0){
-        return -1;
+        goto fail;
     }
     rtl_set_file_sync( 
         fd, 
@@ -2257,14 +2303,18 @@ gws_draw_char (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) { goto fail; }
+        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
     };
 
 // A sincronização nos diz que já temos um reply.
     Response = __gws_drawchar_response ((int) fd);  
 
+    __gws_clear_msg_buff();
     return (int) Response;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 int 
@@ -2282,8 +2332,14 @@ gws_draw_text (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0)    { return (int) -1; }
-    if (window<0){ return (int) -1; }
+    if (fd<0)    { goto fail; }
+    if (window<0){ goto fail; }
+
+    if ( (void*) string == NULL )
+        goto fail;
+    if (*string == 0)
+        goto fail;
+
 
 // Request
 // IN: fd, window, x, y, color, string
@@ -2296,7 +2352,7 @@ gws_draw_text (
                   (unsigned long) (color & 0xFFFFFFFF),
                   (char *) string );
     if (req_status<=0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( 
         fd, 
@@ -2310,12 +2366,17 @@ gws_draw_text (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) { goto fail; }
+        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
     };
 
     response = (int) __gws_drawtext_response (fd);
+
+    __gws_clear_msg_buff();
     return (int) response;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 //--------------------------------------
@@ -2336,8 +2397,14 @@ gws_set_text (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0)    { return (int) -1; }
-    if (window<0){ return (int) -1; }
+    if (fd<0)    {goto fail;}
+    if (window<0){goto fail;}
+
+    if ( (void*) string == NULL )
+        goto fail;
+    if (*string == 0)
+        goto fail;
+
 
 // Request
 // IN: fd, window, x, y, color, string
@@ -2350,7 +2417,7 @@ gws_set_text (
                   (unsigned long) (color & 0xFFFFFFFF),
                   (char *) string );
     if (req_status<=0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( 
         fd, 
@@ -2364,12 +2431,16 @@ gws_set_text (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) { goto fail; }
+        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
     };
 
     response = (int) __gws_settext_response (fd);
+    __gws_clear_msg_buff();
     return (int) response;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 //--------------------------------------
@@ -2392,8 +2463,15 @@ gws_get_text (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0)    { return (int) -1; }
-    if (window<0){ return (int) -1; }
+    if (fd<0)    {goto fail;}
+    if (window<0){goto fail;}
+
+
+    if ( (void*) string == NULL )
+        goto fail;
+    if (*string == 0)
+        goto fail;
+
 
 // Request
 // IN: fd, window, x, y, color, string
@@ -2406,7 +2484,7 @@ gws_get_text (
                   (unsigned long) (color & 0xFFFFFFFF),
                   (char *) string );
     if (req_status<=0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( 
         fd, 
@@ -2420,20 +2498,20 @@ gws_get_text (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) {goto fail;}
+        if (Value == ACTION_NULL )  {goto fail;}  //no reponse. (syncronous)
     };
 
     int c=0;
     char *p;
     p = (char *) __gws_gettext_response(fd);
-    if ( (void*) p == NULL ){
+    if ((void*) p == NULL){
         printf("gws_get_text: Invalid p\n");
-        return -1;
+        goto fail;
     }
 
 // From 'p' to 'where'.
-    if ( (void*) p != NULL )
+    if ((void*) p != NULL)
     {
         // O ponteiro dado pelo app.
         if ( (void*) where != NULL )
@@ -2449,7 +2527,11 @@ gws_get_text (
     }
 
 // status OK.
+    __gws_clear_msg_buff();
     return (int) 0;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 
@@ -2470,7 +2552,15 @@ gws_clone_and_execute2 (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0){ return (int) -1; }
+    if (fd<0){
+        goto fail;
+    }
+
+    if ( (void*) string == NULL )
+        goto fail;
+    if (*string == 0)
+        goto fail;
+
 
 // Request
 // IN: fd, window, x, y, color, string
@@ -2483,7 +2573,7 @@ gws_clone_and_execute2 (
                   (unsigned long) arg4,
                   (char *) string );
     if(req_status<=0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( 
         fd, 
@@ -2497,12 +2587,17 @@ gws_clone_and_execute2 (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) { goto fail; }
+        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
     };
 
     response = (int) __gws_clone_and_execute_response(fd);
+
+    __gws_clear_msg_buff();
     return (int) response;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 // ========================================================
@@ -2792,14 +2887,12 @@ void gws_clone_and_execute_from_prompt(int fd)
 
     //printf("Command not found\n");
 done:
+    __gws_clear_msg_buff();
     return;
 fail:
+    __gws_clear_msg_buff();
     return;
 }
-
-
-
-
 
 
 /*
@@ -3003,14 +3096,14 @@ gws_change_window_position (
     int Value=0;
     int req_status = -1;
 
-    if (fd<0)    { return -1; }
-    if (window<0){ return -1; }
+    if (fd<0)    { goto fail; }
+    if (window<0){ goto fail; }
 
 // Request
     req_status = 
         (int) __gws_change_window_position_request(fd,window,x,y);
     if (req_status <= 0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync ( 
         fd, 
@@ -3023,11 +3116,16 @@ gws_change_window_position (
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return (int) -1; }
+        if (Value == ACTION_ERROR ) { goto fail; }
     };
 
     __gws_change_window_position_reponse(fd);
+
+    __gws_clear_msg_buff();
     return 0;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 // Resize window.
@@ -3041,13 +3139,13 @@ gws_resize_window(
     int Value=0;
     int req_status=-1;
 
-    if (fd<0)    { return (int) -1; }
-    if (window<0){ return (int) -1; }
+    if (fd<0)    {goto fail;}
+    if (window<0){goto fail;}
 
 // request
     req_status = (int) __gws_resize_window_request(fd,window,w,h);
     if (req_status <= 0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync ( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -3057,11 +3155,15 @@ gws_resize_window(
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
+        if (Value == ACTION_ERROR ) {goto fail;}
     };
 
     __gws_resize_window_reponse(fd);
+    __gws_clear_msg_buff();
     return 0;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 // Redraw window.
@@ -3074,8 +3176,8 @@ gws_redraw_window (
     unsigned long Value=0;
     int req_status = -1;
 
-    if (fd<0)    { return (int) -1; }
-    if (window<0){ return (int) -1; }
+    if (fd<0)    {goto fail;}
+    if (window<0){goto fail;}
 
 // #todo
 // check the return values.
@@ -3083,7 +3185,7 @@ gws_redraw_window (
 // Request
     req_status = (int) __gws_redraw_window_request (fd,window,flags);
     if (req_status <= 0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -3093,12 +3195,16 @@ gws_redraw_window (
         Value = (unsigned long) rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { return -1; }
-        if (Value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (Value == ACTION_ERROR ) {goto fail;}
+        if (Value == ACTION_NULL )  {goto fail;}  //no reponse. (syncronous)
     };
 
-    __gws_redraw_window_reponse (fd);
+    __gws_redraw_window_reponse(fd);
+    __gws_clear_msg_buff();
     return 0;
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 // The server will return an event 
@@ -3115,8 +3221,10 @@ struct gws_event_d *gws_get_next_event(
 
     if (fd<0){
         debug_print("gws_get_next_event: fd\n");
-        return NULL;
+        goto fail;
     }
+    if ( (void*) event == NULL )
+        goto fail;
 
 // #todo: 
 // Check event pointer validation.
@@ -3129,7 +3237,7 @@ struct gws_event_d *gws_get_next_event(
 // Request
     req_status = (int) __gws_get_next_event_request(fd,wid);
     if (req_status <= 0){
-        return NULL;
+        goto fail;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -3140,7 +3248,7 @@ struct gws_event_d *gws_get_next_event(
         //if (Value == ACTION_REQUEST){}
         if (Value == ACTION_REPLY){ break; }
         if (Value == ACTION_ERROR){
-            return NULL; 
+            goto fail;
         }
     };
 
@@ -3149,13 +3257,13 @@ struct gws_event_d *gws_get_next_event(
         debug_print("gws_get_next_event: fail\n");
         // #todo: goto fail;
     }
+
 // #ok
+    __gws_clear_msg_buff();
     return (struct gws_event_d *) e;
-/*
-// #todo:
 fail:
+    __gws_clear_msg_buff();
     return NULL;
-*/
 }
 
 // gws_get_window_info:
@@ -3176,6 +3284,8 @@ struct gws_window_info_d *gws_get_window_info(
     if (wid<0){
         goto fail;
     }
+    if ((void*)window_info == NULL)
+        goto fail;
 
 // Request
     req_status = (int) __gws_get_window_info_request(fd,wid);
@@ -3206,8 +3316,10 @@ struct gws_window_info_d *gws_get_window_info(
     }
 
 // ok
+    __gws_clear_msg_buff();
     return (struct gws_window_info_d *) wi;
 fail:
+    __gws_clear_msg_buff();
     return NULL;
 }
 
@@ -3230,6 +3342,7 @@ struct gws_window_info_d *gws_query_window(
 // ok?
     return (struct gws_window_info_d *) gws_get_window_info(fd,wid,window_info);
 fail:
+    //__gws_clear_msg_buff();
     return NULL;
 } 
 
@@ -3244,13 +3357,13 @@ int gws_refresh_window (int fd, wid_t wid )
     int value=0;
     int req_status=-1;
 
-    if (fd<0) { return (int) -1; }
-    if (wid<0){ return (int) -1; }
+    if (fd<0) {goto fail;}
+    if (wid<0){goto fail;}
 
 // Request
     req_status = (int) __gws_refresh_window_request(fd,wid);
     if (req_status<=0){
-        return (int) -1;
+        goto fail;
     }
     rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_REQUEST );
 
@@ -3259,11 +3372,15 @@ int gws_refresh_window (int fd, wid_t wid )
     while (TRUE){
         value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         if (value == ACTION_REPLY ) { break; }
-        if (value == ACTION_ERROR ) { return -1; }
-        if (value == ACTION_NULL )  { return -1; }  //no reponse. (syncronous)
+        if (value == ACTION_ERROR ) {goto fail;}
+        if (value == ACTION_NULL )  {goto fail;}  //no reponse. (syncronous)
     };
 
+    __gws_clear_msg_buff();
     return (int) __gws_refresh_window_reponse(fd);
+fail:
+    __gws_clear_msg_buff();
+    return -1;
 }
 
 int
@@ -3309,9 +3426,11 @@ gws_refresh_retangle (
 
 // A sincronização nos diz que já temos um reply.
     Response = (int) __gws_refresh_rectangle_response (fd);  
+    __gws_clear_msg_buff();
     return (int) Response;
 
 fail:
+    __gws_clear_msg_buff();
     return (int) -1;
 }
 
@@ -3384,6 +3503,11 @@ gws_create_window (
     if (fd<0){
         goto fail;
     }
+    if ( (void*) windowname == NULL ){
+        goto fail;
+    }
+    if ( *windowname == 0 )
+        goto fail;
 
 //#bugbug: parentwindow?
 
@@ -3450,8 +3574,16 @@ gws_create_window (
 // A sincronização nos diz que já temos um reply.
 // Simply read the file.
     wid = (wid_t) __gws_createwindow_response(fd); 
+    
+    // #test
+    // Probably this is the root window.
+    //if (wid == 0)
+        //goto fail;
+
+    __gws_clear_msg_buff();
     return (wid_t) wid;
 fail:
+    __gws_clear_msg_buff();
     return (wid_t) -1;
 }
 
@@ -3786,7 +3918,8 @@ struct gws_menu_item_d *gws_create_menu_item (
         debug_print("gws_create_menu_item: fd\n");
         return (struct gws_menu_item_d *) 0;
     }
-
+    if ((void*)label == NULL)
+        return NULL;
     if ( (void *) menu == NULL ){
         debug_print("gws_create_menu_item: menu\n");
         return (struct gws_menu_item_d *) 0;
@@ -3871,7 +4004,6 @@ int gws_create_empty_file (char *file_name)
         debug_print("gws_create_empty_file: [FAIL] file_name\n");
         return (int) -1;
     }
-
     if ( *file_name == 0 ){
         debug_print("gws_create_empty_file: [FAIL] *file_name\n");
         return (int) -1;
@@ -3905,7 +4037,6 @@ int gws_create_empty_directory (char *dir_name)
         debug_print("gws_create_empty_directory: [FAIL] dir_name\n");
         return (int)(-1);
     }
-
     if ( *dir_name == 0 ){
         debug_print("gws_create_empty_directory: [FAIL] *dir_name\n");
         return (int)(-1);
@@ -4011,7 +4142,7 @@ gws_async_command (
 
     if (fd<0){
         debug_print("gws_async_command: fd\n");
-        return;
+        goto fail;
     }
 
     n_writes = 
@@ -4022,7 +4153,7 @@ gws_async_command (
                   0 );
 
     if (n_writes <= 0){
-         return;
+        goto fail;
     }
 
     rtl_set_file_sync ( 
@@ -4047,9 +4178,12 @@ gws_async_command (
     };
 
 done:
+    __gws_clear_msg_buff();
+    return; 
+fail:
+    __gws_clear_msg_buff();
     return; 
 }
-
 
 void
 gws_async_command2 ( 
@@ -4093,7 +4227,7 @@ gws_async_command2 (
 
     if (fd<0){
         debug_print("gws_async_command2: fd\n");
-        return;
+        goto fail;
     }
 
     n_writes = 
@@ -4104,7 +4238,7 @@ gws_async_command2 (
                   0 );
 
     if (n_writes <= 0){
-         return;
+         goto fail;
     }
 
     rtl_set_file_sync ( 
@@ -4129,6 +4263,10 @@ gws_async_command2 (
     };
 
 done:
+    __gws_clear_msg_buff();
+    return; 
+fail:
+    __gws_clear_msg_buff();
     return; 
 }
 
@@ -4174,6 +4312,11 @@ struct gws_display_d *gws_open_display(char *display_name)
 // and set the fd for the device for future 
 // display configurations.
     // Display->_device_fd = ?
+
+    if ((void*)display_name == NULL)
+        goto fail;
+    if (*display_name == 0)
+        goto fail;
 
 // (1)
 // Create the display structure.
@@ -4258,8 +4401,8 @@ struct gws_display_d *gws_open_display(char *display_name)
 
 // Done
 // Return the display structure pointer.
+    __gws_clear_msg_buff();
     return (struct gws_display_d *) Display;
-
 fail:
     return NULL;
 }

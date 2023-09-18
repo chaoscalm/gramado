@@ -1,6 +1,10 @@
 
-// File: sys/ioctl.h
+#ifndef __SYS_IOCTL_H
+#define __SYS_IOCTL_H    1
 
+
+
+// File: sys/ioctl.h
 //see: sys/ioctls.h
 
 /*
@@ -88,4 +92,7 @@ struct ttysize {
 // The ioctl() system call appeared in Version 7 AT&T UNIX.
 //linux style.
 int ioctl (int fd, unsigned long request, ...);
+
+#endif   
+
 

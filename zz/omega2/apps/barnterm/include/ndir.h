@@ -4,8 +4,8 @@
   last edit:	09-Jul-1983	D A Gwyn
 */
 
-#ifndef __NDIR__
-#define __NDIR__    1
+#ifndef __NDIR
+#define __NDIR    1
 
 /*
 #ifdef VMS

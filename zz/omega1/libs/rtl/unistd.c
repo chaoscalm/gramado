@@ -580,19 +580,16 @@ gid_t getegid(void)
     return -1;
 }
 
-
 // ===============================
 // pid
 pid_t getpid(void)
 {
     unsigned long ul_value=0;
     ul_value = 
-        (unsigned long) sc80 ( 
-            UNISTD_SYSTEMCALL_GETPID, 0, 0, 0 );
+        (unsigned long) sc80( UNISTD_SYSTEMCALL_GETPID, 0, 0, 0 );
 // 32bit value.
     return (pid_t) (ul_value & 0xFFFFFFFF);
 }
-
 
 // ===============================
 // ppid
@@ -600,12 +597,10 @@ pid_t getppid(void)
 {
     unsigned long ul_value=0;
     ul_value = 
-        (unsigned long) sc80 ( 
-            UNISTD_SYSTEMCALL_GETPPID, 0, 0, 0 );
+        (unsigned long) sc80( UNISTD_SYSTEMCALL_GETPPID, 0, 0, 0 );
 // 32bit value.
     return (pid_t) (ul_value & 0xFFFFFFFF);
 }
-
 
 /*
 Get terminal foreground process group.

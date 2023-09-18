@@ -39,8 +39,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "include/term0.h"
-
+#include <unistd.h>
+//#include "include/term0.h"
+#include "include/terminal.h"
 
 // see: terminal.c and term0.h.
 extern struct terminal_d  Terminal;

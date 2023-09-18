@@ -1,8 +1,8 @@
 
 // alias.h -- structure definitions.
 
-#ifndef _ALIAS_
-#define _ALIAS_    1
+#ifndef __ALIAS
+#define __ALIAS   1
 
 #ifndef whitespace
 #define whitespace(c) (((c) == ' ') || ((c) == '\t'))

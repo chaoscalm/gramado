@@ -128,6 +128,8 @@ void gws_set_desktop_id(int desktop_id)
 // gws_initialize_connection:
 int gws_initialize_connection(void)
 {
+// Called by gws_initialize_library() in gws.c
+
     unsigned long Value=0;
 
 // Pega o id do desktop atual.

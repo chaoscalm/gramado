@@ -48,12 +48,6 @@ static void __initializing_hotspot(void);
 
 // ====================
 
-int gr_initialize(void)
-{
-    __initializing_hotspot();
-    return 0;
-}
-
 static void __initializing_hotspot(void)
 {
     unsigned long w = gws_get_system_metrics(1);
@@ -612,6 +606,11 @@ gws_plotcube (
     return -1;
 }
 
+int gr_initialize(void)
+{
+    __initializing_hotspot();
+    return 0;
+}
 
 
 

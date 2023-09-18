@@ -5,7 +5,6 @@
 #ifndef  __LIBGWS_WINDOW_H
 #define  __LIBGWS_WINDOW_H    1
 
-
 //
 // Window Style
 //
