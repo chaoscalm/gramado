@@ -241,29 +241,21 @@ static void on_quick_launch(int button_wid)
     {
         DoLaunch = TRUE;
         AppID = 1;
-        //launch_app_by_id(1);
-        //return;
     }
     if (ButtonWID == QuickLaunch.buttons[1])
     {
         DoLaunch = TRUE;
         AppID = 2;
-        //launch_app_by_id(2);
-        //return;
     }
     if (ButtonWID == QuickLaunch.buttons[2])
     {
         DoLaunch = TRUE;
         AppID = 3;
-        //launch_app_by_id(3);
-        //return;
     }
     if (ButtonWID == QuickLaunch.buttons[3])
     {
         DoLaunch = TRUE;
         AppID = 4;
-        //launch_app_by_id(4);
-        //return;
     }
 
 // Launch
@@ -282,29 +274,27 @@ static void launch_app_by_id(int id)
 // Clear name buffer.
     memset(name_buffer,0,64-1);
 
-    switch (id)
-    {
-        case 1:
-            strcpy(name_buffer,app1_string);
-            break;
-        case 2:
-            strcpy(name_buffer,app2_string);
-            break;
-        case 3:
-            strcpy(name_buffer,app3_string);
-            break;
-        case 4:
-            strcpy(name_buffer,app4_string);
-            break;
-        default:
-            goto fail;
-            break;
+    switch (id){
+    case 1:
+        strcpy(name_buffer,app1_string);
+        break;
+    case 2:
+        strcpy(name_buffer,app2_string);
+        break;
+    case 3:
+        strcpy(name_buffer,app3_string);
+        break;
+    case 4:
+        strcpy(name_buffer,app4_string);
+        break;
+    default:
+        goto fail;
+        break;
     };
 
 // OK
     rtl_clone_and_execute(name_buffer);
     return;
-
 fail:
     return;
 }

@@ -15,12 +15,21 @@
 #define PORTS_NS  4041
 #define PORTS_FS  4042
 // ...
-#define IP(a, b, c, d)  (a << 24 | b << 16 | c << 8 | d)
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
+
+
 
 // The main structure.
 // see: terminal.h
 struct terminal_d  Terminal;
 FILE *__terminal_input_fp;
+
+// Windows
+struct gws_window_info_d *wi;  // Window info for the main window.
+static int main_window=0;
+static int terminal_window=0;
+
 // color
 static unsigned int bg_color = COLOR_BLACK;
 static unsigned int fg_color = COLOR_WHITE;
@@ -31,10 +40,7 @@ static int cursor_y=0;
 // Embedded shell
 // We are using the embedded shell.
 static int isUsingEmbeddedShell=TRUE;
-// Windows
-struct gws_window_info_d *wi;  // Window info for the main window.
-static int main_window=0;
-static int terminal_window=0;
+
 // #todo: #maybe:
 // Fazer estrutura para gerenciar a sequencia.
 static int __sequence_status=0;
@@ -3237,6 +3243,17 @@ static void __initialize_basics(void)
     __csi_buffer_tail=0;
     __csi_buffer_head=0;
 
+
+    __tmp_x=0;
+    __tmp_y=0;
+
+
+// Limite de tamanho da janela.
+    wlMinWindowWidth=0;
+    wlMinWindowHeight=0;
+    wlMaxWindowWidth=0;
+    wlMaxWindowHeight=0;
+
 // ...
 
 }
@@ -3561,12 +3578,15 @@ int terminal_init(void)
                   mwColor, 
                   mwColor );
 
-    if (main_window<0){
+    if (main_window<0)
+    {
         printf("terminal: fail on main_window\n");
-        while (1){
-        };
+        exit(1);
     }
     Terminal.main_window_id = main_window;
+
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // ===================================================
 // Client area window
@@ -3655,11 +3675,15 @@ int terminal_init(void)
                   COLOR_BLACK,
                   COLOR_BLACK );
 
-    if (terminal_window<0){
+    if (terminal_window<0)
+    {
         printf("terminal: fail on terminal_window\n");
-        while(1){}
+        exit(1);
     }
     Terminal.client_window_id = terminal_window;
+    //#debug
+    gws_refresh_window(client_fd, terminal_window);
+
 
 // #bugbug
 // Something is wrong here.
@@ -3776,6 +3800,8 @@ int terminal_init(void)
 
     gws_set_active( client_fd, main_window );
 
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 //
 // Be nice

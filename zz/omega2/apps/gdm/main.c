@@ -47,7 +47,8 @@
 //#define PORTS_FS  4042
 // ...
 
-#define IP(a, b, c, d)  (a << 24 | b << 16 | c << 8 | d)
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
 
 /*
 struct sockaddr_in addr = {
@@ -109,8 +110,8 @@ static int blink_status=FALSE;
 // #todo
 // we will copy all the iput support from the other editor.
 // for now we will use this tmp right here.
-int tmp_ip_x=8;
-int tmp_ip_y=8;
+//int tmp_ip_x=8;
+//int tmp_ip_y=8;
 
 //char *hello = "Hello there!\n";
 
@@ -429,9 +430,37 @@ int main( int argc, char *argv[] )
         //...
     };
 
-// global: Cursor
-    cursor_x=0;
-    cursor_y=0;
+
+
+// Screen
+    screen_width=0;
+    screen_height=0;
+// gdm
+    gdm_x=0;
+    gdm_y=0;
+    gdm_width=0;
+    gdm_height=0;
+
+// Globals.
+// Reinitialize.
+    main_window = 0;
+// bar1 | button1
+    bar1_window = 0;
+    button1_window = 0;
+// bar2 | button2
+    bar2_window = 0;
+    button2_window = 0;
+
+
+// Cursor
+    cursor_x = 0;
+    cursor_y = 0;
+    cursor_x_max = 0;
+    cursor_y_max = 0;
+
+    blink_status=FALSE;
+
+
 
 // ============================
 // Open display.
@@ -441,9 +470,10 @@ int main( int argc, char *argv[] )
     Display = 
         (struct gws_display_d *) gws_open_display("display:name.0");
 
-    if ( (void*) Display == NULL ){
-        debug_print ("gdm: Couldn't open display\n");
-        printf      ("gdm: Couldn't open display\n");
+    if ((void*) Display == NULL)
+    {
+        debug_print("gdm: Couldn't open display\n");
+        printf     ("gdm: Couldn't open display\n");
         exit(1);
     }
 
@@ -461,10 +491,9 @@ int main( int argc, char *argv[] )
 
 // Device info
     if ( screen_width == 0 || screen_height == 0 ){
-        printf ("gdm: screen_width screen_height\n");
+        printf("gdm: screen_width screen_height\n");
         exit(1);
     }
-
 
 // ---------------------------------
 // Main window
@@ -498,9 +527,8 @@ int main( int argc, char *argv[] )
 // Cursor limits based on the window size.
     cursor_x = 0;
     cursor_y = 0;
-    cursor_x_max = ((gdm_width/8)  -1);
-    cursor_y_max = ((gdm_height/8) -1);
-
+    cursor_x_max = (int) (((gdm_width/8)  -1) & 0xFFFFFFFF);
+    cursor_y_max = (int) (((gdm_height/8) -1) & 0xFFFFFFFF);
 
 // Creating the main window.
 // style: 
@@ -523,11 +551,14 @@ int main( int argc, char *argv[] )
                   COLOR_RED,   // #todo: client bg. Not implemented. 
                   COLOR_GRAY );
 
-    if (main_window<0){
+    if (main_window < 0)
+    {
         debug_print("gdm: main_window\n");
-        printf("gdm: main_window\n");
+        printf     ("gdm: main_window\n");
         exit(1);
     }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // -------------------------------
 //  The first line of elements.
@@ -537,10 +568,12 @@ int main( int argc, char *argv[] )
      gws_draw_text (
         (int) client_fd,      // fd,
         (int) main_window,    // window id,
-        (unsigned long)  2, 
+        (unsigned long) 2, 
         (unsigned long) 4 +(24/3), 
         (unsigned long) COLOR_BLACK,
         " Login: ");
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // bar1_window: (username)
@@ -558,9 +591,15 @@ int main( int argc, char *argv[] )
                   bar1_l, bar1_t, bar1_w, bar1_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
-    if (bar1_window<0){
+    if (bar1_window<0)
+    {
         debug_print("gdm: bar1_window fail\n");
+        printf     ("gdm: bar1_window\n");
+        exit(1);
     }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
+
 // Text inside the address bar.
     if (bar1_window>0){
         gws_draw_text (
@@ -571,6 +610,8 @@ int main( int argc, char *argv[] )
             (unsigned long) COLOR_BLACK,
             "admin");
      }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // button1_window: (reboot button window)
@@ -590,9 +631,14 @@ int main( int argc, char *argv[] )
                   bu1_l, bu1_t, bu1_w, bu1_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
-    if (button1_window<0){
-        debug_print("editor: button1_window fail\n"); 
+    if (button1_window<0)
+    {
+        debug_print("gdm: button1_window fail\n");
+        printf     ("gdm: button1_window\n");
+        exit(1);
     }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // -------------------------------
 //  The second line of elements.
@@ -606,7 +652,8 @@ int main( int argc, char *argv[] )
         (unsigned long)  4 +(24) +4 +(24/3), 
         (unsigned long) COLOR_BLACK,
         " Password: ");
-
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // bar2_window: password
@@ -622,9 +669,14 @@ int main( int argc, char *argv[] )
                   bar2_l, bar2_t, bar2_w, bar2_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
-    if (bar2_window<0){
-        debug_print("gdm: bar2_window\n"); 
+    if (bar2_window<0)
+    {
+        debug_print("gdm: bar2_window fail\n");
+        printf     ("gdm: bar2_window\n");
+        exit(1);
     }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 // ---------------------------------
 // button2_window: (confirm button)
@@ -646,9 +698,14 @@ int main( int argc, char *argv[] )
                   bu2_l, bu2_t, bu2_w, bu2_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
-    if (button2_window<0){
-        debug_print("gdm: button2_window\n");
+    if (button2_window<0)
+    {
+        debug_print("gdm: button2_window fail\n");
+        printf     ("gdm: button2_window\n");
+        exit(1);
     }
+    //#debug
+    gws_refresh_window(client_fd, main_window);
 
 /*
     int t=0;
@@ -677,7 +734,7 @@ int main( int argc, char *argv[] )
 */
 
 // Show main window.
-    gws_refresh_window (client_fd, main_window);
+    //gws_refresh_window(client_fd, main_window);
 
 // test: ok
     //gws_change_window_position(client_fd,main_window,0,0);
@@ -711,9 +768,11 @@ int main( int argc, char *argv[] )
     //     main_window,
     //     main_window );
 
-    gws_set_focus( client_fd, bar2_window );
     gws_set_active( client_fd, main_window );
+    gws_set_focus( client_fd, bar2_window );
 
+// Show main window.
+    gws_refresh_window(client_fd, main_window);
 
 //
 // Event loop

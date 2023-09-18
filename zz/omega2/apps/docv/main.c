@@ -683,7 +683,8 @@ int main ( int argc, char *argv[] )
                   0x0000,  
                   COLOR_GRAY, COLOR_GRAY );
 
-    if (main_window < 0){
+    if (main_window < 0)
+    {
         debug_print("docv: main_window fail\n"); 
         exit(1);
     }
@@ -691,6 +692,9 @@ int main ( int argc, char *argv[] )
     if (main_window > 0){
         __main_window = main_window;
     }
+
+    // #debug
+    gws_refresh_window( client_fd, main_window );
 
 // ===================
 // address bar
@@ -708,9 +712,13 @@ int main ( int argc, char *argv[] )
                   main_window,  
                   0, COLOR_WHITE, COLOR_WHITE );
 
-    if (addressbar_window < 0){
+    if (addressbar_window < 0)
+    {
         debug_print("docv: addressbar_window fail\n"); 
+        exit(1);
     }
+    // #debug
+    gws_refresh_window( client_fd, main_window );
 
 // IN: 
 // fd, window id, left, top, color, string
@@ -739,8 +747,13 @@ int main ( int argc, char *argv[] )
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
     if (button < 0)
+    {
         debug_print("docv: button fail\n"); 
-
+        exit(1);
+    }
+    // #debug
+    gws_refresh_window( client_fd, main_window );
+    
     if(button>0)
         __button_window=button;
 
@@ -757,8 +770,12 @@ int main ( int argc, char *argv[] )
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
     if (client_window < 0)
+    {
         debug_print("docv: client_window fail\n"); 
-
+        exit(1);
+    }
+    // #debug
+    gws_refresh_window( client_fd, main_window );
     if (client_window > 0){
         // Save globally.
         __client_window = client_window;
@@ -772,7 +789,7 @@ int main ( int argc, char *argv[] )
     }
 
 // Refresh
-    gws_refresh_window( client_fd, main_window );
+    //gws_refresh_window( client_fd, main_window );
 
 // ============================================
 // focus
@@ -793,6 +810,9 @@ int main ( int argc, char *argv[] )
 
     gws_set_focus( client_fd, client_window );
     gws_set_active( client_fd, main_window );
+
+// Refresh
+    gws_refresh_window( client_fd, main_window );
 
 // Call the event loop.
 

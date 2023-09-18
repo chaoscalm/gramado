@@ -49,8 +49,8 @@
 #define PORTS_NS  4041
 #define PORTS_FS  4042
 // ...
-#define IP(a, b, c, d) (a << 24 | b << 16 | c << 8 | d)
-
+#define IP(a, b, c, d) \
+    (a << 24 | b << 16 | c << 8 | d)
 
 struct gws_display_d *Display;
 
@@ -103,8 +103,8 @@ static int blink_status=FALSE;
 // we will copy all the iput support from the other editor.
 // for now we will use this tmp right here.
 
-int tmp_ip_x=8;
-int tmp_ip_y=8;
+//int tmp_ip_x=8;
+//int tmp_ip_y=8;
 
 //prototype
 static int 
@@ -564,6 +564,25 @@ int main( int argc, char *argv[] )
 
     isTimeToQuit = FALSE;
 
+    gScreenWidth=0;
+    gScreenHeight=0;
+
+// private
+    main_window = 0;
+    addressbar_window = 0;
+    client_window = 0;
+    savebutton_window = 0;
+
+// cursor
+    cursor_x = 0;
+    cursor_y = 0;
+    cursor_x_max = 0;
+    cursor_y_max = 0;
+
+    blink_status=FALSE;
+
+
+
 /*
 // #test
 // OK!
@@ -682,10 +701,15 @@ int main( int argc, char *argv[] )
                   COLOR_RED,   // #todo: client bg. Not implemented. 
                   COLOR_GRAY );
 
-    if (main_window < 0){
+    if (main_window < 0)
+    {
         debug_print("Editor: main_window fail\n"); 
+             printf("Editor: main_window fail\n"); 
         exit(1);
     }
+    //#debug
+    gws_refresh_window (client_fd, main_window);
+
 
 // Label.
 // Text inside the main window.
@@ -699,6 +723,8 @@ int main( int argc, char *argv[] )
         (unsigned long) COLOR_BLACK,
         " Name: ");
 
+    //#debug
+    gws_refresh_window (client_fd, main_window);
 // -----------------------------
 
     // Local.
@@ -727,9 +753,14 @@ int main( int argc, char *argv[] )
                   main_window, 
                   0, COLOR_WHITE, COLOR_WHITE );
 
-    if (addressbar_window < 0){
-        //debug_print("editor: addressbar_window fail\n");
+    if (addressbar_window < 0)
+    {
+        debug_print("Editor: addressbar_window fail\n"); 
+             printf("Editor: addressbar_window fail\n"); 
+        exit(1);
     }
+    //#debug
+    gws_refresh_window (client_fd, main_window);
 
 // Text inside the address bar.
     if (addressbar_window > 0)
@@ -741,7 +772,10 @@ int main( int argc, char *argv[] )
             (unsigned long) 8,          // top
             (unsigned long) COLOR_BLACK,
             "text.txt");
-     }
+    }
+    //#debug
+    gws_refresh_window (client_fd, main_window);
+
 // Save
     cwAddressBar.l = (( lWi.cr_width/8 )*2);
     cwAddressBar.t = 4;
@@ -766,9 +800,14 @@ int main( int argc, char *argv[] )
                   24,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
-    if (savebutton_window < 0){
-        //debug_print("editor: savebutton_window fail\n"); 
+    if (savebutton_window < 0)
+    {
+        debug_print("Editor: savebutton_window fail\n"); 
+             printf("Editor: savebutton_window fail\n"); 
+        exit(1);
     }
+    //#debug
+    gws_refresh_window (client_fd, main_window);
 
 // Save
     cwButton.l = (( lWi.cr_width/8 )*7);
@@ -824,9 +863,14 @@ int main( int argc, char *argv[] )
                   cw_left, cw_top, cw_width, cw_height,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
-    if (client_window < 0){
-        //debug_print("editor: client_window fail\n"); 
+    if (client_window < 0)
+    {
+        debug_print("Editor: client_window fail\n"); 
+             printf("Editor: client_window fail\n"); 
+        exit(1);
     }
+    //#debug
+    gws_refresh_window (client_fd, main_window);
 
 // Save
     cwText.l = 0;
@@ -835,7 +879,7 @@ int main( int argc, char *argv[] )
     cwText.h = (lWi.cr_height - cwText.t);
 
 // Show main window.
-    gws_refresh_window (client_fd, main_window);
+    //gws_refresh_window (client_fd, main_window);
 
 
 // =======================
@@ -874,9 +918,11 @@ int main( int argc, char *argv[] )
     //     main_window,
     //     main_window );
 
-    gws_set_focus( client_fd, client_window );
     gws_set_active( client_fd, main_window );
-   
+    gws_set_focus( client_fd, client_window );
+
+// Show main window.
+    gws_refresh_window (client_fd, main_window);
 // ============================================
 
 //
