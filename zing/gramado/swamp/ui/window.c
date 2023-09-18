@@ -1844,7 +1844,7 @@ void *CreateWindow (
         __w->type = WT_OVERLAPPED;
         __w->locked = FALSE;
 
-        wm_add_window_into_the_list(__w);
+        wm_add_window_to_top(__w);
         set_active_window(__w);
         goto draw_frame;
     }

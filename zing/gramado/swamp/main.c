@@ -2288,7 +2288,7 @@ int serviceCreateWindow(int client_fd)
     if (Window->type == WT_OVERLAPPED)
     {
         // Adiciona na lista de janelas
-        wm_add_window_into_the_list(Window);
+        wm_add_window_to_top(Window);
         
         // #bugbug
         // Apenas uma janela deve ser associada com a estrutura de cliete.

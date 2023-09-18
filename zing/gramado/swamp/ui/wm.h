@@ -192,12 +192,10 @@ void wm_Update_TaskBar( char *string, int flush );
 // see: wm.c
 int wmBindWindowToClient(struct gws_window_d *w);
 
+// Update desktop.
 void wm_update_desktop(int tile, int show);
-void 
-wm_update_desktop2(
-    struct gws_window_d *last_window,
-    int tile );
-void wm_update_desktop3(struct gws_window_d *new_top_window);
+void  wm_update_desktop2(void);
+void wm_update_desktop3(struct gws_window_d *new_active_window);
 
 // Update window.
 void wm_update_window_by_id(int wid);
@@ -209,11 +207,12 @@ void wm_exit_fullscreen_mode(int tile);
 
 // list support
 // not tested yet
-void wm_add_window_into_the_list(struct gws_window_d *window);
+void wm_add_window_to_bottom(struct gws_window_d *window);
+void wm_add_window_to_top(struct gws_window_d *window);
 void wm_rebuild_list(void);
 
 void wm_remove_window_from_list_and_kill(struct gws_window_d *window);
-
+void wm_remove_window_from_list(struct gws_window_d *window);
 
 #endif   
 

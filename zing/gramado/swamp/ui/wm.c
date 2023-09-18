@@ -583,23 +583,24 @@ wmProcessKeyboardEvent(
         // Muda o status dos botoes da quick launch area,
         // atualiza a disposiçao das janelas na tela e
         // mostra a tela.
-        if (long1 == VK_F5)
-        {
-            set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
-            set_status_by_id(QuickLaunch.buttons[1],BS_RELEASED);
-            set_status_by_id(QuickLaunch.buttons[2],BS_RELEASED);
-            set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
-            WindowManager.is_fullscreen = FALSE;
-
-            //set_input_status(FALSE);
+        if (long1 == VK_F5){
             wm_update_desktop(TRUE,TRUE);
-            //set_input_status(TRUE);
-            
+            return 0;
+        }
+        
+        if (long1 == VK_F6){
+            wm_update_desktop2();
+            return 0;
+        }
+        
+        if (long1 == VK_F7){
+            // Preserve the same active window.
+            wm_update_desktop3(last_window);
             return 0;
         }
 
         // F6 = Entra ou sai do modo fullscreen.
-        if (long1 == VK_F6)
+        if (long1 == VK_F8)
         {
 
             /*
@@ -640,6 +641,10 @@ wmProcessKeyboardEvent(
             long1 == VK_F11)
         {
             control_action(msg,long1);
+            return 0;
+        }
+        
+        if (long1 == VK_F12){
             return 0;
         }
         
@@ -1113,6 +1118,10 @@ static void on_doubleclick(void)
         
         if (p->type == WT_OVERLAPPED)
         {
+            last_window = p;
+            wm_update_desktop3(p);
+            
+            /*
             set_active_window(p);
 
             // Enter fullscreen mode.
@@ -1124,6 +1133,7 @@ static void on_doubleclick(void)
                 wm_exit_fullscreen_mode(TRUE);
                 return;
             }
+            */
         }
     }
 
@@ -2898,7 +2908,7 @@ static void animate_window(struct gws_window_d *window)
 
 // Starting with the first_window of the list,
 // create a stack of windows
-// This is the zorder.
+// This is the z-order.
 // #todo:
 // only application windows? overlapped.
 
@@ -2935,7 +2945,9 @@ static void wm_tile(void)
         debug_print("wm_tile: w==NULL\n");
         return;
     }
-    while ((void*)w != NULL){
+    while ((void*)w != NULL)
+    {
+        w->zIndex = (int) cnt;
         w = (struct gws_window_d *) w->next;
         cnt++;
     };
@@ -2974,7 +2986,7 @@ static void wm_tile(void)
 
     i=0;
 
-    if (cnt<=0){
+    if (cnt <= 0){
         return;
     }
 
@@ -2992,8 +3004,8 @@ static void wm_tile(void)
             {
                 // for titlebar color support.
                 // not the active window.
-                w->active = FALSE;
-                w->focus = TRUE;
+                //w->active = FALSE;
+                //w->focus = TRUE;
                 w->border_size = 1;
 
                 // resize.
@@ -3010,8 +3022,8 @@ static void wm_tile(void)
                 gws_resize_window(w, w2, h2);
 
                 // positions.
-                // left: comaça na metade da área de tranalho.
-                // top: depende do indice da janela na lista.
+                // left: Começa na metade da área de tranalho.
+                // top: Depende do indice da janela na lista.
                 Left = (unsigned long) (WindowManager.wa.width / 2) +2;
                 Top  = (unsigned long) (Height * i);
                 l2 = Left;
@@ -3026,12 +3038,17 @@ static void wm_tile(void)
                 {
                     // for titlebar color support.
                     // the active window.
-                    w->active = TRUE;
-                    w->focus = TRUE;
                     w->border_size = 2;
-                    keyboard_owner = (void*) w;
-                    last_window    = (void*) w;
-                    top_window     = (void*) w;  //z-order: top window.
+
+                    active_window = (void*) w;   // Active window
+                    w->active = TRUE;
+                    keyboard_owner = (void*) w;  // Window with focus.
+                    last_window    = (void*) w;  // Top
+                    top_window     = (void*) w;  // Top z-order: top window.
+                    mouse_owner = NULL;
+                    mouse_hover = NULL;
+                    
+                    // Change for the second time for this widnow.
                     
                     // resize.
                     // width: metade da área de trabalho.
@@ -3157,7 +3174,17 @@ fail:
 void wm_update_desktop(int tile, int show)
 {
     struct gws_window_d *w;  // tmp
-    struct gws_window_d *l;  // last of the stack
+
+// Lion: Last of the stack.
+    struct gws_window_d *l;
+
+// The state of the buttons in the quick lanch area.
+    set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[1],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[2],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
+    WindowManager.is_fullscreen = FALSE;
+
 
 // #test
 // Starting with the first window of the list,
@@ -3166,8 +3193,11 @@ void wm_update_desktop(int tile, int show)
 // Maybe we use an argument here. A set of flags.
     if (tile)
     {
-        if (WindowManager.mode == WM_MODE_TILED){
+        if (WindowManager.mode == WM_MODE_TILED)
+        {
             wm_tile();
+            // Ok, now we have the pointers
+            // for the main windows. (first, last, active ...).
         }
     }
 
@@ -3198,7 +3228,12 @@ void wm_update_desktop(int tile, int show)
 // Set the last window in the stack as the active window.
 // Set focus on the last window of the stack. 
 
+// Lamb
     w = (struct gws_window_d *) first_window;
+
+// --------------
+// 0 windows.
+// Invalid first window.
     if ((void*)w == NULL)
     {
         first_window = NULL;
@@ -3206,6 +3241,9 @@ void wm_update_desktop(int tile, int show)
         flush_window(__root_window);
         return;
     }
+// --------------
+// 0 windows.
+// Invalid first window.
     if (w->magic != 1234)
     {
         first_window = NULL;
@@ -3214,46 +3252,80 @@ void wm_update_desktop(int tile, int show)
         return;
     }
 
+// The Lamb is the Lion.
 // The first is the last valid window.
-    l = (struct gws_window_d *) w;
+    last_window = (struct gws_window_d *) w;
+              l = (struct gws_window_d *) w;
 
 // Loop to redraw the linked list.
     while (1){
 
-        if ((void*)w==NULL){ 
+        // This is the end of the list.
+        if ((void*)w == NULL){ 
             break; 
         }
 
+        // Valid pointer.
         if ((void*) w != NULL)
         {
             // Only overlapped windows.
+            // Applications.
             if (w->type == WT_OVERLAPPED)
             {
-                // This is the last valid for now.
-                l = (struct gws_window_d *) w;
                 // Redraw, but do no show it.
-                redraw_window(w,FALSE);
+                if (w->magic == 1234){
+                    redraw_window(w,FALSE);
+                }
 
                 // Post message to the main window.
                 // Paint the childs of the 'window with focus'.
                 //on_update_window(w,GWS_Paint);
                 //invalidate_window(w);
+
+                // New Lion.
+                // This is the last valid for now.
+                l = (struct gws_window_d *) w;
             }
         }
 
+        // Get the next window from the list.
         w = (struct gws_window_d *) w->next; 
     }; 
 
+// Active the Lion.
 // Set focus on last valid. Starting at first one.
 // Activate
+    last_window = (struct gws_window_d *) l;
     set_active_window(l);
-    //set_focus(l);  //no ... focus on client window.
 
+// -------------------------------------------
+// All the childs of l, 
+// will have the same zIndex as l.
+    register int i=0;
+    struct gws_window_d *tmp;
+    for (i=0; i<WINDOW_COUNT_MAX; i++)
+    {
+        tmp = (struct gws_window_d *) windowList[i];
+        if ( (void*) tmp != NULL )
+        {
+            if (tmp->magic == 1234)
+            {
+                // Se a parent eh a top window.
+                // Seta o mesmo zIndex.
+                if (tmp->parent == l){
+                    tmp->zIndex = (int) l->zIndex;
+                }
+            }
+        }
+    };
+
+// -------------------------
 // Update the taskbar at the bottom of the screen,
 // but do not show it yet.
 // Print the name of the active window.
     char *aw_name;
-    //wm_Update_TaskBar("DESKTOP",FALSE);
+
+    // Valid last window.
     if ((void*) l != NULL)
     {
         if (l->magic == 1234)
@@ -3266,13 +3338,21 @@ void wm_update_desktop(int tile, int show)
         }
     }
 
+    // Inalid last window.
+    if ((void*) l == NULL)
+    {
+        last_window = NULL;
+        wm_Update_TaskBar("DESKTOP",FALSE);
+        flush_window(__root_window);
+        return;
+    }
+
 // Invalidate the root window.
 // Shows the whole screen
     //invalidate_window(__root_window);
     if (show){
         flush_window(__root_window);
     }
-
 
 // #test
 // #debug
@@ -3302,72 +3382,81 @@ void wm_update_active_window(void)
     wm_update_window_by_id(wid);
 }
 
-// Set the last widnow and update the desktop.
-void 
-wm_update_desktop2(
-    struct gws_window_d *last_window,
-    int tile )
+void  wm_update_desktop2(void)
 {
-    set_last_window(last_window);
-    wm_update_desktop(TRUE,TRUE);
-}
+// Update the desktop respecting the current zorder.
+    struct gws_window_d *w;
 
-void wm_update_desktop3(struct gws_window_d *new_top_window)
-{
-// #todo
-// We need to redraw a lot of windows.
+// The state of the buttons in the quick lanch area.
+    set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[1],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[2],BS_RELEASED);
+    set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
+    WindowManager.is_fullscreen = FALSE;
 
 
 // Root
-    if ((void*) __root_window == NULL)
-        return;
-    redraw_window(__root_window,FALSE);
+    if ( (void*)__root_window != NULL )
+        redraw_window(__root_window,FALSE);
 
-//
-// The new 'top window'.
-//
-
-    if ((void*) new_top_window == NULL)
-        return;
-    if (new_top_window->magic != 1234)
-        return;
-
-    top_window = new_top_window;
-
-    set_active_window(top_window);
-    //set_focus(top_window); //#wrong: The focus goes to the child.
-    redraw_window(top_window,FALSE);
-    // Post message to the main window.
-    // Paint the childs of the window with focus.
-    on_update_window(top_window,GWS_Paint);
-
-
-//
-// String
-//
-
-// Show the name of the top window 
-// into the taskbar.
-
-    char *tw_name;
-    //wm_Update_TaskBar("...",FALSE);
-    if ((void*) top_window != NULL)
-    {
-        if (top_window->magic == 1234)
-        {
-            if ((void*) top_window->name != NULL)
-            {
-                tw_name = top_window->name;
-                wm_Update_TaskBar(tw_name,FALSE);
-            }
-        }
+    if ( (void*) first_window == NULL ){
+        printf("No first\n");
+        goto done;
     }
 
-    if ((void*) top_window == NULL)
-        wm_Update_TaskBar("...",FALSE);
+// Get the first window.
+    w = (struct gws_window_d *) first_window;
+    while (1){
+        // End of the list.
+        if ((void*)w == NULL)
+            break;
+        // Redraw, but do not show it.
+        if ((void*)w->magic == 1234){
+            redraw_window(w,FALSE);
+        }
+        // Next window from the list.
+        w = (struct gws_window_d *) w->next;
+    };
 
-// Flush the whole desktop.
-    flush_window(__root_window);
+done:
+// Flush the screen
+    wm_Update_TaskBar("...",FALSE);
+    if ( (void*)__root_window != NULL )
+        flush_window(__root_window);
+}
+
+void wm_update_desktop3(struct gws_window_d *new_active_window)
+{
+// Set the top/active window and
+// redraw the desktop respecting the list.
+// We need to rebuild the list.
+
+    if ((void*) new_active_window == NULL)
+        return;
+
+    if ( new_active_window == last_window )
+        goto done;
+
+// Se nao for a primeira da lista,
+// entao retira da lista e coloca no final.
+    if ( new_active_window != first_window )
+    {
+        // Simply remove from the list.
+        wm_remove_window_from_list(new_active_window);
+        // Simply add it to the end of the list.
+        wm_add_window_to_top(new_active_window);
+    }
+
+// Se ela for a primeira da lista, 
+// entao a segunda vira a primeira da lista
+    if ( new_active_window == first_window)
+        first_window = new_active_window->next;
+
+done:
+// Activate
+    set_active_window(new_active_window);
+// Update the desktop, respecting the list.
+    wm_update_desktop2();
 }
 
 // #todo
@@ -3710,7 +3799,7 @@ void set_last_window(struct gws_window_d *window)
     if (window->magic != 1234){
         return;
     }
-    wm_add_window_into_the_list(window);
+    wm_add_window_to_top(window);
 }
 
 struct gws_window_d *get_last_window(void)
@@ -3759,8 +3848,26 @@ void activate_last_window(void)
     set_active_window(last_window);
 }
 
+void wm_add_window_to_bottom(struct gws_window_d *window)
+{
+    struct gws_window_d *tmp;
+
+    if ((void*) window == NULL)
+        return;
+    if (window->magic != 1234)
+        return;
+    if (window == first_window)
+        return;
+
+    tmp = first_window;
+    // New first
+    first_window = window;
+    // Reconciliate.
+    first_window->next = tmp;
+}
+
 // The list starts with first_window.
-void wm_add_window_into_the_list(struct gws_window_d *window)
+void wm_add_window_to_top(struct gws_window_d *window)
 {
     struct gws_window_d  *Next;
 
@@ -3836,7 +3943,7 @@ void wm_rebuild_list(void)
             if (window->magic == 1234)
             {
                 if (window->type == WT_OVERLAPPED){
-                    wm_add_window_into_the_list(window);
+                    wm_add_window_to_top(window);
                 }
             }
         }
@@ -3883,6 +3990,45 @@ void wm_remove_window_from_list_and_kill( struct gws_window_d *window)
 }
 
 // ====================
+
+void wm_remove_window_from_list(struct gws_window_d *window)
+{
+    struct gws_window_d *w;
+    struct gws_window_d *pick_this_one;
+
+    if ( (void*) window == NULL ){
+        return;
+    }
+
+    w = (struct gws_window_d *) first_window;
+    if ( (void*) w == NULL ){
+        return;
+    }
+
+    while(1)
+    {
+        if ( (void*) w == NULL ){
+            break;
+        }
+
+        if (w == window)
+        {
+            // Remove
+            pick_this_one = (struct gws_window_d *) w;
+            // Glue the list.
+            w = w->next;
+            // Kill
+            pick_this_one->used = FALSE;
+            pick_this_one->magic = 0;
+            pick_this_one = NULL;
+            break;
+        }
+
+        w = w->next;
+    };
+}
+
+
 
 /*
 DEC	HEX	CHARACTER
@@ -4701,8 +4847,9 @@ static int wmProcessCombinationEvent(int msg_code)
         // #test
         // gwssrv_quit();
         //demoCat();
-
-        __switch_active_window(TRUE);  //active first
+        //__switch_active_window(TRUE);  //active first
+        // Update desktop respecting the current list.
+        wm_update_desktop2();
         return 0;
     }
 
@@ -4710,7 +4857,7 @@ static int wmProcessCombinationEvent(int msg_code)
     if (msg_code == GWS_Copy)
     {
         printf("ws: copy\n");
-        __switch_active_window(FALSE);  //active NOT FIRST
+        //__switch_active_window(FALSE);  //active NOT FIRST
         return 0;
     }
 
