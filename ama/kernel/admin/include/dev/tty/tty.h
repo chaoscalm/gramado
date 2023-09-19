@@ -170,6 +170,9 @@ struct tty_d
     char name[64];
     size_t Name_len;
 
+// TTY mode.
+    //unsigned short tty_mode;
+
     int initialized;
 
 // Ownership

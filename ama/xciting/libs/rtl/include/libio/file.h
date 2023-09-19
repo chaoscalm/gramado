@@ -110,11 +110,11 @@ struct _iobuf
 
 // flags, below; this FILE is free if 0 
 // Flags (see FileFlags). the state of the stream
-    short _flags;
+    unsigned short _flags;
 
 // fileno, if Unix descriptor, else -1
 // UNIX System file descriptor
-    short _file;
+    int _file;
 
 // the buffer (at least 1 byte, if !NULL)
     struct __sbuf _bf;

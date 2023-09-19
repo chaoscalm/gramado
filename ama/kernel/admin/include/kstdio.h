@@ -20,15 +20,12 @@ extern int g_inputmode;
 // bsd style.
 //
 
-// #importante
-// Esses serão os valores de referência
-// para todos os projetos.
-
+// _flags
+// BSD-sytle
 #define __SLBF  0x0001    /* line buffered */
 #define __SNBF  0x0002    /* unbuffered */
 #define __SRD   0x0004    /* OK to read */
 #define __SWR   0x0008    /* OK to write */
-
 /* RD and WR are never simultaneously asserted */
 #define __SRW   0x0010    /* open for reading & writing */
 #define __SEOF  0x0020    /* found EOF */
@@ -41,7 +38,7 @@ extern int g_inputmode;
 #define __SOFF  0x1000    /* set iff _offset is in fact correct */
 #define __SMOD  0x2000    /* true => fgetln modified _p text */
 #define __SALC  0x4000    /* allocate string space dynamically */
-
+#define __SIGN  0x8000    /* ignore this file in _fwalk */
 
 /*
  (BSD style)
@@ -282,17 +279,20 @@ extern unsigned long syncList[SYNC_COUNT_MAX];
  */
 struct file_d
 {
-    // #todo: Change this to ____object_type.
+    // The 'operation mode'.
     object_type_t ____object;
 
     int used;
     int magic;
     char *_tmpfname;  
 
+// File mode
+    //unsigned short f_mode;
+
 // Index for the list of open files that belongs to a process.
 // p->Objects[_file]
 // #todo: Maybe 'int'.
-    short _file;
+    int _file;
 
 // Global index.
 // A estrutura de arquivos aponta para tabela global de 
@@ -359,8 +359,6 @@ struct file_d
 // cookie passed to io functions
     void *_cookie; 
 
-    short _flags;
-
     //file extension 
     struct __sbuf _ext;
 
@@ -388,6 +386,8 @@ struct file_d
 // == (2) synchronization ========
 //
 
+    //short _flags;
+    unsigned short _flags;
 
 // Sincronizando a leitura e a escrita
 // para arquivos como socket, tty, buffer ... etc.
