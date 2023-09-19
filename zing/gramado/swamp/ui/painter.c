@@ -585,6 +585,68 @@ int redraw_titlebar_window(struct gws_window_d *window)
     return 0;
 }
 
+// #test
+void redraw_text_for_editbox(struct gws_window_d *window)
+{
+    char *p;
+// Local buffer for single line.
+    static char sl_local_buffer[64];
+    register int i=0;
+
+    if ((void*)window == NULL)
+        return;
+    if (window->magic != 1234)
+         return;
+    if ( window->type != WT_EDITBOX_SINGLE_LINE &&
+         window->type != WT_EDITBOX_MULTIPLE_LINES )
+    {
+        return;
+    }
+
+// -----------------------------------
+// #todo
+// No support for multiple lines yet.
+    if (window->type != WT_EDITBOX_SINGLE_LINE){
+        return;
+    }
+
+
+// No text
+    if ( (void*) window->window_text == NULL )
+    {
+        //window->textbuffer_size_in_bytes = 0;
+        //window->text_size_in_bytes = 0;
+        return;
+    }
+
+// Get the base
+    p = window->window_text;
+
+// Clear the local buffer for single line.
+    memset(sl_local_buffer,0,64);
+
+    int max=64; //provisorio
+    if (window->width_in_chars > 64){
+        max=64;
+    }else{
+        max = window->width_in_chars;
+    };
+
+    for (i=0; i<max; i++)
+    {
+        sl_local_buffer[i] = *p;
+        p++;
+    };
+
+// Draw the string into the window.
+    grDrawString ( 
+        (window->absolute_x + 8), 
+        (window->absolute_y + 8), 
+        COLOR_BLACK, 
+        sl_local_buffer );
+}
+
+//------------
 // redraw_window:
 // Let's redraw the window.
 // Called by serviceRedrawWindow().
@@ -851,7 +913,16 @@ redraw_window (
         {
             __draw_window_border(window->parent, window);
         }
-        
+
+        // Text
+        if ( window->type == WT_EDITBOX_SINGLE_LINE ||
+             window->type == WT_EDITBOX_MULTIPLE_LINES )
+        {
+            // #test
+            // We're testing it yet.
+            // redraw_text_for_editbox(window);
+        }
+
         //...
     }
 

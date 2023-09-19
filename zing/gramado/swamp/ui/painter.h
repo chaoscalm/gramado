@@ -46,6 +46,8 @@ void invalidate_statusbar(struct gws_window_d *pwindow);
 
 int redraw_controls(struct gws_window_d *window);
 int redraw_titlebar_window(struct gws_window_d *window);
+
+void redraw_text_for_editbox(struct gws_window_d *window);
 int 
 redraw_window (
     struct gws_window_d *window, 

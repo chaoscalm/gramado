@@ -519,11 +519,13 @@ struct gws_window_d
 // The text support.
 // Used by input devices or just to show the text
 // when we dont have input support.
+// #todo: Create a substructure for this.
 
     char *window_text;
     size_t textbuffer_size_in_bytes;
     size_t text_size_in_bytes;
     int text_fd;             // file descriptor for the text
+    // color?
 
     char *window_doc;
     size_t docbuffer_size_in_bytes;
