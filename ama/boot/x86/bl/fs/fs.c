@@ -414,11 +414,11 @@ fsLoadFile (
 
 // Checks
     if ( (void*) name == NULL ){
-        printf("fsLoadFile: [FAIL] name\n");
+        printf("fsLoadFile: name\n");
         goto fail;
     }
     if (*name == 0){
-        printf("fsLoadFile: [FAIL] *name\n");
+        printf("fsLoadFile: *name\n");
         goto fail;
     }
 
@@ -666,8 +666,7 @@ int path_count(const char *path)
 // pathname, virtual address.
 //   0 ---> ok.
 // !=0 ---> fail
-
-int load_path ( unsigned char *path, unsigned long address )
+int load_path(unsigned char *path, unsigned long address)
 {
 
 // #test
@@ -702,28 +701,23 @@ int load_path ( unsigned char *path, unsigned long address )
 // path
 
     if ((void*) path == NULL){
-        printf ("bl-load_path: path\n");
+        printf("load_path: path\n");
         goto fail;
-        //abort();
     }
     if (*path == 0){
-        printf ("bl-load_path: *path\n");
+        printf("load_path: *path\n");
         goto fail;
-        //abort();
     }
     if (*path != '/'){
-        printf ("bl-load_path: It's not an absolute path\n");
+        printf("load_path: It's not an absolute path\n");
         goto fail;
-        //abort();
     }
 
     p = path;
     n_levels = (int) path_count(path);
-    if (n_levels<=0)
-    {
-        printf ("bl-load_path: n_levels\n");
+    if (n_levels <= 0){
+        printf("load_path: n_levels\n");
         goto fail;
-        //abort ();
     }
     level = 0;
 
@@ -731,9 +725,8 @@ int load_path ( unsigned char *path, unsigned long address )
 // address
 
     if (address == 0){
-        printf ("bl-load_path: address\n");
+        printf("load_path: address\n");
         goto fail;
-        //abort ();
     }
 
 // =======================
@@ -748,14 +741,13 @@ int load_path ( unsigned char *path, unsigned long address )
 
     for (l=0; l<n_levels; l++)
     {
-        printf ("\n[LEVEL %d]\n\n",l);
-        
+        printf("\n");
+        printf("[LEVEL %d]\n",l);
+
         // Tem que começar o level com '/'
-        if ( p[0] != '/' )
-        {
-            printf ("bl-load_path: The level needs to start with '/' \n");
+        if ( p[0] != '/' ){
+            printf("load_path: The level needs to start with '/' \n");
             goto fail;
-            //abort();
         }
         p++; //pula o '/' 
 
@@ -776,18 +768,16 @@ int load_path ( unsigned char *path, unsigned long address )
             {
                 if ( l != (n_levels-1) )
                 {
-                    printf ("bl-load_path: Directory name with '.'\n");
+                    printf("load_path: Directory name with '.'\n");
                     goto fail;
-                    //abort ();
                 }
                 
                 // Se o ponto está além do limite permitido.
                 if (i>=7)
                 {
-                    printf ("bl-load_path: '.' fail.\n");
-                    printf ("Name size bigger than 8.\n");
+                    printf("load_path: '.' fail.\n");
+                    printf("Name size bigger than 8.\n");
                     goto fail;
-                    //abort ();
                 }
 
                 // Se o ponto for antes do nono slot.
@@ -826,15 +816,15 @@ int load_path ( unsigned char *path, unsigned long address )
                 __dst_buffer = (void *) __file_buffer;
                 if ( (void *) __dst_buffer == NULL )
                 {
-                    printf ("bl-load_path: __dir\n");
+                    printf("load_path: __dir\n");
                     goto fail;
-                    //abort();
                 }
 
-                Ret = fsLoadFile ( 
-                          (unsigned char *) buffer, 
-                          (unsigned long) __dst_buffer,    // Onde carregar
-                          (unsigned long) __src_buffer );  // Onde procurar.
+                Ret = 
+                    fsLoadFile ( 
+                        (unsigned char *) buffer, 
+                        (unsigned long) __dst_buffer,    // Onde carregar
+                        (unsigned long) __src_buffer );  // Onde procurar.
                 // ok
                 if (Ret == 0){
                     // printf ("level %d loaded.\n",l);
@@ -843,22 +833,20 @@ int load_path ( unsigned char *path, unsigned long address )
                     // Esse nível tinha ponto, então deveria ser o último.
                     if ( l != (n_levels-1) )
                     {
-                        printf ("bl-load_path: Directory name with '.'\n");
-                        printf ("It needs to be the last level.\n");
+                        printf("load_path: Directory name with '.'\n");
+                        printf("It needs to be the last level.\n");
                         goto fail;
-                        //abort();
                     }
 
-                    // SUCCESS ?!!
+                    // SUCCESS?!
                     return 0;
 
-                    //sai do for??
+                    //sai do for?
                     break;
 
                 }else{
-                    printf ("load_path: [FAIL] Fail loading level 0\n");
+                    printf("load_path: Fail loading level 0\n");
                     goto fail;
-                    //abort();
                 };
             }
 
@@ -888,17 +876,16 @@ int load_path ( unsigned char *path, unsigned long address )
                 // It is ok here in the boot loader.
  
                 __dst_buffer = (void *) malloc (512*32);
-                if ( (void *) __dst_buffer == NULL )
-                {
-                    printf ("bl-load_path: __dir\n");
+                if ( (void *) __dst_buffer == NULL ){
+                    printf("load_path: __dst_buffer\n");
                     goto fail;
-                    //abort();
                 }
 
-                Ret = fsLoadFile ( 
-                          (unsigned char *) buffer, 
-                          (unsigned long) __dst_buffer,    // Onde carregar
-                          (unsigned long) __src_buffer );  // Onde procurar.
+                Ret = 
+                    fsLoadFile ( 
+                        (unsigned char *) buffer, 
+                        (unsigned long) __dst_buffer,    // Onde carregar
+                        (unsigned long) __src_buffer );  // Onde procurar.
                 // ok.
                 if ( Ret == 0 ){
 
@@ -907,33 +894,30 @@ int load_path ( unsigned char *path, unsigned long address )
                     // O endereço onde carregamos o arquivo desse nível
                     // será o endereço onde vamos procurar o arquivo do próximo nível.
                     __src_buffer = __dst_buffer;
-                    
                     break;
-                    
                 }else{
-                    printf ("load_path: [FAIL] Fail loading level 0\n");
+                    printf("load_path: [FAIL] Fail loading level 0\n");
                     goto fail;
-                    //abort ();
                 };
             }
 
-            // avançamos o char se não foi '.', nem '/'.
+            // Avançamos o char se não foi '.', nem '/'.
             p++;
         };
     };   
 
 fail:
-    printf ("load_path: fail \n");
+    printf("bl.bin-load_path: Fail\n");
     refresh_screen();
+
+    // Abort?
+
     // Returning to call the rescue shell.
     return (-1);
 }
 
-/*
- * fsSearchFile: 
- *    Procura um arquivo no diretório raiz.
- */ 
-unsigned long fsSearchFile (unsigned char *name)
+// Search for a file into the root directory.
+unsigned long fsSearchFile(unsigned char *name)
 {
     int Status=0;
     unsigned long z=0;  //Deslocamento no rootdir. 
@@ -947,13 +931,13 @@ unsigned long fsSearchFile (unsigned char *name)
     int EndOfDir = FALSE;
     int FoundInThisEntry = -1;
 
-// Check args.
+// Validation
     if ( (void*) name == NULL ){
-        printf("fsSearchFile: [ERROR] invalid name\n");
+        printf("fsSearchFile: name\n");
         goto file_not_found;
     }
     if (*name == 0){
-        printf("fsSearchFile: [ERROR] invalid name\n");
+        printf("fsSearchFile: *name\n");
         goto file_not_found;
     }
 
@@ -1063,6 +1047,8 @@ void fs_load_rootdirEx()
     unsigned long RootSize = 32;
 // Address offset support.
     unsigned long n=0;
+
+    //unsigned long dir_address = FAT16_ROOTDIR_ADDRESS;
 
     // debug
     // printf("Loading root dir ...\n");

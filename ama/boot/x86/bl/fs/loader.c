@@ -36,7 +36,7 @@ void updateProgressBar();
 // Address.
 // pa = 0x00100000.
 // va = 0xC0000000.
-int elfLoadKernelImage (const char *file_name)
+int elfLoadKernelImage(const char *file_name)
 {
 // Called by blLoadKernelImage() in main.c.
 
@@ -52,6 +52,12 @@ int elfLoadKernelImage (const char *file_name)
 // Name
     char *kernel_name;
     kernel_name = file_name;
+
+// Validation
+    if ((void*) file_name == NULL )
+        goto fail;
+    if ( *file_name == 0 )
+        goto fail; 
 
 // Message
 

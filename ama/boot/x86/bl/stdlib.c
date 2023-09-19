@@ -41,17 +41,12 @@ void *malloc(size_t size)
  * desejamos que o GC libere os recurso. Em seguida devemos sinalizar 
  * no mmblock que libere o bloco para outras alocações. 
  */
-
 void free(void *ptr)
 {
-
-//#todo: message
     if ((void *) ptr == NULL){
         return;
     }
-
-// See: 
-// memory.c
+// See: memory.c
     FreeHeap(ptr);
 }
 

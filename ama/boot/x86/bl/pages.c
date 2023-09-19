@@ -75,6 +75,7 @@ void page_enable()
 
 void SetUpPaging(void)
 {
+// 64bit.
 // + Setup pages.
 // + Transfer execution to the kernel.
 // This routine does not return.
