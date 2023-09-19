@@ -10,14 +10,11 @@
  *     2015 - Created by Fred Nora.
  *     2020 - New functions.
  */
-// See:
-// http://kirste.userpage.fu-berlin.de/chemnet/use/info/libc/libc_7.html 
-
 
 #include <limits.h>
 #include <stdio.h>
-#include <types.h> 
-#include <stdarg.h> 
+#include <types.h>  // ?
+#include <stdarg.h>
 #include <stdio_ext.h>
 #include <stddef.h>
 #include <ctype.h>
@@ -26,21 +23,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <rtl/gramado.h> 
+#include <rtl/gramado.h>  //?
 
 
-#define  SYSTEMCALL_READ_LBA    1
-#define  SYSTEMCALL_WRITE_LBA   2
-#define  SYSTEMCALL_READ_FILE   3
-#define  SYSTEMCALL_WRITE_FILE  4
-// ...
-
-// Why?
-#define VK_RETURN     0x1C 
-#define VK_BACKSPACE  0x0E 
-#define VK_BACK       0x0E 
-#define VK_TAB        0x0F 
-
+/* we use this so that we can do without the ctype library */
+/*
+#define __is_digit(c)  \
+    ((c) >= '0' && (c) <= '9')
+*/
 
 // Globals
 int __libc_tty_id=0;
@@ -51,19 +41,20 @@ unsigned long g_columns=0;
 unsigned long g_rows=0;
 int g_using_gui=0;
 
-// Global
-// prompt support.
-char prompt[PROMPT_MAX_DEFAULT]; 
-char prompt_out[PROMPT_MAX_DEFAULT]; 
-char prompt_err[PROMPT_MAX_DEFAULT]; 
-
-//char prompt_text[] = "$ ";
-//...
-
+// -------------------------
+// Globals
+// prompt[] support.
 int prompt_pos=0;
 int prompt_max=0;
 int prompt_status=0;
+char prompt[PROMPT_MAX_DEFAULT]; 
+char prompt_out[PROMPT_MAX_DEFAULT]; 
+char prompt_err[PROMPT_MAX_DEFAULT]; 
+//char prompt_text[] = "$ ";
+//...
 
+
+// -------------------------
 // Globals
 // standard streams support.
 FILE *stdin;
@@ -139,37 +130,50 @@ char terry_toupper(char ch)
 int rtl_y_or_n(void)
 {
     static int ch=0;
-    printf ("Type: 'y' or 'n'\n");
+
+    if ( (void*) stdin == NULL )
+        goto crazy_fail;
+
+    printf("Type: 'y' or 'n'\n");
 
 // Get and convert to capital.
     while (1)
     {
         ch = (int) fgetc(stdin);
         ch = (int) toupper(ch);
+        // Yes
         if (ch == 'Y'){
-            printf ("~YES!\n");
+            printf("~YES!\n");
             return TRUE;
+        // No
         } else if (ch == 'N'){
-            printf ("~NO!\n");
+            printf("~NO!\n");
             return FALSE;
         };
     };
-    // return (int) -1;
+
+crazy_fail:
+    return (int) -1;
 }
 
 int rtl_are_you_sure(void)
 {
-    printf ("Are You sure?\n");
+    printf("Are You sure?\n");
     return (int) rtl_y_or_n();
 }
 
 // stdio_atoi:
 // Talvez isso possa ir para o topo do 
 // arquivo para servir mais funções.
-int stdio_atoi (char *s)
+int stdio_atoi(char *s)
 {
-    int rv=0; 
+    int rv=0;
     char sign=0;
+
+// #todo
+// Ring 3 can't access address 0.
+    //if ((void*) s == NULL)
+        //return -1;
 
 // Skip till we find either a digit or '+' or '-'.
     while (*s){
@@ -210,7 +214,7 @@ int stdio_atoi (char *s)
 // não tem protótipo ainda.
 // Credits: Luiz Felipe
 
-void stdio_fntos (char *name)
+void stdio_fntos(char *name)
 {
     int i=0;
     int ns=0;
@@ -282,12 +286,12 @@ void __init_FILE (FILE *fp, int fd, unsigned char *buffer, int flags )
 {
     if(!fp)
         return;
-        
+
     fp->used = 1;
-    fp->magic = 1234;        
-        
+    fp->magic = 1234;
+
     //fp->iopl = 3;
-            
+
     fp->fd = fd;
     fp->_base = (unsigned char *) buffer;
     fp->_lbfsize = BUFSIZ;
@@ -304,10 +308,10 @@ FILE *__make_FILE (int fd)
     
     if (!fp)
         return NULL;
-    
+
     //fp->used = 1;
-    //fp->magic = 1234;        
-     
+    //fp->magic = 1234;
+
     // CLean 
     memset (fp, 0, sizeof(FILE));
 
@@ -334,7 +338,8 @@ FILE *__make_FILE (int fd)
 int remove (const char *pathname)
 {
     debug_print ("remove: [TODO] It removes a file from the file system\n");
-    if( (void*) pathname == NULL){
+
+    if ( (void*) pathname == NULL){
         goto fail;
     }
     if (*pathname == 0){
@@ -403,13 +408,13 @@ int __fflush (FILE *stream)
 
     // #todo
     // Not buffered. 
-	// if (stream->_flags & _IONBF)
-		//return (0);
+    // if (stream->_flags & _IONBF)
+        //return (0);
 
     // #todo
     // Not writable. 
-	//if (!(stream->flags & _IOWRITE))
-		//return (0);
+    //if (!(stream->flags & _IOWRITE))
+        //return (0);
 
     //if ( !stream->_w )
         //return 0;
@@ -570,6 +575,7 @@ int fflush(FILE *stream)
 int ____bfill (FILE *stream)
 {
     int n_read = 0;
+    size_t BufferSize=0;
 
     if ((void *) stream == NULL)
     {
@@ -579,11 +585,11 @@ int ____bfill (FILE *stream)
     }
 
 // Check buffer size
-    if (stream->_lbfsize != BUFSIZ)
+    BufferSize = stream->_lbfsize;
+    if (BufferSize != BUFSIZ)
     {
-        debug_print ("____bfill: [FAIL] _lbfsize \n");
-        printf      ("____bfill: [FAIL] _lbfsize %d\n",
-            stream->_lbfsize);
+        debug_print("____bfill: BufferSize \n");
+        printf     ("____bfill: BufferSize %d\n", BufferSize );
         stream->_cnt = 0;
         // #debug
         // provisorio
@@ -967,7 +973,7 @@ char *gets(char *s)
     register int c=0;
     register char *cs;
 
-    if ( (void*) s == NULL )
+    if ((void*) s == NULL)
         return NULL;
 
     cs = s;
@@ -987,7 +993,7 @@ int puts(const char *s)
 {
     register int c=0;
 
-    if ( (void*) s == NULL )
+    if ((void*) s == NULL)
         return -1;
 
     while (c = *s++){
@@ -1008,6 +1014,7 @@ char *fgets(char *s, int size, FILE *stream)
     cs = s;
 
     // Maior ou igual a 0.
+    // #ugly
     while ( --size > 0 && 
             (c = getc(stream)) >= 0 ) 
     {
@@ -1039,7 +1046,9 @@ int fputs( const char *s, FILE *stream )
     //#todo
     //if ( (void*) s == NULL ){}
 
-    while (c = *s++){
+    // #ugly
+    while (c = *s++)
+    {
         r = putc(c,stream);
     };
 
@@ -1072,13 +1081,13 @@ int getw (FILE *stream)
 }
 
 //#test
-int putw (int w, FILE *stream)
+int putw(int w, FILE *stream)
 {
     //#todo
     //if ( (void*) stream == NULL ){}
 
-    putc ( w,      stream);
-    putc ( w >> 8, stream);
+    putc( w,      stream);
+    putc( w >> 8, stream);
 
     // ?? rever retorno.
     return 0;
@@ -1118,7 +1127,7 @@ int fclose(FILE *stream)
 // Check parameters.
     if ((void *) stream == NULL){
         errno = EBADF;
-        return EOF;  
+        return EOF;
     }
 
 // Flush the data that are in the ring3 buffer.
@@ -1143,7 +1152,7 @@ int fclose(FILE *stream)
         stream->_flags = 0;
         stream->_cnt = 0;
 
-        // Delete the structure.        
+        // Delete the structure.
         stream = NULL;
 
         // ok
@@ -1167,7 +1176,7 @@ int fclose(FILE *stream)
 FILE *fopen ( const char *filename, const char *mode )
 {
     FILE *__stream;  // Return this pointer.
-    int fd=0;        // File descriptor.  
+    int fd=0;        // File descriptor.
     int flags=0;     // flags
 
 // mode #todo
@@ -1451,7 +1460,7 @@ void scroll (void)
 
 void clearerr(FILE* stream)
 {
-    if ( (void *) stream == NULL ){
+    if ((void *) stream == NULL){
         return;
     }
     //stream->_flags &= ~(_IOERR|_IOEOF);
@@ -1525,19 +1534,18 @@ size_t fread (void *ptr, size_t size, size_t n, FILE *fp)
     if (nreads <= 0){
         printf ("fread: read() fail\n");
         fp->_flags |= _IOERR;
-        return (size_t) -1;   
+        return (size_t) -1;
     }
 
     // menos do que desejavamos.
     if (nreads < number_of_bytes){
         printf ("fread: read() fail. Less than desired\n");
         fp->_flags |= _IOERR;
-        return (size_t) -1;   
+        return (size_t) -1;
     }
 
     return (size_t) nreads;
 }
-
 
 /*
  * fwrite:
@@ -1553,9 +1561,9 @@ size_t fread (void *ptr, size_t size, size_t n, FILE *fp)
 
 size_t 
 fwrite ( 
-    const void *ptr, 
-    size_t size, 
-    size_t n, 
+    const void *ptr,
+    size_t size,
+    size_t n,
     FILE *fp )
 {
     size_t nwrite=0;
@@ -1617,9 +1625,8 @@ error1:
     // ...
 // Ainda não sabemos se o ponteiro de arquivo é válido.
 error0:
-    return (size_t) EOF;   
+    return (size_t) EOF;
 }
-
 
 // O prompt precisa ser inicializado pelo crt0 e
 // quando ele sobre flush.
@@ -1681,18 +1688,20 @@ int prompt_flush (int con_id)
     }
 
 // Finalize
-    input ('\0'); 
-    len = strlen( (const char *) prompt );  
-    sc80 ( 66, (unsigned long) prompt, con_id, len );  
+    input ('\0');
+    len = strlen( (const char *) prompt );
+    sc80 ( 66, (unsigned long) prompt, con_id, len );
     prompt_clean();
 
     return 0;
 }
 
-// Linpando o buffer de entrada.
 void prompt_clean (void)
 {
+// Clear the buffer prompt[], used by input();
+
     register int i=0;
+
     for ( i=0; i<PROMPT_MAX_DEFAULT; i++ )
     {
         prompt[i] = (char) '\0';
@@ -1700,263 +1709,15 @@ void prompt_clean (void)
     prompt[0] = (char) '\0';
     prompt_pos = 0;
     prompt_status = 0;
-    prompt_max = PROMPT_MAX_DEFAULT;  
+    prompt_max = PROMPT_MAX_DEFAULT;
 }
+
 
 /*
  ****************************************************************
  *    Building the function printf;
  ****************************************************************
  */
-
-
-/*
- **********************************************************************
- * prints:
- */
-// #bubgug:
-// Esses argumentos podem estar fora dos padrões.
-// Mas a implementação feita pelo altor é assim mesmo. 
-
-int 
-prints ( 
-    char **out, 
-    const char *string, 
-    int width, 
-    int pad )
-{
-    register int pc = 0, padchar = ' ';
-
-// filtro: 
-// E se width for menor que 0?
-
-	//if(width < 0){
-	//	return (int) 1;
-	//}
-
-    if (width > 0) 
-    {
-        register int len = 0;
-        register const char *ptr;
-
-        for(ptr = string; *ptr; ++ptr) ++len;
-        if(len >= width) width = 0;
-        else width -= len;
-        if(pad & PAD_ZERO) padchar = '0';
-    }
-
-    if ( !(pad & PAD_RIGHT) )
-    {
-        for ( ; width > 0; --width )
-        {
-            printchar ( out,padchar );
-            ++pc;
-        };
-    }
-
-    for ( ; *string ; ++string )
-    {
-        printchar (out, *string);
-        ++pc;
-    };
-
-    for ( ; width > 0; --width )
-    {
-        printchar (out,padchar);
-        ++pc;
-    };
-
-    return pc;
-}
-
-
-/*
- * printi:
- *     used by printf.
- */
-
-int 
-printi ( 
-    char **out, 
-    int i, 
-    int b, 
-    int sg, 
-    int width, 
-    int pad, 
-    int letbase )
-{
-    register char *s;
-    register int t, neg = 0, pc = 0;
-    register unsigned int u = i;
-
-    char print_buf[PRINT_BUF_LEN];
-
-
-    if (i == 0){
-        print_buf[0] = '0';
-        print_buf[1] = '\0';
-        return prints (out, print_buf, width, pad);
-    }
-
-
-    if ( sg && b == 10 && i < 0) 
-    {
-        neg = 1;
-        u = -i;
-    }
-
-    s = print_buf + PRINT_BUF_LEN-1;
-    *s = '\0';
-
-    while (u) 
-    {
-        t = (u % b);
-
-        if (t >= 10)
-            t += letbase - '0' - 10;
-        *--s = t + '0';
-        u /= b;
-    };
-
-
-    if (neg) 
-    {
-        if ( width && (pad & PAD_ZERO) ) 
-        {
-            printchar (out, '-');
-            ++pc;
-            --width;
-
-        }else{
-            *--s = '-';
-        };
-    }
-
-    return pc + prints(out, s, width, pad);
-}
-
-/*
- * print:
- *     Used by printf.
- */
-
-int print ( char **out, int *varg )
-{
-    register int width, pad;
-    register int pc = 0;
-    register char *format = (char *) (*varg++);
-    char scr[2];
-
-    for ( ; *format != 0; format++ ) 
-    {
-
-		//switch.
-        if ( *format == '%' ) 
-        {
-
-			++format;
-			width = pad = 0;
-
-            if ( *format == '\0' ){  break;  }
-
-            if ( *format == '%' ){  goto out;  }
-
-            if ( *format == '-' )
-            {
-                ++format;
-                pad = PAD_RIGHT;
-            }
-
-			while ( *format == '0' ){
-				++format;
-				pad |= PAD_ZERO;
-			};
-			
-			for ( ; *format >= '0' && *format <= '9'; ++format )
-			{
-				width *= 10;
-				width += *format - '0';
-			};
-			
-			//string
-			if ( *format == 's' ){
-				
-				register char *s = *( (char **) varg++ );
-				pc += prints ( out, s?s:"(null)", width, pad);
-				continue;
-			}
-			
-			//int
-			if ( *format == 'd' ){
-				pc += printi ( out, *varg++, 10, 1, width, pad, 'a');
-				continue;
-			}
-			
-			//hexa
-			if ( *format == 'x' ){
-				pc += printi ( out, *varg++, 16, 0, width, pad, 'a');
-				continue;
-			}
-			
-			if ( *format == 'X' ){
-				pc += printi ( out, *varg++, 16, 0, width, pad, 'A');
-				continue;
-			}
-			
-			if ( *format == 'u' ){
-				pc += printi ( out, *varg++, 10, 0, width, pad, 'a');
-				continue;
-			}
-			
-			//char
-			//char are converted to int then pushed on the stack. 
-			if ( *format == 'c' ){
-				
-				scr[0] = *varg++;
-				scr[1] = '\0';
-				pc += prints ( out, scr, width, pad);
-				continue;
-			}
-			
-			//Nothing.
-		
-		}else{
-		    out:
-			    printchar ( out, *format );
-			    ++pc;
-		};
-		//Nothing.
-    };
-
-    if (out){
-        **out = '\0';
-    }
-
-    return (int) pc;
-}
-
-
-/* 
- ****************************************************
- * printf:
- *     Imprime uma string formatada.
- *     Assuming sizeof(void *) == sizeof(int).
- * Obs: Temos uma chamada ao sistema para cada caractere.
- * Obs: Se passássemos apenas o ponteiro da string para o kernel pintá-la,
- * não estariamos usando o printf da biblioteca em user mode e sim 
- * a printf do kernel.
- */
-// Padrão não tradicional, mas funciona. 
-
-/*
-int printf3 ( const char *format, ... )
-{
-    register int *varg = (int *)(&format);
-
-    return (int) print ( 0, varg );
-}
-*/
-
 
 //======================
 // #todo: poderia se chamar l2hex?
@@ -2110,10 +1871,10 @@ kinguio_l2hex(
         x = (n & 0xF);
         // Próximo nibble.
         n >>= 4;
-        
+
         *--cp = x + ((x > (HEX_LEN+1)) ? 'A' - 10 : '0' );
     };
-    
+
     dest[len]='\0';
 
     cp = &dest[0];
@@ -2129,16 +1890,16 @@ kinguio_l2hex(
 
     cp = &dest[0];
     n = strlen(cp);
-   
+
     //memset( 
     //    dest + n, 
     //    0, 
     //    8-n );
 
     memset( 
-        dest+n, 
+        (dest + n), 
         0, 
-        16-n );   //64bit
+        (16 - n) );
 }
 
 //local
@@ -2491,112 +2252,23 @@ void printf_i2hex (uint32_t val, char *dest, int len)
 }
 
 
-
-// #test 
-// tentando implementar a printf do nelson cole.
-// padrão tradicional, incompleta, não funciona ainda,
-// estamo implementando
-
-/*
-int printf2 ( const char *format, ... )
-{
-
-    char *ap;
-    va_start (ap,format);
-
-    int index = 0;
-    uint8_t u;
-    int d;
-    char c, *s;
-
-    char buffer[256];
-
-
-    while ( format[index] )
-    {
-        switch (format[index])
-        {
-            case '%':
-			    ++index;
-			    switch (format[index])
-			    {
-			
-                    case 'C':
-			        case 'c':
-				        c = (int8_t) va_arg (ap, int32_t);
-				        putchar(c);
-				        break;
-     
-                    case 'S':
-			        case 's':
-				        s = va_arg (ap, int8_t*);
-				        //puts(s);
-				        printf2(s);
-						break;
-
-			        case 'd':
-			        case 'i':
-				        d = va_arg (ap, int32_t);
-				        //atoi(d, buffer);
-				        printf_atoi(d, buffer);
-						//puts(buffer);
-						printf2(buffer);
-				        break;
-
-			        case 'U':
-			        case 'u':
-				        u = va_arg (ap, uint32_t);
-				        //atoi(u, buffer);
-				        printf_atoi (u, buffer);
-						//puts(buffer);
-				        printf2 (buffer);
-						break;
-
-			        case 'X':
-			        case 'x':
-				        d = va_arg (ap, int32_t);
-				        //i2hex(d, buffer,8);
-						//printf_i2hex(d, buffer,8);
-				        //puts(buffer);
-                        printf ("%x",d);
-                        break;
-
-                    default:
-                        putchar ('%');
-                        putchar ('%');
-                        break;
-                }
-                break;
-
-            default:
-                putchar ( format[index] );
-                break;
-        };
-
-        ++index;
-    };
-
-    return 0;
-}
-*/
-
-
 //
 //=============================================================
 //
 
-//find next line
-char *stdio_nextline (char *string)
+// Find next line
+char *stdio_nextline(char *string)
 {
     char *p;
 
-    p = (char *) strchr (string, '\n');
-
-    if (p==NULL){ return (p); }
+    p = (char *) strchr(string,'\n');
+    if (p==NULL){
+        return (p);
+    }
 
     ++p;
 
-// Não há próxima linha    
+// Não há próxima linha
     if (*p=='\0'){ 
         return (NULL);
 // Retorna o ponteiro para a próxima linha. 
@@ -2605,51 +2277,23 @@ char *stdio_nextline (char *string)
     };
 }
 
-// next line sprintf
-int nlsprintf ( char *out, const char *format, ... )
+// Credits: kinguio
+int sprintf(char *str, const char *fmt, ...)
 {
-    char *tmp;
+    int ret=0;
 
-    tmp = (char *) stdio_nextline(out);
-    if (tmp == NULL){
-        // ?? message
-        return -1;
-    }
-    register int *varg = (int *)(&format);
+    va_list ap;
+    va_start (ap, fmt);
+    ret = kinguio_vsprintf(str, fmt, ap);
+    va_end (ap);
 
-    return (int) print( &tmp, varg );
+/* terminate the string */
+    *(unsigned char*)(str + ret) = '\0';
+
+    return (int) ret;
 }
 
-/*
- *****************************************************************
- * sprintf:
- *     Emprime uma string formatada em 'out'.
- *     Escreve em um buffer de caracteres.
- * @todo: ??
- * Em caso de sucesso, a função retorna o número de caracteres 
- * da string formatada. Em caso de erro, um valor negativo é retornado.
- */ 
-//opção 
-//int sprintf(char *str, const char *format, ...) ?? 
-
-int sprintf ( char *out, const char *format, ... )
-{
-    register int *varg = (int *)(&format);
-
-    return (int) print( &out, varg );
-}
-
-
-void printchar ( char **str, int c )
-{
-    if (str) 
-    {
-        **str = c;
-        ++(*str);
-    } else (void) putchar(c);
-}
-
-
+// #depreated?
 // Setup libc mode.
 void libc_set_output_mode(int mode)
 {
@@ -2706,14 +2350,14 @@ void outbyte (int c)
     {
         g_cursor_x = 0;
         prev = Ch;
-        return;  
+        return;
     }
 
-//Próxima linha e não início da linha.   
+//Próxima linha e não início da linha.
     if ( Ch == '\n' && prev != '\r' ) 
     {
-        g_cursor_y++; 
-        g_cursor_x = 0;  
+        g_cursor_y++;
+        g_cursor_x = 0;
         prev = Ch;
         return;
     }
@@ -2730,9 +2374,9 @@ void outbyte (int c)
 //@todo: Criar a var -> 'g_tab_size'.
     if ( Ch == '\t' )  
     {
-        g_cursor_x += (4);    
+        g_cursor_x += (4);
         prev = Ch;
-        return;   
+        return;
     }
 
 //Space 
@@ -2746,7 +2390,7 @@ void outbyte (int c)
     }
 
 //Delete
-    if ( Ch == 8 )  
+    if ( Ch == 8 )
     {
         g_cursor_x--; 
         prev = Ch;
@@ -2970,7 +2614,7 @@ int fprintf(FILE *fp, const char *fmt, ...)
 
 /*
  ********************************
- * fprintf:     
+ * fprintf:
  */
 // #bugbug
 // We just have the pointer for a structure.
@@ -3003,7 +2647,7 @@ int fprintf ( FILE *stream, const char *format, ... )
 
     va_end(ap);
     //--
-     
+
     // Suspendendo a notificação do terminal.
     return 0;
 }
@@ -3129,7 +2773,6 @@ ssize_t getline(char** lineptr, size_t* n, FILE* stream)
 }
 */
 
-
 /*
  *********************************
  * ungetc:
@@ -3140,7 +2783,7 @@ ssize_t getline(char** lineptr, size_t* n, FILE* stream)
 // então e getc() deve checar se antes temos um unget
 // se tiver deve pega-lo, so depois fazer seu trabalho.
 
-int ungetc ( int c, FILE *stream )
+int ungetc( int c, FILE *stream )
 {
     if (c == EOF){
         return EOF;
@@ -3158,7 +2801,7 @@ int ungetc ( int c, FILE *stream )
             // substituir o que ja tem. ??
             //stream->ungotten = c; 
             //return (int) c;
-            
+
             return EOF;
         }
 
@@ -3185,10 +2828,9 @@ static __inline__ off_t ftell(FILE *__f)
 
 // Deixaremos o kernel manipular a estrutura.
 // This function returns the current file position of the stream stream. 
-
 long ftell (FILE *stream)
 {
-    int fd=-1;    
+    int fd=-1;
     int offset=0;
     long file_pos=0;
     int rCount=0;
@@ -3199,7 +2841,6 @@ long ftell (FILE *stream)
     }else{
 
         fd = fileno(stream);
-        
         if (fd<0){
             printf("ftell: [FAIL] fd\n");
             return 0;
@@ -3210,31 +2851,30 @@ long ftell (FILE *stream)
         if (stream->_cnt < 0){
             stream->_cnt = 0;
         }
-        
+
         //fflush (stream);
-        
+
         // Pegamos o valor, assim podemos atualizar a estrutura local.
-        
+
         file_pos = (long) lseek ( fd, 0, SEEK_CUR); 
         
         // offset
         // offset = stream->_ptr - stream->_base;
-        
+
         // ??
         //if (filepos == 0)
         //    return((long)offset);
-        
+
         // local
         //if (stream->_cnt == 0)
         //    offset = 0;
 
         // rCount = stream->_cnt + (stream->_ptr - stream->_base);
-        
+
         return (long) file_pos;
     };
 
     debug_print ("ftell: [ERROR] Something is wrong\n");
-    
     return 0;
 }
 
@@ -3245,12 +2885,11 @@ long ftell (FILE *stream)
 
 int fileno(FILE *stream)
 {
-    if ( (void *) stream == NULL ){
+    if ((void *) stream == NULL){
        return EOF; 
-    } 
+    }
     return (int) stream->_file;
 }
-
 
 // linux klibc style.
 // Isso vai ler no arquivo que está em ring0.
@@ -3258,8 +2897,8 @@ int fileno(FILE *stream)
 int linux_fgetc (FILE *f)
 {
     unsigned char ch=0;
-  
-    if ( (void *) f == NULL ){
+
+    if ((void *) f == NULL){
        return EOF;
     }
 
@@ -3283,14 +2922,16 @@ char *fgets2 (char *s, int count, FILE *fp)
     while (count-- > 1) 
     {
         ch = getc(fp);
-
-        if (ch == EOF){ break; }
+        if (ch == EOF){
+            break;
+        }
 
         *p++ = ch;
 
-        if (ch == '\n') { break; }
+        if (ch == '\n'){
+            break;
+        }
     };
-
 
     if ( ferror(fp) || (s == p) ) 
     {
@@ -3302,23 +2943,26 @@ char *fgets2 (char *s, int count, FILE *fp)
     return (char *) s;
 }
 
-
-/*
- * fputs2: 
- */
-
-int fputs2 ( const char *str, FILE *stream )
+int fputs2( const char *str, FILE *stream )
 {
-    if ( (void *) stream == NULL ){ return EOF; }
+    register int rc=0;
+
+    if ((void *) stream == NULL){
+        return EOF;
+    }
+
 // ugly
     for (; *str; ++str) 
     {
-        int rc = putc (*str, stream);
-
-        if (rc == EOF){ return EOF; }
+        rc = putc(*str, stream);
+        if (rc == EOF){
+            return EOF;
+        }
     }
+
     return 1;
 }
+
 
 /*
  * gets:
@@ -3331,13 +2975,13 @@ int fputs2 ( const char *str, FILE *stream )
 char *gets2 (char *s)
 {
     char *p;
-    int ch=0;
+    register int ch=0;
     int t = 0;
 
-	//printf("gets:\n");
+    //printf("gets:\n");
 
     //salva
-    p = s; 
+    p = s;
 
     while (1)
     {
@@ -3359,11 +3003,11 @@ char *gets2 (char *s)
                 case VK_BACKSPACE:
                     if(t > 0){  t--;  };
                     break;
-            
-			    default:
+
+                default:
                     //s[t] = (char) ch;
-					//t++;
-					break;
+                    //t++;
+                    break;
             };
 
             //ok
@@ -3371,7 +3015,7 @@ char *gets2 (char *s)
 
             s[t] = (char) ch;
             t++;
-        };
+        }
  
         // #bugbug
         // IF X86
@@ -3383,23 +3027,20 @@ done:
     return (char *) p;
 }
 
-
 /*
- ***********************
- * puts:
+ * puts2:
  */
 // #bugbug
 // isso deve escrever no arquivo, assim como tudo em libc.
-// ??
-
-int puts2 ( const char *str )
+int puts2(const char *str)
 {
-    return (int) printf ("%s",str);
+    if ((void*) str == NULL)
+        return 0;
+
+    return (int) printf("%s",str);
 }
 
-
 /*
- *************************************
  * getchar2:
  * O kernel pega no stdin que é a fila do teclado.
  * Isso funciona.
@@ -3412,7 +3053,7 @@ int getchar2(void)
 // ? Já temos uma função para essa chamada ? 137.
 
 Loop:
-    Ret = (int) sc80 ( 137, 0, 0, 0 ); 
+    Ret = (int) sc80( 137, 0, 0, 0 ); 
     if (Ret > 0){
         return (int) Ret;
     }
@@ -3483,18 +3124,14 @@ int getchar6(FILE *input_stream,FILE *output_stream)
 */
 
 
-
-int
-rtl_GetS(
-    unsigned char *buf,
-    size_t size )
+int rtl_GetS( unsigned char *buf, size_t size )
 {
 // Prompt into fixed length string. Size must include terminator.
 // Credits: TempleOS
 // #todo: Not tested yet.
 
     unsigned char *st;
-    int ch=0;
+    register int ch=0;
     int i=0;
 
     if ((void*)buf == NULL)
@@ -3545,17 +3182,17 @@ int feof(FILE *fp)
 
 // feof:
 // #todo: Explain ti better.
-int feof (FILE *stream)
+int feof(FILE *stream)
 {
-    if ( (void *) stream == NULL ){
+    if ((void *) stream == NULL){
         return EOF;
     }
     return (int) stream->eof;
 }
 
-
 /*
- //This function clears the end-of-file and error indicators for the stream stream. 
+// This function clears the end-of-file and 
+// error indicators for the stream stream. 
 void clearerr(FILE *fp)
 {
     if ( (void *) fp == NULL )
@@ -3566,19 +3203,14 @@ void clearerr(FILE *fp)
 }
 */
 
-
-/*
- *********************************
- * ferror:
- */
-
-int ferror (FILE *stream)
+int ferror(FILE *stream)
 {
-    if ( (void *) stream == NULL ){
+    if ((void *) stream == NULL){
        return EOF;
     }
     return (int) stream->error;
 }
+
 
 /*linux - klibc style*/
 /*
@@ -3592,17 +3224,15 @@ static __inline__ int fseek(FILE *__f, off_t __o, int __w)
   return (lseek(fileno(__f), __o, __w) == (off_t)-1) ? -1 : 0;
 }
 */
-	
-	
+
 /*
- **************************************
  * fseek:
  *     offset argument is the position that you want to seek to,
  *     and whence is what that offset is relative to.
  */
 // The fseek function is used to change the file position of the stream stream. 
  
-int fseek ( FILE *stream, long offset, int whence )
+int fseek( FILE *stream, long offset, int whence )
 {
 // #bugbug:
 // This function is not working yet.
@@ -3658,7 +3288,7 @@ int fseek ( FILE *stream, long offset, int whence )
 
 /*linux klibc style*/
 // Isso vai escrever no arquivo que está em ring0.
-int linux_fputc (int c, FILE *f)
+int linux_fputc(int c, FILE *f)
 {
     unsigned char ch = c;
 
@@ -3703,7 +3333,7 @@ ssize_t getline (char **lineptr, size_t *n, FILE *stream)
 // #todo: criar essa rotina na libc.
 void debug_print(char *string)
 {
-    if( (void*) string == NULL )
+    if ((void*) string == NULL)
         return;
 
     sc80 ( 
@@ -3760,16 +3390,15 @@ int scanf ( const char *fmt, ... )
     int d;
     char *s;
 
-	//%c
-    int ch=0;
+//%c
+    register int ch=0;
 
-	//usado em %d
+//usado em %d
     int *i;
     char tmp[80];
 
-
-	//o char.
-    int c=0;
+// O char.
+    register int c=0;
 
     char *cp;
 
@@ -3786,9 +3415,11 @@ int scanf ( const char *fmt, ... )
         // get
         c = *fmt;
 
-        if (c == 0){  return 0;  }
+        if (c == 0){
+            return 0;
+        }
 
-		// pulando os espaços
+        // pulando os espaços
 		if ( isspace (c) ) 
 		{
 			while ( size > 0 && isspace(*fmt) )
@@ -3800,83 +3431,76 @@ int scanf ( const char *fmt, ... )
 			
 			continue;
 		}
-		
-        switch (*fmt++) 
-		{
-			/* string */
-            case 's':              
+
+        switch (*fmt++)
+        {
+            /* string */
+            case 's':
 				//pego o ponteiro para  a string, depois é só usar o gets. ??
 				s = va_arg(ap, char *);
 				
 				//usaremos esse ponteiro para colocar uma string digitada.
-				if ( (void *) s != NULL )
-				{
-				    gets (s);
+				if ( (void *) s != NULL ){
+				    gets(s);
 				}else{
 				    printf ("scanf: s null pointer\n");	
 				}
-				
+
 				//testar ...
 				//printf("string %s\n", s);
                 break;
-            
+
 			/* int */
 			case 'd': 
 				//pego o ponteiro para  a string, depois é só usar o gets. ??
 				i = va_arg(ap, int *);
 				
 				//usaremos esse ponteiro para colocar uma string digitada.
-				if( (void *) i != NULL )
-				{
+				if( (void *) i != NULL ){
 				    //pego uma string de caracteres, que são números digitados.
 					gets (tmp);
-					
 					//converte essa string em dígito
-					i[0] = (int) stdio_atoi (tmp);                     
-					
+					i[0] = (int) stdio_atoi (tmp);
 				}else{
-				    printf ("scanf: s null pointer\n");	
+				    printf("scanf: s null pointer\n");
 				}
-				
+
 				//testar ...
 				//printf("string %s\n", s);
-			
+
                 //d = va_arg(ap, int);
                 //printf("int %d\n", d);
                 break;
             
 			/* char */
-			case 'c':    
+			case 'c': 
                 t = va_arg (ap, char *);
 				if ( (void *) t != NULL )
 				{
-				
                     while (1)
                     {
 			            ch = (int) getchar ();
-						
 						if ( ch != -1 )
 						{
 						    t[0] = ch;
                             //printf("scanf ch={%c}",ch);
-						    break;	
-						}			
-					};	
-					
+						    break;
+						}
+					};
+
 				}else{
 					printf ("scanf: c null pointer\n");
-				}; 				 
+				};
                 break;
-				
+
 			//default:
             //    break; 
-				
+
         };//switch
     };
 
-   //va_end (ap);
-   
-   return 0;
+    //va_end (ap);
+    return 0;
 }
 //======================================================================
 // scanf support (end)
@@ -3897,9 +3521,10 @@ int scanf ( const char *fmt, ... )
 
 int sscanf ( const char *str, const char *format, ... )
 {
+    const char *start = str;
+
     va_list args;
     va_start(args, format);
-    const char *start = str;
 
     for ( ; *format != '\0'; format++ )
     {
@@ -3938,9 +3563,8 @@ int sscanf ( const char *str, const char *format, ... )
 
     va_end (args);
 
-    return str - start;
+    return (str - start);
 }
-
 
 
 //=============================================================
@@ -3985,17 +3609,17 @@ int sscanf ( const char *str, const char *format, ... )
 //typedef unsigned long long uintmax_t;
 //typedef long long intmax_t;
 //#else
-typedef unsigned int uintmax_t;
-typedef int          intmax_t;
+typedef unsigned int  uintmax_t;
+typedef int           intmax_t;
 //#endif
-typedef unsigned char  u_char;
-typedef unsigned int   u_int;
-typedef unsigned long  u_long;
-typedef unsigned short u_short;
+typedef unsigned char   u_char;
+typedef unsigned int    u_int;
+typedef unsigned long   u_long;
+typedef unsigned short  u_short;
 
-typedef unsigned long long u_quad_t;  //#bugbug
-typedef long long quad_t;             //#bugbug
-typedef unsigned long uintptr_t;
+typedef unsigned long long  u_quad_t;   //#bugbug
+typedef long long           quad_t;     //#bugbug
+//typedef unsigned long       uintptr_t;  //#bugbug (64bit)
 
 //typedef long ptrdiff_t;
 //#define NULL ((void*)0)
@@ -4011,19 +3635,20 @@ char const hex2ascii_data[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 //vamos usar o que está em ctype.h
 //#define toupper(c)  ((c) - 0x20 * (((c) >= 'a') && ((c) <= 'z')))
 
-static size_t stdio_strlen (const char *s)
+static size_t stdio_strlen(const char *s)
 {
     register size_t l=0;
+
     while (*s++){
         l++;
     };
-    return l;
+    return (size_t) l;
 }
 
 /* Max number conversion buffer length: 
  a u_quad_t in base 2, plus NUL byte. */
-#define MAXNBUF  (sizeof(intmax_t) * NBBY + 1)
-
+#define MAXNBUF  \
+    (sizeof(intmax_t) * NBBY + 1)
 
 /*
  * ksprintn:
@@ -4043,17 +3668,24 @@ static char *ksprintn (
 {
     char *p, c;
 
+    // #bugbug: Division by 0.
+    //if (base == 0)
+        //return 0;
+
     p = nbuf;
 
-	//*p = ' ';
-	*p = 0;
+    //*p = ' ';
+    *p = 0;
 
     do {
-        c = hex2ascii (num % base);
+        c = hex2ascii(num % base);
 
         *++p = upper ? toupper(c) : c;
 
+    // #bugbug: Division by 0.
+    // base can't be 0.
     } while (num /= base);
+    //} while (num = num/base);
 
 
     if (lenp){
@@ -4350,9 +3982,10 @@ kvprintf (
 			base = 16;
 			sharpflag = (width == 0);
 			sign = 0;
-			num = (uintptr_t)va_arg(ap, void *);
+			//num = (uintptr_t)va_arg(ap, void *);
+            num = (unsigned long) va_arg(ap, void *);
 			goto number;
-			
+
 		case 'q':
 			qflag = 1;
 			goto reswitch;
@@ -4513,50 +4146,13 @@ kvprintf (
 }
 
 
-static void xxxputchar ( int c, void *arg )
+// #bugbug: Extra parameter.
+static void xxxputchar( int c, void *arg )
 {
-	/* add your putchar here */
-
-	//printf("%c",c);
+    //if (c<0)
+       //return;
     putchar( (int) c );
 }
-
-
-/*
- *===========================================
- * printf:
- *     http://www.pagetable.com/?p=298
- */
-
-    // #todo
-    // Talvez usar semáforo aqui.
-
-/*
-int printf ( const char *fmt, ... ){
-
-    va_list ap;
-    va_start(ap, fmt);
-
-    // The prototype.
-    // int 
-    // kvprintf ( 
-    //     char const *fmt, 
-    //     void (*func)( int, void* ), 
-    //     void *arg, 
-    //     int radix,    // ??10 gives octal; 20 gives hex.
-    //     va_list ap );
-
-
-    kvprintf ( fmt, xxxputchar, NULL, 10, ap );
-
-    va_end (ap);
-
-    return 0;
-}
-//=============================================================
-// printf end
-//=============================================================
-*/
 
 
 /*
@@ -4617,135 +4213,6 @@ extern __inline int vprintf (const char *__fmt, __gnuc_va_list __arg)
 */
 
 
-
-/*
- **********************
- * vfprintf:
- */
-
-// #bugbug
-// Estamos em ring3, não devemos acessar os elementos da estrutura de stream.
-
-
-/*
-int 
-vfprintf ( 
-    FILE *stream, 
-    const char *format, 
-    stdio_va_list argptr )
-{
-
-    debug_print("vfprintf: [TODO]\n");
-
-	//#suspenso.
-	//return (int) kvprintf ( format, NULL, stream->_ptr, 10, argptr );
-
-
-    int size=0;
-
-    //if ( (void *) stream == NULL )
-       //return EOF;
-
-    if ( (void *) stream == NULL )
-    {
-        return (int) (-1);
-    } else {
-
-        size = (int) stdio_strlen (format);
-
-		//Se a string for maior que o tanto de bytes
-		//disponíveis no arquivo
-		if ( size > stream->_cnt )
-		{
-			return (int) (-1);
-		}
-		
-		//recalcula o tanto de bytes disponíveis
-		stream->_cnt = (int) (stream->_cnt - size);
-		
-		//coloca no buffer, usando o ponteiro atual.
-		//#obs: isso provavelmente funcione, 
-		//mas vamos tentar o segundo método.
-		//sprintf ( stream->_ptr, format );
-		//kvprintf ( format, NULL, stream->_ptr, 10, argptr );
-		kvprintf ( format, NULL, stream->_p, 10, argptr );
-		
-		//atualiza o ponteiro atual.
-		//stream->_ptr = stream->_ptr + size;
-		stream->_p = stream->_p + size;
-        
-        return 0;
-    };
-
-    return (int) (-1);
-} 
-*/
-
-
-
-/* #bsd style */
-/*
-int vprintf (const char *fmt, va_list ap)
-{
-    if ( (void *) stdout == NULL )
-    {
-       debug_print ("vprint: [FAIL] stdout\n");
-       return EOF;
-    }
-
-    return (int) vfprintf (stdout, fmt, ap);
-}
-*/
-
-
-/*
-//printf que escreve no stdout. 
-//#bugbug: não devemos usar stream em ring3.
-int stdout_printf (const char *format, ...)
-{
-    va_list arg;
-    va_start (arg, format);
-
-    int done=0;
-
-    if ( (void *) stdout == NULL ){
-       return EOF;
-    }
-
-    done = vfprintf (stdout, format, arg);
-
-    va_end (arg);
-
-    return done;
-}
-*/
-
-
-/*
-// printf que escreve no stderr. 
-int stderr_printf (const char *format, ... )
-{
-    va_list arg;
-    va_start (arg, format);
-
-    int done=0;
-    
-    if ( (void *) stderr == NULL ){
-       debug_print ("stderr_printf: stderr\n");
-       return EOF;
-    }
-
-    // Print!
-    
-    done = vfprintf (stderr, format, arg);
-
-    va_end (arg);
-
-    return done;
-}
-*/
-
-
 /*
  * perror:
  */
@@ -4778,10 +4245,10 @@ void perror (const char *str)
 
 void rewind(FILE *stream)
 {
-    int fd=-1;
+    int fd = -1;
 
-    if ( (void *) stream == NULL ){
-        printf ("rewind: [FAIL] stream\n");
+    if ((void *) stream == NULL){
+        printf("rewind: [FAIL] stream\n");
         return;
     }
 
@@ -4815,7 +4282,7 @@ void rewind(FILE *stream)
     //clearerr(stream);
 
     fd = fileno(stream);
-    if(fd<0){
+    if (fd<0){
         printf("rewind: [ERROR] fd\n");
         return;
     }
@@ -4874,15 +4341,12 @@ void rewind2(FILE *f)
 }
 */
 
-
-
 /*
 static void buffer_putch(char*& bufptr, char ch)
 {
     *bufptr++ = ch;
 }
 */
-
 
 /*
 static size_t __vsnprintf_space_remaining;
@@ -4895,33 +4359,25 @@ static void sized_buffer_putch(char*& bufptr, char ch)
 }
 */
 
-
-
-/*
- * snprintf:
- *     #todo
- */
-
-int snprintf ( char *str, size_t count, const char *fmt, ... )
+int snprintf( char *str, size_t count, const char *fmt, ... )
 {
-    va_list ap;
-    va_start (ap, fmt);
-
     size_t ret=0;
 
     debug_print ("snprintf: [TODO]\n");
 
-    if ( count <= 0 )
-        return EOF;
+    va_list ap;
+    va_start (ap, fmt);
 
+
+    if (count <= 0)
+        return EOF;
 
 	//#todo 
 	//Isso parece fácil
 	//ret = vsnprintf(str, count, fmt, ap);
 
+    va_end(ap);
 
-    va_end (ap);
-    
     return ret;
 }
 
@@ -4932,12 +4388,11 @@ int stdio_initialize_standard_streams (void)
 {
     debug_print("stdio_initialize_standard_streams: [FIXME] What is this?\n");
     return (int) sc80 ( 
-                     700, 
-                     (unsigned long) stdin, 
-                     (unsigned long) stdout, 
-                     (unsigned long) stderr ); 
+                    700, 
+                    (unsigned long) stdin, 
+                    (unsigned long) stdout, 
+                    (unsigned long) stderr ); 
 }
-
 
 // wtf ... it looks so cool!
 /*
@@ -4970,7 +4425,6 @@ file *file_purpose (file *f)
  * to be passed to an open() syscall through *optr.
  * Return 0 on error.
  */
-
 /*
 int
 __sflags(const char *mode, int *optr);
@@ -5068,63 +4522,6 @@ _fwalk(int (*function)(FILE *))
 */
 
 
-/* 
- * apiStartTerminal:
- *     
- */
-
-// 'Clona' e executa o noraterm como processo filho. 
-// registra o terminal noraterm como terminal atual.
-// pega o pid do terminal atual
-// manda uma mensagem pedindo para o terminal dizer hello.
-
-// #obs: Isso funcionou.
-
-// #bugbug
-// Maybe it's libc isn't the better place for this fucntion.
-// Try libgui.
-
-int libcStartTerminal (void)
-{
-
-    debug_print ("libcStartTerminal: [DEPRECATED]\n");
-
-    /*
-    int PID=0;
-    // 'Clona' e executa o noraterm como processo filho. 
-    //PID = (int) system_call ( 900, (unsigned long) "noraterm.bin", 0, 0 );
-
-    PID = (int) sc80 ( 900, 
-                    (unsigned long) "noraterm.bin", 0, 0 );
-
-    // Exibe o PID para debug.
-    //printf ("PID = %d \n", PID);
-
-    //registra o terminal como terminal atual.
-    sc80 ( 1003, PID, 0, 0 ); 
-
-    //invalida a variável.
-    PID = -1;
-
-    //pega o pid do terminal atual
-    PID = (int) sc80 ( 1004, 0, 0, 0 ); 
-
-    if ( PID <= 0 )
-    {
-        printf ("PID fail. We can't send the message\n");
-        return -1;
-    }
-
-    	//manda uma mensagem pedindo para o terminal dizer hello.
-	//__SendMessageToProcess ( PID, NULL, MSG_TERMINALCOMMAND, 2001, 2001 );
-
-	return (int) PID;
-    */
-
-    return -1;
-}
-
-
 //
 // stream buffer support
 //
@@ -5132,8 +4529,7 @@ int libcStartTerminal (void)
 // see: 
 // https://linux.die.net/man/3/setvbuf
 // #ugly: See: setbuf_test1
-
-void setbuf (FILE *stream, char *buf)
+void setbuf(FILE *stream, char *buf)
 {
     debug_print ("setbuf: [FIXME]\n");
     if ( (void*) stream == NULL ){
@@ -5166,8 +4562,7 @@ void setbuf_test1 (FILE *stream, char *buf)
 //The size argument specifies the length of buf.
 //This function is provided for compatibility with old BSD code. 
 //Use setvbuf instead. 
-
-void setbuffer (FILE *stream, char *buf, size_t size)
+void setbuffer(FILE *stream, char *buf, size_t size)
 {
     if ( (void *) stream == NULL ){
        debug_print ("setbuffer: stream\n");
@@ -5188,11 +4583,10 @@ void setbuffer (FILE *stream, char *buf, size_t size)
 //This function makes stream be line buffered, and allocates the buffer for you.
 //This function is provided for compatibility with old BSD code. 
 //Use setvbuf instead. 
-
-void setlinebuf (FILE *stream)
+void setlinebuf(FILE *stream)
 {
     debug_print ("setlinebuf: [FIXME]\n");
-    setvbuf (stream, (char *) 0, _IOLBF, 0);
+    setvbuf(stream, (char *) 0, _IOLBF, 0);
 }
 
 
@@ -5308,9 +4702,9 @@ unsigned int filesize(FILE *fp)
 // We worked a little bit in these routines.
 // It is getting better.
 
-    fseek(fp, 0, SEEK_END);         //#bugbug
+    fseek(fp, 0, SEEK_END);          //#bugbug
     ret = (unsigned int) ftell(fp);  //#bugbug
-    rewind(fp);                     //#bugbug
+    rewind(fp);                      //#bugbug
 
     return (unsigned int) ret;
 }
@@ -5320,7 +4714,7 @@ char *fileread (FILE *fp)
 {
     unsigned int buffer_size = 0;
     char *buff;
-    
+
     if (!fp){ 
         debug_print ("fileread: fp\n");
         return (char *) 0;
@@ -5342,30 +4736,13 @@ char *fileread (FILE *fp)
 }
 
 
-/*
-int dprintf (int fd, const char *format, ...)
-{ 
-    debug_print ("dprintf: [TODO]\n");
-	return -1; 
-}
-*/
-
-/*
-int vdprintf (int fd, const char *format, va_list ap)
-{ 
-    debug_print ("vdprintf: [TODO]\n");
-	return -1; 
-}
-*/
-
-
 //
 //==================================================================
 //
 
-/* we use this so that we can do without the ctype library */
-#define __is_digit(c)	((c) >= '0' && (c) <= '9')
-
+/*
+// #bugbug
+// I don't wanna use double pointer.
 static int skip_atoi(const char **s)
 {
     int i=0;
@@ -5377,6 +4754,7 @@ static int skip_atoi(const char **s)
 
     return i;
 }
+*/
 
 
 #define ZEROPAD   1  /* pad with zero */
@@ -5455,223 +4833,6 @@ static char *number (
 		*str++ = ' ';
 	return str;
 }
-
-
-// It was taken from linux 0.01. (GPL)
-// It works yet.
-// Just for fun. :^) 
-
-/*
-int 
-Wirzenius_Torvalds_vsprintf (
-    char *buf, 
-    const char *fmt, 
-    va_list args )
-{
-    int len=0;
-    int i=0;
-
-    char *str;
-    char *s;
-    int *ip;
-
-    //flags to number()
-    int flags;
-
-    // width of output field 
-    int field_width;	
-	
-    // min. # of digits for integers; 
-    // max number of chars for from string.
-    int precision;
-   
-    //'h', 'l', or 'L' for integer fields 
-    int qualifier;
-
-
-	for (str=buf ; *fmt ; ++fmt)
-    {
-		if (*fmt != '%')
-        {
-			*str++ = *fmt;
-			continue;
-		}
-
-		//process flags
-		flags = 0;
-		repeat:
-			++fmt;  //this also skips first '%' 
-			switch (*fmt) {
-				case '-': flags |= LEFT; goto repeat;
-				case '+': flags |= PLUS; goto repeat;
-				case ' ': flags |= SPACE; goto repeat;
-				case '#': flags |= SPECIAL; goto repeat;
-				case '0': flags |= ZEROPAD; goto repeat;
-				}
-		
-		//get field width 
-		field_width = -1;
-		if (__is_digit(*fmt))
-			field_width = skip_atoi(&fmt);
-		else if (*fmt == '*') {
-			//it's the next argument 
-			field_width = va_arg(args, int);
-			if (field_width < 0) {
-				field_width = -field_width;
-				flags |= LEFT;
-			}
-		}
-
-		//get the precision 
-		precision = -1;
-		if (*fmt == '.') {
-			++fmt;	
-			if (__is_digit(*fmt))
-				precision = skip_atoi(&fmt);
-			else if (*fmt == '*') {
-				//it's the next argument 
-				precision = va_arg(args, int);
-			}
-			if (precision < 0)
-				precision = 0;
-		}
-
-		//get the conversion qualifier 
-		qualifier = -1;
-		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
-			qualifier = *fmt;
-			++fmt;
-		}
-
-		switch (*fmt) {
-		case 'c':
-			if (!(flags & LEFT))
-				while (--field_width > 0)
-					*str++ = ' ';
-			*str++ = (unsigned char) va_arg(args, int);
-			while (--field_width > 0)
-				*str++ = ' ';
-			break;
-
-		case 's':
-			s = va_arg(args, char *);
-			len = strlen(s);
-			if (precision < 0)
-				precision = len;
-			else if (len > precision)
-				len = precision;
-
-			if (!(flags & LEFT))
-				while (len < field_width--)
-					*str++ = ' ';
-			for (i = 0; i < len; ++i)
-				*str++ = *s++;
-			while (len < field_width--)
-				*str++ = ' ';
-			break;
-
-		case 'o':
-			str = number(str, va_arg(args, unsigned long), 8,
-				field_width, precision, flags);
-			break;
-
-		case 'p':
-			if (field_width == -1) {
-				field_width = 8;
-				flags |= ZEROPAD;
-			}
-			str = number(str,
-				(unsigned long) va_arg(args, void *), 16,
-				field_width, precision, flags);
-			break;
-
-		case 'x':
-			flags |= SMALL;
-		case 'X':
-			str = number(str, va_arg(args, unsigned long), 16,
-				field_width, precision, flags);
-			break;
-
-		case 'd':
-		case 'i':
-			flags |= SIGN;
-		case 'u':
-			str = number(str, va_arg(args, unsigned long), 10,
-				field_width, precision, flags);
-			break;
-
-		case 'n':
-			ip = va_arg(args, int *);
-			*ip = (str - buf);
-			break;
-
-		default:
-			if (*fmt != '%')
-				*str++ = '%';
-			if (*fmt)
-				*str++ = *fmt;
-			else
-				--fmt;
-			break;
-		}
-    }
-
-    *str = '\0';
-
-
-    return (int) (str-buf);
-}
-*/
-
-
-
-// It's used by printf ?
-//static char __printbuf[1024];
-
-
-// It was taken from linux 0.01. gpl
-// It works yet.
-// Just for fun. :^) 
-
-/*
-int Torvalds_printf (const char *fmt, ...)
-{
-
-    va_list args;
-    va_start(args, fmt);
-
-    //int this_tty_id = 0;
-    int i=0;
-
-    // Pegando o id da tty desse processo.
-    // #obs: Isso ja foi feito na inicialização da biblioteca.
-    // Deltar isso.
-    //this_tty_id = (int) sc80 ( 266, getpid(), 0, 0 );  
-
-
-    //escrevendo no virtual console. 0.
-    //write_VC ( 0, 
-    //    __printbuf,
-    //    i=Wirzenius_Torvalds_vsprintf(__printbuf, fmt, args) );
-
-    // #todo
-    // We can use this function.
-    
-    write ( 0, 
-        __printbuf,
-        i=Wirzenius_Torvalds_vsprintf(__printbuf, fmt, args) );
-
-
-    // #todo: talvez seja possível usar a base da stream.
-    //write ( this_tty_id, 
-        //__printbuf,
-        //i=Wirzenius_Torvalds_vsprintf(stdout->_base, fmt, args) );
-
-    va_end(args);
- 
-    return (int) i;
-}
-*/
 
 
 //
@@ -5787,24 +4948,16 @@ char *tempnam (const char *dir, const char *pfx)
  ERRORS  for tmpfile();
 
        EACCES Search permission denied for directory in file's path prefix.
-
        EEXIST Unable to generate a unique filename.
-
        EINTR  The call was interrupted by a signal; see signal(7).
-
        EMFILE The per-process limit on the number of open file descriptors
               has been reached.
-
        ENFILE The system-wide limit on the total number of open files has
               been reached.
-
        ENOSPC There was no room in the directory to add the new filename.
-
        EROFS  Read-only filesystem.
  */
-
 // helper function
-
 // IN: valid fd, mode
 FILE *stdio_make_file( int fd, const char *mode )
 {
@@ -5821,15 +4974,13 @@ FILE *stdio_make_file( int fd, const char *mode )
     //    return NULL;
     //}
 
-
-    __file = (FILE *) malloc ( sizeof(FILE) );
-
-    if ( (void *) __file == NULL )
+    __file = (FILE *) malloc(sizeof(FILE));
+    if ((void *) __file == NULL)
     {
         // debug_print(...)
         return NULL;
-    }    
- 
+    }
+
     __file->used = TRUE;
     __file->magic = 1234;
     __file->_cnt = 0;
@@ -5868,7 +5019,7 @@ FILE *stdio_make_file( int fd, const char *mode )
 
     //__file->_tmpfname = (char *) strdup(filename);
 
-    __file->_base = NULL;    // ??   
+    __file->_base = NULL;    // ?
     __file->_r = 0;
     __file->_w = 0;
    
@@ -5878,12 +5029,11 @@ FILE *stdio_make_file( int fd, const char *mode )
     return (FILE *) __file;
 }
 
-
 // #test
 // Cria uma nova stream para o fd.
 // O fd foi obtido anteriormente
 // IN: valid fd, mode
-FILE *fdopen (int fd, const char *mode)
+FILE *fdopen(int fd, const char *mode)
 {
     if (fd<0){
         printf("fdopen: Invalid fd\n");
@@ -5892,11 +5042,8 @@ FILE *fdopen (int fd, const char *mode)
     return (FILE *) stdio_make_file( fd, (const char *) mode);
 }
 
-
 /*
- * freopen:
- */
-/*
+    freopen:
     cool!!
     The freopen() function opens the file whose name 
     is the string pointed to by path and 
@@ -5907,10 +5054,8 @@ FILE *fdopen (int fd, const char *mode)
     to change the file associated with a 
     standard text stream (stderr, stdin, or stdout). 
 */
-
 // See:
 // https://linux.die.net/man/3/freopen
-
 FILE *freopen (
     const char *pathname, 
     const char *mode, 
@@ -5948,16 +5093,14 @@ FILE *fopencookie(void *cookie, const char *mode,
 FILE *open_memstream (char **ptr, size_t *sizeloc)
 {
     debug_print ("open_memstream: TODO: \n");
-	return (FILE *) 0;
+    return (FILE *) 0;
 }
-
 
 FILE *open_wmemstream (wchar_t **ptr, size_t *sizeloc)
 {
     debug_print ("open_wmemstream: TODO: \n");
-	return (FILE *) 0;
+    return (FILE *) 0;
 }
-
 
 FILE *fmemopen (void *buf, size_t size, const char *mode)
 {
@@ -5999,7 +5142,7 @@ int fgetpos (FILE *stream, fpos_t *pos )
        printf("fgetpos: [FAIL] stream\n");
        return EOF;
     }
-    
+
     *pos = ftell(stream);
 
     if (*pos < 0L)
@@ -6009,7 +5152,6 @@ int fgetpos (FILE *stream, fpos_t *pos )
  
     return 0;
 }
-
 
 int fsetpos (FILE *stream, const fpos_t *pos)
 {
@@ -6022,7 +5164,6 @@ int fsetpos (FILE *stream, const fpos_t *pos)
     return (int) fseek (stream, (long) *pos, SEEK_SET);
 }
 
-
 int fpurge (FILE *stream)
 {
     debug_print ("fpurge: [TODO] \n");
@@ -6030,11 +5171,8 @@ int fpurge (FILE *stream)
     if ( (void *) stream == NULL ){
         return EOF;
     }
- 
     return -1; 
 }
-
-
 
 //#todo: esse protótipo pertence à stdio_ext.h
 void __fpurge (FILE *stream)
@@ -6057,7 +5195,6 @@ char *ctermid (char *s)
 
     return NULL; 
 }
-
 
 /*
  * stdioInitialize:
@@ -6082,7 +5219,7 @@ char *ctermid (char *s)
 void stdioInitialize(void)
 {
     int status = 0;
-    int i=0;
+    register int i=0;
 
 // #bugbug
 // Isso deve estar errado.
@@ -6176,7 +5313,7 @@ void stdioInitialize(void)
     stdin->_p  = stdin->_base;
     stdin->_cnt  = 0;  //BUFSIZ-1;
     stdin->_w  = 0;
-    stdin->_r  = 0;  
+    stdin->_r  = 0;
     stdin->_file  = 0;
 
 // ========
@@ -6202,9 +5339,9 @@ void stdioInitialize(void)
         //printf ("stdioInitialize: stderr->_base fail\n");
         exit(1);
     }
-    stderr->_lbfsize = BUFSIZ;    
+    stderr->_lbfsize = BUFSIZ;
     stderr->_p = stderr->_base;
-    stderr->_cnt = 0; //BUFSIZ-1;    
+    stderr->_cnt = 0; //BUFSIZ-1;
     stderr->_w = 0; 
     stderr->_r = 0;
     stderr->_file = 2;
@@ -6256,15 +5393,15 @@ void stdioInitialize(void)
 
 // ok
 // This is the tty of this process.
-    __libc_tty_id = (int) sc80 ( 266, getpid(), 0, 0 ); 
+    __libc_tty_id = (int) sc80 ( 266, getpid(), 0, 0 );
 // Clear prompt[] buffer.
     prompt_clean();
     //debug_print ("stdioInitialize: done\n");
 }
 
+// ---------------------------------------
 // #test
 /*
- *******************************
  * unix_get:
  */
 
@@ -6275,12 +5412,12 @@ int unix_get (int ifile)
 {
     char *ibuf;
     //static ibuf;
-    
+
     //printf ("$");
     //fflush(stdout);
-    
+
     //#todo
-    //if (ifile<0){return -1;}    
+    //if (ifile<0){return -1;}
     
     // #ugly
     if (--__unix_get_nread)
@@ -6289,7 +5426,7 @@ int unix_get (int ifile)
     }
 
     // #ugly
-    if (__unix_get_nread = read (ifile, __unix_get_buf, 512) )
+    if (__unix_get_nread = read(ifile, __unix_get_buf, 512) )
     {
         if (__unix_get_nread < 0){
             goto err;
@@ -6301,16 +5438,13 @@ int unix_get (int ifile)
     }
 
     __unix_get_nread = 1;
-    
     return (-1);
 
 err:
     __unix_get_nread = 1;
-    
     printf ("unix_get: [FAIL] read error\n");
     return (-1);
 }
-
 
 /*
 void 
@@ -6338,7 +5472,6 @@ write_char (
 }
 */
 
-
 /*
 char *minix_gets(char *s);
 char *minix_gets(char *s)
@@ -6362,7 +5495,6 @@ char *minix_gets(char *s)
 }
 */
 
-
 /*
 char *minix_fgets (char *s, register int n, register FILE *stream);
 char *minix_fgets (char *s, register int n, register FILE *stream)
@@ -6385,7 +5517,6 @@ char *minix_fgets (char *s, register int n, register FILE *stream)
 	return s;
 }
 */
-
 
 /*
 int minix_fgetpos(FILE *stream, fpos_t *pos);
@@ -6424,7 +5555,6 @@ int minix_puts(register const char *s)
 }
 */
 
-
 /*
 int minx_fputs(register const char *s, register FILE *stream);
 int minx_fputs(register const char *s, register FILE *stream)
@@ -6440,7 +5570,6 @@ int minx_fputs(register const char *s, register FILE *stream)
 */
 
 //===============================
-
 
 /*
 int data_getc(FILE *_stream);
@@ -6483,5 +5612,4 @@ void data_putc (int ch,FILE *_stream)
 //
 // End
 //
-
 

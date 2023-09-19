@@ -51,6 +51,22 @@
 //#define SC82_NR    0x82
 
 
+#define  SYSTEMCALL_READ_LBA    1
+#define  SYSTEMCALL_WRITE_LBA   2
+#define  SYSTEMCALL_READ_FILE   3
+#define  SYSTEMCALL_WRITE_FILE  4
+// ...
+
+
+// Why?
+#define VK_RETURN     0x1C 
+#define VK_BACKSPACE  0x0E 
+#define VK_BACK       0x0E 
+#define VK_TAB        0x0F 
+
+
+
+
 //
 // == prototypes =============================================
 //

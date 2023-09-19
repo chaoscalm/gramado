@@ -19,33 +19,22 @@
 
 #define CONSOLE_FILE_DESCRIPTOR  1
 
-
 // tty id desse processo.
-// Usado na inicialização da biblioteca.
+// Usado na inicializaï¿½ï¿½o da biblioteca.
 // See: stdio.c:
 
 //int __libc_tty_id;
 extern int __libc_tty_id;
 
 
-
-//
-// # Modes #
-//
-
-
+// Modes?
+// #deprecated?
 // #test
-//Os caracteres são colocados em stdout.
-#define LIBC_NORMAL_MODE 1
-//Os caracteres são pintados na tela.
-#define LIBC_DRAW_MODE 2
+//Os caracteres sao colocados em stdout.
+#define LIBC_NORMAL_MODE  1
+//Os caracteres sao pintados na tela.
+#define LIBC_DRAW_MODE  2
 // ...
-
-//printf using draw mode.
-int printf_draw ( const char *fmt, ... );
-
-//setup libc mode
-void libc_set_output_mode ( int mode );
 
 
 #ifdef _BSD_SIZE_T_
@@ -76,35 +65,35 @@ typedef __va_list va_list;
 //
 
 // #importante
-// Esses serão os valores de referência
+// Esses serï¿½o os valores de referï¿½ncia
 // para todos os projetos.
 
-#define	__SLBF	0x0001		/* line buffered */
-#define	__SNBF	0x0002		/* unbuffered */
-#define	__SRD	0x0004		/* OK to read */
-#define	__SWR	0x0008		/* OK to write */
+#define	__SLBF	0x0001  /* line buffered */
+#define	__SNBF	0x0002  /* unbuffered */
+#define	__SRD	0x0004  /* OK to read */
+#define	__SWR	0x0008  /* OK to write */
 	/* RD and WR are never simultaneously asserted */
-#define	__SRW	0x0010		/* open for reading & writing */
-#define	__SEOF	0x0020		/* found EOF */
-#define	__SERR	0x0040		/* found error */
-#define	__SMBF	0x0080		/* _buf is from malloc */
-#define	__SAPP	0x0100		/* fdopen()ed in append mode */
-#define	__SSTR	0x0200		/* this is an sprintf/snprintf string */
-#define	__SOPT	0x0400		/* do fseek() optimization */
-#define	__SNPT	0x0800		/* do not do fseek() optimization */
-#define	__SOFF	0x1000		/* set iff _offset is in fact correct */
-#define	__SMOD	0x2000		/* true => fgetln modified _p text */
-#define	__SALC	0x4000		/* allocate string space dynamically */
+#define	__SRW	0x0010  /* open for reading & writing */
+#define	__SEOF	0x0020  /* found EOF */
+#define	__SERR	0x0040  /* found error */
+#define	__SMBF	0x0080  /* _buf is from malloc */
+#define	__SAPP	0x0100  /* fdopen()ed in append mode */
+#define	__SSTR	0x0200  /* this is an sprintf/snprintf string */
+#define	__SOPT	0x0400  /* do fseek() optimization */
+#define	__SNPT	0x0800  /* do not do fseek() optimization */
+#define	__SOFF	0x1000  /* set iff _offset is in fact correct */
+#define	__SMOD	0x2000  /* true => fgetln modified _p text */
+#define	__SALC	0x4000  /* allocate string space dynamically */
 
 
+// va_list
 typedef char *stdio_va_list; 
 
- 
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
 
- 
 
 /*  
  "flags" bits definitions
@@ -122,7 +111,6 @@ typedef char *stdio_va_list;
 #define STDERR_FILENO  2
 
 
-
 /*
 //bsd-like
 //#todo: use this one.
@@ -136,7 +124,6 @@ typedef char *stdio_va_list;
 //#define _IONBF    0x0004  /* not buffered */
 
 
-
 /*
  * The buffer size as used by setbuf such that it is equivalent to
  * (void) setvbuf(fileSetBuffer, caBuffer, _IOFBF, BUFSIZ).
@@ -148,7 +135,7 @@ typedef char *stdio_va_list;
 // Returned by various functions on 
 // end of file condition or error.
 #ifndef EOF
-#define EOF (-1)
+#define EOF  (-1)
 #endif
 
 // System V/ANSI C; 
@@ -233,8 +220,7 @@ typedef __gramado_off_t  fpos_t;
 // ??
 // apple?
 // Define for new stdio with functions.
-// #define	_FSTDIO
-
+// #define _FSTDIO
 
 // =======================================================
 
@@ -242,65 +228,62 @@ typedef __gramado_off_t  fpos_t;
 // FILE
 //
 
-// #importante
-// Todo suporte à arquivos foi para libio/file.h
-// Os tipos que eles precisam ainda está aqui.
-
-#include <libio/file.h>
+// The file structure.
+// #warning:
+// The type it depends on 
+// are still here in the top of this file.
+#include "libio/file.h"
 
 // =======================================================
 // The symbolic constant L_ctermid is the maximum number of
 // characters in the returned pathname.
 // Required by POSIX.
-#define  L_ctermid  255   
+#define L_ctermid  255
 
 // The macro L_cuserid is an integer constant that indicates 
 // how long an array you might need to store a username. 
 // Required by POSIX.
-#define  L_cuserid  255   
+#define L_cuserid  255
 
 //=====================================================
 
 // Virtual address for vga memory ?
 // VA=0x800000 = PA=0x000B8000.
 
-#define SCREEN_START 0x800000 
-#define ScreenStart SCREEN_START
+#define SCREEN_START  0x800000 
+#define ScreenStart  SCREEN_START
 
-#define COLUMNS 80
-#define SCREEN_WIDTH COLUMNS
+#define COLUMNS  80
+#define SCREEN_WIDTH  COLUMNS
 
-#define ROWS 25
-#define SCREEN_HEIGHT ROWS
+#define ROWS  25
+#define SCREEN_HEIGHT  ROWS
 
-#define SCREEN_WIDTH COLUMNS
-#define HEIGHT ROWS
+#define SCREEN_WIDTH  COLUMNS
+#define HEIGHT  ROWS
 
 
 // ??
 // Limits
 // Lines and coluns
-#define SCREEN_MAX_HEIGHT 256
-#define SCREEN_MAX_WIDTH  256
+#define SCREEN_MAX_HEIGHT  256
+#define SCREEN_MAX_WIDTH   256
 
+#define REVERSE_ATTRIB  0x70
 
-#define REVERSE_ATTRIB 0x70
+#define PAD_RIGHT  1
+#define PAD_ZERO  2
 
-#define PAD_RIGHT 1
-#define PAD_ZERO 2
-
-#define PRINT_BUF_LEN 12
+#define PRINT_BUF_LEN  12
 
 
 // #todo: Delete!
 // Pertence ao teclado.
-// #define KEY_RETURN   13    
-
-
+// #define KEY_RETURN   13
 
 //
 // Obs: 
-// O tipo da variável aqui é provisório. (UL).
+// O tipo da variï¿½vel aqui ï¿½ provisï¿½rio. (UL).
 //
 
 //cursor
@@ -316,8 +299,8 @@ extern unsigned long g_char_attrib;
 
 //columns and rows
 //@todo: Esse precisa ser inicializado
-//Obs: Se essas variáveis forem 0, 
-// as rotinas de stdio usarão os valores default.
+//Obs: Se essas variï¿½veis forem 0, 
+// as rotinas de stdio usarï¿½o os valores default.
 //COLUMNS e ROWS.
 //unsigned long g_columns;
 //unsigned long g_rows;
@@ -325,10 +308,9 @@ extern unsigned long g_columns;
 extern unsigned long g_rows;
 
 // ??
-// modo gráfico?
+// modo grï¿½fico?
 //int g_using_gui; 
 extern int g_using_gui; 
-
 
 
 //===========================================
@@ -353,10 +335,7 @@ extern int prompt_pos;
 extern int prompt_max;
 extern int prompt_status;
 
-
-
 // =========================================
-
 
 //
 // == Macros ==================================================
@@ -364,44 +343,43 @@ extern int prompt_status;
 
 //=======================
 // fileno
-
-#define  __sfileno(_stream)  ((_stream)->_file)
-#define   __fileno(_stream)  ((_stream)->_file)
-
-#define  facility_fileno(_stream)  ((_stream)->_file)
+#define       __sfileno(_stream)  ((_stream)->_file)
+#define        __fileno(_stream)  ((_stream)->_file)
+#define facility_fileno(_stream)  ((_stream)->_file)
 
 
 //=======================
 // feof
 
-#define  __sfeof(p)     (((p)->_flags & __SEOF) != 0)
+#define     __sfeof(p)  (((p)->_flags & __SEOF) != 0)
 #define  __bsd_feof(p)  (((p)->_flags & __SEOF) != 0)
 
-#define  bsd_feof(p)       __sfeof(p)
-#define  facility_feof(p)  __sfeof(p)
 
+#define       bsd_feof(p)  __sfeof(p)
+#define  facility_feof(p)  __sfeof(p)
 
 //=======================
 // ferror
 
 #define  __sferror(p)   (((p)->_flags & __SERR) != 0)
 
-#define  bsd_ferror(p)       __sferror(p)
+#define       bsd_ferror(p)  __sferror(p)
 #define  facility_ferror(p)  __sferror(p)
 
 //=======================
 // clearerr
 
-#define  __sclearerr(p)  ((void)((p)->_flags &= ~(__SERR|__SEOF)))
+#define  __sclearerr(p) \
+    ((void)((p)->_flags &= ~(__SERR|__SEOF)))
 
-#define  bsd_clearerr(p)       __sclearerr(p)
+#define       bsd_clearerr(p)  __sclearerr(p)
 #define  facility_clearerr(p)  __sclearerr(p)
 
 // =========================
 // __fgetchar
 
 // #test
-// #define  __fgetchar  fgetc(stdin)
+// #define __fgetchar  fgetc(stdin)
 
 
 //======================================================
@@ -417,7 +395,6 @@ extern int prompt_status;
 #define facility_getc(__stream)   fgetc(__stream)
 #define facility_getchar()   fgetc(stdin)
 
-
 #define facility__sfeof(p)      (((p)->_flags & __SEOF) != 0)
 #define facility__sferror(p)    (((p)->_flags & __SERR) != 0)
 #define facility__sclearerr(p)  ((void)((p)->_flags &= ~(__SERR|__SEOF)))
@@ -426,17 +403,15 @@ extern int prompt_status;
 
 
 //===========================================
-// Prototypes.
+// Prototypes
 //===========================================
-
 
 //
 // ==== low level ====
 //
 
-
 //
-// Root 1.
+// Root 1
 //
 
 int __fflush ( FILE *stream);
@@ -465,7 +440,6 @@ int putchar (int ch);
 char *gets (char *s);
 int puts (const char *s);
 
-
 //
 // Root 4
 //
@@ -483,74 +457,60 @@ int putw (int w, FILE *stream);
 
 
 // Serial port debug.
-void debug_print (char *string);
+void debug_print(char *string);
 
 
+// #deprecated?
+// Printf using draw mode.
+int printf_draw( const char *fmt, ... );
 
-void clearerr (FILE* stream);
 
-char *ctermid (char *s);
+// #deprecated?
+// Setup libc mode
+void libc_set_output_mode ( int mode );
 
-int fpurge (FILE *stream);
 
-int fsetpos (FILE *stream, const fpos_t *pos);
+void clearerr(FILE* stream);
 
-int fgetpos (FILE *stream, fpos_t *pos);
+char *ctermid(char *s);
+
+int fpurge(FILE *stream);
+
+int fsetpos(FILE *stream, const fpos_t *pos);
+int fgetpos(FILE *stream, fpos_t *pos);
 
 FILE *fmemopen (void *buf, size_t size, const char *mode);
-
 FILE *open_wmemstream (wchar_t **ptr, size_t *sizeloc);
-
 FILE *open_memstream (char **ptr, size_t *sizeloc);
 
-FILE *stdio_make_file ( int fd, const char *mode );
-FILE *fdopen (int fd, const char *mode);
-FILE *freopen (const char *pathname, const char *mode, FILE *stream);
+FILE *stdio_make_file( int fd, const char *mode );
+FILE *fdopen(int fd, const char *mode);
+FILE *freopen(const char *pathname, const char *mode, FILE *stream);
 
-FILE *tmpfile (void);
-char *tempnam (const char *dir, const char *pfx);
-char *tmpnam_r (char *s);
-char *tmpnam (char *s);
+FILE *tmpfile(void);
+char *tempnam(const char *dir, const char *pfx);
+char *tmpnam_r(char *s);
+char *tmpnam(char *s);
 
 
-
+// #todo ?
 //int vfscanf (FILE *stream, const char *format, va_list ap);
 //int vsscanf (const char *str, const char *format, va_list ap);
 //int vscanf (const char *format, va_list ap);
 //int vsnprintf (char *str, size_t size, const char *format, va_list ap);
 
 
-//
-//  vsprintf and print
-//
-
-
-// Just for fun :^) 
-//int Wirzenius_Torvalds_vsprintf (char *buf, const char *fmt, va_list args);
-//int Torvalds_printf (const char *fmt, ...);
-
-
-
-
-//int vdprintf (int fd, const char *format, va_list ap); 
-
-//int dprintf (int fd, const char *format, ...);
-
-
-
-unsigned int filesize (FILE * fp);
-char * fileread (FILE * fp);
-
+unsigned int filesize(FILE * fp);
+char * fileread(FILE * fp);
 
 // remove - remove a file or directory 
 // On success, zero is returned. On error, -1 is returned, and 
 // errno is set appropriately. 
 // C89, C99, 4.3BSD, POSIX.1-2001. 
-int remove (const char *pathname); 
+int remove(const char *pathname);
 
-int fileno ( FILE *stream );
- 
- 
+int fileno(FILE *stream);
+
 // 
 // File Operations
 // 
@@ -560,82 +520,25 @@ FILE *fopen2 ( const char *filename, const char *mode );
 int fclose (FILE *stream); 
 
 
-//
-// Normal output.
-//
+void nputs(char *cp, int len);
 
 
-void nputs (char *cp, int len);
+// Print char support.
+void outbyte(int c);
+void _outbyte(int c);
 
-int 
-prints (
-    char **out, 
-    const char *string, 
-    int width, 
-    int pad );
 
-int 
-printi (
-    char **out, 
-    int i, 
-    int b, 
-    int sg, 
-    int width, 
-    int pad, 
-    int letbase );
-
-int print (char **out, int *varg);
-void printchar (char **str, int c);
-void outbyte (int c);
-void _outbyte (int c);
-
- 
 // 
 // Formatted Output
 // 
 
-int sprintf (char *out, const char *format, ...); 
+int sprintf(char * str, const char * fmt, ...);
 int fprintf (FILE *stream, const char *format, ...); 
-
-//int vfprintf ( FILE *stream, const char *format, stdio_va_list argptr );
 
 void perror (const char *str);
 
-//int stdout_printf (const char *format, ...);
-//int stderr_printf (const char *format, ...);
-
-
-
-
-//
-// == printf saga ============================================
-//
-
-
-/*
-// #todo
-// Parece que essa versao pode ser usado com nosso helper de printf.
-// See: https://man7.org/linux/man-pages/man3/asprintf.3.html
-//int asprintf(char **strp, const char *fmt, ...);
-//int vasprintf(char **strp, const char *fmt, va_list ap);
-*/
-
-// Non traditional. It is working very well.
-//int printf(const char *format, ...); 
-
-// Traditional. Not tested.
-//int printf2 (const char *format, ...); 
-
-// Another implementation. (I don't remember).
-//int printf3 (const char *fmt, ...);
-
-
 // ===================================
-
-//
-// kinguio printf
-//
-
+// kinguio printf support.
 #define HEX_LEN  8
 #define ____INT_MAX  2147483647
 
@@ -645,16 +548,10 @@ int kinguio_printf(const char *fmt, ...);
 int printf(const char *fmt, ...);
 void kinguio_puts(const char* str);
 int kinguio_vsprintf(char * str,const char * fmt, va_list ap);
-//#define printf  kinguio_printf
 // ===================================
-
-// Next line sprintf,
-int nlsprintf ( char *out, const char *format, ... );
 
 // Find next line
 char *stdio_nextline(char *string);
-
-void rewind (FILE *stream);
 
 //
 // Normal input.
@@ -663,19 +560,17 @@ void rewind (FILE *stream);
 // input(): 
 // Usado por interpretadores de comando.
 // Recebem input e colocam em prompt[].
-
-unsigned long input (unsigned long ch);
-
-
+unsigned long input(unsigned long ch);
 
 //
 // Formatted Input
 //
 
-int scanf ( const char *fmt, ... );
+int scanf( const char *fmt, ... );
 
 // #todo Test it.
-int fscanf (FILE *stream, const char *format, ... ); 
+// see: fscan.c
+int fscanf(FILE *stream, const char *format, ... );
 
 // New way. (since C99)
 // int fscanf ( FILE *restrict stream, const char *restrict format, ... );
@@ -684,38 +579,33 @@ int sscanf(const char *str, const char *format, ...);
  
 long ftell (FILE *stream);
 
-
 char *uclib_gets (char *str); 
 
 
+int getchar2(void);
+char *gets2(char *s);
+int puts2(const char *str); 
+char *fgets2(char *s, int count, FILE *fp);
+int fputs2( const char *str, FILE *stream );
 
-//--save
-int getchar2 (void);
-char *gets2 (char *s);
-int puts2 (const char *str); 
-char *fgets2 (char *s, int count, FILE *fp);
-int fputs2 ( const char *str, FILE *stream );
-
-int ungetc ( int c, FILE *stream );
-
+int ungetc( int c, FILE *stream );
 
 
 //++
 //===================
-// Isso vai ler no buffer da stream que está em ring3.
+// Isso vai ler no buffer da stream que estï¿½ em ring3.
 size_t fread (void *ptr, size_t size, size_t n, FILE *fp);
-// Isso vai escrever no buffer da stream que está em ring3.
+// Isso vai escrever no buffer da stream que estï¿½ em ring3.
 size_t fwrite (const void *ptr, size_t size, size_t n, FILE *fp);
-// Isso vai ler no arquivo que está em ring0.
+// Isso vai ler no arquivo que estï¿½ em ring0.
 int linux_fgetc (FILE *f);
-// Isso vai escrever no arquivo que está em ring0.
+// Isso vai escrever no arquivo que estï¿½ em ring0.
 int linux_fputc (int c, FILE *f);
 //===================
 //--
 
-
-
-// prompt support.
+// ---------------------------
+// prompt[] support.
 // coloca no prompt[] em ring3 e exibe com uma rotina em ring0.
 int prompt_putchar ( int c, int con_id );
 int prompt_put_string ( char *string );
@@ -723,20 +613,16 @@ int prompt_strcat (char *string);
 int prompt_flush ( int con_id );
 void prompt_clean (void);
 
-
-
 //
 // Direct Input and Output Functions
 //
- 
- 
- 
+
 //
 // File Positioning Functions
 //
 
-int fseek (FILE *stream, long offset, int whence);
-
+int fseek(FILE *stream, long offset, int whence);
+void rewind(FILE *stream);
 
 
 //
@@ -746,22 +632,17 @@ int fseek (FILE *stream, long offset, int whence);
 int feof( FILE *stream );
 int ferror( FILE *stream ); 
 
-void scroll (void);
-
-// ??
-int drawBar (int color);  
-
+void scroll(void);
 
 //#todo
-int snprintf (char *str,size_t count,const char *fmt,...);
+int snprintf(char *str,size_t count,const char *fmt,...);
 
-//int vprintf (const char *fmt, va_list ap);
+// #test
+// Ainda nao foi testada
+// see: fscan.c
+int fscanf(FILE *stream, const char *format, ... );
 
-//#test
-//ainda não foi testada
-int fscanf (FILE *stream, const char *format, ... );
-
-// inicializa o fluxo padrão para o processo.
+// inicializa o fluxo padrï¿½o para o processo.
 int stdio_initialize_standard_streams (void);
 
 
@@ -783,16 +664,7 @@ _strout (
     FILE *file, 
     int fillch );
 
-int unix_get (int ifile); 
-
-//
-// initialization
-//
-
-int libcStartTerminal (void);
-
-/*Inicialização da biblioteca*/
-void stdioInitialize(void);
+int unix_get(int ifile);
 
 int
 rtl_GetS(
@@ -804,6 +676,13 @@ int rtl_are_you_sure(void);
 
 int stdio_atoi(char *s);
 void stdio_fntos(char *name);
+
+//
+// Initialization
+//
+
+// Initializing the library.
+void stdioInitialize(void);
 
 #endif    
 
