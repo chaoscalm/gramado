@@ -410,18 +410,21 @@ __draw_window_border(
     }
 }
 
+// IN: Titlebar window.
 int redraw_controls(struct gws_window_d *window)
 {
     struct gws_window_d *tb_window;
     register int wid = -1;
 
+// Validation
+    if ((void*) window == NULL){
+        goto fail;
+    }
+    if (window->magic != 1234){
+        goto fail;
+    }
+
     tb_window = window;
-    if ((void*) tb_window == NULL){
-        goto fail;
-    }
-    if (tb_window->magic != 1234){
-        goto fail;
-    }
 
  //#todo
  // Esta funcionando ...
@@ -441,19 +444,20 @@ fail:
     return (int) -1;
 }
 
+// IN: Titlebar window.
 int redraw_titlebar_window(struct gws_window_d *window)
 {
     struct gws_window_d *parent;
     struct gws_window_d *tb_window;
     unsigned long rop=0;
 
+// Validation
+    if ( (void*) window == NULL )
+        return -1;
+    if (window->magic != 1234)
+        return -1;
 
-// Title bar window.
     tb_window = (struct gws_window_d *) window;
-    if ( (void*) tb_window == NULL )
-        return -1;
-    if (tb_window->magic != 1234)
-        return -1;
 
 // Parent stuff
     parent = (struct gws_window_d *) tb_window->parent;
@@ -586,6 +590,7 @@ int redraw_titlebar_window(struct gws_window_d *window)
 }
 
 // #test
+// IN: Editbox window.
 void redraw_text_for_editbox(struct gws_window_d *window)
 {
     char *p;
