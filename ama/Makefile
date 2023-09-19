@@ -6,8 +6,9 @@
 
 # ama/ depends on ama/libs/
 
-BASE   = ../aa/base
-ASSETS = ../aa/assets
+BASE    = ../aa/base
+ASSETS  = xciting/assets
+ASSETS2 = ../zz/omega3/assets
 
 # Make variables (CC, etc...)
 AS      = as
@@ -96,6 +97,8 @@ build-gramado-os:
 # See: fs/loader.c
 
 #----------------------------------
+# (1) boot/
+
 # Create the virtual disk 0.
 	$(Q)$(NASM) boot/vd/fat/main.asm \
 	-I boot/vd/fat/ \
@@ -129,30 +132,38 @@ build-gramado-os:
 
 
 #----------------------------------
-# ::Build the ring0 module image.
-	$(Q)$(MAKE) -C mods/newm0/
-# Copy the ring0 module image.
-	sudo cp mods/newm0/MOD0.BIN  $(BASE)/
+# (3) kernel/
 
-# ::Build the ring0 module image.
-	$(Q)$(MAKE) -C mods/newm1/
-# Copy the ring0 module image.
-	sudo cp mods/newm1/MOD1.BIN  $(BASE)/
-
-#----------------------------------
 # ::Build kernel image.
 	$(Q)$(MAKE) -C kernel/
 # Copy to the target folder.
 	sudo cp kernel/KERNEL.BIN  $(BASE)/GRAMADO
 
 #----------------------------------
-#Copy the init process
-	sudo cp ../zing/graminit/init/bin/INIT.BIN  $(BASE)/
+# (4) mods/
 
 #----------------------------------
-# Install BMPs
-#	sudo cp $(ASSETS)/themes/amazing/*.BMP  $(BASE)/
-	sudo cp $(ASSETS)/themes/honey/*.BMP    $(BASE)/
+# ::Build the ring0 module image.
+	$(Q)$(MAKE) -C kmods/newm0/
+# Copy the ring0 module image.
+	sudo cp kmods/newm0/MOD0.BIN  $(BASE)/
+
+# ::Build the ring0 module image.
+	$(Q)$(MAKE) -C kmods/newm1/
+# Copy the ring0 module image.
+	sudo cp kmods/newm1/MOD1.BIN  $(BASE)/
+
+
+#----------------------------------
+# () xciting/
+
+#Copy the init process
+	make -C xciting/
+	sudo cp xciting/init/bin/INIT.BIN  $(BASE)/
+
+# Install BMPs from cali assets.
+#Copy the cali assets/
+	sudo cp xciting/assets/themes/flyers/*.BMP    $(BASE)/
 
 	@echo "~build-gramado-os end?"
 
@@ -168,8 +179,6 @@ copy-extras:
 # Copying every image from zing/.
 	@echo ":: Copying every image from zing"
 
-#graminit : Already did right above.
-#	sudo cp ../zing/graminit/init/bin/INIT.BIN  $(BASE)/
 # Graphics engine
 	-sudo cp ../zing/gramado/eng/bin/ENG.BIN  $(BASE)/
 # Display server.
@@ -226,6 +235,12 @@ copy-extras:
 	-sudo cp ../zz/omega2/drivers/nicd/bin/NICCTLD.BIN  $(BASE)/
 
 	-sudo cp ../zz/omega2/drivers/bin/VGA1.BIN  $(BASE)/
+
+
+#----------------------------------
+# Install BMPs
+#	sudo cp $(ASSETS2)/themes/amazing/*.BMP  $(BASE)/
+#	sudo cp $(ASSETS2)/themes/honey/*.BMP    $(BASE)/
 
 	@echo "~ copy-extras"
 
@@ -293,21 +308,26 @@ clean-all: clean
 	-rm *.ISO
 
 # ==================
-
+# (1) boot/
 # Clear boot images
 	-rm -rf boot/x86/bin/*.BIN
 
+# ==================
+# (2) kernel/
 # Clear newos kernel image
 	-rm -rf kernel/KERNEL.BIN
 
+# ==================
+# (3) kmods/
 # Clear the ring0 module images
-	-rm -rf mods/newm0/MOD0.BIN
-	-rm -rf mods/newm1/MOD1.BIN
+	-rm -rf kmods/newm0/MOD0.BIN
+	-rm -rf kmods/newm1/MOD1.BIN
 
 # ==================
+# (4) xciting/
 # Clear the init process.
-	-rm ../zing/graminit/init/bin/*.BIN
-	-rm ../zing/graminit/init/*.o
+	-rm xciting/init/bin/*.BIN
+	-rm xciting/init/*.o
 
 # ==================
 # Clear the disk cache

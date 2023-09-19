@@ -11,20 +11,11 @@ VERSION_MINOR = ?
 VERSION_BUILD = ?
 
 all:
-
-# init
-	make -C graminit/
 # gramland
 	make -C gramado/
 # c3 - NETCTL
 	make -C netd/
-
 clean-all:
-
-# init
-	-rm graminit/init/bin/*.BIN
-	#-rm -f graminit/libs/libgns/obj/*.o
-	-rm -f graminit/libs/rtl/obj/*.o
 
 # gramland and eng
 	-rm -f gramado/eng/bin/*.BIN

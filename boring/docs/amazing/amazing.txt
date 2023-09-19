@@ -1,0 +1,23 @@
+
+	The Amazing Gramado Operating System 
+
+--------------------------------------
+	+ aa     
+		- Grace. No not crash here. 
+		- The inovative host-side stuff.
+--------------------------------------
+	+ ama
+		- Border. 
+		- The inovative kernel.
+--------------------------------------
+	+ boring 
+		- Not hot/Not cold.
+--------------------------------------
+	+ zing
+		- Border. 
+		- The consistent display server.
+--------------------------------------
+	+ zz 
+		- Grace. No not crash here. 
+		- The consistent client-side GUI applications.
+
