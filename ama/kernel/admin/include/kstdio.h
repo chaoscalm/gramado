@@ -286,12 +286,8 @@ struct file_d
     int magic;
     char *_tmpfname;  
 
-// File mode
-    //unsigned short f_mode;
-
-// Index for the list of open files that belongs to a process.
-// p->Objects[_file]
-// #todo: Maybe 'int'.
+// File descriptor.
+// It belongs to a process. p->Objects[fd].
     int _file;
 
 // Global index.

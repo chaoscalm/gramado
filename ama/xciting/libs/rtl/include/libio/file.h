@@ -112,8 +112,7 @@ struct _iobuf
 // Flags (see FileFlags). the state of the stream
     unsigned short _flags;
 
-// fileno, if Unix descriptor, else -1
-// UNIX System file descriptor
+// File descriptor.
     int _file;
 
 // the buffer (at least 1 byte, if !NULL)
