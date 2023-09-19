@@ -4,6 +4,21 @@
 #ifndef ____WM_H
 #define ____WM_H    1
 
+//#define DEFAULT_DOUBLE_CLICK_SPEED  250
+#define DEFAULT_DOUBLE_CLICK_SPEED  350
+
+struct double_click_d
+{
+    int initialized;
+
+    unsigned long last;     // Last jiffie for mouse pressed.
+    unsigned long current;  // Current jiffie for mouse pressed.
+    unsigned long speed;    // Double click speed.
+    unsigned long delta;    // Current delta.
+    int is_doubleclick;     // Yes, it is a double click.
+};
+extern struct double_click_d DoubleClick;
+
 
 // Layouts examples
 // tiled, monocle and floating layouts

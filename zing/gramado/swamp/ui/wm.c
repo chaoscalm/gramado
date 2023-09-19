@@ -16,16 +16,11 @@
 //
 // Double click
 //
-
-// Delta?
-static unsigned long DoubleClickSpeed=250;
-unsigned long last_mousebutton_down_jiffie=0;
-static int its_double_click=FALSE;
+struct double_click_d DoubleClick;
 
 
 // #todo
 // Maybe we need a structure for this.
-
 // Clicked over a window.
 static int grab_is_active=FALSE;
 // Move the mouse without release the button.
@@ -735,7 +730,21 @@ wmProcessMouseEvent(
 // --------------------------------
 // Pressed:
 // Process but do not send message for now.
-    if (event_type == GWS_MousePressed){
+
+    if (event_type == GWS_MousePressed)
+    {
+        DoubleClick.is_doubleclick = FALSE;
+        DoubleClick.delta =
+            (DoubleClick.current - DoubleClick.last);
+        DoubleClick.last = DoubleClick.current; 
+        // Yes, it's a double click
+        if (DoubleClick.delta < DoubleClick.speed)
+        {
+            DoubleClick.is_doubleclick = TRUE;
+            on_doubleclick();            
+            return;
+        }
+        // No, it's a single click.
         on_mouse_pressed();
         return;
     }
@@ -752,6 +761,7 @@ wmProcessMouseEvent(
     {
         printf("MSG_MOUSE_DOUBLECLICKED: #todo\n");
         on_doubleclick();
+        return;
     }
 
     // ...
@@ -764,6 +774,8 @@ not_valid:
 
 static void on_mouse_pressed(void)
 {
+// Nesse momento a janela mouse_owner eh estabelecida.
+// e as mensagens devem ser enviadas para ela.
 // #todo
 // When the mouse was pressed over en editbox window.
 // So, set the focus?
@@ -778,18 +790,17 @@ static void on_mouse_pressed(void)
         return;
     }
 
-    //if (mouse_hover == __root_window)
-        //return;
-
-    ButtonID = (int) mouse_hover->id;
-
 // Now we have a new mouse_owner.
 // #todo
 // Maybe we can send a message to this window,
 // and the client can make all the changes it wants.
     mouse_owner = mouse_hover;
-    //mouse_owner->mouse_x = 0;
-    //mouse_owner->mouse_y = 0;
+
+    //if (mouse_hover == __root_window)
+        //return;
+
+    ButtonID = (int) mouse_hover->id;
+
 
 // -------------------------
 // #test
@@ -1107,7 +1118,7 @@ static void on_doubleclick(void)
 // is titlebar?
     if (w->isTitleBar == TRUE)
     {
-        printf("Titlebar double click\n");
+        //printf("Titlebar double click\n");
 
         // Parent
         p = w->parent;
@@ -5029,15 +5040,9 @@ ProcessEvent:
          msg == GWS_MousePressed ||
          msg == GWS_MouseReleased )
     {
-        // #test: For double click.
+        // Get the current event jiffie.
         if (msg == GWS_MousePressed){
-        its_double_click = FALSE;
-        if ( (long3-last_mousebutton_down_jiffie) < 250 ){
-            //printf("DOUBLE\n");
-            its_double_click = TRUE;
-            msg = MSG_MOUSE_DOUBLECLICKED;
-        }
-        last_mousebutton_down_jiffie = long3; //jiffie
+            DoubleClick.current = (unsigned long) long3;
         }
 
         // 
@@ -7092,6 +7097,13 @@ void wmInitializeGlobals(void)
     grab_is_active = FALSE;
     is_dragging = FALSE;
     grab_wid = -1;
+
+// Double click support.
+   DoubleClick.last = 0;
+   DoubleClick.current = 0;
+   DoubleClick.speed = DEFAULT_DOUBLE_CLICK_SPEED;
+   DoubleClick.delta = 0;
+   DoubleClick.initialized = TRUE;     
 }
 
 //
