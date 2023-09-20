@@ -209,7 +209,7 @@ struct user_info_d
     size_t userName_len;    // len 
 
 // Indica quais os tipos de objetos permitidos para esse usuário.
-// See: gobject.h
+// see kobject.h
     int permissions[128];
 
 // Bancos de Dados 

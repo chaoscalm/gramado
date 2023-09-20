@@ -61,6 +61,7 @@
 #include "admin/config/superv/pints.h"   // profiler
 //#include "admin/config/superv/info.h"    // last one?
 #include "admin/config/superv/kinit.h"   // kernel initialization.
+
 // ===============================
 
 #include "zcall/overall/info.h"    // last one?
@@ -81,27 +82,30 @@
 // crt: Libc support.
 #include "public/ktypes.h"
 #include "public/ktypes2.h"
-#include "kstdarg.h"
-#include "kerrno.h"
-#include "kcdefs.h"
-#include "kstddef.h"
-#include "kobject.h"
-#include "klimits.h"
-#include "kstdio.h"
-#include "kstdlib.h"
-#include "kstring.h"
-#include "kctype.h"
-#include "kiso646.h"
-#include "ksignal.h"
-#include "kunistd.h"
-#include "kfcntl.h"
-#include "kioctl.h"
-#include "kioctls.h"
-#include "ktermios.h"
-#include "kttydef.h"
+
+#include "gramado/kobject.h"
+
+// Legacy stuff.
+#include "posix/kstdarg.h"
+#include "posix/kerrno.h"
+#include "posix/kcdefs.h"
+#include "posix/kstddef.h"
+#include "posix/klimits.h"
+#include "posix/kstdio.h"
+#include "posix/kstdlib.h"
+#include "posix/kstring.h"
+#include "posix/kctype.h"
+#include "posix/kiso646.h"
+#include "posix/ksignal.h"
+#include "posix/kunistd.h"
+#include "posix/kfcntl.h"
+#include "posix/kioctl.h"
+#include "posix/kioctls.h"
+#include "posix/ktermios.h"
+#include "posix/kttydef.h"
 
 // Globals. PIDs support.
-#include "admin/config/superv/kpid.h"
+#include "gramado/kpid.h"
 
 //
 // + (4) Memory management.
@@ -120,9 +124,6 @@
 #include "mm/heap.h"      // Heap pointer support.
 #include "mm/aspace.h"    // Address Space, (data base account).
 #include "mm/bank.h"      // Bank. database
-
-// memory and libc
-#include "runtime.h"
 
 //
 // + (5) HAL.

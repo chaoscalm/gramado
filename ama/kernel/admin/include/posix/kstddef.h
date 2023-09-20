@@ -4,10 +4,8 @@
  *     Definições padrão da linguagem C, versão C99.
  */
 
-
 #ifndef ____STDDEF_H
 #define ____STDDEF_H    1
-
 
 enum {
 	false  = 0,

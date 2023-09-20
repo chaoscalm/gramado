@@ -1,18 +1,16 @@
 
-
-#ifndef ____PINTS_H
-#define ____PINTS_H    1
-
-
 //
 // File: pints.h
-//
+// profiler, interrupts.
 
 // Variáveis globais para contagem de interrupções.
 
 //
 // System interrupt
 //
+
+#ifndef ____PINTS_H
+#define ____PINTS_H    1
 
 //See:  gramado/kernel/execve/sci/gde/gde_serv.c 
 unsigned long g_profiler_ints_gde_services;
