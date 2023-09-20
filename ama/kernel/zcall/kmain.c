@@ -100,17 +100,20 @@ int dead_thread_collector_flag=0;
 
 //char InitialUserProcessName[32] = "INIT.BIN"
 
-// ??
-// #bugbug
-// Explain it better.
-// Someone is setting this variable from another document.
-// Change the name.
+
+// --------------------------------------
+// head_64.asm is given us these two values.
 // See: head_64.asm.
 unsigned long magic=0;
 unsigned long saved_bootblock_base=0;
 
+// --------------------------------------
+// The base address of the boot block.
 // virtual = physical.
 #define BootBlockVA    0x0000000000090000
+// --------------------------------------
+// Indexes into the boot block.
+// EAch entry has 64bit.
 #define bbOffsetLFB_PA  0  // offset 0
 #define bbOffsetX       1  // offset 8
 #define bbOffsetY       2  // offset 16
@@ -184,7 +187,6 @@ static void __enter_debug_mode(void)
 }
 
 // ==========================
-// ::(2)(1)(2)
 static void preinit_Globals(int arch_type)
 {
 // We dont have any print support for now.
@@ -233,7 +235,6 @@ static void preinit_Globals(int arch_type)
 }
 
 // =========================
-// ::(2)(1)(3)
 // see: serial.c
 static void preinit_Serial(void)
 {
@@ -251,7 +252,6 @@ static void preinit_Serial(void)
 }
 
 // ======================
-// ::(2)(1)(4)
 static void preinit_OutputSupport(void)
 {
 // #important: 
@@ -374,29 +374,45 @@ void init_globals(void)
 }
 
 // ==============================
-// ::(4)(1)(1)
-// limitation: No serial debug yet.
+// #limitation: No serial debug yet.
 // #todo: #bugbug
 // We have another BootBlock structure in info.h
 static int preinit_SetupBootblock(void)
 {
 // We don't have any print support for now.
+// #bugbug
+// In head_64.asm we saved the boot address in _saved_bootblock_base.
+// But now we're using the address BootBlockVA.
 
-// Magic
-// #bugbug: Explain it better.
-    unsigned long bootMagic = 
-        (unsigned long) (magic & 0x00000000FFFFFFFF); 
-
+// -------------------------
+// base:
 // The boot block address. 0x0000000000090000.
 // Each entry has 8 bytes.
 // virtual = physical.
+// #bugbug
+// In head_64.asm we saved the boot address in _saved_bootblock_base.
+// But now we're using the address BootBlockVA.
+
+// #warning
+// This is a version of the boot block with 64bit entries.
+// The 64bit entries version was created in the address 0x00090000
+// by the bl.bin in head.s. 
+
     unsigned long *xxxxBootBlock = (unsigned long*) BootBlockVA; 
 
-// lfb
+// -------------------------
+// lfb:
 // Esse endereço virtual foi configurado pelo bootloader.
 // Ainda não configuramos a paginação no kernel.
     unsigned long *fb = (unsigned long *) FRONTBUFFER_VA; 
     fb[0] = 0x00FFFFFF;
+
+// -------------------------
+// magic:
+// #bugbug: Explain it better.
+// We got this number in head_64.asm givem from the boot loader.
+    unsigned long bootMagic = 
+        (unsigned long) (magic & 0x00000000FFFFFFFF); 
 
 // Check magic
 // Paint a white screen if magic is ok.
@@ -416,55 +432,71 @@ static int preinit_SetupBootblock(void)
     //#debug
     //while(1){}
 
-// Boot block (local structure)
-// Saving the boot block
-// Structure in this document.
-// We will have a global one in gdef.h
+// -------------------------
+// info:
+// Save the info into a kernel structure
+// defined in mm/globals.c.
+// See the structure x_boot_block_d 
+// in include/dev/display/common/display.h
+// #bugbug
+// Actually this is swrong, because the boot info
+// structure is given not only information about 
+// the display device, so need to put this structure
+// in another document, not in display.h.
+// #warning
+// This is a version of the boot block with 64bit entries.
+// The 64bit entries version was created in the address 0x00090000
+// by the bl.bin in head.s. 
+
+// -------------------------
+// Display device info
+// Boot display device. (VESA)
 
     xBootBlock.lfb_pa        = (unsigned long) xxxxBootBlock[bbOffsetLFB_PA];
     xBootBlock.deviceWidth   = (unsigned long) xxxxBootBlock[bbOffsetX];
     xBootBlock.deviceHeight  = (unsigned long) xxxxBootBlock[bbOffsetY];
     xBootBlock.bpp           = (unsigned long) xxxxBootBlock[bbOffsetBPP];
-    xBootBlock.last_valid_pa = (unsigned long) xxxxBootBlock[bbLastValidPA];
-    xBootBlock.gramado_mode  = (unsigned long) xxxxBootBlock[bbGramadoMode];
-    xBootBlock.initialized = TRUE;
 
-// ------------------------------------------------------
-
-// Gramado mode.
-// Gramado mode. (jail, p1, home ...)
-// Save global variable.
-    current_mode = (unsigned long) xBootBlock.gramado_mode;
-
-    // ...
-
-// resolution
-// global variables.
+// Saving the resolution info into another place.
 // See: kernel.h
     gSavedLFB = (unsigned long) xBootBlock.lfb_pa;
     gSavedX   = (unsigned long) xBootBlock.deviceWidth;
     gSavedY   = (unsigned long) xBootBlock.deviceHeight;
     gSavedBPP = (unsigned long) xBootBlock.bpp;
 
-// #todo
-// Setup the real boot block structure at gdef.h
-
 // Set up private variables in screen.c
-    screenSetSize (gSavedX,gSavedY);
+    screenSetSize(gSavedX,gSavedY);
 
-// Memory support.
-
+// -------------------------
+// Memory info
+    xBootBlock.last_valid_pa = (unsigned long) xxxxBootBlock[bbLastValidPA];
 // Last valid physical address.
 // Used to get the available physical memory.
     blSavedLastValidAddress = (unsigned long) xBootBlock.last_valid_pa; 
 // Memory size in KB.
-    blSavedPhysicalMemoryInKB = (blSavedLastValidAddress / 1024);
+    blSavedPhysicalMemoryInKB = 
+        (unsigned long) (blSavedLastValidAddress / 1024);
+
+// -------------------------
+// System info
+    xBootBlock.gramado_mode  = (unsigned long) xxxxBootBlock[bbGramadoMode];
+// Gramado mode. (jail, p1, home ...)
+// Save global variable.
+    current_mode = (unsigned long) xBootBlock.gramado_mode;
+
+// ---------------------
+// #note
+// Well, we do not have information about the disk.
+// + What is the boot disk number given by the BIOS?
+// + ...
+
+// Validation
+    xBootBlock.initialized = TRUE;
 
     return 0;
 }
 
 // ==========================
-// ::(2)(1)
 static int preinit(void)
 {
 // We don't have any print support for now.

@@ -2051,6 +2051,18 @@ int consoleCompareStrings(void)
     }
 */
 
+
+// disk:
+// Show disk info.
+// storage.c
+    if ( kstrncmp( prompt, "disk", 4 ) == 0 )
+    {
+        //diskShowCurrentDiskInfo();  // Current disk
+        disk_show_info();  // All disks.
+        goto exit_cmp;
+    }
+
+// ata:
 // disk: Show some disk information.
 // See: atainfo.c
     if ( kstrncmp( prompt, "ata", 3 ) == 0 )
@@ -2280,6 +2292,7 @@ int consoleCompareStrings(void)
         goto exit_cmp;
     }
 
+/*
 // ========
 // app1: Sending a MSG_COMMAND/4001 messsage to the init thread.
     if ( kstrncmp(prompt,"app1",4) == 0 )
@@ -2295,7 +2308,9 @@ int consoleCompareStrings(void)
         //refresh_screen();
         goto exit_cmp;
     }
+*/
 
+/*
 // ========
 // app2: Sending a MSG_COMMAND/4002 messsage to the init thread.
     if ( kstrncmp(prompt,"app2",4) == 0 )
@@ -2311,7 +2326,9 @@ int consoleCompareStrings(void)
         //refresh_screen();
         goto exit_cmp;
     }
+*/
 
+/*
 // ========
 // app3: Sending a MSG_COMMAND/4003 messsage to the init thread.
     if ( kstrncmp(prompt,"app3",4) == 0 )
@@ -2328,6 +2345,7 @@ int consoleCompareStrings(void)
         //refresh_screen();
         goto exit_cmp;
     }
+*/
 
 // Invalid command
 

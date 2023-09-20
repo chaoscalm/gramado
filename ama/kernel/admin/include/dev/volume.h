@@ -124,7 +124,6 @@ struct vbr_d *vbr;
  *     Estrutura para acesso rápido a volumes.
  *     Deve ser simples e com poucos elementos.
  */
-
 struct volume_d
 {
     object_type_t  objectType;
@@ -179,6 +178,20 @@ struct volume_d
     void *priv_buffer;
     unsigned long buffer_size_in_sectors;
     unsigned long sector_size;
+
+/*
+//
+// Capacity
+//
+
+// Number of sectors.
+    unsigned long number_of_blocks;
+// 512 or 4096?
+    unsigned long bytes_per_sector;
+// How many bytes in the whole disk.
+    unsigned long size_in_bytes;
+*/
+
 
 // First and last lba.
 

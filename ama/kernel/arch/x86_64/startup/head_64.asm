@@ -95,8 +95,13 @@ align 4
 ; START
 ; #todo
 ; We can save some values just for debug purpose.
-
 START:
+
+;
+; -----------------------------------------------
+; Boot block:
+; All the information we got from the boot loader for now.
+; The bootblock has a lot of data.
 
 ; Save the bootblock address.
     mov dword [_saved_bootblock_base], ebx
@@ -127,8 +132,8 @@ START:
     mov r14, rax
     mov r15, rax
 
+; GDT
 ; This gdt is here in this document.
-
     lgdt [EARLY_GDT64.Pointer]
 
 ; Segment registers:
@@ -178,6 +183,7 @@ START:
     call setup_faults   ; Setup vectors for faults and exceptions.
     call setup_vectors  ; Some new vectors.
 
+; IDT
 ; #danger:
     lidt [_IDT_register] 
 
@@ -313,9 +319,9 @@ START:
 ; Use the calling convention for this compiler.
 ; rdi
 ; No return
-; See: kmain.c
+; See: zcall/kmain.c
 ; #todo: arch type (2) ??
- 
+
     xor rax, rax
     mov rdi, rax    ; First argument.
     ; ...

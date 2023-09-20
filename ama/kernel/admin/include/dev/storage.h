@@ -1,10 +1,8 @@
 
 // storage.h
 
-
 #ifndef  __STORAGE_H
 #define  __STORAGE_H    1
-
 
 struct storage_d
 {

@@ -242,7 +242,7 @@ static unsigned long __setup_physical_memory(void)
 // WIDTH:       0x00090000 + 8
 // HEIGHT:      0x00090000 + 16
 // BPP:         0x00090000 + 24
-// LAST_VALID:  0x00090000 + 32
+// LAST_VALID:  0x00090000 + 32  <<<--------
 // LAST_VALID:  0x00090000 + 40 (complement)
 // ...
 
@@ -520,7 +520,10 @@ void bl_main(void)
 
     DisplayDevice.initialized = TRUE;
 
-// Init.
+// -------------------------
+// Initialize
+// In this routine we're gonna fill the bootblock
+// with all the data we have to the kernel.
 // See: init.c
     Status = (int) init();
     if (Status != 0){

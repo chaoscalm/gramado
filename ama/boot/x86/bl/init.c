@@ -20,9 +20,57 @@ extern unsigned long SavedBootBlock;
 //extern unsigned long SavedY;
 //extern unsigned long SavedBPP;
 
+// -----------------------------------------------
+static void __fill_the_bootblock_for_32bit_mode(void);
+
+// -----------------------------------------------
+
+static void __fill_the_bootblock_for_32bit_mode(void)
+{
+// #warning
+// Remember, we are still in 32bit mode.
+
+//
+// == boot block ===========================
+//
+
+// Vamos pegar as informaçoes no boot block passado pelo
+// BM e salvarmos na estrutura no BL.
+// Eh melhor copiar do que simplesmente fazer referencia.
+// Vamos copiar em ordem.
+// See: gdef.h
+// BootBlock was defined in main.c
+// see the structure in gdef.h.
+
+// #warning
+// The 64bit entries version was created by head.s
+// in the address 0x00090000. The kernel used this one created by head.s.
+
+    unsigned long *base = (unsigned long *) SavedBootBlock;
+
+    // 32bit size.
+    BootBlock.lfb                = (unsigned long) base[0];  //  0
+    BootBlock.x                  = (unsigned long) base[1];  //  4
+    BootBlock.y                  = (unsigned long) base[2];  //  8
+    BootBlock.bpp                = (unsigned long) base[3];  // 12
+    BootBlock.last_valid_address = (unsigned long) base[4];  // 16
+    BootBlock.metafile_address   = (unsigned long) base[5];  // 20
+    BootBlock.disk_number        = (unsigned long) base[6];  // 24
+    BootBlock.heads              = (unsigned long) base[7];  // 28
+    BootBlock.spt                = (unsigned long) base[8];  // 32 
+    BootBlock.cylinders          = (unsigned long) base[9];  // 36
+    BootBlock.boot_mode          = (unsigned long) base[10]; // 40
+    BootBlock.gramado_mode       = (unsigned long) base[11]; // 44
+
+// #debug
+// vamos mostrar as informaçoes do boot block
+
+}
+
+
 // set_up_color:
 // Configura cor padrão para o sistema.
-void set_up_color (unsigned long color)
+void set_up_color(unsigned long color)
 {   
     g_system_color = (unsigned long) color;
 }
@@ -99,7 +147,7 @@ int init(void)
 
     if (VideoBlock.useGui != TRUE)
     {
-        bl_clear (0);
+        bl_clear(0);
         set_up_text_color (0x0F, 0x00);
         printf ("BL.BIN-init: Text Mode\n");
         refresh_screen();
@@ -126,34 +174,14 @@ int init(void)
 //#endif	
     init_globals();
 
-//
-// == boot block ===========================
-//
+// The boot block
+// Fill a 32bit version of the boot block into a structure.
+// #warning
+// The 64bit entries version was created by head.s
+// in the address 0x00090000. The kernel used this one created by head.s.
 
-// Vamos pegar as informaçoes no boot block passado pelo
-// BM e salvarmos na estrutura no BL.
-// Eh melhor copiar do que simplesmente fazer referencia.
-// Vamos copiar em ordem.
-// See: gdef.h
-    
-    unsigned long *base = (unsigned long *) SavedBootBlock;
-    
-    BootBlock.lfb                = (unsigned long) base[0]; // 0
-    BootBlock.x                  = (unsigned long) base[1]; // 4
-    BootBlock.y                  = (unsigned long) base[2]; // 8
-    BootBlock.bpp                = (unsigned long) base[3]; // 12
-    BootBlock.last_valid_address = (unsigned long) base[4]; // 16
-    BootBlock.metafile_address   = (unsigned long) base[5]; // 20
-    BootBlock.disk_number        = (unsigned long) base[6]; // 24
-    BootBlock.heads              = (unsigned long) base[7]; // 28
-    BootBlock.spt                = (unsigned long) base[8]; // 32 
-    BootBlock.cylinders          = (unsigned long) base[9]; // 36
-    BootBlock.boot_mode          = (unsigned long) base[10]; // 40
-    BootBlock.gramado_mode       = (unsigned long) base[11]; // 44
+    __fill_the_bootblock_for_32bit_mode();
 
-// #debug
-// vamos mostrar as informaçoes do boot block
-    
     // OK
     //printf ("Gramado mode %d\n",BootBlock.gramado_mode);
 
@@ -198,8 +226,7 @@ int init(void)
     return 0;  
 }
 
-
 //
-// End.
+// End
 //
 

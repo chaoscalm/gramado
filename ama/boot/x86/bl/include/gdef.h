@@ -16,6 +16,7 @@
 
 struct boot_block_d
 {
+// 32bit mode.
     unsigned long lfb;
     unsigned long x;
     unsigned long y;

@@ -249,9 +249,7 @@ struct mbr_d *mbr;
  *     Estrutura para acesso rápido a discos.
  *     Deve ser simples e com poucos elementos.
  */
-
 // disk info
-
 struct disk_d
 { 
 // Object header.
@@ -301,13 +299,24 @@ struct disk_d
     uint8_t dev_num;
 
 //
+// Capacity
+//
+
+// Number of sectors.
+    unsigned long number_of_blocks;
+// 512 or 4096?
+    unsigned long bytes_per_sector;
+// How many bytes in the whole disk.
+    unsigned long size_in_bytes;
+
+
+//
 // Storage device structure.
 //
 
 // hadware info.
 // See:
 // ata.h
-
     struct ata_device_d  *ata_device;
 
 //#todo
@@ -355,7 +364,6 @@ storage_write_sector(
 // Show info
 //
 
-int diskShowDiskInfo ( int descriptor );
 void diskShowCurrentDiskInfo (void);
 void disk_show_info (void);
 

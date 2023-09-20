@@ -28,8 +28,61 @@ static int __create_boot_partition(void);
 static int __create_system_partition(void);
 static int __create_vfs_partition(void);
 
+static int __ShowDiskInfo(int index);
 
 // =================================================
+
+// Show disk information given its descriptor.
+static int __ShowDiskInfo(int index)
+{
+// Worker
+    struct disk_d  *d;
+    register int n = index;
+
+    printf("\n");
+    printf("\n");
+
+    //#debug
+    //printf ("__ShowDiskInfo:\n\n");
+
+    if ( n<0 || n >= DISK_COUNT_MAX )
+    {
+        printf("n fail\n");
+        goto fail;
+    }
+    d = (struct disk_d *) diskList[n];
+    if ((void *) d == NULL){
+        printf("d fail\n");
+        goto fail;
+    }
+    if ( d->used != TRUE || d->magic != 1234 )
+    {
+        printf("d validation\n");
+        goto fail;
+    }
+
+// Show data.
+    printf("Disk {%d} | Name {%s}\n", 
+        d->id, d->name );
+    printf("Bootdisk {%d}\n",
+        d->boot_disk_number);
+    printf("Type {%d}\n", 
+        d->diskType );
+// Capacity
+    printf("Number of blocks {%d}\n", 
+        d->number_of_blocks );
+    printf("Byte per sector{%d}\n", 
+        d->bytes_per_sector );
+    printf("Size in bytes{%d}\n", 
+        d->size_in_bytes );
+    // ...
+
+    printf("Done\n");
+    return 0;
+fail:
+    printf("Fail\n");
+    return (int) -1;
+}
 
 // local
 // Create boot partition.
@@ -578,83 +631,30 @@ int disk_init (void)
     return 0;
 }
 
-
-// Show disk information given its descriptor.
-int diskShowDiskInfo ( int descriptor )
-{
-    struct disk_d  *d;
-
-    //#debug
-    //printf ("diskShowDiskInfo:\n\n");
-
-    printf ("\n\n");
-
-    if ( descriptor < 0 || 
-         descriptor >= DISK_COUNT_MAX )
-    {
-        printf ("descriptor fail\n");
-        goto fail;
-    }
-
-
-    d = (struct disk_d *) diskList[descriptor];
-
-    if ( (void *) d == NULL ){
-        printf ("struct fail\n");
-        goto fail;
-    }
-
-    if ( d->used != TRUE || d->magic != 1234 )
-    {
-        printf("flags fail\n");
-        goto fail;
-    }
-
-    printf ("disk %d - {{{{ %s }}}} \n", d->id, d->name );
-    printf ("boot_disk = {%d}\n",d->boot_disk_number);
-    printf ("diskType  = {%d}\n", d->diskType );
-    //printf ("name={%s}\n", d->name );
-    // ...
-
-//done:
-    printf ("done\n");
-    return 0;
-
-fail:
-    printf("fail\n");
-    return (int) -1;
-}
-
-
-void diskShowCurrentDiskInfo (void)
-{
-    if (current_disk<0)
-        return;
-
-    printf ("The current disk is %d\n", current_disk );
-
-    diskShowDiskInfo (current_disk);
-}
-
-
 // Show info for all disks in the list.
 // Called by service 251
-void disk_show_info (void)
+void disk_show_info(void)
 {
-    int i=0;
     struct disk_d *disk;
+    register int i=0;
 
     for (i=0; i<DISK_COUNT_MAX; i++)
     {
         disk = (struct disk_d *) diskList[i];
         
-        if ( (void *) disk != NULL )
-        {
-            diskShowDiskInfo(i);
+        if ((void *) disk != NULL){
+            __ShowDiskInfo(i);
         }
     };
 }
 
+void diskShowCurrentDiskInfo(void)
+{
+    if (current_disk<0)
+        return;
+    printf("The current disk is {%d}.\n", current_disk );
+    __ShowDiskInfo(current_disk);
+}
 
 /*
  * disk_get_disk_handle:
@@ -767,17 +767,16 @@ fail:
     return (int) -1;
 }
 
-
-void volumeShowCurrentVolumeInfo (void)
+void volumeShowCurrentVolumeInfo(void)
 {
     if (current_volume<0)
         return;
-
     printf ("The current volume is %d\n", current_volume );
 
-    diskShowDiskInfo (current_volume);
+// #bugbug
+// Valume is not a disk.
+    //__ShowDiskInfo (current_volume);
 }
-
 
 // Show info for all volumes in the list.
 void volume_show_info (void)

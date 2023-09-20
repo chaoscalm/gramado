@@ -145,16 +145,22 @@ StartLoader:
 ; let's handle the boot block
 ; Boot block starts at 0x00090000
 ; ---------
+; Display device info:
 ; LFB_VA:        0x00090000 + 0
 ; WIDTH:         0x00090000 + 8
 ; HEIGHT:        0x00090000 + 16
 ; BPP:           0x00090000 + 24
+; ---------
+; Memory info:
 ; LAST_VALID:    0x00090000 + 32
+; ---------
+; system info:
 ; GRAMADO MODE:  0x00090000 + 40
 ; ----------------------------
 ; LFB_PA, X, Y, BPP
 ;
 
+; ----------------------------
 ; LFB_PA
 ; 0x00090000 + 0
     xor eax, eax
@@ -163,6 +169,7 @@ StartLoader:
     mov dword [0x90000], eax
     mov dword [0x90000 + 4], 0
 
+; ----------------------------
 ; screen width
 ; 0x00090000 + 8
     xor eax, eax
@@ -171,6 +178,7 @@ StartLoader:
     mov dword [0x90000 + 8], eax
     mov dword [0x90000 + 12], 0
 
+; ----------------------------
 ; screen height
 ; 0x00090000 + 16
     xor eax, eax
@@ -179,6 +187,7 @@ StartLoader:
     mov dword [0x90000 + 16], eax
     mov dword [0x90000 + 20], 0
 
+; ----------------------------
 ; bytes per pixel
 ; 0x00090000 + 24
     xor eax, eax
@@ -187,11 +196,19 @@ StartLoader:
     mov dword [0x90000 + 24], eax
     mov dword [0x90000 + 28], 0
 
-; ?
+; ----------------------------
+; Memory size.
 ; 0x00090000 + 32
 ; last valid
 ; See:
+; #bugbug
+; Where is the moment we are setting up this entry?
+; The function __setup_physical_memory() in main.c
+; is filling this entry. :)
+; It is because the bl is running a test
+; before getting this value.
 
+; ----------------------------
 ; Gramado mode.
 ; 0x00090000 + 40
     xor eax, eax
