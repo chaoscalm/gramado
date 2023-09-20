@@ -8,7 +8,9 @@
 //
 
 // Global list of files.
-unsigned long file_table[NUMBER_OF_FILES]; 
+unsigned long file_table[NUMBER_OF_FILES];
+
+struct file_table_info_d  FileTableInfo;
 
 // Global list of pipes.
 unsigned long pipeList[NUMBER_OF_PIPES];
@@ -1582,10 +1584,17 @@ regularfile_ioctl (
     return -1;
 }
 
+
+// #warning
+// Because the libc has hardcoded file descriptor values for the
+// standard streams, we gotta use the same values.
+// So, this way we need to use the same file descriptors.
+// We're gonna use STDIN_FILENO.
 static void __initialize_stdin(void)
 {
 // Called by kstdio_initialize().
 
+    int fd = STDIN_FILENO;
     int slot=-1;
 
 // stdin
@@ -1602,7 +1611,7 @@ static void __initialize_stdin(void)
     stdin->filetable_index = slot;
 
 // fd
-    stdin->_file = STDIN_FILENO;  //0
+    stdin->_file = fd;  //0
 // This is a regular file.
     stdin->____object = ObjectTypeFile;
 // sync
@@ -1652,11 +1661,17 @@ static void __initialize_stdin(void)
     stdin->magic = 1234;
 }
 
+// #warning
+// Because the libc has hardcoded file descriptor values for the
+// standard streams, we gotta use the same values.
+// So, this way we need to use the same file descriptors.
+// We're gonna use STDOUT_FILENO.
 static void __initialize_stdout(void)
 {
 // Called by kstdio_initialize().
 
     int slot=-1;
+    int fd = STDOUT_FILENO;
 
 // stdout
 // pega slot em file_table[] para stdout
@@ -1672,7 +1687,7 @@ static void __initialize_stdout(void)
     stdout->filetable_index = slot;
 
 // fd
-    stdout->_file = STDOUT_FILENO;  //1
+    stdout->_file = fd;  //1
 
 // This is a virtual console.
 // Configurando a estrutura de stdout.
@@ -1727,10 +1742,16 @@ static void __initialize_stdout(void)
     stdout->magic = 1234;
 }
 
+// #warning
+// Because the libc has hardcoded file descriptor values for the
+// standard streams, we gotta use the same values.
+// So, this way we need to use the same file descriptors.
+// We're gonna use STDERR_FILENO.
 static void __initialize_stderr(void)
 {
 // Called by kstdio_initialize().
 
+    int fd = STDERR_FILENO;
     int slot = -1;
 
 // stderr
@@ -1747,7 +1768,7 @@ static void __initialize_stderr(void)
     stderr->filetable_index = slot;
 
 // fd
-    stderr->_file = STDERR_FILENO;  //2
+    stderr->_file = fd;  //2
 // This is a regular file.
     stderr->____object = ObjectTypeFile;
 // sync
@@ -1794,6 +1815,93 @@ static void __initialize_stderr(void)
     stderr->magic = 1234;
 }
 
+
+file *new_file(object_type_t object_type)
+{
+// Called by kstdio_initialize().
+
+    file *new_file;
+    int slot = -1;
+
+// stderr
+// pega slot em file_table[] para stderr
+
+    slot = get_free_slots_in_the_file_table();
+    if ( slot < 0 || slot >= NUMBER_OF_FILES ){
+        x_panic("new_file: slot");
+    }
+    new_file = (file *) file_table[slot];
+    if ((void*) new_file == NULL){
+        x_panic("new_file: new_file");
+    }
+    new_file->filetable_index = slot;
+
+// fd
+// We don't have this yet.
+    //new_file->_file = STDERR_FILENO;  //2
+    new_file->_file = -1;
+
+// This is a regular file.
+    new_file->____object = object_type;
+// sync
+    new_file->sync.sender_pid = (pid_t) -1;
+    new_file->sync.receiver_pid = (pid_t) -1;
+    new_file->sync.can_read    = TRUE;
+    new_file->sync.can_write   = TRUE;
+    new_file->sync.can_execute = FALSE;
+    new_file->sync.can_accept  = FALSE;
+    new_file->sync.can_connect = FALSE;
+// _flags
+    new_file->_flags = (__SWR | __SRD); 
+
+// buffer
+
+    //new_file->_base = &prompt_err[0];  //See: kstdio.h
+    //new_file->_p = &prompt_err[0];
+
+    new_file->_base = kmalloc(PROMPT_SIZE);
+    if ( (void*) new_file->_base == NULL )
+        panic("new_file: new_file->_base");
+    new_file->_p = new_file->_base;
+
+    new_file->_bf._base = new_file->_base;
+    new_file->_lbfsize = PROMPT_SIZE; //128; //#todo
+    new_file->_r = 0;
+    new_file->_w = 0;
+    new_file->_cnt = PROMPT_SIZE;
+    
+    // #todo
+    new_file->_tmpfname = "NONAME.TXT";
+
+    new_file->fd_counter = 1;
+    // ...
+    // inode support.
+    // pega slot em inode_table[] 
+    slot = get_free_slots_in_the_inode_table();
+    if (slot<0 || slot >=NUMBER_OF_FILES){
+        x_panic("new_file: new_file inode slot\n");
+    }
+    new_file->inode = (struct inode_d *) inode_table[slot];
+    new_file->inodetable_index = slot;
+    if ((void*) new_file->inode == NULL){
+        x_panic("new_file: new_file inode struct\n");
+    }
+    new_file->inode->filestruct_counter = 1; //inicialize
+
+// Copy the name
+    memcpy ( 
+        (void*)       new_file->inode->path, 
+        (const void*) new_file->_tmpfname, 
+              sizeof( new_file->inode->path ) );
+
+    new_file->used = TRUE;
+    new_file->magic = 1234;
+
+// Return the pointer for a new stream.
+    return (file*) new_file;
+}
+
+
 // Os buffers dos arquivos acima.
 // prompt[]
 // Esses prompts são usados como arquivos.
@@ -1815,8 +1923,16 @@ static void __clear_prompt_buffers(void)
 // Create n files and put the pointer into the file table.
 static void __initialize_file_table(void)
 {
+// #todo
+// We need a structure to track te information
+// about the file table. file_table[],
+// maybe FileTableInfo.xxxx.
+
     register int i=0;
     file *tmp;
+
+    FileTableInfo.initialized = FALSE;
+    FileTableInfo.size = (int) NUMBER_OF_FILES;
 
     for (i=0; i<NUMBER_OF_FILES; i++)
     {
@@ -1835,6 +1951,8 @@ static void __initialize_file_table(void)
         tmp->magic = 1234;
         file_table[i] = (unsigned long) tmp; 
     };
+
+    FileTableInfo.initialized = TRUE;
 }
 
 // Create n inodes and put the pointers

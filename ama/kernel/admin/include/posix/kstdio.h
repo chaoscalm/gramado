@@ -431,8 +431,17 @@ extern file *volume2_rootdir_fp;
 //
 // file table.
 //
- 
+
+// How much?
 extern unsigned long file_table[NUMBER_OF_FILES]; 
+
+struct file_table_info_d
+{
+    int initialized;
+    size_t size;
+    // ...
+};
+extern struct file_table_info_d  FileTableInfo;
 
 //-----------------------------------------------
 
@@ -532,6 +541,7 @@ int is_socket(file *f);
 int is_virtual_console(file *f);
 // ...
 
+file *new_file(object_type_t object_type);
 int kstdio_feed_stdin(int ch);
 
 unsigned long kinput(unsigned long ch);

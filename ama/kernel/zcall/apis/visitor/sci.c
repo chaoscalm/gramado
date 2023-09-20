@@ -2184,7 +2184,7 @@ void *sci2 (
     }
 
     p = (struct process_d *) processList[current_process];
-    if ( (void*) p == NULL ){
+    if ((void*) p == NULL){
         debug_print("sci2: p\n");
         panic("sci2: p\n");
     }
@@ -2329,6 +2329,65 @@ void *sci2 (
                             (const char *) arg2, 
                             (pid_t) current_process, 
                             (unsigned long) clone_flags );
+    }
+
+// This process is telling us that he wants
+// to be treated as a terminal,
+// giving him the permission to create Connectors[i].
+    if (number == 901)
+    {
+        if (p->_is_terminal == TRUE)
+            return NULL;
+        if (arg2 != 1234)
+            return NULL;
+        p->Connectors[0] = -1;
+        p->Connectors[1] = -1;
+        p->_is_terminal = TRUE;
+        return NULL;
+    }
+
+// Get the file descriptor for a given connector
+// #todo: Create a worker for this.
+// return: 
+// NULL = fail.
+    int conn_fd = 0;
+    if (number == 902)
+    {
+        if (p->_is_terminal == TRUE || 
+            p->_is_child_of_terminal == TRUE )
+        {
+            // The first connector
+            if (arg2 == 0)
+            {
+                conn_fd = (int) p->Connectors[0];
+                if (conn_fd < 0)
+                    return NULL;
+                if (conn_fd < 3)
+                    return NULL;
+                // 31 is the socket.
+                if (conn_fd >= 30)
+                    return NULL;
+                return (void*) (conn_fd & 0xFF);
+            }
+            // The second connector
+            if (arg2 == 1)
+            {
+                conn_fd = (int) p->Connectors[1];
+                if (conn_fd < 0)
+                    return NULL;
+                if (conn_fd < 3)
+                    return NULL;
+                // 31 is the socket.
+                if (conn_fd >= 30)
+                    return NULL;
+                return (void*) (conn_fd & 0xFF);
+            }
+            // Fail
+            // Invalid connector number.
+            return NULL;
+        }
+        // Fail
+        return (void*) NULL;
     }
 
 // 8000 - Business Logic: ioctl() implementation.

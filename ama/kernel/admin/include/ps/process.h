@@ -209,7 +209,19 @@ struct process_d
     int _protected;
 
 // Open files.
+// #todo:
+// Check this.
+// We're still using 32 in all over the kernel.
     unsigned long Objects[64];
+
+// Connectors.
+// 2 Indexes to the table above.
+// The connectors are created in copy_process_struct()
+// when the terminal is clonning himself to create a child.
+    int Connectors[2];
+// Only the terminals can create connectors.
+    int _is_terminal;
+    int _is_child_of_terminal;
 
 // State.
 // flag ?

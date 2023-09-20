@@ -295,11 +295,13 @@ fail:
 
 int 
 copy_process_struct(
-    struct process_d *p1,
-    struct process_d *p2 )
+    struct process_d *p1,    // Father
+    struct process_d *p2 )   // Child
 {
-    struct process_d *Process1;
-    struct process_d *Process2;
+// Called by clone_process() in clone.c.
+
+    struct process_d *Process1;  // Father
+    struct process_d *Process2;  // Child
     file *__f;
     int Status=0;
     register int i=0;
@@ -311,60 +313,49 @@ copy_process_struct(
 // Balancing the priority.
 // Please, don't inherit base priority!
 // The priority for the clone.
-    unsigned long CloneBasePriority=PRIORITY_NORMAL_THRESHOLD;
-    unsigned long ClonePriority=PRIORITY_NORMAL_THRESHOLD;
+    unsigned long CloneBasePriority = PRIORITY_NORMAL_THRESHOLD;
+    unsigned long ClonePriority = PRIORITY_NORMAL_THRESHOLD;
 
     /*
     if ( p1 == p2 ){
         printf ("copy_process_struct: [FAIL] same PID\n");  goto fail;
     }
-
     if ( p1 < 0 ){
         printf ("copy_process_struct: [FAIL] p1 limits\n"); goto fail;
     }
-
     if ( p2 < 0 ){
         printf ("copy_process_struct: [FAIL] p2 limits\n"); goto fail;
     }
     */
 
-
-    // ===========================
-    // Check process 1.
-    //Process1 = (struct process_d *) processList[p1];
-
+// ===========================
+// Check process 1
     Process1 = (struct process_d *) p1;
-
-    // Check Process1
-    if ( (void *) Process1 == NULL ){
-        printf ("copy_process_struct: Process1\n"); goto fail;
-    }else{
-        if ( Process1->used != 1 || Process1->magic != 1234 )
-        {
-           printf ("copy_process_struct: Process1 validation \n");
-           goto fail;
-        }
-    };
-
-    // ===========================
-    // Check process 2.
-    //Process2 = (struct process_d *) processList[p2];
- 
-    Process2 = (struct process_d *) p2;
-     
-    if ( (void *) Process2 == NULL ){
-        printf ("copy_process_struct: Process1\n"); goto fail; 
-    }else{
-        if ( Process2->used != 1 || Process2->magic != 1234 )
-        {
-           printf ("copy_process_struct: Process2 validation \n");
-           goto fail;
-        }
-    };
-
+    if ((void *) Process1 == NULL){
+        printf("copy_process_struct: Process1\n"); 
+        goto fail;
+    }
+    if ( Process1->used != TRUE || Process1->magic != 1234 )
+    {
+        printf("copy_process_struct: Process1 validation\n");
+        goto fail;
+    }
+// ===========================
+// Check process 2
+    Process2 = (struct process_d *) p2;     
+    if ((void *) Process2 == NULL){
+        printf("copy_process_struct: Process1\n");
+        goto fail; 
+    }
+    if ( Process2->used != TRUE || Process2->magic != 1234 )
+    {
+        printf("copy_process_struct: Process2 validation\n");
+        goto fail;
+    }
 
 //
 // Copy
+// From father to child.
 //
 
 // Object.
@@ -553,19 +544,109 @@ copy_process_struct(
         __f = (void*) Process2->Objects[i];
 
         // Quantos descritores de arquivo apontam para essa mesma estrutura.
-        if ( (void *)__f != NULL )
-        {
+        if ((void *)__f != NULL){
             __f->fd_counter++;
         }
     };
 
-// O fluxo padrão foi criando antes em klib/kstdio.c
-// #todo: 
-// Checar as características desses arquivos.
-// # Todo processo esta usando o mesmo fluxo.
+// Standard streams.
+// The same 3 files for all the processes.
+// See: kstdio.c
     Process2->Objects[0] = (unsigned long) stdin;
     Process2->Objects[1] = (unsigned long) stdout;
     Process2->Objects[2] = (unsigned long) stderr;
+
+// ========================
+// Create connectors.
+// Only a terminal can create connectors.
+
+    file *connector1;
+    file *connector2;
+    int spot1=0;
+    int spot2=0;
+
+    if (Process1->_is_terminal == TRUE){
+
+    connector1 = (file *) new_file(ObjectTypeFile);
+    if ( (void*) connector1 == NULL )
+        panic("copy_process_struct: connector1\n");
+
+    connector2 = (file *) new_file(ObjectTypeFile);
+    if ( (void*) connector2 == NULL )
+        panic("copy_process_struct: connector2\n");
+
+//-----------------
+// Find empy spot in Objects[i] for connector1.
+    spot1=0;
+    spot2=0;
+    // 31 is the socket.
+    for (i=3; i<30; i++){
+        // Empty spot.
+        if (Process1->Objects[i] == 0){
+            Process1->Objects[i] = 216;  // Reserved
+            spot1 = i;
+            break;
+        }
+    };
+    // 31 is the socket.
+    for (i=3; i<30; i++){
+        // Empty spot.
+        if (Process1->Objects[i] == 0){
+            Process1->Objects[i] = 216;  // Reserved
+            spot2 = i;
+            break;
+        }
+    };
+    if (spot1 == 0)
+        panic("copy_process_struct: No spot1 for connector1\n");
+    if (spot2 == 0)
+        panic("copy_process_struct: No spot2 for connector1\n");
+    Process1->Objects[spot1] = (unsigned long) connector1;
+    Process1->Connectors[0] = spot1;
+    Process1->Objects[spot2] = (unsigned long) connector2;
+    Process1->Connectors[1] = spot2;
+
+//-----------------
+// Find empy spot in Objects[i] for connector2.
+    spot1=0;
+    spot2=0;
+    // 31 is the socket.
+    for (i=3; i<30; i++){
+        // Empty spot.
+        if (Process2->Objects[i] == 0){
+            Process2->Objects[i] = 216;  // Reserved
+            spot1 = i;
+            break;
+        }
+    };
+    // 31 is the socket.
+    for (i=3; i<30; i++){
+        // Empty spot.
+        if (Process2->Objects[i] == 0){
+            Process2->Objects[i] = 216;  // Reserved
+            spot2 = i;
+            break;
+        }
+    };
+    if (spot1 == 0)
+        panic("copy_process_struct: No spot1 for connector1\n");
+    if (spot2 == 0)
+        panic("copy_process_struct: No spot2 for connector1\n");
+    Process2->Objects[spot1] = (unsigned long) connector1;
+    Process2->Connectors[0] = spot1;
+    Process2->Objects[spot2] = (unsigned long) connector2;
+    Process2->Connectors[1] = spot2;
+
+    // Set flags.
+    Process1->_is_terminal = TRUE;
+    Process2->_is_child_of_terminal = TRUE;
+
+    //#debug
+    //printf("A terminal created two connectors\n");
+    //refresh_screen();
+    //while(1){}
+
+    }
 
 // ========================
 // Thread de controle
@@ -1539,16 +1620,16 @@ int init_process_manager (void)
 
 int alloc_memory_for_image_and_stack(struct process_d *process)
 {
+// CAlled by clone_process() in clone.c
 // #bugbug: Limit 400KB.
 
     unsigned long __new_base=0;   // Image base.
     unsigned long __new_stack=0;  // App stack.
 
-    if ( (void *) process == NULL ){
-        panic ("alloc_memory_for_image_and_stack: process\n");
+    if ((void *) process == NULL){
+        panic("alloc_memory_for_image_and_stack: process\n");
     }
-
-    if (process->magic!=1234)
+    if (process->magic != 1234)
         panic("alloc_memory_for_image_and_stack: process validation\n");
 
 // ==================================================
@@ -1641,11 +1722,10 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
     __new_stack = 
         (unsigned long) mmAllocPages(number_of_pages_on_stack); 
     if (__new_stack == 0){
-        panic ("alloc_memory_for_image_and_stack: __new_stack\n");
+        panic("alloc_memory_for_image_and_stack: __new_stack\n");
     }
 
 // ==================================================
-
 
 //
 // == Copying memory ==========
@@ -1666,7 +1746,7 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
 // que pessa pra copiar. A clonagem nao copia.
 // Copia a imagem do processo.
 // Copia do início da imagem. 200KB.
-    
+
     //if( ... ){
     memcpy ( 
         (void *) __new_base,  
@@ -1693,22 +1773,20 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
 // Obtendo o edereço físico da base da imagem e da pilha.
 
     unsigned long new_base_PA  = 
-        (unsigned long) virtual_to_physical ( __new_base, gKernelPML4Address ); 
+        (unsigned long) virtual_to_physical( __new_base, gKernelPML4Address ); 
 
     unsigned long new_stack_PA = 
-        (unsigned long) virtual_to_physical ( __new_stack, gKernelPML4Address ); 
+        (unsigned long) virtual_to_physical( __new_stack, gKernelPML4Address ); 
 
-    if ( new_base_PA == 0 )
+    if (new_base_PA == 0)
     {
         //printf("processCopyMemory: new_base_PA\n");
         //refresh_screen();
 
         panic("alloc_memory_for_image_and_stack: new_base_PA\n");
-        
         return -1;
     }
-    
-    if ( new_stack_PA == 0 )
+    if (new_stack_PA == 0)
     {
         //printf("processCopyMemory: new_stack_PA\n");
         //refresh_screen();
@@ -1736,13 +1814,11 @@ int alloc_memory_for_image_and_stack(struct process_d *process)
 
 // Salvando os endereços virtuais onde 
 // carregamos a imagem e a pilha.
-
-    process->childImage  = (unsigned long) __new_base;
-    process->childStack  = (unsigned long) __new_stack;
+    process->childImage = (unsigned long) __new_base;
+    process->childStack = (unsigned long) __new_stack;
 
 // Salvando endereços físicos obtidos anteriormente.  
 // Esses endereços representam a base da imagem e o inicio da pilha.
-
     process->childImage_PA = (unsigned long) new_base_PA;
     process->childStackPA  = (unsigned long) new_stack_PA;
 
@@ -1925,6 +2001,9 @@ int process_get_tty (int pid)
 // OUT: process struture pointer.
 struct process_d *create_and_initialize_process_object(void)
 {
+// Called by clone_process() in clone.c
+//...
+
     pid_t NewPID = (pid_t) (-1);  //fail
     struct process_d  *new_process;
     register int i=0;
@@ -1932,8 +2011,8 @@ struct process_d *create_and_initialize_process_object(void)
 // Process structure.
     new_process = (struct process_d *) processObject();
     if ((void *) new_process == NULL){
-        debug_print ("create_and_initialize_process_object: [FAIL] new_process\n");
-        printf      ("create_and_initialize_process_object: [FAIL] new_process\n");
+        debug_print("create_and_initialize_process_object: [FAIL] new_process\n");
+        printf     ("create_and_initialize_process_object: [FAIL] new_process\n");
         goto fail;
     }
 
@@ -1955,6 +2034,9 @@ struct process_d *create_and_initialize_process_object(void)
     // Invalidate.
     new_process->pid = -1;
 
+    new_process->_is_terminal = FALSE;
+    new_process->_is_child_of_terminal = FALSE;
+
 // Get new pid.
 // #:: We have a valid range here!
 // #todo: Change to generate_new_pid();
@@ -1964,8 +2046,8 @@ struct process_d *create_and_initialize_process_object(void)
     if ( NewPID < GRAMADO_PID_BASE || 
          NewPID >= PROCESS_COUNT_MAX )
     {
-        debug_print ("create_and_initialize_process_object: [FAIL] NewPID\n");
-        printf      ("create_and_initialize_process_object: [FAIL] NewPID={%d}\n", 
+        debug_print("create_and_initialize_process_object: [FAIL] NewPID\n");
+        printf     ("create_and_initialize_process_object: [FAIL] NewPID={%d}\n", 
             NewPID );
         goto fail;
     }
@@ -1982,7 +2064,7 @@ struct process_d *create_and_initialize_process_object(void)
     new_process->tty = (struct tty_d *) tty_create(
         TTY_TYPE_PTY,
         TTY_SUBTYPE_UNDEFINED );
-    if ( (void *) new_process->tty == NULL ){
+    if ((void *) new_process->tty == NULL){
          panic ("create_and_initialize_process_object: Couldn't create TTY\n");
     }
     tty_start(new_process->tty);
@@ -2065,9 +2147,9 @@ struct process_d *create_and_initialize_process_object(void)
 
     new_process->used = TRUE;
     new_process->magic = 1234;
-    
-// :)
-    processList[ NewPID ] = (unsigned long) new_process;
+
+// Save a finalized structure.
+    processList[NewPID] = (unsigned long) new_process;
 
 // OUT:
 // Pointer for a structure of a new process.

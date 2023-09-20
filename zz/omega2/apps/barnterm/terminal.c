@@ -1313,6 +1313,12 @@ static void compareStrings(int fd)
 // see: libs/libgws/gws.c
 
     //__try_execute(fd);  // Local worker
+
+// It uses gws_clone_and_execute2(),
+// it means that the display server is clonning himself
+// to create a child, not the terminal.
+// So, the clone_process function in kernel mode will not
+// create the connectors.
     gws_clone_and_execute_from_prompt(fd);  // libgws.
 
 exit_cmp:
@@ -3067,9 +3073,35 @@ static int __input_STDERR(int fd)
 // "#shell.bin"
     //rtl_clone_and_execute("#shell.bin");
     rtl_clone_and_execute("shell.bin");
+
+// #test
+// Let's get the fd for the connectors.
+// We already told to the kernel that we're a terminal.
+// We did that in main().
+
+    int connector0_fd = 0;
+    int connector1_fd = 0;
+
+    int UseConnectors=TRUE;
+    if (UseConnectors == TRUE){
+    connector0_fd = (int) sc82(902,0,0,0);
+    //connector1_fd = (int) sc82(902,1,0,0);
+    //#debug
+    //printf("terminal.bin: connector0_fd %d | connector1_fd %d \n",
+    //    connector0_fd, connector1_fd);
+    //while(1){}
+// The terminal is reading from connector 0.
+    new_stdin->_file = (int) connector0_fd;
+// The terminal writing into connector 1.
+    //stdout->_file = (int) connector1_fd
+    }
+
 // Loop
     while (1){
+        
+        // Reading from stdin, actually stderr.
         C = fgetc(new_stdin);
+        
         if (C > 0)
         {
             terminalProcedure( 

@@ -143,9 +143,8 @@ pid_t copy_process(
         goto fail;
     }
 // parent process pointer.
-    parent_process = (struct process_d *) processList[ parent_pid ];
-    if ( (void *) parent_process == NULL )
-    {
+    parent_process = (struct process_d *) processList[parent_pid];
+    if ((void *) parent_process == NULL){
         printf("copy_process: parent_process\n");
         goto fail;
     }
@@ -180,21 +179,18 @@ pid_t copy_process(
 // null pml4 virtual address.
 
 // pml4
-    if( (void*) parent_process->pml4_VA == NULL )
-    {
-        printf ("copy_process: [FAIL] parent_process->pml4_VA\n");
+    if ((void*) parent_process->pml4_VA == NULL){
+        printf("copy_process: [FAIL] parent_process->pml4_VA\n");
         goto fail;
     }
 // pdpt
-    if( (void*) parent_process->pdpt0_VA == NULL )
-    {
-        printf ("copy_process: [FAIL] parent_process->pdpt0_VA\n");
+    if ((void*) parent_process->pdpt0_VA == NULL){
+        printf("copy_process: [FAIL] parent_process->pdpt0_VA\n");
         goto fail;
     }
 // pd
-    if( (void*) parent_process->pd0_VA == NULL )
-    {
-        printf ("copy_process: [FAIL] parent_process->pd0_VA\n");
+    if ((void*) parent_process->pd0_VA == NULL){
+        printf("copy_process: [FAIL] parent_process->pd0_VA\n");
         goto fail;
     }
 
@@ -212,18 +208,16 @@ pid_t copy_process(
 // Parent's control thread
 //
     parent_thread = (struct thread_d *) parent_process->control;
-    
-    if( (void*) parent_thread == NULL ){
+    if ((void*) parent_thread == NULL){
         panic("copy_process: parent_thread\n");
     }
-
-    if(parent_thread->magic!=1234){
+    if (parent_thread->magic != 1234){
         panic("copy_process: parent_thread validation\n");
     }
 
 // cpl
 // For now we can only clone ring 3 threads.
-    if(parent_thread->cpl!=RING3)
+    if (parent_thread->cpl != RING3)
         panic("copy_process: parent_thread->cpl\n");
 
 // iopl
@@ -255,21 +249,20 @@ pid_t copy_process(
 // colocara ele pra rodar depois,
 
     parent_thread->state = RUNNING;
-    
+
 // O dono da parent thread tem que ser o processo pai.
-    if( parent_thread->owner_pid != parent_process->pid )
-    {
+    if (parent_thread->owner_pid != parent_process->pid){
         panic("copy_process: parent_thread->owner_pid\n");
     }
 
 // A thread que fez a chamada precisa ser
 // a thread de controle do processo pai.
-    if ( current_thread != parent_thread->tid ){
+    if (current_thread != parent_thread->tid){
         panic("copy_process: current_thread mismatched\n");
     }
 
-// O pid do processo pai.
-    if ( parent_pid != parent_process->pid ){
+// O PID do processo pai.
+    if (parent_pid != parent_process->pid){
         panic("copy_process: parent_pid mismatched\n");
     }
 
@@ -282,7 +275,8 @@ pid_t copy_process(
 //====
 
 // Limits for the callers pid.
-    if( parent_process->pid < 0 || parent_process->pid >= PROCESS_COUNT_MAX )
+    if ( parent_process->pid < 0 || 
+         parent_process->pid >= PROCESS_COUNT_MAX )
     {
         panic("copy_process: parent_process->pid limits\n");
     }
@@ -290,8 +284,8 @@ pid_t copy_process(
 // pid again.
 // Tem que ser igual ao current_process que pegamos logo acima
 // pois o pai tem que ser quem esta chamando.
-    if( parent_process->pid != current_process ){
-        panic("copy_process: parent_process->pid != current_process\n");
+    if (current_process != parent_process->pid){
+        panic("copy_process: current_process != parent_process->pid\n");
     }
 
 //
@@ -313,24 +307,20 @@ do_clone:
 
     child_process = 
         (struct process_d *) create_and_initialize_process_object();
-    
-    if ( (void *) child_process == NULL )
-    {
-        debug_print ("copy_process: child_process\n");
-        printf      ("copy_process: child_process\n");
+
+    if ((void *) child_process == NULL){
+        debug_print("copy_process: child_process\n");
+        printf     ("copy_process: child_process\n");
         goto fail;
     }
-    
-    if (child_process->magic!=1234)
-    {
-        debug_print ("copy_process: child_process validation\n");
-        printf      ("copy_process: child_process validation\n");
+    if (child_process->magic != 1234){
+        debug_print("copy_process: child_process validation\n");
+        printf     ("copy_process: child_process validation\n");
         goto fail;
     }
 
 // Personality first of all. 
 // Because some features depends on that.
-
     child_process->personality = (int) parent_process->personality;
 
 // pid
@@ -341,12 +331,12 @@ do_clone:
     }
 
 // The child pid can't be the same of his father.
-    if ( child_pid == parent_pid ){
+    if (child_pid == parent_pid){
         panic("copy_process: child_pid == parent_pid\n");
     }
 
 // The child pid can't be the same of the kernel.
-    if ( child_pid == GRAMADO_PID_KERNEL ){
+    if (child_pid == GRAMADO_PID_KERNEL){
         panic("copy_process: child_pid == GRAMADO_PID_KERNEL\n");
     }
 
@@ -367,12 +357,10 @@ do_clone:
 // Ela é uma cópia da tabela do kernel.
 // Fizemos essa clonagem no início da rotina.
 
-
 // Endereço virtual do pml4 do processo filho.
     child_process->pml4_VA = (unsigned long) _pml4;
-
-    if ( (void *) child_process->pml4_VA == NULL ){
-        panic ("copy_process: [FAIL] child_process->pml4_VA\n");
+    if ((void *) child_process->pml4_VA == NULL){
+        panic("copy_process: [FAIL] child_process->pml4_VA\n");
     }
 
 // Endereço físico do pml4 do processo filho.
@@ -389,7 +377,6 @@ do_clone:
     //printf ("child_process->pml4_PA: %x\n",child_process->pml4_PA);
     //refresh_screen();
     //while(1){}
-
 
 // ==============================
 // pdpt0
@@ -454,16 +441,13 @@ do_clone:
 //see: process.c
 
     // #debug
-    debug_print ("copy_process: [1] Copying process image and stack.\n");
-    //printf      ("copy_process: [1] Copying process image and stack.\n");
-
+    debug_print("copy_process: [1] Copying process image and stack.\n");
+    //printf   ("copy_process: [1] Copying process image and stack.\n");
 
 // Allocating memory for the image and for the stack.
-
-    Status = (int) alloc_memory_for_image_and_stack( parent_process );
-
+    Status = (int) alloc_memory_for_image_and_stack(parent_process);
     if (Status != 0){
-        panic ("copy_process: __alloc_memory_for_image_and_stack\n");
+        panic("copy_process: __alloc_memory_for_image_and_stack\n");
     }
 
 // Breakpoint
@@ -481,17 +465,14 @@ do_clone:
 // see: process.c
 
     //#debug
-    debug_print ("copy_process: [2] Copying process structure\n");
+    debug_print("copy_process: [2] Copying process structure\n");
     //printf ("copy_process: [2] Copying process structure\n");
 
 // Cloning the process structure.
 // #todo: It depends on the childs personality.
-
-    Status = 
-        (int) copy_process_struct( parent_process, child_process );
-
-    if ( Status != 0 ){
-        panic ("copy_process: [FAIL] copy_process_struct\n");
+    Status = (int) copy_process_struct( parent_process, child_process );
+    if (Status != 0){
+        panic("copy_process: [FAIL] copy_process_struct\n");
     }
 
 // Breakpoint
@@ -518,15 +499,11 @@ do_clone:
 //
 
 // Copy parent thread structure.
-
-    debug_print ("copy_process: [3] Copying thread structure\n");
 // see: thread.c
-
-    child_thread = 
-        (struct thread_d *) copy_thread_struct(parent_thread);
-
-    if ( (void *) child_thread == NULL ){
-        panic ("copy_process: [FAIL] copy_thread_struct \n");
+    debug_print("copy_process: [3] Copying thread structure\n");
+    child_thread = (struct thread_d *) copy_thread_struct(parent_thread);
+    if ((void *) child_thread == NULL){
+        panic("copy_process: [FAIL] copy_thread_struct\n");
     }
 
 // #bugbug: We already get the childs personality.
@@ -550,13 +527,12 @@ do_clone:
     //refresh_screen();
     //return 0;
 
-// rip and rsp
 
-// Standard va entry point.
-// 0x201000
-    child_thread->context.rip = 
-        (unsigned long) CONTROLTHREAD_ENTRYPOINT;
+// RIP
+// Standard va entry point. (0x201000)
+    child_thread->context.rip = (unsigned long) CONTROLTHREAD_ENTRYPOINT;
 
+// RSP
 // 32KB size
 // #todo 
 // Precisa ser do mesmo tamanho que o pai 
@@ -564,7 +540,6 @@ do_clone:
 // #todo: Precismos levar emconsideração o tamanho da stack
 // que foi alocada anteriormente. Precisamos de uma variavel
 // na estrutura que registre seu tamanho.
-
     child_thread->context.rsp = 
         (unsigned long) (parent_process->childStack + (30*1024));
 
@@ -610,25 +585,21 @@ do_clone:
 
     child_process->Image   = (unsigned long) parent_process->childImage;     //va
     child_process->ImagePA = (unsigned long) parent_process->childImage_PA;  //pa
-
 // Check both addresses.
-
     // va
-    if ( (void *) child_process->Image == NULL ){
-        panic ("copy_process: [FAIL] child_process->Image\n");
+    if ((void *) child_process->Image == NULL){
+        panic("copy_process: [FAIL] child_process->Image\n");
     }
-
     // pa
-    if ( (void *) child_process->ImagePA == NULL ){
-        panic ("copy_process: [FAIL] child_process->ImagePA\n");
+    if ((void *) child_process->ImagePA == NULL){
+        panic("copy_process: [FAIL] child_process->ImagePA\n");
     }
-
 
 //
 // Load image
 //
 
-    debug_print ("copy_process: [3] load image\n");
+    debug_print("copy_process: [3] load image\n");
 
 // Carregando a imagem do clone no buffer criado para ela.
 // IN: 
@@ -639,10 +610,12 @@ do_clone:
         (int) fs_load_image(
                   filename, 
                   (unsigned long) child_process->Image );
- 
-    if ( Status != 0 ){
-        debug_print ("copy_process: [FAIL] Couldn't load the file\n");
-        printf      ("copy_process: [FAIL] Couldn't load the file %s\n", filename );
+
+    if (Status != 0)
+    {
+        debug_print("copy_process: [FAIL] Couldn't load the file\n");
+        printf     ("copy_process: [FAIL] Couldn't load the file %s\n", 
+            filename );
         goto fail;
     }
 
@@ -662,18 +635,18 @@ do_clone:
 // See: fs.c
 
 // #debug
-    debug_print ("copy_process: [5] Check signature.\n");
-    //printf ("copy_process: [5] Check signature.\n");
+    debug_print("copy_process: [5] Check signature\n");
+    //printf ("copy_process: [5] Check signature\n");
 
 // #bugbug
 // O processo init deve ter suas proprias tabelas de paginas.
 // checar um endereço usando a tabela de paginas do kernel
 // esta errado.
-
-    Status = (int) fsCheckELFFile( (unsigned long) child_process->Image );
+    unsigned long image_va = (unsigned long) child_process->Image;
+    Status = (int) fsCheckELFFile(image_va);
     if (Status < 0){
-        debug_print ("copy_process: [FAIL] ELF fail\n");
-        printf      ("copy_process: [FAIL] ELF fail\n");
+        debug_print("copy_process: ELF header\n");
+        printf     ("copy_process: ELF header\n");
         goto fail;
     }
 
@@ -698,17 +671,15 @@ do_clone:
 // Checando as tabelas principais novamente.
 // Isso foi obtido pela rotina de clonagem de processo,
 // juntamente com seu endereço físico.
-
-    if( (void*) child_process->pml4_VA == NULL ){
+    if ((void*) child_process->pml4_VA == NULL){
         panic("copy_process: [2nd time] child_process->pml4_VA\n");
     }
-    if( (void*) child_process->pdpt0_VA == NULL ){
+    if ((void*) child_process->pdpt0_VA == NULL){
         panic("copy_process: [2nd time] child_process->pdpt0_VA\n");
     }
-    if( (void*) child_process->pd0_VA == NULL ){
+    if ((void*) child_process->pd0_VA == NULL){
         panic("copy_process: [2nd time] child_process->pd0_VA\n");
     }
-
 
 //
 // Breakpoint
@@ -720,9 +691,9 @@ do_clone:
 
     //debug_print ("copy_process:  This is a work in progress\n");
     //     printf ("copy_process:  This is a work in progress\n");
-    debug_print ("copy_process: Calling CreateAndIntallPageTable \n");
-    //printf      ("copy_process: Calling CreateAndIntallPageTable :) \n");
-    //panic       ("copy_process: [Breakpoint] CreateAndIntallPageTable \n");
+    debug_print("copy_process: Calling CreateAndIntallPageTable\n");
+    //printf   ("copy_process: Calling CreateAndIntallPageTable :)\n");
+    //panic    ("copy_process: [Breakpoint] CreateAndIntallPageTable\n");
 
 //
 // pt
@@ -746,7 +717,6 @@ do_clone:
     //refresh_screen();
     //return 0;
 
-
 //
 // BUG BUG BUG BUG
 //
@@ -754,7 +724,6 @@ do_clone:
 // #bugbug
 // Algo está falhando nessa hora em que estamos criando a 
 // pagetable para a imagem do processo.
-
 
     /*
     // See: pages.c
@@ -773,24 +742,21 @@ do_clone:
     }
     */
 
-
 //
 // Page table
 //
 
 // Alocando um endereço virtual onde 
 // criaremos nossa pagetable.
-
     unsigned long ptVA = (unsigned long) get_table_pointer_va();
     if (ptVA == 0){
-        panic ("copy_process: [FAIL] ptVA\n");
+        panic("copy_process: [FAIL] ptVA\n");
     }
-
+// Get the physical address.
     unsigned long ptPA = 
         (unsigned long) virtual_to_physical ( 
                             ptVA, 
                             gKernelPML4Address ); 
-
 
 // Vamos mapear uma região de memória 
 // preenchendo a nossa page table recem criada.
@@ -801,16 +767,17 @@ do_clone:
 // determinada entrada no diretório de páginas.
 // Antes vamos clonar o diretório de páginas do kernel.
 
-    child_process->pd0_VA = (unsigned long) CloneKernelPD0();
-    child_process->pd0_PA = (unsigned long) virtual_to_physical ( 
-                                child_process->pd0_VA, 
-                                gKernelPML4Address ); 
+    child_process->pd0_VA = 
+        (unsigned long) CloneKernelPD0();
+    child_process->pd0_PA = 
+        (unsigned long) virtual_to_physical ( 
+                            child_process->pd0_VA, 
+                            gKernelPML4Address ); 
 
-    if(child_process->pd0_VA==0)
+    if (child_process->pd0_VA == 0)
         panic("copy_process: child_process->pd0_VA==0\n");
-    if(child_process->pd0_PA==0)
+    if (child_process->pd0_PA == 0)
         panic("copy_process: child_process->pd0_PA==0\n");
-
 
 // The va for the base of the image. 0x200000.
 // #bugbug:
@@ -839,21 +806,21 @@ do_clone:
         (unsigned long) child_process->ImagePA,  // Region 2mb pa.
         (unsigned long) __flags );               // flags.
 
-
-    // Image base va.
+// Image base va.
     child_process->Image = (unsigned long) __image_va; 
 
 // Clonando o pdpt0 do kernel.
-    child_process->pdpt0_VA = (unsigned long) CloneKernelPDPT0();
-    child_process->pdpt0_PA = (unsigned long) virtual_to_physical ( 
-                                  child_process->pdpt0_VA, 
-                                  gKernelPML4Address ); 
+    child_process->pdpt0_VA = 
+        (unsigned long) CloneKernelPDPT0();
+    child_process->pdpt0_PA = 
+        (unsigned long) virtual_to_physical ( 
+                            child_process->pdpt0_VA, 
+                            gKernelPML4Address ); 
 
-    if(child_process->pdpt0_VA==0)
+    if (child_process->pdpt0_VA == 0)
         panic("copy_process: child_process->pdpt0_VA==0\n");
-    if(child_process->pdpt0_PA==0)
+    if (child_process->pdpt0_PA == 0)
         panic("copy_process: child_process->pdpt0_PA==0\n");
-
 
     //#debug
     //printf (" :) \n");
@@ -917,11 +884,14 @@ do_clone:
     child_thread->context.rip = 
         (unsigned long) __image_entrypoint_va;
 
-// Process name.
-    strcpy ( child_process->__processname, (const char *) filename );   
-    //child_process->processName_len = (size_t) strlen ( (const char *) filename );
-    child_process->processName_len = 
-        (size_t) sizeof(child_process->__processname);
+// Process name
+    memset(child_process->__processname, 0, 64);
+    size_t __NameSize = sizeof(filename);
+    if (__NameSize >= 64){
+        panic("clone_process: __NameSize\n");
+    }
+    strcpy( child_process->__processname, (const char *) filename );   
+    child_process->processName_len = (size_t) __NameSize;
 
     //#debug
     //ok
@@ -946,10 +916,13 @@ do_clone:
 // Isso ajudará a reorganizarmos essa rotina.
 
 // #debug
-    debug_print ("copy_process: [5] Done\n");
+    debug_print("copy_process: [5] Done\n");
     //debug_print ("----------------------\n");
     //printf ("copy_process: [5] Done\n");
 
+
+// #todo
+// We don't need this anymore.
     invalidate_screen();
     //refresh_screen();
 
@@ -1026,7 +999,7 @@ do_clone:
 // Change the state to standby.
 // This thread is gonna run in the next taskswitch.
 
-    SelectForExecution (child_thread);  // :)
+    SelectForExecution(child_thread);  // :)
 
 // Current thread
 // the parent thread.

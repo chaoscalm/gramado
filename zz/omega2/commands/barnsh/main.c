@@ -374,6 +374,23 @@ int main(int argc, char *argv[])
 
     stdout = stderr;
 
+
+    int connector0_fd = 0;
+    int connector1_fd = 0;
+
+    int UseConnectors=TRUE;
+    if (UseConnectors == TRUE){
+    connector0_fd = (int) sc82(902,0,0,0);
+    //connector1_fd = (int) sc82(902,1,0,0);
+    //#debug
+    //printf("terminal.bin: connector0_fd %d | connector1_fd %d \n",
+    //    connector0_fd, connector1_fd);
+    //while(1){}
+    // The shell is writing on connector 0,
+    // the same connector the terminal is reading from.
+     stdout->_file = (int) connector0_fd;
+    }
+
     doLF();
     printf("shell.bin: argc={%d} \n",argc);
     if (argc>0){

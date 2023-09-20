@@ -5,9 +5,6 @@
 #include <kernel.h>
 
 
-
-
-
 // Canonical:
 // The list of the main directories in the system.
 // These are the first directories searched when
@@ -2251,8 +2248,14 @@ int sys_sleep_if_socket_is_empty(int fd)
 // Get free slots in the file_table[].
 int get_free_slots_in_the_file_table(void)
 {
+// Called by kstdio.c when creating streams.
+
     file *tmp;
     register int i=0;
+
+    if (FileTableInfo.initialized != TRUE){
+        panic("get_free_slots_in_the_file_table: FileTableInfo not initialized\n");
+    }
 
     for (i=0; i<NUMBER_OF_FILES; i++)
     {
@@ -5180,7 +5183,7 @@ int sys_create_empty_file(char *file_name)
 
 // 0x20 = file.
 // See: write.c
-    printf ("0x20 \n");
+    //printf ("0x20 \n");
     __ret = 
         (int) fsSaveFile ( 
                   VOLUME1_FAT_ADDRESS, 
@@ -5234,7 +5237,7 @@ int sys_create_empty_directory(char *dir_name)
 
 // See: write.c
 // 0x10 = directory. 
-    printf ("0x10 \n");
+    //printf ("0x10 \n");
     __ret = 
         (int) fsSaveFile ( 
                   VOLUME1_FAT_ADDRESS, 
