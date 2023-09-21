@@ -72,21 +72,27 @@ LDFLAGS := -m elf_x86_64 -s -x -static
 
 # Everything is a file.
 OBJS = globals.o \
+mmsize.o \
+mmusage.o \
 mm.o \
 mminfo.o \
 mmpool.o \
 pages.o \
-mmrt.o    
+mmrt.o \
+mmft.o    
 
 
 all:
 	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
-	$(CC) -c mm.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mm.o
-	$(CC) -c mminfo.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
-	$(CC) -c mmpool.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
-	$(CC) -c pages.c   $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
-	$(CC) -c mmrt.c    $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
 
+	$(CC) -c mmsize.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmsize.o
+	$(CC) -c mmusage.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mmusage.o
+	$(CC) -c mm.c       $(KERNEL_INCLUDE) $(CFLAGS) -o mm.o
+	$(CC) -c mminfo.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
+	$(CC) -c mmpool.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
+	$(CC) -c pages.c    $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
+	$(CC) -c mmrt.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
+	$(CC) -c mmft.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmft.o
 
 # link
 	$(LD) -r -o ar_mm.o $(OBJS)

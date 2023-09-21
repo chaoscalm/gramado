@@ -26,7 +26,6 @@ int logoffStatus=0;           //Logoff status.
 int userenvironmentStatus=0;  //User environment status.
 
 // Contagens de ambientes;
-int rooms_count=0;
 int desktops_count=0;
 
 // draw char support

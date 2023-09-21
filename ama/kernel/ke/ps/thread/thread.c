@@ -838,7 +838,6 @@ int thread_profiler(int service)
 // The second one will setup all the machine dependent elements.
 
 struct thread_d *create_thread ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long init_rip, 
     unsigned long init_stack, 
@@ -865,9 +864,6 @@ struct thread_d *create_thread (
 //======================================
 // check parameters.
 
-    if ((void*) room == NULL){
-        debug_print ("create_thread: room parameter\n");
-    }
     if ((void*) desktop == NULL){
         debug_print ("create_thread: desktop parameter\n");
     }
@@ -992,7 +988,6 @@ struct thread_d *create_thread (
 // Include these element into the thread structure.
 
     //Thread->usession = Process->usession;
-    //Thread->room     = Process->room;
     //Thread->desktop  = Process->desktop;
 
 // ====
@@ -1374,7 +1369,7 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
     //char new_name[32];
 
 // IN: 
-// room, desktop, window,
+//  desktop, window,
 // initial eip, initial stack, 
 // pid, thread name.
 
@@ -1426,7 +1421,6 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
     
     clone = 
         (struct thread_d *) create_thread ( 
-                                NULL, 
                                 NULL,  
                                 0,  // initial rip 
                                 0,  // initial rsp

@@ -100,7 +100,6 @@ unsigned long sys_get_system_metrics(int n)
 // Only ring3 for now.
 // OUT: ?
 void *sys_create_process ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long res1,          //nothing
     unsigned long priority, 
@@ -187,7 +186,6 @@ void *sys_create_process (
 
     new = 
         (void *) create_process ( 
-                     NULL, 
                      NULL,  
                      (unsigned long) CONTROLTHREAD_BASE, 
                      PRIORITY_NORMAL_THRESHOLD, 
@@ -230,7 +228,6 @@ fail:
 // Enviar os argumentos via buffer.
 
 void *sys_create_thread ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long init_rip, 
     unsigned long priority, 
@@ -270,7 +267,6 @@ void *sys_create_thread (
     
     Thread = 
         (struct thread_d *) create_thread ( 
-                                room, 
                                 desktop,  
                                 init_rip, 
                                 priority, 

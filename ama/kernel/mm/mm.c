@@ -56,17 +56,6 @@ unsigned long g_kernel_paged_memory=0;
 unsigned long g_kernel_nonpaged_memory=0;
 
 
-// Salva o tipo de sistema baseado no tamanho da memória.
-// see: x64mm.h
-int g_mm_system_type = stNull;
-
-
-// Frametable struct.
-// see: x64mm.h
-struct frame_table_d  FT;
-
-
-
 // --------------------------------
 struct kernel_heap_d 
 {
@@ -102,56 +91,8 @@ static int mmblockCount=0;
 
 unsigned long mmblockList[MMBLOCK_COUNT_MAX];  
 
-//
-// Memory size support.
-//
-
-//base     = base memory retornada pelo cmos
-//other    = (1MB - base). (Shadow memory = 384 KB)
-//extended = retornada pelo cmos.
-//total    = base + other + extended.
-// alias
-unsigned long memorysizeBaseMemoryViaCMOS=0;
-
-unsigned long memorysizeBaseMemory=0;
-unsigned long memorysizeOtherMemory=0;
-unsigned long memorysizeExtendedMemory=0;
-unsigned long memorysizeTotal=0;
-
-unsigned long memorysizeInstalledPhysicalMemory=0;
-unsigned long memorysizeTotalPhysicalMemory=0;
-unsigned long memorysizeAvailablePhysicalMemory=0;
-// Used
-unsigned long memorysizeUsed=0;
-// Free
-unsigned long memorysizeFree=0;
-
-//========================================================
-// Used memory:
-// Estamos medindo o uso de memória física.
-// Lembrando que a mesma região de memória física
-// pode ser mapeada mais de uma vez.
-// #todo #bugbug
-// Precisamos checar corretamente qual é o endereço físico
-// de cada uma dessas regiões e suas sobreposições.
-// size=2MB
-// see: mminit.c
-unsigned long mm_used_ring0_area=0;
-unsigned long mm_used_ring3_area=0;
-unsigned long mm_used_kernelimage=0;
-unsigned long mm_used_backbuffer=0;
-unsigned long mm_used_pagedpool=0;
-unsigned long mm_used_heappool=0;
-unsigned long mm_used_extraheap1=0;
-unsigned long mm_used_extraheap2=0;
-unsigned long mm_used_extraheap3=0;
-unsigned long mm_used_frame_table=0;
-// start = ?? size = 2MB
-unsigned long mm_used_lfb=0; 
-
 // Endereço da última estrutura alocada.
 static unsigned long mm_prev_pointer=0;
-
 
 // ----------------------------
 
@@ -399,71 +340,10 @@ int mmInitialize(int phase)
 
         // ...
 
-        //
-        // MEMORY SIZES
-        //
-
-        // Get memory sizes via RTC. (KB)
-        // base, other, extended.
-        // RTC só consegue perceber 64MB de memória.
-        memorysizeBaseMemoryViaCMOS = (unsigned long) rtcGetBaseMemory();
-        memorysizeBaseMemory = 
-            (unsigned long) memorysizeBaseMemoryViaCMOS;
-        memorysizeOtherMemory = 
-            (unsigned long) (1024 - memorysizeBaseMemory);
-
-        // #todo
-        // New we have a new value from boot.
-        // We're gonna use this new value instead the one from cmos.
-
-        unsigned long __total_memory_in_kb = (blSavedLastValidAddress/0x400);
-
-        // extended memory from cmos.
-        //memorysizeExtendedMemory = (unsigned long) rtcGetExtendedMemory(); 
-        memorysizeExtendedMemory =  
-            (unsigned long) ( 
-            __total_memory_in_kb - 
-            memorysizeBaseMemory - 
-            memorysizeOtherMemory 
-            );
-
-        // Size in KB.
-        memorysizeTotal = 
-            (unsigned long) ( 
-            memorysizeBaseMemory + 
-            memorysizeOtherMemory + 
-            memorysizeExtendedMemory 
-            );
-
-        // #IMPORTANTE 
-        // Determinar o tipo de sistema de memória.
-        // small   pelo menos 32mb
-        // medium  pelo menos 64mb
-        // large   pelo menos 128mb
-
-        // 0MB
-        // #atenção 
-        // Nesse caso devemos prosseguir e testar as outras opções.
-        if (memorysizeTotal >= 0){
-            g_mm_system_type = stNull;
-            debug_print ("mmInit: stNull\n");
-        }
-
-        // Small. (32MB).
-        if (memorysizeTotal >= SMALLSYSTEM_SIZE_KB){
-            g_mm_system_type = stSmallSystem;
-            debug_print ("mmInitialize: stSmallSystem\n");
-        }
-        // Medium. (64MB).
-        if (memorysizeTotal >= MEDIUMSYSTEM_SIZE_KB){
-            g_mm_system_type = stMediumSystem;
-            debug_print ("mmInitialize: stMediumSystem\n");
-        }
-        // Large. (128MB).
-        if (memorysizeTotal >= LARGESYSTEM_SIZE_KB){
-            g_mm_system_type = stLargeSystem;
-            debug_print ("mmInitialize: stLargeSystem\n");
-        }
+        // Initialize the size of the physical memory
+        // and the size of the system based on the memory size.
+        // see: mmsize.c
+        mmsize_initialize();
 
         // #debug
         //while(1){}

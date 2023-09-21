@@ -101,7 +101,6 @@ typedef enum {
     ObjectTypeUserInfo,           // userinfo ??
     ObjectTypeGroup,              // user group
     ObjectTypeUserSession,        // User session
-    ObjectTypeRoom,               // room = (window station), desktop pool.
     ObjectTypeDesktop,            // desktop.
     ObjectTypeToken,              // Token de acesso à objetos. (access token)
 

@@ -310,7 +310,6 @@ struct gui_d
 
 // Security
     struct usession_d  *CurrentUserSession;
-    struct room_d        *CurrentRoom;  // (Window station)
     struct desktop_d   *CurrentDesktop;
 };
 extern struct gui_d  *gui; 

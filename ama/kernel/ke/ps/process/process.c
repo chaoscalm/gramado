@@ -509,10 +509,9 @@ copy_process_struct(
     Process2->rflags_iopl = Process1->rflags_iopl;
 
 // Security: 
-// usersession, room and desktop.
+// usersession and desktop.
 
     Process2->usession = Process1->usession;
-    Process2->room     = Process1->room;
     Process2->desktop  = Process1->desktop;
 
 // Absolute pathname and relative pathname. 
@@ -993,7 +992,6 @@ void ps_initialize_process_common_elements(struct process_d *p)
 
 // Create process
 struct process_d *create_process ( 
-    struct room_d    *room,
     struct desktop_d *desktop,
     unsigned long base_address, 
     unsigned long priority, 
@@ -1019,9 +1017,6 @@ struct process_d *create_process (
 //=================================
 // check parameters
 
-    if( (void*) room == NULL ){
-        //debug_print ("create_process: [FIXME] room parameter is NULL\n");
-    }
     if( (void*) desktop == NULL ){
         //debug_print ("create_process: [FIXME] desktop parameter is NULL\n");
     }
@@ -1444,7 +1439,7 @@ struct process_d *create_process (
     //Process->event
 
 // #importante
-// user session, room and desktop.
+// user session and desktop.
 // #bugbug: 
 // Nao temos informaçao sobre a user session, 
 // devemos pegar a estrutura de current user session. 
@@ -1453,7 +1448,6 @@ struct process_d *create_process (
 
 // Security
     Process->usession = CurrentUserSession;  // Current.
-    Process->room     = room;                // Passado via argumento.
     Process->desktop  = desktop;             // Passado via argumento.
 // Navigation
     Process->prev = NULL; 

@@ -262,9 +262,9 @@
 #define SYS_UPDATEUSERINFO     155
 #define SYS_SHOWUSERINFO       156
 
-// Security (User session, room, desktop)
+// Security (User session desktop)
 #define SYS_GETCURRENTUSERSESSION    157 // user session
-#define SYS_GETCURRENTWINDOWSTATION  158 // room (window station)
+// 158 - free
 #define SYS_GETCURRENTDESKTOP        159 // desktop
 
 // ------------

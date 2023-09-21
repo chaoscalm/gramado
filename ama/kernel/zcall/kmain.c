@@ -332,9 +332,7 @@ void init_globals(void)
     current_group = 0;
 
 // Security layers.
-// User session, room(window station), desktop.
     current_usersession = (int) 0;
-    current_room = (int) 0;
     current_desktop = (int) 0;
 
 // Process

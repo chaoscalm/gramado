@@ -261,7 +261,6 @@ static int I_x64CreateInitialProcess(void)
 
     InitProcess = 
         (void *) create_process( 
-                     NULL, 
                      NULL,  
                      (unsigned long) CONTROLTHREAD_BASE,  //0x00200000 
                      BasePriority, 
@@ -804,14 +803,13 @@ static int I_x64CreateKernelProcess(void)
 //
 
 // IN: 
-// Room, Desktop, Window
+// Desktop, Window
 // base address, priority, ppid, name, iopl, page directory address.
 // See: ps/action/process.c
 // KERNELIMAGE_VA
  
     KernelProcess = 
         (void *) create_process( 
-                     NULL, 
                      NULL,  
                      (unsigned long) 0x30000000, 
                      BasePriority, 

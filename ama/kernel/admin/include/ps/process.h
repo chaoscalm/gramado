@@ -697,10 +697,9 @@ struct process_d
 // == Security ============================
 //
 
-// User session, room (window station), desktop.
+// User session,  desktop.
 
     struct usession_d  *usession;  //user session
-    struct room_d      *room;      //room (Window Station) do processo.  
     struct desktop_d   *desktop;   //Desktop do processo.        
 
 // ============================================
@@ -908,7 +907,6 @@ void close_all_processes(void);
 void ps_initialize_process_common_elements( struct process_d *p );
     
 struct process_d *create_process ( 
-    struct room_d    *room,
     struct desktop_d *desktop,
     unsigned long base_address, 
     unsigned long priority, 

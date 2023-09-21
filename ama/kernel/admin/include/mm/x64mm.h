@@ -696,75 +696,6 @@ extern unsigned long g_kernel_nonpaged_memory;
 // + Livre.
 // -------------------------------------
 
-
-//
-// System memory type.
-//
-
-// Tipo de sistema baseado no tamanho da memoria.
-typedef enum {
-    stNull,
-    stSmallSystem,
-    stMediumSystem,
-    stLargeSystem,
-}mm_system_type_t;
-
-// Salva o tipo de sistema baseado no tamanho da memória.
-// see: mm.c
-extern int g_mm_system_type;
-
-// Memory size support.
-// see: mminit.c
-
-//base     = base memory retornada pelo cmos
-//other    = (1MB - base). (Shadow memory = 384 KB)
-//extended = retornada pelo cmos.
-//total    = base + other + extended.
-
-// alias
-extern unsigned long memorysizeBaseMemoryViaCMOS;
-
-extern unsigned long memorysizeBaseMemory;
-extern unsigned long memorysizeOtherMemory;
-extern unsigned long memorysizeExtendedMemory;
-extern unsigned long memorysizeTotal;
-
-extern unsigned long memorysizeInstalledPhysicalMemory;
-
-extern unsigned long memorysizeTotalPhysicalMemory;
-extern unsigned long memorysizeAvailablePhysicalMemory;
-
-// Used
-extern unsigned long memorysizeUsed;
-
-// Free
-extern unsigned long memorysizeFree;
-
-
-//========================================================
-// Used memory:
-// Estamos medindo o uso de memória física.
-// Lembrando que a mesma região de memória física
-// pode ser mapeada mais de uma vez.
-// #todo #bugbug
-// Precisamos checar corretamente qual é o endereço físico
-// de cada uma dessas regiões e suas sobreposições.
-// see: mminit.c
-extern unsigned long mm_used_ring0_area;  // start = 0 size = 4MB
-extern unsigned long mm_used_ring3_area;  // start = 0x400000 size = 4MB
-extern unsigned long mm_used_kernelimage;
-extern unsigned long mm_used_backbuffer;  // start = 0x800000 size = 4MB
-extern unsigned long mm_used_pagedpool;   // start = 0xC00000 size = 4MB  
-extern unsigned long mm_used_heappool;    // start = 0x01000000 size = 4MB   
-extern unsigned long mm_used_extraheap1;  // start = (0x01000000 + 0x400000) size = 4MB
-extern unsigned long mm_used_extraheap2;  // start = (0x01000000 + 0x800000) size = 4MB
-extern unsigned long mm_used_extraheap3;  // start = (0x01000000 + 0xC00000) size = 4MB
-extern unsigned long mm_used_frame_table;
-
-// start = ?? size = 2MB
-extern unsigned long mm_used_lfb; 
-
-
 // ======================================================
 
 // Frame structure.
@@ -799,69 +730,6 @@ struct frame_d
     //struct frame_d *next;
 };
 
-
-// FT:
-// Frame table. 
-// Uma região grande da memória física que será usada para
-// pegar frames novos, jamais alocados.
-// Ela deve começar lego em seguida da última região
-// mapeada pela rotina mmSetupPaging e 
-// terminar no fim da memória física
-// indicada pelo bootblock.
-
-#define FT_NUMBER_OF_SYSTEM_FRAMES    512
-#define FT_NUMBER_OF_USER_FRAMES      512
-
-// A área total de frames não pode conter menos frames que isso.
-#define FT_TOTAL_FRAMES \
-    (FT_NUMBER_OF_SYSTEM_FRAMES + FT_NUMBER_OF_USER_FRAMES)
-
-// Gerencia a área alocável total.
-struct frame_table_d 
-{
-
-// Flags que indica a validade da estrutura
-// e o status da inicialização da estrutura.
-    int used;
-    int magic;
-    int initialized;
-
-// no available ram
-
-// This is the address where the table starts.
-// It represent the point after the last mapped address.
-    unsigned long start_pa;
-// This is the address where the table ends.
-// It represents the last valid address of the RAM memory.
-    unsigned long end_pa;
-
-    unsigned long size_in_bytes;
-    unsigned long size_in_kb;
-    unsigned long size_in_mb;
-
-// Quantidade total de frames possíveis 
-// nessa área alocável.
-    unsigned long size_in_frames;
-
-// used frames
-
-    unsigned long number_of_system_frames;
-    struct frame_d system_frames[FT_NUMBER_OF_SYSTEM_FRAMES];
-
-    unsigned long number_of_user_frames;
-    struct frame_d user_frames[FT_NUMBER_OF_USER_FRAMES];
-
-// Número de frames gerenciados por essa estrutura.
-    unsigned long number_of_used_frames;
-// Número de frames que sobraram na área alocável
-// e que poder ser usados por outro componente do sistema.
-    unsigned long number_of_reserved_frames;
-};
-
-// Frametable struct.
-// see: mm.c
-extern struct frame_table_d  FT;
-
 // ===================================================
 
 // O armazenamento secundário pode ser um arquivo
@@ -885,28 +753,6 @@ extern struct frame_table_d  FT;
 
 // Maybe we can have more lists here.
 // ...
-
-
-// Tamanho dado em bytes.
-#define SMALLSYSTEM_SIZE  ( 32*1024*1024)
-#define MEDIUMSYSTEM_SIZE ( 64*1024*1024)
-#define LARGESYSTEM_SIZE  (128*1024*1024)
-
-// Tamanho do sistema, dado em KB.
-#define SMALLSYSTEM_SIZE_KB  ( 32*1024)
-#define MEDIUMSYSTEM_SIZE_KB ( 64*1024)
-#define LARGESYSTEM_SIZE_KB  (128*1024)
-
-// #todo
-// Tamanho do sistema, dado em MB.
-#define SMALLSYSTEM_SIZE_MB  ( 32)
-#define MEDIUMSYSTEM_SIZE_MB ( 64)
-#define LARGESYSTEM_SIZE_MB  (128)
-
-// Tamanho so sitema, dado em quantidade de páginas de 4KB.
-#define SMALLSYSTEM_SIZE_PAGES  ( ( 32*1024*1024) / 4096 )
-#define MEDIUMSYSTEM_SIZE_PAGES ( ( 64*1024*1024) / 4096 )
-#define LARGESYSTEM_SIZE_PAGES  ( (128*1024*1024) / 4096 )
 
 
 /*
@@ -985,14 +831,6 @@ void *CloneKernelPDPT0(void);
 void *CloneKernelPD0(void);
 void *CloneKernelPML4 (void);
 void *clone_pml4 ( unsigned long pml4_va );
-
-//
-// Frame table support.
-//
-
-int I_initialize_frame_table(void);
-unsigned long mmGetFTStartPA(void);
-unsigned long mmGetFTEndPA(void);
 
 int isValidPageStruct(struct page_d *p);
 void freePage (struct page_d *p);

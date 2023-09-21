@@ -112,6 +112,7 @@
 //
 
 // Memory management.
+#include "mm/mmsize.h"
 #include "mm/x64gpa.h"
 #include "mm/x64gva.h"
 #include "mm/gentry.h"
@@ -119,7 +120,9 @@
 #include "mm/memmap.h" 
 #include "mm/intelmm.h"
 #include "mm/mmblock.h"
+#include "mm/mmusage.h"
 #include "mm/x64mm.h"
+#include "mm/mmft.h"
 #include "mm/mmglobal.h"  // Deve ficar mais acima.
 #include "mm/heap.h"      // Heap pointer support.
 #include "mm/aspace.h"    // Address Space, (data base account).
@@ -309,20 +312,7 @@
 // user/
 //
 
-// SM - Security Manager.
-// Autentication, security.
-#include "user/security/usession.h"
-#include "user/security/room.h"       // (window station)
-#include "user/security/desktop.h"
-
-// SM - Session Manager.
-#include "user/session/logon.h"
-#include "user/session/logoff.h"
-
-// User
 #include "user/user.h"
-#include "user/security.h"
-
 
 #include "zcall/overall/reboot.h"
 #include "zcall/overall/mod.h"

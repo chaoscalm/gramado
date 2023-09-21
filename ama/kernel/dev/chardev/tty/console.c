@@ -530,7 +530,6 @@ console_init_virtual_console(
     // Nao sei se essas estruturas estao prontas para isso nesse momento
     // ou se esses ponteiros sao nulos.
     CONSOLE_TTYS[ConsoleIndex].user_session = NULL;  // CurrentUserSession;
-    CONSOLE_TTYS[ConsoleIndex].room         = NULL;  // CurrentRoom;
     CONSOLE_TTYS[ConsoleIndex].desktop      = NULL;  // CurrentDesktop;
 
     // file pointer
@@ -1732,7 +1731,6 @@ void __test_process(void)
 // See: sys.c
     p = (void*) sys_create_process ( 
             NULL, 
-            NULL, 
             0,                      // Reserved
             PRIORITY_NORMAL_THRESHOLD,          // priority
             get_current_process(),  // ppid
@@ -1769,7 +1767,6 @@ void __test_thread(void)
 
     t = 
         (struct thread_d *) create_thread ( 
-                                NULL,
                                 NULL,
                                 __dummy_thread,    // init_rip, 
                                 PRIORITY_NORMAL_THRESHOLD, 

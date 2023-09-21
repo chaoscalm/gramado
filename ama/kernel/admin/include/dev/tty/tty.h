@@ -203,9 +203,8 @@ struct tty_d
 // What is the user logged in this terminal?
 // see: user.h
     struct user_info_d *user_info;
-// Security: user session, room, desktop.
+// Security: user session, desktop.
     struct usession_d  *user_session;
-    struct room_d      *room;
     struct desktop_d   *desktop;
 // ===================================================
 

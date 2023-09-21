@@ -612,7 +612,6 @@ struct thread_d
 // para privilégios de acesso.
 
     struct usession_d *usession;  // user session.
-    struct room_d     *room;      // room. A kind of 'Window Station'.
     struct desktop_d  *desktop;   // desktop.
 
 // Callback:
@@ -823,7 +822,6 @@ unlink_two_threads(
 struct thread_d *copy_thread_struct(struct thread_d *thread);
 
 struct thread_d *create_thread ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long init_rip, 
     unsigned long init_stack, 

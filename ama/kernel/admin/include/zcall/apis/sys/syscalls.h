@@ -50,7 +50,6 @@ unsigned long sys_get_system_metrics(int n);
 
 /* zero/sys/sys.c */
 void *sys_create_process ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long res1,          //nothing
     unsigned long priority, 
@@ -58,9 +57,8 @@ void *sys_create_process (
     char *name,
     unsigned long iopl );
 
-/* zero/sys/sys.c */
+/* sys.c */
 void *sys_create_thread ( 
-    struct room_d     *room,
     struct desktop_d  *desktop,
     unsigned long init_rip, 
     unsigned long priority, 

@@ -94,11 +94,8 @@ struct virtual_console_login_d
     struct user_info_d *user_info;
     
     struct usession_d *usession;
-    struct room_d     *room;     //window station
     struct desktop_d  *desktop;
 };
-
-
 
 //
 // == prototypes =================

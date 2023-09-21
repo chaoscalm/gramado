@@ -1,8 +1,136 @@
 
 // user.h
 
+// userinfo >> user session
+
 #ifndef ____USER_H
 #define ____USER_H    1
+
+
+/*
+ * usession_d:
+ *     The user section structure. 
+ *     (u.session)
+ */ 
+struct usession_d
+{
+    object_type_t   objectType;
+    object_class_t  objectClass;
+    struct object_d  *object;
+// SID - Session ID.
+    int id;
+    int used;
+    int magic;
+// The user in this session.
+    uid_t uid;
+// Initial process for this session.
+    pid_t initial_pid;
+// The session leader.
+// The leader process for this process.
+// The leader has some privileges in its session.
+    pid_t leader_pid;
+// #todo
+// All the process in this group will be killed when the
+// session ends.
+    // gid_t gid;
+    int initialized;
+// ??
+// What is the virtual terminal used by this session?
+// What is the virtual console used by this session?
+// This session has a terminal or console?
+    //int tty;
+
+// =========================================================
+    unsigned long BeginTime;
+    unsigned long EndTime;
+//Listas encadeadas de ponteiros para pool.
+//ou vetores de ponteiros para pools.
+// Início da lista encadeada de ponteiros para pools.
+    //unsigned long *dpHead;     //Desktop Pools.(wstations).
+    //unsigned long *opHead;     //Object Pools.
+    //unsigned long *pdpHead;    //Page Directory Pools. (page directory lists) 
+// Navigation
+    struct usession_d *next;
+};
+// #todo
+// Use external reference here.
+struct usession_d *usession0;
+struct usession_d *CurrentUserSession;
+// List
+unsigned long usessionList[USER_SESSION_COUNT_MAX];
+
+//==============================================================
+
+struct desktop_d
+{
+    object_type_t   objectType;
+    object_class_t  objectClass;
+// DID - Desktop ID.
+    int id;
+    int used;
+    int magic;
+    uid_t uid;
+// usando o mesmo esquema do usuário.
+    char __name[64];
+    int name_lenght;
+
+// Main PIDs
+    pid_t __init_process_pid;     // init process
+    pid_t __display_server_pid;   // display server
+    pid_t __network_server_pid;   // network server
+
+// Isso limita as quantidades que podem ser criadas em um desktop.
+// permitindo o fácil gerenciamento de drivers em desktops específicos.
+// Pois alguns desktops podem ter seus próprios gerenciadores de servidores.
+// Como o caso do gramado core. Que fica a cargo apenas do kernel 
+// gerenciar esses servidores especiais.
+	unsigned int drivers_max;
+	unsigned int servers_max;
+	unsigned int apps_max;
+
+// Heap do desktop.
+    //struct heap_d  *heap;
+
+// List of overlapped windows.
+// Only application windows,
+// that one with a frame.
+    int lTail;
+    int lHead;
+    unsigned long list[8];
+
+// Navigation
+    struct desktop_d *next;
+};
+extern struct desktop_d  *CurrentDesktop;
+// List
+unsigned long desktopList[DESKTOP_COUNT_MAX];
+
+//
+// == prototypes ===========================
+//
+// Initialization
+void init_desktop_list (void);
+void init_desktop (void);
+void set_current_desktop ( struct desktop_d *desktop );
+void *get_current_desktop (void);
+int get_current_desktop_id (void);
+int RegisterDesktop (struct desktop_d *d);
+
+void *CreateDesktop(void);
+
+// --------------------------------------------
+
+int init_logon_manager (void);
+int init_logoff (int mode);
+int register_logoff_process ( pid_t pid );
+
+//
+// == Security ==========================================
+//
+
+extern int current_usersession;
+extern int current_desktop; 
+
 
 /*
  Um usuário só pode rodar o servidor de recursos gráficos se ele estiver no modo terminal.
@@ -33,6 +161,7 @@
 #define USER_NAME_SYSTEM  "system" 
 
 
+
 //User types.  
 typedef enum {
     USER_TYPE_NULL,            // 0
@@ -40,138 +169,6 @@ typedef enum {
     USER_TYPE_NONINTERACTIVE,  // 2 ex: 'system'
     // ...
 }user_type_t;
-
-
-/*
-    #importante:  
-	User Display Modes:
-    Modos de display para interação com o usuário.
-	>>> NÃO se refere aos modos de display da placa de vídeo.
-	Pois aqui, tanto o modo terminal, quanto graphical estão usando
-	o modo gráfico da placa de vídeo.
-	O modo texto da placa de vídeo só é usado no boot.
- */
-
-typedef enum {
-    USER_DISPLAY_MODE_NULL,
-    USER_DISPLAY_MODE_TERMINAL,     // Modo gráfico com um terminal em full screen.
-    USER_DISPLAY_MODE_GRAPHICAL    // Modo gráfico usando um servidor de recursos gráficos.
-    // ...
-}user_display_mode_t;
-
-//
-// == js-like events. ==============
-//
-
-// window events
-// #todo: move to another place.
-typedef enum {
-    WINDOW_EVENTS_NULL, 
-    WINDOW_EVENTS_ONAFTERPRINT,
-    WINDOW_EVENTS_ONBEFOREPRINT,
-    WINDOW_EVENTS_ONDEBOREUNLOAD,
-    WINDOW_EVENTS_ONERROR,
-    WINDOW_EVENTS_ONHASCHANGE,
-    WINDOW_EVENTS_ONLOAD,
-    WINDOW_EVENTS_ONMESSAGE,
-    WINDOW_EVENTS_ONOFFLINE,
-    WINDOW_EVENTS_ONPAGEHIDE,
-    WINDOW_EVENTS_ONPAGESHOW,
-    WINDOW_EVENTS_ONPOPSTATE,
-    WINDOW_EVENTS_ONREDO,
-    WINDOW_EVENTS_ONRESIZE,
-    WINDOW_EVENTS_ONSTORAGE,
-    WINDOW_EVENTS_ONUNDO,
-    WINDOW_EVENTS_ONUNLOAD,
-    // ...    
-}window_events_t; 
-
-// form events 
-// #todo: move to another place.
-typedef enum { 
-    FORM_EVENTS_NULL,
-    FORM_EVENTS_ONBLUR,
-    FORM_EVENTS_ONCHANGE,
-    FORM_EVENTS_ONCONTEXTMENU,
-    FORM_EVENTS_ONFOCUS,
-    FORM_EVENTS_ONFORMCHANGE,
-    FORM_EVENTS_ONFORMINPUT,
-    FORM_EVENTS_ONINPUT,
-    FORM_EVENTS_ONINVALID,
-    FORM_EVENTS_ONRESET,
-    FORM_EVENTS_ONSELECT,
-    FORM_EVENTS_ONSUBMIT
-    //...
-}form_events_t;  
- 
-
-
-// keybaord events. 
-// #todo: move to another place.
-typedef enum {
-    KEYBOARD_EVENTS_NULL,
-    KEYBOARD_EVENTS_ONKEYDOWN,
-    KEYBOARD_EVENTS_ONKEYPRESS,
-    KEYBOARD_EVENTS_ONKEYUP
-    //...
-}keyboard_events_t;  
- 
- 
-// mouse eventes 
-// #todo: move to another place.
-typedef enum {
-    MOUSE_EVENTS_NULL,
-    MOUSE_EVENTS_ONCLICK,
-    MOUSE_EVENTS_ONDBLCLICK,
-    MOUSE_EVENTS_ONDRAG,
-    MOUSE_EVENTS_ONDRAGEND,
-    MOUSE_EVENTS_ONDRAGENTER,
-    MOUSE_EVENTS_ONDRAGLEAVE,
-    MOUSE_EVENTS_ONDRAGOVER,
-    MOUSE_EVENTS_ONDRAGSTART,
-    MOUSE_EVENTS_ONDROP,
-    MOUSE_EVENTS_ONMOUSEDOWN,
-    MOUSE_EVENTS_ONMOUSEMOVE,
-    MOUSE_EVENTS_ONMOUSEOUT,
-    MOUSE_EVENTS_ONMOUSEOVER,
-    MOUSE_EVENTS_ONMOUSEUP,
-    MOUSE_EVENTS_ONMOUSEWHEEL,
-    MOUSE_EVENTS_ONSCROLL
-    //...
-}mouse_events_t; 
-
-
-// mouse stuff
-// #todo: move to another place.
-
-// protótipos para métodos que gerenciam eventos de janela.
-//...
-
-// protótipos para métodos que gerenciam eventos de form.
-//...
-
-// protótipos para métodos que gerenciam eventos de keyboard.
-//int onKeyDown();
-//int onKeyPress();
-//int onKeyUp();
-
-// protótipos para métodos que gerenciam eventos de mouse.
-//int onClick();
-//int onDblClick();
-//int onDrag();
-//int onDragEnd();
-//int onDragEnter();
-//int onDragLeave();
-//int onDragOver();
-//int onDragStart();
-//int onDrop();
-//int onMouseDown();
-//int onMouseMove();
-//int onMouseOut();
-//int onMouseOver();
-//int onMouseUp();
-//int onMouseWhell();
-//int onScroll();
 
 // user_info_d:
 // Estrutura para perfil de usuário do computador. 
@@ -193,12 +190,10 @@ struct user_info_d
     int initialized;
 
 // Security
-// User session, room (window station) and desktop.    
+// User session and desktop.    
 
     struct usession_d *usession;
     int usessionId;
-    struct room_d *room;
-    int roomId;
     struct desktop_d *desktop;
     int desktopId;
 

@@ -6,10 +6,8 @@
 #ifndef __DISPLAY_WS_H
 #define __DISPLAY_WS_H    1
 
-
 // Counters.
 #define USER_SESSION_COUNT_MAX  16
-#define ROOM_COUNT_MAX          16
 #define DESKTOP_COUNT_MAX       16
 
 //
@@ -136,7 +134,6 @@ extern int logonStatus;              //Logon status.
 extern int logoffStatus;             //Logoff status.
 extern int userenvironmentStatus;    //User environment status.
 // Contagens de ambientes;
-extern int rooms_count;  
 extern int desktops_count;
 
 // draw char support

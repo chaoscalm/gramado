@@ -1,8 +1,186 @@
 
-// userenv.c
+// user.c
 
 #include <kernel.h>
 
+struct desktop_d  *CurrentDesktop;
+
+int current_usersession=0;
+int current_desktop=0;
+
+//============================
+
+// init_desktop_list:
+// Inicializa o array de ponteiros de desktop.
+void init_desktop_list(void)
+{
+    register int i=0;
+    while (i<DESKTOP_COUNT_MAX){
+        desktopList[i] = 0;
+        i++; 
+    };
+}
+
+/*
+ * init_desktop:
+ *     Inicializa o desktop 0.
+ *     int ?
+ */
+void init_desktop(void)
+{
+    register int i=0;
+
+    debug_print ("init_desktop:\n");
+    //printf("init_desktop: Initializing..\n");
+
+    desktops_count = 0;
+// List
+    init_desktop_list();
+
+//
+// Struct
+//
+
+    struct desktop_d  *desktop0;
+
+// Creating the desktop0. 
+    desktop0 = (void *) kmalloc( sizeof(struct desktop_d) );
+    if ((void *) desktop0 == NULL){
+        panic ("init_desktop: desktop0\n");
+    }
+    desktop0->id = 0;
+    desktop0->used = TRUE;
+    desktop0->magic = 1234;
+
+    //todo: object
+
+    desktops_count = 1;
+
+    desktop0->lTail = 0;
+    desktop0->lHead = 0;
+    for (i=0; i<8; i++){
+        desktop0->list[i] = 0;
+    };
+
+    desktop0->__init_process_pid   = (pid_t) -1;
+    desktop0->__display_server_pid = (pid_t) -1;
+    desktop0->__network_server_pid = (pid_t) -1;
+
+    if ((void*) InitProcess != NULL)
+    {
+        if (InitProcess->magic == 1234)
+            desktop0->__init_process_pid = (pid_t) InitProcess->pid;            
+    }
+
+// Registrando na lista
+    desktopList[0] = (unsigned long) desktop0;
+
+// RegisterDesktop (desktop0); 
+    set_current_desktop(desktop0);  
+}
+
+void set_current_desktop (struct desktop_d *desktop)
+{
+    if ( (void *) desktop == NULL ){ 
+        return; 
+    }
+
+    current_desktop = (int) desktop->id;
+    CurrentDesktop = desktop;
+}
+
+void *get_current_desktop (void)
+{
+
+// Check limits.
+    if ( current_desktop < 0 || current_desktop >= DESKTOP_COUNT_MAX )
+    {
+        return NULL;
+    }
+
+    return (void *) desktopList[current_desktop];
+}
+
+int get_current_desktop_id (void)
+{
+    return (int) current_desktop;
+}
+
+/*
+ * RegisterDesktop:
+ *     Registrando um desktop numa lista de desktops.
+ *     @todo: Mudar para desktopRegisterDesktop(.). 
+ */
+
+int RegisterDesktop (struct desktop_d *d)
+{
+    int Offset = 0;
+
+    if ( (void *) d == NULL ){
+        debug_print ("RegisterDesktop: [FAIL] d\n");
+        return (int) 1;  
+    }
+
+// #bugbug: 
+// Pode aparacer um loop infinito aqui.
+// #todo: usar for.
+
+    while ( Offset < DESKTOP_COUNT_MAX )
+    {
+        if ( (void *) desktopList[Offset] == NULL )
+        {
+            desktopList[Offset] = (unsigned long) d;
+            d->id = Offset;
+            return 0;
+        }
+       Offset++;
+    };
+
+// Fail
+    return (int) 1;
+}
+
+/*
+ * CreateDesktop:
+ *     Cria um desktop em uma window station.
+ */
+void *CreateDesktop (void)
+{
+    struct desktop_d *Current;
+    struct desktop_d *Empty;
+    int i=0;
+    //... 
+
+// #todo: 
+// O usuário precisa de permissão pra criar desktops.
+    Current = (void *) kmalloc( sizeof(struct desktop_d) );
+    if ( (void *) Current == NULL ){
+        panic ("CreateDesktop: Current\n");
+    } else {
+
+        memset( Current, 0, sizeof(struct desktop_d) );
+        //continua...
+    };
+
+    while ( i < DESKTOP_COUNT_MAX )
+    {
+        Empty = (void *) desktopList[i];
+
+        if ( (void *) Empty == NULL )
+        {
+            desktopList[i] = (unsigned long) Current;
+            Current->id = i;
+            return (void *) Current;
+        }
+        i++;
+    };
+
+    return NULL;
+}
+
+
+
+//==================================
 
 // User Environment Manager (UEM)
 // Segue uma lista de operações que poderão ser realizadas para configuração
@@ -188,11 +366,9 @@ struct user_info_d *CreateUser(char *name, int type)
     }
  
 //Session.
-//room. Window Station. (Desktop pool).
 //Desktop.
 
     New->usessionId = current_usersession;
-    New->roomId     = current_room;
     New->desktopId  = current_desktop;
     
 // Inicializando a lista de objetos permitidos.
@@ -301,9 +477,8 @@ int User_initialize(void)
 
     current_user = 0;
 
-// User session, room (Window Station), desktop, 
+// User session,  desktop, 
     current_usersession  = 0;
-    current_room         = 0;
     current_desktop      = 0;
 
 // Initialize user info structure
@@ -314,15 +489,10 @@ int User_initialize(void)
 // Security
 //
 
-// Initialize User Session, room and Desktop.
+// Initialize User Session, and Desktop.
 // user section
     //printf ("User_initialize: initializing user session\n");
     //init_user_session();
-
-// room
-// initialize window station default.
-    //printf ("User_initialize: initializing room\n");   
-    //init_room_manager();
 
     // desktop
     printf ("User_initialize: initializing desktop\n");   
@@ -331,4 +501,93 @@ int User_initialize(void)
     //debug_print("User_initialize: done\n");
     return 0;
 }
+
+int init_logon_manager (void)
+{
+// #todo
+// #bugbug
+
+    debug_print("init_logon_manager: [TODO FIXME]\n");
+
+// #bugbug
+// Is it the first time? Or not?
+
+    gui = (void *) kmalloc( sizeof(struct gui_d) );
+    if ((void *) gui == NULL){
+        panic("init_logon_manager: [FAIL] gui\n");
+    }
+
+//
+// TTY
+//
+
+// tty support.
+// As mensagens do kernel precisam usar esses parametros.
+// o kernel usa a tty0.
+
+     // Limpa a lista
+     printf ("init_logon_manager: Initializing tty module\n");
+     //tty_init_module();
+
+     // Limpa a lista de terminais virtuais tamb�m.
+     printf ("init_logon_manager: Initializing vt module\n");
+     //vt_init_module();
+
+// See: userenv.c
+    User_initialize();
+
+// See: ws.h
+// hostname:Displaynumber.Screennumber
+// gramado:0.0
+
+// display and screen
+    current_display = 0;
+    current_screen  = 0;
+
+// #test
+// Mostrando as mensagens antes de pintarmos a primeira janela.
+
+    //#debug
+    //breakpoint
+    //refresh_screen();
+    //while(1){}
+
+    // ...
+
+    return 0;
+}
+
+//-------------
+
+int init_logoff (int mode)
+{
+    return 0;
+}
+
+// See: gpid.h
+int register_logoff_process (pid_t pid)
+{
+    if (pid<0 || pid >= PROCESS_COUNT_MAX ){
+        debug_print("register_logoff_process: pid fail\n");
+        return -1;
+    }
+// ??
+// Global variable.
+    if (__gpidLogoff != 0){
+        debug_print("register_logoff_process:\n");
+        return -1;
+    }
+
+    __gpidLogoff = (pid_t) pid;
+
+    return 0;
+}
+
+
+
+
+
+
+
+
 

@@ -1471,7 +1471,6 @@ void *sci0 (
             debug_print("sci0: [FIXME] SYS_CREATETHREAD\n");
             return (void *) sys_create_thread (
                                 NULL,
-                                NULL,
                                 arg2,             // init eip
                                 arg3,             // init stack
                                 current_process,  // pid
@@ -1505,7 +1504,6 @@ void *sci0 (
         case SYS_CREATEPROCESS:
             debug_print("sci0: [FIXME] SYS_CREATEPROCESS\n");
             return (void *) sys_create_process ( 
-                                NULL,             // room
                                 NULL,             // desktop
                                 0,                // Reserved
                                 arg3,             // priority
@@ -1764,10 +1762,9 @@ void *sci0 (
         case SYS_GETCURRENTUSERSESSION:
             return (void *) current_usersession; 
             break;
-        // 158 - get room id (window station)
-        case SYS_GETCURRENTWINDOWSTATION:
-            return (void *) current_room;  
-            break;
+        
+        // 158 - free
+       
         // 159 - get desktop id
         case SYS_GETCURRENTDESKTOP:
             return (void *) current_desktop; 

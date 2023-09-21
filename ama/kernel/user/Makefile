@@ -68,22 +68,10 @@ KERNEL_INCLUDE := -I ../admin/include/ $(USER_INCLUDE)
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-OBJS = desktop.o room.o usession.o \
-logoff.o logon.o \
-userenv.o    
+OBJS = user.o    
 
 all:
-
-# security/ - Security Manager.
-	$(CC) -c security/desktop.c   $(KERNEL_INCLUDE) $(CFLAGS) -o desktop.o
-	$(CC) -c security/room.c      $(KERNEL_INCLUDE) $(CFLAGS) -o room.o
-	$(CC) -c security/usession.c  $(KERNEL_INCLUDE) $(CFLAGS) -o usession.o
-
-# session/ - Session Manager
-	$(CC) -c session/logoff.c  $(KERNEL_INCLUDE) $(CFLAGS) -o logoff.o
-	$(CC) -c session/logon.c   $(KERNEL_INCLUDE) $(CFLAGS) -o logon.o
-
-	$(CC) -c userenv.c  $(KERNEL_INCLUDE) $(CFLAGS) -o userenv.o
+	$(CC) -c user.c  $(KERNEL_INCLUDE) $(CFLAGS) -o user.o
 
 # link
 	$(LD) -r -o ar_user.o $(OBJS)

@@ -682,7 +682,6 @@ struct tty_d *tty_create(short type, short subtype)
 // Nao sei se essas estruturas estao prontas para isso nesse momento
 // ou se esses ponteiros sao nulos.
     __tty->user_session = NULL;  // CurrentUserSession;
-    __tty->room         = NULL;  // CurrentRoom;
     __tty->desktop      = NULL;  // CurrentDesktop;
 
 
