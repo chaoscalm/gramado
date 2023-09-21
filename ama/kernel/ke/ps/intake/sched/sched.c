@@ -141,12 +141,14 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
 // used by the task switcher.
     currentq = (void *) Idle;
     sched_queues[SCHED_CURRENT_QUEUE] = (unsigned long) currentq;
+    //scheq_set_element(SCHED_CURRENT_QUEUE,currentq);
 
 // Setup Idle as the head of the p6q queue, 
 // The loop below is gonna build this list.
 // The idle is the TID 0, so the loop starts at 1.
     p6q = (void*) Idle;
     sched_queues[SCHED_P6_QUEUE] = (unsigned long) p6q;
+    //scheq_set_element(SCHED_P6_QUEUE,p6q);
 
 // ---------------------------------------------
 // Walking

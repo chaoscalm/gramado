@@ -17,12 +17,18 @@
 // Max number of elements.
 #define SCHEQ_COUNT_MAX  7
 
+// List of heads.
 // see: schedq.c
 extern unsigned long sched_queues[SCHEQ_COUNT_MAX];
 
-// Global queue.
 // The current list
+// Global queue.
 extern struct thread_d  *currentq;
+
+// ===================================
+
+void scheq_set_element(int index, struct thread_d *head_thread);
+struct thread_d *schedq_get_element(int index);
 
 #endif    
 
