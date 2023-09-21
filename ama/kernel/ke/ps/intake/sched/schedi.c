@@ -79,11 +79,11 @@ tid_t psScheduler(void)
 // So existe uma thread nesse processador.
 // Então ela precisa ser a idle.
 // Ela será a current_thread.
-    if ( UPProcessorBlock.threads_counter == 1 )
+    if (UPProcessorBlock.threads_counter == 1)
     {
-        Conductor = 
+        currentq = 
             (struct thread_d *) UPProcessorBlock.IdleThread;
-        current_thread = (tid_t) Conductor->tid;
+        current_thread = (tid_t) currentq->tid;
         debug_print("psScheduler: Idle $\n");
         // Return tid.
         return (tid_t) current_thread;

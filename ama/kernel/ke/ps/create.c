@@ -318,7 +318,7 @@ struct thread_d *create_init_thread(void)
 
 // Usado pelo scheduler.
 // See: sched.c
-    Conductor = (struct thread_d *) t;
+    currentq = (struct thread_d *) t;
 
 // The Idle thread for this processor.
     UPProcessorBlock.IdleThread = (struct thread_d *) t;

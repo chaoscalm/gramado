@@ -85,7 +85,7 @@ queue.o \
 mk.o \
 ws.o \
 ts.o dispatch.o spawn.o x64cont.o \
-sched.o schedi.o    
+sched.o schedi.o schedq.o    
 
 all:
 
@@ -105,6 +105,7 @@ all:
 	$(CC) -c ps/intake/disp/x86_64/x64cont.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o x64cont.o  
 	$(CC) -c ps/intake/sched/sched.c          $(KERNEL_INCLUDE)  $(CFLAGS) -o sched.o  
 	$(CC) -c ps/intake/sched/schedi.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedi.o  
+	$(CC) -c ps/intake/sched/schedq.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedq.o  
 
 #--------
 # x86_64/

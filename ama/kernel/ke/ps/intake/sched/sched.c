@@ -5,34 +5,24 @@
 
 #include <kernel.h>
 
+
 // Scheduler main structure.
 // see: sched.h
 struct scheduler_info_d  SchedulerInfo;
 
-// QUEUES:
-// Earth: (INITIALIZED, STANDBY, ZOMBIE, DEAD).
-// Space: (READY, RUNNING, WAITING, BLOCKED).
-#define QUEUE_READY      0  // Pronta pra retomar.
-#define QUEUE_STANDBY    1  // Pronta pra rodar pela primeira vez.
-#define QUEUE_WAITING    2  // Esperando algum evento.
-#define QUEUE_BLOCKED    3  // Bloqueada.
-#define SCHED_QUEUE_MAX  4
-static int __current_sched_queue_head_index=0;
-unsigned long schedQueueHeads[SCHED_QUEUE_MAX];
 
-//
-// Linked lists.
-//
+// Normal priorities
+static struct thread_d  *p1q;
+static struct thread_d  *p2q;
+static struct thread_d  *p3q;
+// System priorities
+static struct thread_d  *p4q;
+static struct thread_d  *p5q;
+static struct thread_d  *p6q;  // Higher
 
-// The fixed conductor to mark the start.
-struct thread_d  *Conductor;
+
 // The flexible conductor to create the list.
-struct thread_d  *tmpConductor;
-// The created root conductor.
-//struct thread_d  *rootConductor;
-
-
-
+//static struct thread_d  *tmpConductor;
 
 //
 // == Private functions: prototypes =============
@@ -76,8 +66,12 @@ static tid_t __scheduler_rr(unsigned long sched_flags);
 
 static tid_t __scheduler_rr(unsigned long sched_flags)
 { 
-    struct thread_d *Idle;
+// + Build the p6q queue.
+// + Setup p6q as the currentq, used by the task switcher.
+
     struct thread_d *TmpThread;
+
+    struct thread_d *Idle;
     register int i=0;
     tid_t FirstTID = -1;
 
@@ -142,39 +136,43 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
     }
 
 
-// ===============================================
-// Building the queues
-// Clear the list of heads.
-    for (i=0; i<SCHED_QUEUE_MAX; i++){
-        schedQueueHeads[i] = 0;
-    };
+// This is the head of the currentq.
+// Setup Idle as the head of the currentq queue, 
+// used by the task switcher.
+    currentq = (void *) Idle;
+    sched_queues[SCHED_CURRENT_QUEUE] = (unsigned long) currentq;
 
-// The head of the ready queue.
-    scheduler_set_first_ready(Idle);
+// Setup Idle as the head of the p6q queue, 
+// The loop below is gonna build this list.
+// The idle is the TID 0, so the loop starts at 1.
+    p6q = (void*) Idle;
+    sched_queues[SCHED_P6_QUEUE] = (unsigned long) p6q;
 
-// ===============================================
-// Conductor
-// Esse é o condutor exportado, que o ts.c vai usar.
-// Começamos a lista com a Idle thread desse processador.
-    Conductor       = (void *) Idle;
-    Conductor->next = (void *) Idle;
-    //UPProcessorBlock.NextThread = (struct thread_d *) Idle;
-
-    //rootConductor = (void *) Conductor;
-
-// tmpConductor
-// Interno, usado pra construir a lista.
-    tmpConductor       = (void *) Conductor;
-    //tmpConductor->next = (void *) Conductor;  // The list starts here.
-
+// ---------------------------------------------
 // Walking
 // READY threads in the threadList[].
 
-    for ( i=0; i<THREAD_COUNT_MAX; ++i )
+
+// The Idle as the head of the p6q queue, 
+// The loop below is gonna build this list.
+// The idle is the TID 0, so the loop starts at 1.
+
+    if (Idle->tid != 0)
+        panic("sched: Idle->tid != INIT_TID\n");
+    if (Idle->tid != INIT_TID)
+        panic("sched: Idle->tid != INIT_TID\n");
+// Começa a pegar da thread 1, porque a 0 ja pegamos.
+    int Start = (Idle->tid + 1);
+
+// The Idle as the head of the p6q queue, 
+// The loop below is gonna build this list.
+// The idle is the TID 0, so the loop starts at 1.
+
+    for ( i=Start; i<THREAD_COUNT_MAX; ++i )
     {
         TmpThread = (void *) threadList[i];
 
-        if ( (void *) TmpThread != NULL )
+        if ((void *) TmpThread != NULL)
         {
             // ---------------------------
             // :: WAITING threads
@@ -227,8 +225,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                 // Unregister the window server.
                 if (WindowServerInfo.initialized == TRUE)
                 {
-                    if (TmpThread->tid == WindowServerInfo.tid)
-                    {
+                    if (TmpThread->tid == WindowServerInfo.tid){
                         WindowServerInfo.initialized = FALSE;
                     }
                 }
@@ -253,10 +250,10 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
                  TmpThread->state == READY )
             {
                 // Recreate the linked list.
-                // The tmpConductor and it's next.
-                 
-                tmpConductor->next = (void *) TmpThread;
-                tmpConductor       = (void *) tmpConductor->next;
+                // The p6q and it's next.
+
+                p6q->next = (void *) TmpThread;
+                p6q       = (void *) p6q->next;
 
                 // Initialize counters.
                 TmpThread->runningCount = 0;
@@ -350,7 +347,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
             
             // #test
             // credits
-            if ( TmpThread->magic == 1234 )
+            if (TmpThread->magic == 1234)
             {
                 // Set the credits.
                 if (TmpThread->credits >= 2)
@@ -366,9 +363,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
 // Let's try some other lists.
 
 // Finalizing the list.
-// The tmpConductor and it's next.
-    //tmpConductor       = (void *) tmpConductor->next; 
-    tmpConductor->next = NULL;               // Reescalona ao fim do round.
+    p6q->next = NULL;               // Reescalona ao fim do round.
 
 // done:
     SchedulerInfo.rr_round_counter++;
@@ -445,64 +440,7 @@ tid_t scheduler(void)
     return (tid_t) first_tid;
 }
 
-
-
-
-struct thread_d *scheduler_get_head(int index)
-{
-    struct thread_d *t;
-
-    if (index < 0)
-        return NULL;
-    if (index >= SCHED_QUEUE_MAX)
-        return NULL;
-    t = (struct thread_d *) schedQueueHeads[index];
-    if ( (void*) t == NULL )
-        return NULL;
-    if (t->used != TRUE)
-        return NULL;
-    if (t->magic != 1234)
-        return NULL;
-    return (struct thread_d*) t;
-}
-
-
-struct thread_d *scheduler_get_first_ready(void)
-{
-    return (struct thread_d *) scheduler_get_head(QUEUE_READY);
-}
-struct thread_d *scheduler_get_first_standby(void)
-{
-    return (struct thread_d *) scheduler_get_head(QUEUE_STANDBY);
-}
-struct thread_d *scheduler_get_first_waiting(void)
-{
-    return (struct thread_d *) scheduler_get_head(QUEUE_WAITING);
-}
-struct thread_d *scheduler_get_first_blocked(void)
-{
-    return (struct thread_d *) scheduler_get_head(QUEUE_BLOCKED);
-}
-
 //----------------
-
-void scheduler_set_first_ready(struct thread_d *thread)
-{
-    schedQueueHeads[QUEUE_READY] = (unsigned long) thread;
-}
-void scheduler_set_first_standby(struct thread_d *thread)
-{
-    schedQueueHeads[QUEUE_STANDBY] = (unsigned long) thread;
-}
-void scheduler_set_first_waiting(struct thread_d *thread)
-{
-    schedQueueHeads[QUEUE_WAITING] = (unsigned long) thread;
-}
-void scheduler_set_first_blocked(struct thread_d *thread)
-{
-    schedQueueHeads[QUEUE_BLOCKED] = (unsigned long) thread;
-}
-
 
 // Lock scheduler
 void scheduler_lock (void){
@@ -553,15 +491,6 @@ int init_scheduler (unsigned long sched_flags)
     input_responder_tid = -1;
 
 // -------------------------------
-// Sched queue heads.
-    for (i=0; i<SCHED_QUEUE_MAX; i++){
-        schedQueueHeads[i] = 0;
-    };
-    __current_sched_queue_head_index = 0;
-    schedQueueHeads[__current_sched_queue_head_index] = 
-        (unsigned long) UPProcessorBlock.IdleThread;
-// -------------------------------
-
 
 //
 // Scheduler policies
@@ -578,13 +507,11 @@ int init_scheduler (unsigned long sched_flags)
     return 0;
 }
 
-
 // Lets end this round putting a given thread at the end
 // of this round.
-void cut_round( struct thread_d *last_thread )
+void cut_round(struct thread_d *last_thread)
 {
     struct thread_d *Current;
-
 
 // The current thread.
 
@@ -594,12 +521,9 @@ void cut_round( struct thread_d *last_thread )
     }
 
     Current = (struct thread_d *) threadList[current_thread];
-
-    if ( (void *) Current == NULL )
-    {
+    if ((void *) Current == NULL){
         return;
     }
-    
     if ( Current->used != TRUE || Current->magic != 1234 )
     {
         return;

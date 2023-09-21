@@ -3,6 +3,10 @@
 
 #include <kernel.h>
 
+// List of all threads.
+unsigned long threadList[THREAD_COUNT_MAX];
+
+
 //
 // The current thread global variable.
 //
@@ -33,9 +37,6 @@ struct thread_d  *InitThread;
 struct thread_d  *ClonedThread;
 
 struct thread_d *timeout_thread;
-
-// List of all threads.
-unsigned long threadList[THREAD_COUNT_MAX];
 
 
 //

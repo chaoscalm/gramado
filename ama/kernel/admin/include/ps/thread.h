@@ -735,11 +735,6 @@ struct thread_d
 // See: thread.c
 extern struct thread_d  *InitThread;
 extern struct thread_d  *ClonedThread;
-// Linked lists
-// See: sched.c
-extern struct thread_d  *Conductor;
-extern struct thread_d  *tmpConductor;
-
 extern struct thread_d *timeout_thread;
 
 

@@ -445,7 +445,7 @@ ZeroGravity:
 
 // Only one thread.
     if (UPProcessorBlock.threads_counter == 1){
-        Conductor = (void *) UPProcessorBlock.IdleThread;
+        currentq = (void *) UPProcessorBlock.IdleThread;
         goto go_ahead;
     }
 
@@ -460,8 +460,8 @@ ZeroGravity:
             if (timeout_thread->waiting_for_timeout == TRUE)
             {
                 timeout_thread->waiting_for_timeout = FALSE;
-                Conductor = (void *) timeout_thread;
-                Conductor->next = NULL;
+                currentq = (void *) timeout_thread;
+                currentq->next = NULL;
                 goto go_ahead;
             }
         }
@@ -492,7 +492,7 @@ ZeroGravity:
 // se o round for composto por muitas threads.
 
 // End of round. Rebuild the round.
-    if ((void *) Conductor->next == NULL){
+    if ((void *) currentq->next == NULL){
         current_thread = (tid_t) psScheduler();
         goto go_ahead;
     }
@@ -504,8 +504,8 @@ ZeroGravity:
 // #BUGBUG: ISSO PODE SER UM >>> ELSE <<< DO IF ACIMA.
 
 // Get the next thread in the linked list.
-    if ((void *) Conductor->next != NULL){
-        Conductor = (void *) Conductor->next;
+    if ((void *) currentq->next != NULL){
+        currentq = (void *) currentq->next;
         goto go_ahead;
     }
 
@@ -513,12 +513,12 @@ ZeroGravity:
 // No thread was selected.
 // Can we use the idle? or reschedule?
 
-    //Conductor = ____IDLE;
+    //currentq = ____IDLE;
     //goto go_ahead;
 
 // #bugbug
 // Not reached yet.
-    panic ("ts: Unspected error\n");
+    panic("ts: Unexpected error\n");
 
 // Go ahead
 // #importante:
@@ -540,7 +540,7 @@ go_ahead:
 // Esse foi o ponteiro configurado pelo scheduler
 // ou quando pegamos a próxima na lista.
 
-    TargetThread = (void *) Conductor;
+    TargetThread = (void *) currentq;
     if ((void *) TargetThread == NULL){
         debug_print ("ts: Struct ");
         current_thread = (tid_t) psScheduler();

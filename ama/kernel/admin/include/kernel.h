@@ -288,7 +288,6 @@
 #include "ps/ts.h"
 #include "ps/tasks.h"
 #include "ps/callback.h"
-#include "ps/sched.h"
 #include "ps/queue.h"
 #include "ps/mk.h"
 #include "ps/dispatch.h"
@@ -296,6 +295,8 @@
 #include "ps/thread.h"
 #include "ps/process.h"
 
+#include "ps/sched.h"
+#include "ps/schedq.h"
 
 // Precisa de todos os componentes de ke/
 #include "ke/ke.h"
