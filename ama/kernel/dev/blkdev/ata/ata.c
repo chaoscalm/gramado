@@ -939,6 +939,9 @@ fail:
 
 static int ata_initialize_ide_device(char port)
 {
+// Inicializa uma porta e coloca numa lista encadeada de
+// estruturas de ata_device.
+
 // This routine is too long.
 // And it is gonna setup the values in the structure
 // given the port.
@@ -1007,12 +1010,19 @@ static int ata_initialize_ide_device(char port)
 
 // See: ata.h
 
+    // Ata device structure.
     new_dev = 
         ( struct ata_device_d * ) kmalloc( sizeof(struct ata_device_d) );
-    if ( (void *) new_dev ==  NULL ){
-        printf ("ata_initialize_ide_device: new_dev\n");
+    if ((void *) new_dev ==  NULL){
+        printf("ata_initialize_ide_device: new_dev\n");
         goto fail;
     }
+
+// Validation
+    new_dev->used = TRUE;
+    new_dev->magic = 1234;
+// Is this structure already initialized or not?
+    new_dev->initialized = FALSE;
 
 // ??
 // #todo: 
@@ -1108,7 +1118,6 @@ static int ata_initialize_ide_device(char port)
         new_dev->dev_total_num_sector_lba48 = 
             (unsigned long) (value1 | value2 | value3 | value4 );
 
-        
         // #bugbug
         // We can not do this.
         // We need to check the supported sector size.
@@ -1119,17 +1128,18 @@ static int ata_initialize_ide_device(char port)
         // Pegando o size.
         // Quantidade de setores.
         // Uma parte está em 61 e outra em 60.
-        
-        value1 = ata_identify_dev_buf[61];  
+
+        value1 = ata_identify_dev_buf[61];  // First part
         new_dev->lba28_value1 = (unsigned short) value1;
-        value1 = ( value1 << 16 );           
-        value1 = ( value1 & 0xFFFF0000 );    
-        value2 = ata_identify_dev_buf[60];
+        value1 = ( value1 << 16 );
+        value1 = ( value1 & 0xFFFF0000 );
+        value2 = ata_identify_dev_buf[60];  // Second part
         new_dev->lba28_value2 = (unsigned short) value2;
-        value2 = ( value2 & 0x0000FFFF );  
-        new_dev->dev_total_num_sector = value1 | value2;
+        value2 = ( value2 & 0x0000FFFF );
+        // Total number of blocks.
+        new_dev->dev_total_num_sector = (value1 | value2);
         new_dev->_MaxLBA = new_dev->dev_total_num_sector;
-                   
+
         //if ( new_dev->dev_total_num_sector > 0 )
         //{
         //     printf ("#debug: >>>> ata Size %d\n", 
@@ -1137,7 +1147,6 @@ static int ata_initialize_ide_device(char port)
         //     refresh_screen();
         //     while(1){}
         //}
-
 
 // #todo
 // Agora essa função precisa receber um ponteiro 
@@ -1288,7 +1297,7 @@ static int ata_initialize_ide_device(char port)
 // Not a boottime device.
     new_dev->boottime_device = FALSE;
 
-    if (isBootTimeIDEPort == TRUE )
+    if (isBootTimeIDEPort == TRUE)
     {
         if ( (void*) ____boot____disk != NULL )
         {
@@ -1368,7 +1377,14 @@ static int ata_initialize_ide_device(char port)
         tmp = tmp->next;
     };
 
+// Save at the end of th elist.
     tmp->next = new_dev;
+
+// Validation
+    new_dev->used = TRUE;
+    new_dev->magic = 1234;
+// Is this structure already initialized or not?
+    new_dev->initialized = TRUE;
 
 //done:
     //debug_print ("ata_initialize_ide_device: done\n");
@@ -1460,7 +1476,7 @@ ata_ioctl (
 // ++
 //----------------------------------------------
 
-// ata_initialize:
+// __ata_initialize:
 // Inicializa o IDE e mostra informações sobre o disco.
 // Sondando na lista de dispositivos encontrados 
 // pra ver se tem algum controlador de disco IDE.
@@ -1745,6 +1761,9 @@ static int __ata_initialize(int ataflag)
             // So, it's gonna work only if we're 
             // using a single device.
             // But we're saving the device info into another structure.
+
+            // Inicializa uma estrutura de ata_device e 
+            // coloca o ponteiro numa lista encadeada.
 
             ata_initialize_ide_device(iPortNumber);
         };

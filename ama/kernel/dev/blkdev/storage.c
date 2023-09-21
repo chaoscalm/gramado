@@ -1,7 +1,13 @@
 
 // storage.c
 
-#include <kernel.h>  
+#include <kernel.h>
+
+
+// The number of sectors in the boot disk.
+// See: storage_set_total_lba_for_boot_disk().
+unsigned long gNumberOfSectorsInBootDisk=0;
+
 
 const char* sda_string = "sda";
 const char* sdb_string = "sdb";
@@ -263,12 +269,10 @@ static int __create_system_partition(void)
 }
 
 
-
-
-
-
 int init_storage_support(void)
 {
+// Called by I_initKernelComponents in x64init.c
+
     storage = (void *) kmalloc ( sizeof(struct storage_d) );
     if ( (void *) storage == NULL )
     {
@@ -821,4 +825,59 @@ void *volume_get_current_volume_info (void)
     return (void *) volumeList[VOLUME_COUNT_MAX];
 }
 
+
+// Get the number of sectors in the boot disk
+// and save it into a global variable, for now.
+int storage_set_total_lba_for_boot_disk(void)
+{
+    struct disk_d *disk;
+    struct ata_device_d  *ata_device;
+
+// --------------------------------
+// Get the boot disk
+    disk = (struct disk_d *) ____boot____disk;
+    if ( (void*) disk == NULL ){
+        printf("disk\n");
+        goto fail;
+    }
+    if (disk->magic != 1234){
+        printf("disk validation\n");
+        goto fail;
+    }
+
+// --------------------------------
+    // Get the ata device information
+    ata_device = (struct ata_device_d *) disk->ata_device;
+    if ( (void*) ata_device == NULL ){
+        printf("ata_device\n");
+        goto fail;
+    }
+    if (ata_device->magic != 1234){
+        printf("ata_device validation\n");
+        goto fail;
+    }
+
+// --------------------------------
+ // Show the number of blocks.
+    printf("Number rof blocks: %d\n",
+        ata_device->dev_total_num_sector );
+
+// Set global variable.
+    gNumberOfSectorsInBootDisk = 
+        (unsigned long) ata_device->dev_total_num_sector;
+
+// Save it in the main storage structure.
+    if ((void*) storage == NULL){
+        printf("storage\n");
+        goto fail;
+    }
+    storage->mumber_of_sectors_in_boot_disk = 
+        (unsigned long) ata_device->dev_total_num_sector;
+
+//done
+    //refresh_screen();
+    return TRUE;
+fail:
+    return FALSE;
+}
 

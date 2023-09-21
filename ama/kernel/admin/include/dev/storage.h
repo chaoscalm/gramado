@@ -4,8 +4,22 @@
 #ifndef  __STORAGE_H
 #define  __STORAGE_H    1
 
+
+// See storage.c
+extern unsigned long gNumberOfSectorsInBootDisk;
+
+
+
 struct storage_d
 {
+
+// Fast access
+// The number of sectors in the boot disk.
+// See: storage_set_total_lba_for_boot_disk().
+    unsigned long mumber_of_sectors_in_boot_disk;
+
+
+// boot disk?
 
 // Disk.
 // System disk
@@ -73,6 +87,10 @@ struct storage_d  *storage;
 // prototypes
 
 int init_storage_support(void);
+
+// Get the number of sectors in the boot disk
+// and save it into a global variable, for now.
+int storage_set_total_lba_for_boot_disk(void);
 
 #endif    
 

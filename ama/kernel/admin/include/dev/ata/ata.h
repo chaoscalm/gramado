@@ -337,6 +337,14 @@ extern struct ata_port_d  ata_port[4];  // 32 ports.
 
 struct ata_device_d
 {
+
+    //#test
+    int used;
+    int magic;
+
+// Is this structure already initialized or not?
+    int initialized;
+
     unsigned long dev_id;
 
 // Is it the boottime device?
@@ -596,6 +604,7 @@ int disk_ata_wait_irq (int p);
 void ata_show_ide_info(void);
 void ata_show_device_list_info(void);
 void ata_show_ata_controller_info(void);
+void ata_show_ata_info_for_boot_disk(void);
 
 #endif    
 

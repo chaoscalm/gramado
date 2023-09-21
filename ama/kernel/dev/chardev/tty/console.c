@@ -2067,10 +2067,13 @@ int consoleCompareStrings(void)
 // See: atainfo.c
     if ( kstrncmp( prompt, "ata", 3 ) == 0 )
     {
-        printf("ATA controller information:\n");
-        ata_show_ata_controller_info();
-        ata_show_ide_info();
-        ata_show_device_list_info();
+        //printf("ATA controller information:\n");
+        //ata_show_ata_controller_info();
+        //ata_show_ide_info();
+        //ata_show_device_list_info();
+        ata_show_ata_info_for_boot_disk();
+        printf("Number of sectors in boot disk: {%d}\n",
+            gNumberOfSectorsInBootDisk );
         goto exit_cmp;
     }
 

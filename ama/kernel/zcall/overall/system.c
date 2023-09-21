@@ -621,7 +621,6 @@ int zeroInitializeSystemComponents(void)
     init_rtc();
     // IN: msg, data1.
     init_ata( 1, FORCEPIO );
-    disk_initialize_mbr_info();
     //while(1){}
     Initialization.executive_checkpoint = TRUE;
 

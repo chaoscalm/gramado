@@ -574,6 +574,17 @@ ataReadSector (
 // ====================================================
 */
 
+
+// #test
+// Testing these limits for the boot disk only.
+    if (gNumberOfSectorsInBootDisk == 0){
+        panic("ataReadSector: gNumberOfSectorsInBootDisk\n");
+    }
+    if (lba >= gNumberOfSectorsInBootDisk){
+        panic("ataReadSector: lba limits\n");
+    }
+
+
 // IN:
 // (buffer, lba, rw flag, port number)
     Status = 
@@ -614,6 +625,16 @@ ataWriteSector (
 
 // #todo
 // Limits for 'buffer' and 'lba'.
+
+// #test
+// Testing these limits for the boot disk only.
+    if (gNumberOfSectorsInBootDisk == 0){
+        panic("ataWriteSector: gNumberOfSectorsInBootDisk\n");
+    }
+    if (lba >= gNumberOfSectorsInBootDisk){
+        panic("ataWriteSector: lba limits\n");
+    }
+
 
 // #bugbug
 // This is the port index, not the channel index.

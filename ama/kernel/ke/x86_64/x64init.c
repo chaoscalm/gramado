@@ -1111,6 +1111,7 @@ static int I_initKernelComponents(void)
 
     PROGRESS("storage, disk, volume, fs\n"); 
 // Storage
+// Create the main storage structure.
     int st_status=FALSE;
     st_status = init_storage_support();
     if (st_status != TRUE){
@@ -1148,12 +1149,29 @@ static int I_initKernelComponents(void)
 
 // =========================================
 // Executive components
+// Initialize pci, rtc and ata.
     Status = zeroInitializeSystemComponents();
     if (Status != TRUE){
         printf ("I_initKernelComponents: zeroInitializeSystemComponents fail\n"); 
         return FALSE;
     }
     PROGRESS("zeroInitializeSystemComponents ok\n"); 
+
+// Set the number of sectors in the boot disk.
+// It depends on the disk and ata initialization.
+// So, now we can do this.
+    Status = (int) storage_set_total_lba_for_boot_disk();
+    if (Status != TRUE){
+        printf ("I_initKernelComponents: storage_set_total_lba_for_boot_disk fail\n"); 
+        return FALSE;
+    }
+    PROGRESS("storage_set_total_lba_for_boot_disk ok\n"); 
+
+
+// It depends on the total lba value for boot disk.
+// Its because we're gonna rad the disk to get the partition tables.
+    disk_initialize_mbr_info();
+
 
 // FAT support.
     initialize_FAT_and_main_directories();
