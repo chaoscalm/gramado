@@ -9,27 +9,7 @@
 // == Priorities ==================================================
 //
 
-// Priority levels.
-// Used by processes and threads.
-
-// Classes:
-// 1 ~ 5 = variable.
-// 6 ~ 9 = realtime.
-//
-// variable:
-//     Can be changed on the fly.
-// realtime:
-//     Can't be changed on the fly. (maior que o normal)
-//
-// # ps:
-// The base priority is never changed. It's used to classify
-// the priority level.
-// The priority can't be changed to a level below the base priority.
-//
-
-//
-// Main priority sets
-//
+// 2 classes of priority.
 
 //----------------------------
 // class 1: Normal
