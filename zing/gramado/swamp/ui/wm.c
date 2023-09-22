@@ -5000,8 +5000,9 @@ int wmInputReader(void)
     int status=0;
 
     register long i=0;
-    long extra_attempts=10;
-
+    //long extra_attempts=10;
+    long extra_attempts = 5;
+    
     // --------
     // Msg
     int msg=0;
