@@ -8,6 +8,9 @@
 
 #include "../gwsint.h"
 
+const char *rootwindow_name = "RootWin";
+const char *startmenu_label = "Gramado";
+
 // #test (#bugbgu)
 #define MSG_MOUSE_DOUBLECLICKED   60
 #define MSG_MOUSE_DRAG            61
@@ -5828,7 +5831,7 @@ void __create_start_menu(void)
     sm_window = 
         (struct gws_window_d *) CreateWindow ( 
             WT_BUTTON, 0, 1, 1, 
-            "Gramado",  //string  
+            startmenu_label,
             sm_left, sm_top, sm_width, sm_height,   
             taskbar_window, 
             0, 
@@ -6150,7 +6153,7 @@ struct gws_window_d *wmCreateRootWindow(unsigned int bg_color)
                                     0, //style
                                     1, //status
                                     1, //view
-                                    "RootWindow",  
+                                    rootwindow_name,
                                     left, top, width, height,
                                     NULL, 0, bg_color, bg_color );
 
