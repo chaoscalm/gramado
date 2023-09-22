@@ -5000,9 +5000,10 @@ int wmInputReader(void)
     int status=0;
 
     register long i=0;
+    // Too much attempts affects the mouse movement.
     //long extra_attempts=10;
     long extra_attempts = 5;
-    
+
     // --------
     // Msg
     int msg=0;
