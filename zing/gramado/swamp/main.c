@@ -75,6 +75,13 @@ See: https://wiki.osdev.org/Graphics_stack
 #define VERSION_MAJOR  0
 #define VERSION_MINOR  1
 
+// Types of response
+// Used in __send_respose().
+#define RESPONSE_IS_REPLY  1
+#define RESPONSE_IS_EVENT  2
+#define RESPONSE_IS_ERROR  3
+
+//----------------
 // Gramado Network Protocol 
 
 #define wsMSG_KEYDOWN     20
@@ -421,6 +428,7 @@ static int __send_response(int fd, int type)
     unsigned long *message_buffer = (unsigned long *) &__buffer[0];
     int n_writes=0;
     int Status=0;
+    register int i=0;
 
 /*
 // #bugbug
@@ -440,19 +448,19 @@ static int __send_response(int fd, int type)
     //message_buffer[0] = (unsigned long) (next_response[0] & 0xFFFFFFFF);
 
 // 1:
-// Type of reply.
+// Types of reply.
 
     switch(type){
-    // Normal reply
-    case 1:
+    // 1 - Normal reply
+    case RESPONSE_IS_REPLY:
         message_buffer[1] = SERVER_PACKET_TYPE_REPLY;
         break;
-    // Event
-    case 2:
+    // 2 - Event
+    case RESPONSE_IS_EVENT:
         message_buffer[1] = SERVER_PACKET_TYPE_EVENT;
         break;
-    // Error
-    case 3:
+    // 3 - Error
+    case RESPONSE_IS_ERROR:
     default:
         message_buffer[1] = SERVER_PACKET_TYPE_ERROR;
         break;
@@ -463,36 +471,30 @@ static int __send_response(int fd, int type)
 // Can we deliver values here?
     message_buffer[2] = (unsigned long) next_response[2];  // long1
     message_buffer[3] = (unsigned long) next_response[3];  // long2
-
-// 4,5,6,7  \./
-// Data.
+// 4,5,6,7
+// Data
     message_buffer[4] = (unsigned long) next_response[4];
     message_buffer[5] = (unsigned long) next_response[5];
     message_buffer[6] = (unsigned long) next_response[6];
     message_buffer[7] = (unsigned long) next_response[7];
-
-// 8,9,10,11  \o/
-// Data.
+// 8,9,10,11
+// Data
     message_buffer[8]  = (unsigned long) next_response[8];
     message_buffer[9]  = (unsigned long) next_response[9];
     message_buffer[10] = (unsigned long) next_response[10];
     message_buffer[11] = (unsigned long) next_response[11];
-
-// 12,13,14,15  \O/
-// Data.
+// 12,13,14,15
+// Data
     message_buffer[12] = (unsigned long) next_response[12];
     message_buffer[13] = (unsigned long) next_response[13];
     message_buffer[14] = (unsigned long) next_response[14];
     message_buffer[15] = (unsigned long) next_response[15];
-
 // more
     message_buffer[16] = (unsigned long) next_response[16];
     message_buffer[17] = (unsigned long) next_response[17];
     message_buffer[18] = (unsigned long) next_response[18];
     message_buffer[19] = (unsigned long) next_response[19];
-
     // ...
-
 //__again:
 
 //
@@ -513,8 +515,6 @@ static int __send_response(int fd, int type)
         // close?
     }
     */
-
-
 
 //
 // Send
@@ -545,26 +545,17 @@ static int __send_response(int fd, int type)
 
 // Write
 
-    n_writes = write ( fd, __buffer, sizeof(__buffer) );
+    n_writes = write( fd, __buffer, sizeof(__buffer) );
     //n_writes = send ( fd, __buffer, sizeof(__buffer), 0 );
 
 // Cleaning
 // Limpa se a resposta der certo ou se der errado.
-
-    // #delete:  Because message_buffer = __buffer.
-    //message_buffer[0] = 0;
-    //message_buffer[1] = 0;
-    //message_buffer[2] = 0;
-    //message_buffer[3] = 0;
-
-    register int b=0;
-    for (b=0; b<MSG_BUFFER_SIZE; ++b){
-        __buffer[b] = 0;
+// If the sizes are equal, we can do both at the same time.
+    for (i=0; i<MSG_BUFFER_SIZE; ++i){
+        __buffer[i] = 0;
     };
-
-    register int c=0;
-    for (c=0; c<NEXTRESPONSE_BUFFER_SIZE; ++c){
-        next_response[c] = 0;
+    for (i=0; i<NEXTRESPONSE_BUFFER_SIZE; ++i){
+        next_response[i] = 0;
     };
 
 // No. 
@@ -636,6 +627,7 @@ static void dispacher(int fd)
     ssize_t n_reads=0;
     int Status = -1;
     int SendErrorResponse=FALSE;
+    int SendEvent=FALSE;
 
     dispatch_counter++;  //#todo: Delete this.
     ServerProfiler.dispatch_counter++;
@@ -738,9 +730,8 @@ static void dispacher(int fd)
 // Um cliente solicitou um evento.
 // Vamos sinalizar o tipo de resposta que temos que enviar,
 // caso nenhum erro aconteça.
-    int doSendEvent = FALSE;
     if (message_buffer[1] == GWS_GetNextEvent){
-        doSendEvent = TRUE;  // The response is an EVENT, not a REPLY.
+        SendEvent = TRUE;  // The response is an EVENT, not a REPLY.
     }
 
 // Process request.
@@ -769,6 +760,8 @@ static void dispacher(int fd)
 // == Sending reply ==========
 //
 
+
+// First, check if we need a reply.
 // Alguns requests não exigem resposta.
 // Como é o caso das mensagens assíncronas.
 // Entao precisamos modificar a flag de sincronizaçao.
@@ -788,6 +781,7 @@ static void dispacher(int fd)
 // == reponse ================
 //
 
+// Types of respose.
 // IN:
 // fd, 1=REPLY | 2=EVENT | 3=ERROR
 
@@ -796,31 +790,28 @@ static void dispacher(int fd)
 // Se o serviço não pode ser prestado corretamente.
 // Error message.
     if (SendErrorResponse == TRUE){
-        Status = (int) __send_response(fd,3);
+        Status = (int) __send_response(fd,RESPONSE_IS_ERROR);
         goto exit2;
     }
-
 // ==========================================
 // EVENT: (2)
 // Se o serviço foi prestado corretamente.
 // Era uma solicitação de evento
 // Event.
-    if (doSendEvent == TRUE){
-        Status = (int) __send_response(fd,2);
+    if (SendEvent == TRUE){
+        Status = (int) __send_response(fd,RESPONSE_IS_EVENT);
         goto exit2;
     }
-
 // ==========================================
 // REPLY: (1)
 // Se o serviço foi prestado corretamente.
 // Era uma solicitação de serviço normal,
 // então vamos enviar um reponse normal. Um REPLY.
 // Normal reply.
-    if (doSendEvent != TRUE){
-        Status = (int) __send_response(fd,1);
+    if (SendEvent != TRUE){
+        Status = (int) __send_response(fd,RESPONSE_IS_REPLY);
         goto exit2;
     }
-
 // A mensagem foi enviada normalmente,
 // Vamos sair normalmente.
 
