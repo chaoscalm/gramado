@@ -159,7 +159,6 @@ static unsigned long last_dy = 0;
 //
 
 static int ServerInitialization(int dm);
-static void ServerShutdown(void);
 
 
 // Worker
@@ -1654,7 +1653,6 @@ int serviceAsyncCommand(void)
         gwssrv_debug_print("serviceAsyncCommand: [1] Exit\n");
         printf            ("serviceAsyncCommand: [1] Exit\n");
         gwssrv_quit();
-        //ServerShutdown();
         goto done;
         break;
 
@@ -3384,55 +3382,6 @@ void gwssrv_quit(void)
     IsTimeToQuit = TRUE;
 }
 
-static void ServerShutdown(void)
-{
-    char shutdown_string[64];
-    int times=0;
-
-    gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
-    printf             ("GRAMLAND: ServerShutdown\n");
-
-// Clear root window.
-// Show final message.
-
-    if ((void*) __root_window != NULL)
-    {
-        // Clean window
-        clear_window_by_id( __root_window->id, TRUE );
-        // String
-        memset(shutdown_string, 0 , 64);
-        strcat(shutdown_string,"ws: Shutting down ...");
-        strcat(shutdown_string,"\0");
-        dtextDrawText ( 
-            (struct gws_window_d *) __root_window,
-            8, 
-            8, 
-            (unsigned int) COLOR_WHITE, 
-            shutdown_string );
-        
-        // Show the window and the final message.
-        wm_flush_window(__root_window);
-    }
-
-// Close the server's socket.
-    close( ____saved_server_fd );
-
-//-------
-// Mande mensagens para fecharem os programas clientes.
-    gwssrv_broadcast_close();
-
-// wait
-    for (times=0; times<8; times++){
-        rtl_yield();
-    };
-
-// Lance o programa que desliga a maquina.
-    rtl_clone_and_execute("shutdown.bin");
-    DestroyAllWindows();
-done:
-    exit(0);
-}
-
 /*
  * ServerInitialization: 
  *     + Initializes the gws infrastructure.
@@ -4029,7 +3978,7 @@ int main (int argc, char **argv)
 //0 = Time to quit.
     Status = (int) ServerInitialization(fLaunchDM);
     if (Status == 0){
-        ServerShutdown();
+        ServerShutdown(____saved_server_fd);
     }
 
     // #test

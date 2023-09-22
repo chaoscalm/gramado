@@ -220,6 +220,7 @@ void gwssrv_broadcast_close(void);
 int is_accepting_input(void);
 void set_input_status(int is_accepting);
 
+void ServerShutdown(int server_fd);
 
 //
 // End

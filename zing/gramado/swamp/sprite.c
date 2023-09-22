@@ -34,17 +34,13 @@ struct gws_sprite_d *create_sprite_point (int z, int x, int y, unsigned long col
 }
 */
 
-
-
 /*
  * PlotSprite3D:
- * 
  *     display     - display structure.
  *     x,y,z       - position.
  *     sprite_list - linked list of sprite structures.
  *     list_size   - how many elements in the list.
  */
-
 int 
 PlotSprite3D ( 
     struct gws_display_d *display,
@@ -53,7 +49,6 @@ PlotSprite3D (
     int sprite_list_size,
     int just_one )
 {
-
     unsigned long *list = (unsigned long *) sprite_list_address;
 
     struct gws_sprite_d *sprite;
