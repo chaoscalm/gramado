@@ -6365,6 +6365,7 @@ int dock_window( struct gws_window_d *window, int position )
 */
 
     wm_update_desktop3(window);
+    on_update_window(window,GWS_Paint);
 
     return 0; 
 }
