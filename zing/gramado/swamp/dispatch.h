@@ -82,7 +82,7 @@ void serviceCloneAndExecute(void);
 
 // ??
 // Button
-int serviceDrawButton (void); 
+int serviceDrawButton(void); 
 
 // ??
 // Get a message given the Index and the Restart flag.

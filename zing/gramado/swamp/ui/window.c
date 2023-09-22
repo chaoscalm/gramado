@@ -2174,9 +2174,8 @@ fail:
     return (int) (-1);
 }
 
-int DestroyWindow(int wid)
+int destroy_window_by_wid(int wid)
 {
-// Only overlapped.
     struct gws_window_d *window;
     struct gws_window_d *tmpw;
     int fRebuildList = FALSE;
@@ -2191,30 +2190,37 @@ int DestroyWindow(int wid)
     if (window->magic != 1234)
         goto fail;
 
-//
-// Not an overlapped window.
-//
 
+// No ...
+    if (window == __root_window)
+        goto fail;
+
+// --------------------------------------
+// Not an overlapped window.
     if (window->type != WT_OVERLAPPED)
     {
         if ( window->isMinimizeControl == TRUE ||
              window->isMaximizeControl == TRUE ||
              window->isCloseControl == TRUE )
         {
-            return 0;
+            goto fail;
         }
         window->magic = 0;
         window->used = FALSE;
         window = NULL;
+        // OK, done
+        //wm_update_desktop2();
         return 0;
     }
+
+// --------------------------------------
+// Overlapped
     
     if (window->type == WT_OVERLAPPED)
     {
         fRebuildList = TRUE;
         fUpdateDesktop = TRUE;
     }
-
 
 // ---------------
 // titlebar
@@ -2304,6 +2310,8 @@ void DestroyAllWindows(void)
 {
     register int i=0;
     struct gws_window_d *tmp;
+    int wid = -1;
+
     for (i=0; i<WINDOW_COUNT_MAX; i++)
     {
         tmp = (void*) windowList[i];
@@ -2311,8 +2319,10 @@ void DestroyAllWindows(void)
         {
             if (tmp->used == TRUE)
             {
-                if (tmp->magic == 1234){
-                    DestroyWindow(tmp->id);
+                if (tmp->magic == 1234)
+                {
+                    wid = (int) tmp->id;
+                    destroy_window_by_wid(wid);
                 }
             }
         }

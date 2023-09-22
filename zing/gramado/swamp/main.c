@@ -876,58 +876,12 @@ gwsProcedure (
     
     switch (msg){
 
-    // If we received the message GWS_Quit and
-    // there is no more windows, so quit the application.
-    case GWS_Quit:
-        if (windows_count == 0){
-            //#todo: Não pode ter janelas abertas.
-            IsTimeToQuit=TRUE;
-        }
-        break;
-
-    // #todo
-    // Isso poderia significar que existe uma estrutura
-    // de request no mesmo estilo do X presente no
-    // final do buffer de mensage, por exemplo
-    // no offset 400
-    // Mesma coisa aconteceria com as respostas.
-    // A biblioteca client side pode conter um wrapper
-    // com o protocolo X, colocando a estrutura de request 
-    // do final do buffer da mensagem e sinalizar no header do
-    // buffer que esse buffer contem uma mensagem que segue o
-    // protocolo X.
-    // #todo: Criar o arquivo Xproto.h ... xproto.h
-    // GWS_X_Request:
-         //break;
-
-    // ===========================
-    // Here starts the gws requests
-
-    // Hello!
-    // Draw text inside the root window.
-    // screen_window = __root_window
-
-    case GWS_Hello:
-        // #todo: Put this routine inside a worker.
-        gwssrv_debug_print ("gwssrv: Message number 1000\n");
-        //#bugbug: Esse endereço de estrutura esta mudando para um valor
-        //que nao podemos acessar em ring3.
-        //if ( (void*) gui == NULL){
-        //    NoReply = FALSE;
-        //    break;
-        //}
-        if ( (void*) gui->screen_window != NULL )
-        {
-            //if ( gui->screen->used == 1 && gui->screen->magic == 1234 ){
-                dtextDrawText ( 
-                    (struct gws_window_d *) gui->screen_window,
-                    long1, long2, COLOR_GREEN,
-                    "gramland.bin: Hello from Gramland!");
-
-                gws_show_backbuffer();
-            //}
-        }
-        NoReply = FALSE;  // The client-side library is waiting for response.
+    // Business Logic:
+    // + Asynchronous commands.
+    // + No response.
+    case GWS_AsyncCommand:
+        serviceAsyncCommand();
+        NoReply = TRUE;
         break;
 
     // Business Logic:
@@ -1068,14 +1022,6 @@ gwsProcedure (
         break;
 
     // Business Logic:
-    // + Asynchronous commands.
-    // + No response.
-    case GWS_AsyncCommand:
-        serviceAsyncCommand();
-        NoReply = TRUE;
-        break;
-
-    // Business Logic:
     // #todo: Describe it here.
     // No response.
     case GWS_PutClientMessage:
@@ -1129,6 +1075,42 @@ gwsProcedure (
         NoReply = TRUE;
         return 0;
         break;
+
+    // Hello!
+    // Draw text inside the root window.
+    // screen_window = __root_window
+    case GWS_Hello:
+        // #todo: Put this routine inside a worker.
+        gwssrv_debug_print ("gwssrv: Message number 1000\n");
+        //#bugbug: Esse endereço de estrutura esta mudando para um valor
+        //que nao podemos acessar em ring3.
+        //if ( (void*) gui == NULL){
+        //    NoReply = FALSE;
+        //    break;
+        //}
+        if ( (void*) gui->screen_window != NULL )
+        {
+            //if ( gui->screen->used == 1 && gui->screen->magic == 1234 ){
+                dtextDrawText ( 
+                    (struct gws_window_d *) gui->screen_window,
+                    long1, long2, COLOR_GREEN,
+                    "gramland.bin: Hello from Gramland!");
+
+                gws_show_backbuffer();
+            //}
+        }
+        NoReply = FALSE;  // The client-side library is waiting for response.
+        break;
+
+    // If we received the message GWS_Quit and
+    // there is no more windows, so quit the application.
+    case GWS_Quit:
+        if (windows_count == 0){
+            //#todo: Não pode ter janelas abertas.
+            IsTimeToQuit=TRUE;
+        }
+        break;
+
 
     // ...
 
@@ -1786,17 +1768,19 @@ int serviceAsyncCommand(void)
     case 14:
         // #todo data = wid
         //printf("14: wid={%d}\n",data);
-        clear_window_by_id(data,TRUE);
+        wid = (int) (data & 0xFFFFFFFF);
+        clear_window_by_id(wid,TRUE);
         goto done;
         break;
 
     // Set active window by id.
     case 15:
         // gwssrv_debug_print ("serviceAsyncCommand: [9] \n");
-        if (data<0){
+        wid = (int) (data & 0xFFFFFFFF);
+        if (wid<0){
             goto done;
         }
-        set_active_by_id( (int) data );
+        set_active_by_id((int) wid);
         goto done;
         break;
 
@@ -1840,18 +1824,16 @@ int serviceAsyncCommand(void)
     // Destroy window.
     case 90:
         wid = (int) (data & 0xFFFFFFFF);
-        // #DEBUG
+        // #debug
         printf("90: Destroy window %d\n",wid);
-        DestroyWindow(wid);
+        destroy_window_by_wid(wid);
         break;
-
-    //#todo: Destroy window.
-    //#todo: Create a wrapper in the lingws library,
-    // the wrapper will call the async request with
-    // the service '99'.
-    //case 99:
-        //goto done;
-        //break;
+    /*
+    case 91:
+        wid = (int) (data & 0xFFFFFFFF);
+        //#debug
+        printf("91: Lock window %d\n",wid);
+        break;  */
 
     // put pixel.
     case 1000:
@@ -2757,6 +2739,7 @@ void serviceCloneAndExecute(void)
     rtl_clone_and_execute(buf);
 }
 
+
 // Draw text.
 // Service 1005
 int serviceDrawText(void)
@@ -3577,11 +3560,21 @@ static int ServerInitialization(int dm)
 
 // Bind
 // Associate this address with the server's socket fd.
-    bind_status = 
-        (int) bind (
-                  server_fd, 
-                  (struct sockaddr *) &server_address, 
-                  addrlen );
+    long BindReentry = 22;
+    while (1){
+        bind_status = 
+            (int) bind (
+                      server_fd, 
+                      (struct sockaddr *) &server_address, 
+                      addrlen );
+        // OK
+        if (bind_status >= 0)
+            break;
+        BindReentry--;
+        if (BindReentry <= 0)
+            break;
+        rtl_yield();
+    };
 
     if (bind_status < 0){
         gwssrv_debug_print("gramland: on bind()\n");
@@ -3597,7 +3590,11 @@ static int ServerInitialization(int dm)
 // Setup how many pending connections.
 // SOMAXCONN is the default limit on backlog.
 // see: sys/socket.h
-    listen(server_fd,SERVER_BACKLOG);
+    int ListenStatus = -1;
+    ListenStatus = (int) listen(server_fd,SERVER_BACKLOG);
+    if (ListenStatus<0){
+        //#todo
+    }
 
 // Checkpoint
     Initialization.setup_connection_checkpoint = TRUE;
