@@ -609,39 +609,28 @@ int gwsInit(void)
 // == gui structure ============================================
 //
 
-
 // First level structure for the GUI.
-
     gui = (void *) malloc( sizeof( struct gui_d) );
-
-    if ( (void *) gui == NULL )
+    if ((void *) gui == NULL)
     {
         debug_print("gwsInit: gui\n");
         printf     ("gwsInit: gui\n");
         exit(1);
     }
-
     memset( gui, 0, sizeof(struct gui_d) );
-
 
 //
 // == Root window ===============================================
 //
 
-// See:
-// createw.c
-
     struct gws_window_d  *tmpRootWindow;
-    
     tmpRootWindow = (struct gws_window_d *) wmCreateRootWindow();
-
-    if ( (void*) tmpRootWindow == NULL)
+    if ((void*) tmpRootWindow == NULL)
     {
         debug_print("gwsInit: tmpRootWindow\n");
         printf     ("gwsInit: tmpRootWindow\n");
         exit(1);
     }
-
     if ( tmpRootWindow->used != TRUE || tmpRootWindow->magic != 1234 )
     {
         debug_print("gwsInit: tmpRootWindow validation\n");
@@ -650,9 +639,7 @@ int gwsInit(void)
     }
 
 // Register
-    //int root_wid = RegisterWindow(__root_window);
     int root_wid = RegisterWindow(tmpRootWindow);
-    
     if (root_wid<0)
     {
         debug_print ("gwsInit: Couldn't register rootwindow\n");

@@ -13,6 +13,8 @@ extern int comp_config_use_mouse;
 // Not a pointer.
 struct gws_windowmanager_d  WindowManager;
 
+const char *rootwindow_name = "RootWin";
+
 // -------------------------------------
 
 // Windows - (struct)
@@ -5529,10 +5531,12 @@ struct gws_window_d *wmCreateRootWindow(void)
                                     0, //style
                                     1, //status
                                     1, //view
-                                    "RootWindow",  
+                                    rootwindow_name,
                                     left, top, width, height,
-                                    NULL, 0, rootwindow_color, rootwindow_color );
-    if ( (void*) w == NULL)
+                                    NULL, 
+                                    0, 
+                                    rootwindow_color, rootwindow_color );
+    if ((void*) w == NULL)
     {
         debug_print("wmCreateRootWindow: [FAIL] w\n");
         printf     ("wmCreateRootWindow: [FAIL] w\n");
@@ -5586,24 +5590,21 @@ struct gws_window_d *wmCreateRootWindow(void)
 // Root window
     gwsDefineInitialRootWindow(w);
 
-// #
+// #warning
 // Do not register now.
 // The caller will do that thing.
-
     return (struct gws_window_d *) w;
 }
 
-
-int gwsDefineInitialRootWindow ( struct gws_window_d *window )
+int gwsDefineInitialRootWindow(struct gws_window_d *window)
 {
-    if ( (void *) window == NULL )
+    if ((void *) window == NULL)
     {
         debug_print("gwsDefineInitialRootWindow: window\n");
         printf     ("gwsDefineInitialRootWindow: window\n");
         exit(1);
         //return -1;
     }
-
     if (window->magic != 1234)
     {
         debug_print("gwsDefineInitialRootWindow: window magic\n");
@@ -5616,7 +5617,6 @@ int gwsDefineInitialRootWindow ( struct gws_window_d *window )
     WindowManager.root = (struct gws_window_d *) window;
     return 0;
 }
-
 
 int dock_active_window(int position)
 {
@@ -5693,23 +5693,21 @@ int dock_window( struct gws_window_d *window, int position )
     return 0; 
 }
 
-
 struct gws_window_d *get_active_window (void)
 {
     return (struct gws_window_d *) active_window;
 }
 
-
 void set_active_window (struct gws_window_d *window)
 {
-    if (window == active_window)
+    if (window == active_window){
         return;
-
-    if ( (void*) window == NULL )
+    }
+    if ((void*) window == NULL)
         return;
-    if (window->magic!=1234)
+    if (window->magic != 1234){
         return;
-
+    }
     active_window = (void*) window;
 }
 
@@ -5718,7 +5716,6 @@ struct gws_window_d *get_window_with_focus(void)
     return (struct gws_window_d *) keyboard_owner;
 }
 
-
 void set_window_with_focus(struct gws_window_d * window)
 {
     if (window == keyboard_owner)
@@ -5726,29 +5723,20 @@ void set_window_with_focus(struct gws_window_d * window)
 
     if ( (void*) window == NULL )
         return;
-    if (window->magic!=1234)
+    if (window->magic != 1234){
         return;
-
+    }
     keyboard_owner = (void*) window; 
-/*  
-//#test
-    struct gws_window_d *w;
-    w = (struct gws_window_d *) windowList[id];
-    sc82 (10011,w->client_tid,w->client_tid,w->client_tid);
-*/
 }
-
 
 // Pegando a z-order de uma janela.
-int get_zorder ( struct gws_window_d *window )
+int get_zorder( struct gws_window_d *window)
 {
-    if ( (void *) window != NULL ){
+    if ((void *) window != NULL){
         return (int) window->zIndex;
     }
-
     return (int) -1;
 }
-
 
 struct gws_window_d *get_top_window (void)
 {
@@ -5763,22 +5751,19 @@ void set_top_window (struct gws_window_d *window)
 
     if ( (void*) window == NULL )
         return;
-    if (window->magic!=1234)
+    if (window->magic != 1234){
         return;
-
+    }
     top_window = (void*) window;
 }
 
-
-int gwssrv_get_number_of_itens (struct gwssrv_menu_d *menu)
+int gwssrv_get_number_of_itens(struct gwssrv_menu_d *menu)
 {
-    if ( (void*) menu == NULL ){
+    if ((void*) menu == NULL){
         return -1;
     }
-
     return (int) menu->itens_count;
 }
-
 
 struct gwssrv_menu_d *gwssrv_create_menu (
     struct gws_window_d *parent,
@@ -5791,15 +5776,14 @@ struct gwssrv_menu_d *gwssrv_create_menu (
     unsigned int color )
 {
     struct gwssrv_menu_d  *menu;
-    struct gws_window_d    *window;
+    struct gws_window_d  *window;
 
     //gwssrv_debug_print("gwssrv_create_menu:\n");
 
-    menu = (struct gwssrv_menu_d *) malloc ( sizeof(struct gwssrv_menu_d) );
-
-    if ( (void *) menu == NULL ){
+    menu = (struct gwssrv_menu_d *) malloc( sizeof(struct gwssrv_menu_d) );
+    if ((void *) menu == NULL){
         gwssrv_debug_print("gwssrv_create_menu: [FAIL] menu\n");
-        return (struct gwssrv_menu_d *) 0;
+        return NULL;
     }
 
 // Deslocamento em relação a janela mãe.
@@ -5825,7 +5809,7 @@ struct gwssrv_menu_d *gwssrv_create_menu (
             color, 
             color ); 
 
-    if ( (void *) window == NULL ){
+    if ((void *) window == NULL){
         gwssrv_debug_print ("gwssrv_create_menu: window fail\n");  
         return NULL;
     }
@@ -5846,7 +5830,6 @@ struct gwssrv_menu_d *gwssrv_create_menu (
     return (struct gwssrv_menu_d *) menu;
 }
 
-
 // Create menu item
 struct gwssrv_menu_item_d *gwssrv_create_menu_item (
     char *label,
@@ -5858,15 +5841,14 @@ struct gwssrv_menu_item_d *gwssrv_create_menu_item (
 
     //gwssrv_debug_print("gwssrv_create_menu_item:\n");    
     
-    if ( (void *) menu == NULL ){
-        return (struct gwssrv_menu_item_d *) 0;
+    if ((void *) menu == NULL){
+        return NULL;
     }
-    
-    //create menu item.
-    item = (struct gwssrv_menu_item_d *) malloc( sizeof(struct gwssrv_menu_item_d) );
 
-    if ( (void *) item == NULL ){
-        return (struct gwssrv_menu_item_d *) 0;
+    // Create menu item.
+    item = (struct gwssrv_menu_item_d *) malloc( sizeof(struct gwssrv_menu_item_d) );
+    if ((void *) item == NULL){
+        return NULL;
     }
 
     //provisório
