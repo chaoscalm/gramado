@@ -3,121 +3,102 @@
 
 #include <kernel.h>
 
-struct desktop_d  *CurrentDesktop;
+struct zing_hook_d  *CurrentZingHook;
 
 int current_usersession=0;
-int current_desktop=0;
+int current_zh=0;
 
 //============================
 
-// init_desktop_list:
-// Inicializa o array de ponteiros de desktop.
-void init_desktop_list(void)
+// init_zh_list:
+// Inicializa o array de ponteiros de zh.
+void init_zh_list(void)
 {
     register int i=0;
-    while (i<DESKTOP_COUNT_MAX){
-        desktopList[i] = 0;
+    while (i<ZH_COUNT_MAX){
+        zinghookList[i] = 0;
         i++; 
     };
 }
 
 /*
- * init_desktop:
- *     Inicializa o desktop 0.
+ * init_zh:
+ *     Inicializa o zh 0.
  *     int ?
  */
-void init_desktop(void)
+void init_zh(void)
 {
     register int i=0;
 
-    debug_print ("init_desktop:\n");
-    //printf("init_desktop: Initializing..\n");
+    debug_print ("init_zh:\n");
+    //printf("init_zh: Initializing..\n");
 
-    desktops_count = 0;
+    zh_count = 0;
 // List
-    init_desktop_list();
+    init_zh_list();
 
 //
 // Struct
 //
 
-    struct desktop_d  *desktop0;
+    struct zing_hook_d  *zh;
 
-// Creating the desktop0. 
-    desktop0 = (void *) kmalloc( sizeof(struct desktop_d) );
-    if ((void *) desktop0 == NULL){
-        panic ("init_desktop: desktop0\n");
+// Creating the zh. 
+    zh = (void *) kmalloc( sizeof(struct zing_hook_d) );
+    if ((void *) zh == NULL){
+        panic("init_zh: zh\n");
     }
-    desktop0->id = 0;
-    desktop0->used = TRUE;
-    desktop0->magic = 1234;
+    zh->id = 0;
+    zh->used = TRUE;
+    zh->magic = 1234;
 
     //todo: object
 
-    desktops_count = 1;
+    zh_count = 1;
 
-    desktop0->lTail = 0;
-    desktop0->lHead = 0;
-    for (i=0; i<8; i++){
-        desktop0->list[i] = 0;
-    };
-
-    desktop0->__init_process_pid   = (pid_t) -1;
-    desktop0->__display_server_pid = (pid_t) -1;
-    desktop0->__network_server_pid = (pid_t) -1;
-
-    if ((void*) InitProcess != NULL)
-    {
-        if (InitProcess->magic == 1234)
-            desktop0->__init_process_pid = (pid_t) InitProcess->pid;            
-    }
+    zh->__display_server_pid = (pid_t) -1;
+    zh->__network_server_pid = (pid_t) -1;
 
 // Registrando na lista
-    desktopList[0] = (unsigned long) desktop0;
+    zinghookList[0] = (unsigned long) zh;
 
-// RegisterDesktop (desktop0); 
-    set_current_desktop(desktop0);  
+    set_current_zh(zh);  
 }
 
-void set_current_desktop (struct desktop_d *desktop)
+void set_current_zh(struct zing_hook_d *zh)
 {
-    if ( (void *) desktop == NULL ){ 
+    if ((void *) zh == NULL){ 
         return; 
     }
-
-    current_desktop = (int) desktop->id;
-    CurrentDesktop = desktop;
+    current_zh = (int) zh->id;
+    CurrentZingHook = zh;
 }
 
-void *get_current_desktop (void)
+struct zing_hook_d *get_current_zh(void)
 {
-
 // Check limits.
-    if ( current_desktop < 0 || current_desktop >= DESKTOP_COUNT_MAX )
+    if ( current_zh < 0 || current_zh >= ZH_COUNT_MAX )
     {
         return NULL;
     }
-
-    return (void *) desktopList[current_desktop];
+    return (struct zing_hook_d *) zinghookList[current_zh];
 }
 
-int get_current_desktop_id (void)
+int get_current_zh_id(void)
 {
-    return (int) current_desktop;
+    return (int) current_zh;
 }
 
 /*
- * RegisterDesktop:
- *     Registrando um desktop numa lista de desktops.
- *     @todo: Mudar para desktopRegisterDesktop(.). 
+ * RegisterZingHook:
+ *     Registrando um zh numa lista de zh. 
  */
-
-int RegisterDesktop (struct desktop_d *d)
+int RegisterZingHook(struct zing_hook_d *d)
 {
-    int Offset = 0;
+    int Offset=0;
 
-    if ( (void *) d == NULL ){
-        debug_print ("RegisterDesktop: [FAIL] d\n");
+    if ((void *) d == NULL){
+        debug_print("RegisterZingHook: d\n");
         return (int) 1;  
     }
 
@@ -125,11 +106,11 @@ int RegisterDesktop (struct desktop_d *d)
 // Pode aparacer um loop infinito aqui.
 // #todo: usar for.
 
-    while ( Offset < DESKTOP_COUNT_MAX )
+    while (Offset < ZH_COUNT_MAX)
     {
-        if ( (void *) desktopList[Offset] == NULL )
+        if ( (void *) zinghookList[Offset] == NULL )
         {
-            desktopList[Offset] = (unsigned long) d;
+            zinghookList[Offset] = (unsigned long) d;
             d->id = Offset;
             return 0;
         }
@@ -141,34 +122,33 @@ int RegisterDesktop (struct desktop_d *d)
 }
 
 /*
- * CreateDesktop:
- *     Cria um desktop em uma window station.
+ * CreateZingHook:
+ *     Cria um zh em uma window station.
  */
-void *CreateDesktop (void)
+void *CreateZingHook (void)
 {
-    struct desktop_d *Current;
-    struct desktop_d *Empty;
+    struct zing_hook_d *Current;
+    struct zing_hook_d *Empty;
     int i=0;
     //... 
 
 // #todo: 
-// O usuário precisa de permissão pra criar desktops.
-    Current = (void *) kmalloc( sizeof(struct desktop_d) );
+// O usuário precisa de permissão pra criar zh.
+    Current = (void *) kmalloc( sizeof(struct zing_hook_d) );
     if ( (void *) Current == NULL ){
-        panic ("CreateDesktop: Current\n");
+        panic ("CreateZingHook: Current\n");
     } else {
 
-        memset( Current, 0, sizeof(struct desktop_d) );
+        memset( Current, 0, sizeof(struct zing_hook_d) );
         //continua...
     };
 
-    while ( i < DESKTOP_COUNT_MAX )
+    while (i < ZH_COUNT_MAX)
     {
-        Empty = (void *) desktopList[i];
-
-        if ( (void *) Empty == NULL )
+        Empty = (void *) zinghookList[i];
+        if ((void *) Empty == NULL)
         {
-            desktopList[i] = (unsigned long) Current;
+            zinghookList[i] = (unsigned long) Current;
             Current->id = i;
             return (void *) Current;
         }
@@ -366,10 +346,10 @@ struct user_info_d *CreateUser(char *name, int type)
     }
  
 //Session.
-//Desktop.
+//zh.
 
     New->usessionId = current_usersession;
-    New->desktopId  = current_desktop;
+    New->zh_id  = current_zh;
     
 // Inicializando a lista de objetos permitidos.
 // Proibindo tudo.
@@ -477,9 +457,9 @@ int User_initialize(void)
 
     current_user = 0;
 
-// User session,  desktop, 
+// User session,  zh, 
     current_usersession  = 0;
-    current_desktop      = 0;
+    current_zh      = 0;
 
 // Initialize user info structure
     printf ("User_initialize: init_user_info\n");
@@ -489,14 +469,14 @@ int User_initialize(void)
 // Security
 //
 
-// Initialize User Session, and Desktop.
+// Initialize User Session, and zh.
 // user section
     //printf ("User_initialize: initializing user session\n");
     //init_user_session();
 
-    // desktop
-    printf ("User_initialize: initializing desktop\n");   
-    init_desktop();
+    // zh
+    printf ("User_initialize: initializing zh\n");   
+    init_zh();
 
     //debug_print("User_initialize: done\n");
     return 0;

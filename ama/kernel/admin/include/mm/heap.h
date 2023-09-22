@@ -60,8 +60,8 @@ struct heap_d
 	//unsigned long freeBlocks[32];
 	//unsigned long Blocks[64];
 
-// Um heap pertence à um desktop.
-    struct desktop_d *desktop;
+// Um heap pertence à um zh.
+    struct zing_hook_d *zh;
 // Um heap pertence à um processo.
     struct process_d *process;
 // Um heap pode pertencer à um thread.
@@ -72,7 +72,7 @@ struct heap_d
 // + As threads de um mesmo processo podem compartilhar o mesmo heap
 //   pois estão na mesma área de memória.
 // + #todo: 
-//   O desafio é fazer os processes que estão no mesmo desktop
+//   O desafio é fazer os processes que estão no mesmo zh
 //   compartilharem o mesmo heap, porque eles deveriam estar
 //   na mesma área de memória para isso. 
 

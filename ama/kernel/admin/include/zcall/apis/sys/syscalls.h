@@ -48,9 +48,9 @@ void *sci2 (
 /* zero/sys/sys.c */
 unsigned long sys_get_system_metrics(int n);
 
-/* zero/sys/sys.c */
+/* sys.c */
 void *sys_create_process ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long res1,          //nothing
     unsigned long priority, 
     int ppid, 
@@ -59,7 +59,7 @@ void *sys_create_process (
 
 /* sys.c */
 void *sys_create_thread ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long init_rip, 
     unsigned long priority, 
     int ppid, 

@@ -114,7 +114,7 @@ extern int ____network_late_flag;
 
 int 
 network_register_ring3_display_server(
-    struct desktop_d *desktop,
+    struct zing_hook_d *zh,
     pid_t caller_pid );
 
 

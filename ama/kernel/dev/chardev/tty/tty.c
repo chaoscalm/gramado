@@ -681,8 +681,8 @@ struct tty_d *tty_create(short type, short subtype)
 // Maybe it will change when a user login into a terminal.
 // Nao sei se essas estruturas estao prontas para isso nesse momento
 // ou se esses ponteiros sao nulos.
-    __tty->user_session = NULL;  // CurrentUserSession;
-    __tty->desktop      = NULL;  // CurrentDesktop;
+    __tty->user_session = NULL;  // Current user session;
+    __tty->zh = NULL;  // Current zing hook.
 
 
 // The kernel can print string into the display device.

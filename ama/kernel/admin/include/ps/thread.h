@@ -612,7 +612,7 @@ struct thread_d
 // para privilégios de acesso.
 
     struct usession_d *usession;  // user session.
-    struct desktop_d  *desktop;   // desktop.
+    struct zing_hook_d *zh;   // zh.
 
 // Callback:
 // The main procedure for a ring 3 application.
@@ -822,7 +822,7 @@ unlink_two_threads(
 struct thread_d *copy_thread_struct(struct thread_d *thread);
 
 struct thread_d *create_thread ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long init_rip, 
     unsigned long init_stack, 
     pid_t pid, 

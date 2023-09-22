@@ -570,7 +570,7 @@ wmProcedure (
                 }
 
                 // [SHIFT + F12]
-                // Update desktop and show the mouse pointer.
+                // Update all windows and show the mouse pointer.
                 // IN: window, msg code, data1, data2.
                 if (shift_status == TRUE){
                     post_message_to_ws( (int) 88112, 0, 0 );

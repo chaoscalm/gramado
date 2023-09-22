@@ -162,7 +162,7 @@ static void __maximize_ws_priority(pid_t pid)
 
 int 
 network_register_ring3_display_server(
-    struct desktop_d *desktop,
+    struct zing_hook_d *zh,
     pid_t caller_pid )
 {
 // 513 - SYS_SET_WS_PID
@@ -172,9 +172,9 @@ network_register_ring3_display_server(
     pid_t current_process = (pid_t) get_current_process();
 
 // parameter:
-    if ((void*) desktop == NULL )
+    if ((void*) zh == NULL)
         goto fail;
-    if (desktop->magic != 1234)
+    if (zh->magic != 1234)
         goto fail;
 
 // parameter:
@@ -199,7 +199,7 @@ network_register_ring3_display_server(
 
 
 // Register_ws_process(current_process);
-    desktop->__display_server_pid = (pid_t) current_process;
+    zh->__display_server_pid = (pid_t) current_process;
 
 // #todo
 // Maybe this method belongs to the sys_bind() routine.

@@ -262,10 +262,10 @@
 #define SYS_UPDATEUSERINFO     155
 #define SYS_SHOWUSERINFO       156
 
-// Security (User session desktop)
+// Security ?
 #define SYS_GETCURRENTUSERSESSION    157 // user session
 // 158 - free
-#define SYS_GETCURRENTDESKTOP        159 // desktop
+#define SYS_GETCURRENTDESKTOP        159 // zh?
 
 // ------------
 
@@ -435,47 +435,47 @@
 // ws and wm.
 
 // 512 - SYS_GET_WS_PID
-// 512 - Get ws PID for a given desktop.
-// Pega o wm de um dado desktop.
+// 512 - Get ws PID for a given zh.
+// Pega o wm de um dado zh.
 #define  SYS_GET_WS_PID  512
 
 // 513 - SYS_SET_WS_PID
 // 513
 // Register the ring3 display server.
-// Set ws PID for a given desktop
+// Set ws PID for a given zh
 // Register a display server.
 // gramado_ports[11] = ws_pid
 // Called by the window server.
-// arg2 = desktop structure pointer.
+// arg2 = zh structure pointer.
 // arg3 = The window server PID.
 // #todo: 
 // We need a helper function for this.
 #define  SYS_SET_WS_PID  513
 
 // 514 - SYS_GET_WM_PID
-// 514 - get wm PID for a given desktop
-// IN: desktop
+// 514 - get wm PID for a given zh
+// IN: zh
 #define  SYS_GET_WM_PID  514
 
 // 515 - SYS_SET_WM_PID
-// 515 - set wm PID for a given desktop
+// 515 - set wm PID for a given zh
 // Register a ring3 wm.
-// IN: desktop, pid
+// IN: zh, pid
 #define  SYS_SET_WM_PID  515
 
 // Ingo for ws and wm.
 #define SYS_SHOW_X_SERVER_INFO  516  // show x server info
 #define SYS_SHOW_WM_INFO        517  // show wm info
 
-// 519 - CurrentDesktop
+// 519 - CurrentZingHook
 // #bugbug
 // This is a ring0 pointer.
 // A ring3 process can't handle this thing.
-// Get current desktop
+// Get current zh
 
 // 521
 // network server
-// 521 - set ns PID for a given desktop
+// 521 - set ns PID for a given zh
 // Register a network server.
 // gramado_ports[11] = ws_pid
 

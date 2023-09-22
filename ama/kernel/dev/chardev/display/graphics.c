@@ -26,7 +26,7 @@ int logoffStatus=0;           //Logoff status.
 int userenvironmentStatus=0;  //User environment status.
 
 // Contagens de ambientes;
-int desktops_count=0;
+int zh_count=0;
 
 // draw char support
 int gcharWidth=8;

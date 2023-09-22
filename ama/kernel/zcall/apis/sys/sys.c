@@ -100,7 +100,7 @@ unsigned long sys_get_system_metrics(int n)
 // Only ring3 for now.
 // OUT: ?
 void *sys_create_process ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long res1,          //nothing
     unsigned long priority, 
     int ppid, 
@@ -186,7 +186,7 @@ void *sys_create_process (
 
     new = 
         (void *) create_process ( 
-                     NULL,  
+                     NULL,  //zh
                      (unsigned long) CONTROLTHREAD_BASE, 
                      PRIORITY_NORMAL_THRESHOLD, 
                      (int) current_pid, 
@@ -228,7 +228,7 @@ fail:
 // Enviar os argumentos via buffer.
 
 void *sys_create_thread ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long init_rip, 
     unsigned long priority, 
     int ppid, 
@@ -267,7 +267,7 @@ void *sys_create_thread (
     
     Thread = 
         (struct thread_d *) create_thread ( 
-                                desktop,  
+                                zh,  
                                 init_rip, 
                                 priority, 
                                 ppid, 

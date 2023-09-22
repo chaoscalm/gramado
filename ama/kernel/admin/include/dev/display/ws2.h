@@ -309,8 +309,8 @@ struct gui_d
     int refresh;
 
 // Security
-    struct usession_d  *CurrentUserSession;
-    struct desktop_d   *CurrentDesktop;
+    struct usession_d  *user_session;
+    struct zing_hook_d   *zing_hook;
 };
 extern struct gui_d  *gui; 
 

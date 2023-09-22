@@ -838,7 +838,7 @@ int thread_profiler(int service)
 // The second one will setup all the machine dependent elements.
 
 struct thread_d *create_thread ( 
-    struct desktop_d  *desktop,
+    struct zing_hook_d  *zh,
     unsigned long init_rip, 
     unsigned long init_stack, 
     pid_t pid, 
@@ -864,8 +864,8 @@ struct thread_d *create_thread (
 //======================================
 // check parameters.
 
-    if ((void*) desktop == NULL){
-        debug_print ("create_thread: desktop parameter\n");
+    if ((void*) zh == NULL){
+        debug_print ("create_thread: zh\n");
     }
 
 // #bugbug
@@ -986,9 +986,6 @@ struct thread_d *create_thread (
 
 // #todo
 // Include these element into the thread structure.
-
-    //Thread->usession = Process->usession;
-    //Thread->desktop  = Process->desktop;
 
 // ====
 
@@ -1369,7 +1366,7 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
     //char new_name[32];
 
 // IN: 
-//  desktop, window,
+//  zh, window,
 // initial eip, initial stack, 
 // pid, thread name.
 
@@ -1703,7 +1700,7 @@ struct thread_d *copy_thread_struct(struct thread_d *thread)
     clone->owner_process = father->owner_process; 
 
 	//Thread->window_station
-	//Thread->desktop
+	//Thread->zh
 	//Thread->control_menu_procedure
 	//Thread->wait4pid =
 

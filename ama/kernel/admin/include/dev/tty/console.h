@@ -94,7 +94,7 @@ struct virtual_console_login_d
     struct user_info_d *user_info;
     
     struct usession_d *usession;
-    struct desktop_d  *desktop;
+    struct zing_hook_d  *zh;
 };
 
 //

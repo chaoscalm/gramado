@@ -6,7 +6,6 @@
 #ifndef ____USER_H
 #define ____USER_H    1
 
-
 /*
  * usession_d:
  *     The user section structure. 
@@ -43,12 +42,6 @@ struct usession_d
 // =========================================================
     unsigned long BeginTime;
     unsigned long EndTime;
-//Listas encadeadas de ponteiros para pool.
-//ou vetores de ponteiros para pools.
-// Início da lista encadeada de ponteiros para pools.
-    //unsigned long *dpHead;     //Desktop Pools.(wstations).
-    //unsigned long *opHead;     //Object Pools.
-    //unsigned long *pdpHead;    //Page Directory Pools. (page directory lists) 
 // Navigation
     struct usession_d *next;
 };
@@ -57,15 +50,21 @@ struct usession_d
 struct usession_d *usession0;
 struct usession_d *CurrentUserSession;
 // List
+// Counters.
+#define USER_SESSION_COUNT_MAX  16
 unsigned long usessionList[USER_SESSION_COUNT_MAX];
 
 //==============================================================
 
-struct desktop_d
+struct zing_hook_d
 {
+// Register some components of the zing layer.
+// + display server.
+// + network server.
+
     object_type_t   objectType;
     object_class_t  objectClass;
-// DID - Desktop ID.
+
     int id;
     int used;
     int magic;
@@ -75,48 +74,33 @@ struct desktop_d
     int name_lenght;
 
 // Main PIDs
-    pid_t __init_process_pid;     // init process
     pid_t __display_server_pid;   // display server
     pid_t __network_server_pid;   // network server
 
-// Isso limita as quantidades que podem ser criadas em um desktop.
-// permitindo o fácil gerenciamento de drivers em desktops específicos.
-// Pois alguns desktops podem ter seus próprios gerenciadores de servidores.
-// Como o caso do gramado core. Que fica a cargo apenas do kernel 
-// gerenciar esses servidores especiais.
-	unsigned int drivers_max;
-	unsigned int servers_max;
-	unsigned int apps_max;
-
-// Heap do desktop.
-    //struct heap_d  *heap;
-
-// List of overlapped windows.
-// Only application windows,
-// that one with a frame.
-    int lTail;
-    int lHead;
-    unsigned long list[8];
-
 // Navigation
-    struct desktop_d *next;
+    struct zing_hook_d *next;
 };
-extern struct desktop_d  *CurrentDesktop;
+extern struct zing_hook_d  *CurrentZingHook;
 // List
-unsigned long desktopList[DESKTOP_COUNT_MAX];
+// Zing hook list.
+#define ZH_COUNT_MAX    16
+unsigned long zinghookList[ZH_COUNT_MAX];
 
 //
 // == prototypes ===========================
 //
 // Initialization
-void init_desktop_list (void);
-void init_desktop (void);
-void set_current_desktop ( struct desktop_d *desktop );
-void *get_current_desktop (void);
-int get_current_desktop_id (void);
-int RegisterDesktop (struct desktop_d *d);
+void init_zh_list(void);
+void init_zh(void);
 
-void *CreateDesktop(void);
+void set_current_zh(struct zing_hook_d *zh);
+struct zing_hook_d *get_current_zh(void);
+
+int get_current_zh_id(void);
+
+int RegisterZingHook (struct zing_hook_d *d);
+
+void *CreateZingHook(void);
 
 // --------------------------------------------
 
@@ -129,7 +113,7 @@ int register_logoff_process ( pid_t pid );
 //
 
 extern int current_usersession;
-extern int current_desktop; 
+extern int current_zh; 
 
 
 /*
@@ -190,12 +174,12 @@ struct user_info_d
     int initialized;
 
 // Security
-// User session and desktop.    
+// User session and zh.    
 
     struct usession_d *usession;
     int usessionId;
-    struct desktop_d *desktop;
-    int desktopId;
+    struct zing_hook_d *zh;
+    int zh_id;
 
     //??
     char *path;             // '/root/user/(name)'

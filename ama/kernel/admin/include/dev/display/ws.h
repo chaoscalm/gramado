@@ -6,104 +6,7 @@
 #ifndef __DISPLAY_WS_H
 #define __DISPLAY_WS_H    1
 
-// Counters.
-#define USER_SESSION_COUNT_MAX  16
-#define DESKTOP_COUNT_MAX       16
 
-//
-// Colors
-//
-
-/*
- * ColorSchemeType:
- *     Enumerando os esquemas de cores. 
- *     Esses são esquemas default.
- *     Poderemos carregar outros e cada esquema terá seu índice.
- *     Esses serão sempre os primeiros.    
- */
-typedef enum {
-    ColorSchemeNull,      // 0 - Null.
-    ColorSchemeHumility,  // 1 - Gray stuff.
-    ColorSchemePride,     // 2 - Colorful.
-    // ...
-}ColorSchemeType;
-
-/*
- * ColorSchemeIndex:
- *     csi - color scheme index. 
- *     Enumerando os elementos gráficos
- *     O esquema de cores se aplica ao servidor 
- * de recursos gráficos. GWS.
- */
-typedef enum {
-
-    csiNull,                    //0
-    csiDesktop,                 //1 área de trabalho.
-//window
-    csiWindow,                  //2
-    csiWindowBackground,        //3
-    csiActiveWindowBorder,      //4
-    csiInactiveWindowBorder,    //5
-//bar
-    csiActiveWindowTitleBar,    //6
-    csiInactiveWindowTitleBar,  //7
-    csiMenuBar,                 //8
-    csiScrollBar,               //9
-    csiStatusBar,               //10
-
-    csiMessageBox,              //11
-    csiSystemFontColor,         //12 BLACK
-    csiTerminalFontColor,       //13 WHITE
-    //...
-//@todo: focus,
-//@todo: Window 'shadow' (black??)
-
-}ColorSchemeIndex;  
-
-
-/*
- * color_scheme_d:
- *     Estrutura para esquema de cores. 
- *     O esquema de cores se aplica ao servidor de recursos gráficos. 
- */ 
-struct color_scheme_d
-{
-
-// #todo: 
-// É preciso ainda definir esse tipo de objeto.
-// definir em gdef.h
-
-    //object_type_t  objectType;
-    //object_class_t objectClass;
-
-    //#todo Not initilized yet.
-    int id;
-
-    int used;
-    int magic;
-
-//marcador de estilo de design para 
-//o padrão de cores.
-//cada estilo pode invocar por si um padrão de cores.
-//ou o padrão de cores por si pode representar um estilo.
-
-    int style;
-
-    char *name; 
-
-//cada índice desse array representará um elemento gráfico,
-//os valores no array são cores correspondentes aos elementos gráficos 
-//representados por índices.
-    unsigned long elements[32];
-    //...
-};
-// #ps:
-// The kernel only have two color schemes:
-// Humility and Pride.
-// see: graphics.c
-extern struct color_scheme_d *HumilityColorScheme; // Simples.
-extern struct color_scheme_d *PrideColorScheme;    // Colorido.
-extern struct color_scheme_d *CurrentColorScheme;
 // ===============================================================
 
 struct ws_info_d
@@ -134,7 +37,7 @@ extern int logonStatus;              //Logon status.
 extern int logoffStatus;             //Logoff status.
 extern int userenvironmentStatus;    //User environment status.
 // Contagens de ambientes;
-extern int desktops_count;
+extern int zh_count;
 
 // draw char support
 extern int gcharWidth;
@@ -172,7 +75,7 @@ typedef enum {
 // Here we will find all the info we need about the window server
 // that the system is using in the moment. Things like, name, pid ... 
 // The system is able to run only one window server.
-// We can select one window server per desktop.
+// We can select one window server per zing hook.
 // The window server is a ring3 process.
 // The system also have an embedded window server inside the base kernel.
 // Maybe we will create different kinds of window server in the future,
@@ -209,7 +112,7 @@ typedef enum {
     // the pid of the kernel process.
     
     pid_t WindowServer_pid; 
-    //struct desktop_d *desktop;  // The desktop associated with the ws. 
+    //struct zing_hook_d *zh;  // The zh associated with the ws. (display server)
 
     // Limiting the nale to 64.
     char WindowServer_name[64];

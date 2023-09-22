@@ -509,10 +509,10 @@ copy_process_struct(
     Process2->rflags_iopl = Process1->rflags_iopl;
 
 // Security: 
-// usersession and desktop.
+// usersession and zh.
 
     Process2->usession = Process1->usession;
-    Process2->desktop  = Process1->desktop;
+    Process2->zh  = Process1->zh;
 
 // Absolute pathname and relative pathname. 
 
@@ -992,7 +992,7 @@ void ps_initialize_process_common_elements(struct process_d *p)
 
 // Create process
 struct process_d *create_process ( 
-    struct desktop_d *desktop,
+    struct zing_hook_d *zh,
     unsigned long base_address, 
     unsigned long priority, 
     ppid_t ppid, 
@@ -1017,8 +1017,8 @@ struct process_d *create_process (
 //=================================
 // check parameters
 
-    if( (void*) desktop == NULL ){
-        //debug_print ("create_process: [FIXME] desktop parameter is NULL\n");
+    if( (void*) zh == NULL ){
+        //debug_print ("create_process: zh\n");
     }
 
 // #todo
@@ -1439,7 +1439,7 @@ struct process_d *create_process (
     //Process->event
 
 // #importante
-// user session and desktop.
+// user session and zh.
 // #bugbug: 
 // Nao temos informaçao sobre a user session, 
 // devemos pegar a estrutura de current user session. 
@@ -1448,7 +1448,7 @@ struct process_d *create_process (
 
 // Security
     Process->usession = CurrentUserSession;  // Current.
-    Process->desktop  = desktop;             // Passado via argumento.
+    Process->zh  = zh;             // Passado via argumento.
 // Navigation
     Process->prev = NULL; 
     Process->next = NULL; 

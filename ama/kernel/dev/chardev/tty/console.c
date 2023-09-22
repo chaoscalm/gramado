@@ -529,8 +529,8 @@ console_init_virtual_console(
     // Security stuff.
     // Nao sei se essas estruturas estao prontas para isso nesse momento
     // ou se esses ponteiros sao nulos.
-    CONSOLE_TTYS[ConsoleIndex].user_session = NULL;  // CurrentUserSession;
-    CONSOLE_TTYS[ConsoleIndex].desktop      = NULL;  // CurrentDesktop;
+    CONSOLE_TTYS[ConsoleIndex].user_session = NULL;  // Current user session;
+    CONSOLE_TTYS[ConsoleIndex].zh = NULL;  // Current zing hook
 
     // file pointer
     // this file handles this tty object

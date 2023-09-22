@@ -302,7 +302,7 @@ static void *__extra_services (
 {
     //struct process_d *__p;
     //struct process_d *__net_process;
-    struct desktop_d *__desktop;
+    struct zing_hook_d *__zh;
 // Generic file pointer
 //    file *__fp;
 // bmp file pointer.
@@ -468,20 +468,19 @@ static void *__extra_services (
         return NULL;
     }
 
-// 512 - Get ws PID for a given desktop.
-// Pega o wm de um dado desktop.
-// IN: Desktop structure pointer.
+// 512 - Get display server PID for a given zing hook.
+// IN: zing hook structure pointer.
 // OUT: pid
     if (number == SYS_GET_WS_PID)
     {
         debug_print("__extra_services: SYS_GET_WS_PID\n");
-        __desktop = ( struct desktop_d *) arg2;
-        if ( (void *) __desktop != NULL )
+        __zh = (struct zing_hook_d *) arg2;
+        if ( (void *) __zh != NULL )
         {
-            if ( __desktop->used  == TRUE && 
-                 __desktop->magic == 1234 )
+            if ( __zh->used  == TRUE && 
+                 __zh->magic == 1234 )
             {
-                return (void *) __desktop->__display_server_pid; 
+                return (void *) __zh->__display_server_pid; 
             }
         }
         // It means pid=0.
@@ -490,14 +489,12 @@ static void *__extra_services (
 
 // 513
 // Register the ring3 display server.
-// Set ws PID for a given desktop
+// Set display PID for a given zing hook structure.
 // Register a display server.
 // gramado_ports[11] = ws_pid
-// Called by the window server.
-// arg2 = desktop structure pointer.
-// arg3 = The window server PID.
-// #todo: 
-// We need a helper function for this.
+// Called by the ring 3 display server.
+// arg2 = zing hook structure pointer.
+// arg3 = The display erver PID.
 
     int display_server_ok=FALSE;
 
@@ -505,95 +502,27 @@ static void *__extra_services (
     {
         debug_print("__extra_services: SYS_SET_WS_PID\n");
         
-        // IN: desktop, caller pid.
+        // IN: zing hook, caller pid.
         // see: network.c
         display_server_ok = 
             (int) network_register_ring3_display_server(
-                (struct desktop_d *) arg2, (pid_t) arg3);
+                (struct zing_hook_d *) arg2, (pid_t) arg3);
         
         if (display_server_ok == TRUE){
             return (void*) TRUE;
         }
         return NULL;
-
-        /*
-        // Get desktop poiter from user.
-        __desktop = (struct desktop_d *) arg2;
-        if ((void *) __desktop != NULL)
-        {
-            if ( __desktop->used  == TRUE && 
-                 __desktop->magic == 1234 )
-            {
-                if (arg3 != current_process){
-                    panic("__extra_services: [SYS_SET_WS_PID] arg3 != current_process\n");
-                }
-                //register_ws_process(current_process);
-                __desktop->__display_server_pid = (pid_t) current_process;
-
-                // #todo
-                // Maybe this method belongs to the sys_bind() routine.
-                socket_set_gramado_port(
-                    GRAMADO_PORT_WS,
-                    (pid_t) current_process );
-
-                __initialize_ws_info(current_process);
-                __maximize_ws_priority(current_process);
-                
-                //#todo
-                //WindowServer.desktop = (struct desktop_d *) __desktop;
-                //WindowServer.type = WindowServerTypeRing3Process;
-                //WindowServer.pid = (pid_t) current_process;
-                
-                // #test
-                // Eleva a prioridade da thread de controle para alem dos limites.
-                // #bugbug: Cancelado.
-                // Isso melhorou a performance somente no qemu.
-                // Todo o resto piorou. Piorou a conexao entre os processos e
-                // principalmente piorou em resoluçoes maiores e na maquina real.
-                //power_pid(current_process,4);
-                //power_pid(current_process,8);
-                
-                
-                // Changing the kernel input mode.
-                // #bugbug: Maybe we need to wait a little bit. hahaha
-                // The window server is still initializing ...
-                // but there is no problem to sent messages to its control thread.
-                // os am i wrong?
-                
-                //#importante
-                // Nao mudaremos mais o modo de input.
-                // Esse modo de input nao vai mais existir.
-                // o cliente pegara o input.
-                // current_input_mode = INPUT_MODE_WS; 
-
-                // returning ok.
-                // But, we could return the port number.
-
-                //#debug
-                //printf("513: done\n");
-                //while(1){}
-                
-                return (void *) TRUE;  //ok 
-            }
-        }
-        */
-
-        //#debug
-        //printf("513: fail\n");
-        //while(1){}
-
-        return NULL; //fail
     }   
 
 // #deprecated
-// 514 - get wm PID for a given desktop
+// 514 - get wm PID for a given zing hook
     if ( number == SYS_GET_WM_PID ){
         panic("__extra_services: SYS_GET_WM_PID\n");
         return NULL;
     }
 
 // #deprecated
-// 515 - set wm PID for a given desktop
+// 515 - set wm PID for a given zing hook
     if (number == SYS_SET_WM_PID){
         panic("__extra_services: SYS_SET_WM_PID\n");
         return NULL;
@@ -602,25 +531,24 @@ static void *__extra_services (
 // #bugbug
 // This is a ring0 pointer.
 // A ring3 process can't handle this thing.
-// Get current desktop
+// Get current zing hook
     if (number == 519){
-        return (void *) CurrentDesktop;
+        return (void *) CurrentZingHook;
     }
 
 
 // network server
-// 521 - set ns PID for a given desktop
+// 521 - set ns PID for a given zing hook.
 // Register a network server.
-// gramado_ports[11] = ws_pid
     if (number == 521)
     {
-        __desktop = (struct desktop_d *) arg2;
-        if ( (void *) __desktop != NULL )
+        __zh = (struct zing_hook_d *) arg2;
+        if ( (void *) __zh != NULL )
         {
-            if ( __desktop->used == TRUE && 
-                 __desktop->magic == 1234 )
+            if ( __zh->used == TRUE && 
+                 __zh->magic == 1234 )
             {
-                __desktop->__network_server_pid = (pid_t) arg3;
+                __zh->__network_server_pid = (pid_t) arg3;
 
                 socket_set_gramado_port(
                     GRAMADO_PORT_NS,
@@ -1043,8 +971,6 @@ void *sci0 (
     pid_t current_process = (pid_t) get_current_pid();
     int layer = LAYER_UNDEFINED;
 
-    //int desktopID=0;
-
 //cpl
     unsigned long *cpl_buffer = (unsigned long *) &sci0_cpl;
     int cpl=-1;
@@ -1139,13 +1065,8 @@ void *sci0 (
     }
 */
 
-// ================================
-// Desktop ID.
-    // desktopID = (int) get_current_desktop_id ();
-
 // Extra services
-    if (number > 256)
-    {
+    if (number > 256){
         return (void *) __extra_services(number,arg2,arg3,arg4);
     }
 
@@ -1504,7 +1425,7 @@ void *sci0 (
         case SYS_CREATEPROCESS:
             debug_print("sci0: [FIXME] SYS_CREATEPROCESS\n");
             return (void *) sys_create_process ( 
-                                NULL,             // desktop
+                                NULL,             // zing hook
                                 0,                // Reserved
                                 arg3,             // priority
                                 current_process,  // ppid
@@ -1765,9 +1686,9 @@ void *sci0 (
         
         // 158 - free
        
-        // 159 - get desktop id
+        // 159 - get current zing hook id
         case SYS_GETCURRENTDESKTOP:
-            return (void *) current_desktop; 
+            return (void *) current_zh; 
             break;
 
         // ----------------

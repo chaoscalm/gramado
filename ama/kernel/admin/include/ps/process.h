@@ -697,10 +697,10 @@ struct process_d
 // == Security ============================
 //
 
-// User session,  desktop.
+// User session,  zh.
 
     struct usession_d  *usession;  //user session
-    struct desktop_d   *desktop;   //Desktop do processo.        
+    struct zing_hook_d *zh;        //zh.        
 
 // ============================================
 
@@ -907,7 +907,7 @@ void close_all_processes(void);
 void ps_initialize_process_common_elements( struct process_d *p );
     
 struct process_d *create_process ( 
-    struct desktop_d *desktop,
+    struct zing_hook_d *zh,
     unsigned long base_address, 
     unsigned long priority, 
     ppid_t ppid, 

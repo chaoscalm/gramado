@@ -203,9 +203,9 @@ struct tty_d
 // What is the user logged in this terminal?
 // see: user.h
     struct user_info_d *user_info;
-// Security: user session, desktop.
+// Security: user session, zh.
     struct usession_d  *user_session;
-    struct desktop_d   *desktop;
+    struct zing_hook_d   *zh;
 // ===================================================
 
 

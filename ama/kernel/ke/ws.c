@@ -11,8 +11,6 @@ int ws_init(void)
 {
     //debug_print ("ws_init: \n");
 
-    //#todo
-    //WindowServer.desktop = (struct desktop_d *) __desktop;
 
 // The system starts with the embedded window server.
     WindowServer_type = WindowServerTypeEmbedded;
