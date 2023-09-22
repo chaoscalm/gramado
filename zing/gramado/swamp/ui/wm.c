@@ -6355,12 +6355,16 @@ int dock_window( struct gws_window_d *window, int position )
     };
 
 
+/*
     set_active_window(window);
     //set_focus(window);
     redraw_window(window,TRUE);
     // Post message to the main window.
     // Paint the childs of the window with focus.
     on_update_window(window,GWS_Paint);
+*/
+
+    wm_update_desktop3(window);
 
     return 0; 
 }
