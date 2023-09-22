@@ -19,6 +19,8 @@
 
 #include <bootloader.h>
 
+const char *image_name = "KERNEL.BIN";
+
 //
 // globals
 //
@@ -318,7 +320,7 @@ static int blLoadKernelImage(void)
     int Status = -1;
 // Standard name.
 // #todo: Maybe we need some options, some config file.
-    char *image_name = "KERNEL.BIN";
+    //char *image_name = "KERNEL.BIN";
 
 // #bugbug
 // Precisamos que essa rotina retorne

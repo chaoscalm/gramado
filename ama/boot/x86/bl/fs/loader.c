@@ -78,6 +78,7 @@ int elfLoadKernelImage(const char *file_name)
 // Default pathname.
     strcpy(DefaultPath, "/GRAMADO/KERNEL.BIN");
 
+// ---------------------------------------
 // Load KERNEL.BIN on a physical address.
 // Search the file in the /LANDOS/ and /BOOT/ subdirectories
 // of the boot partition.
