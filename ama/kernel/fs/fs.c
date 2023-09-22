@@ -1864,13 +1864,127 @@ int get_saved_sync(void)
     return (int) __saved_sync_id;
 }
 
+// --------------------------------------------------
+// service 10006
+// #todo
+// Comment the purpose of this routine.
+// It is used on socket communication.
+void sys_set_file_sync(int fd, int request, int data)
+{
+    struct process_d  *p;
+    file *object;
+
+    pid_t current_process = (pid_t) get_current_process();
+    
+    //#bugbug
+    // Pensaremos nessa possibilidade.
+
+/*
+    if (fd == 0 || fd == 1 || fd == 2 )
+    {
+        debug_print("sys_close: [FIXME] We can't close the standard stream\n");
+        // WHY NOT ???!!
+        return (int) (-1);
+    }
+ */
+
+    if ( fd < 0 || fd >= OPEN_MAX ){
+        debug_print("sys_set_file_sync: fd\n");
+        return;
+    }
+
+// == Process ================
+
+    if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
+        debug_print("sys_set_file_sync: current_process\n");
+        return;
+    }
+
+    p = (void *) processList[current_process];
+    if ((void *) p == NULL){
+        debug_print("sys_set_file_sync: p\n");
+        return;
+    }
+    if (p->magic != 1234){
+        debug_print("sys_set_file_sync: p validation\n");
+        return;
+    }
+
+// object
+// Everything is a file.
+
+    object = (file *) p->Objects[fd];
+    if ((void*) object == NULL){
+        debug_print("sys_set_file_sync: object\n");
+        return;
+    }
+    if ( object->used != TRUE || object->magic != 1234 ){
+        debug_print("sys_set_file_sync: validation\n");
+        return;
+    }
+
+// request.
+
+    switch (request){
+
+    // set last action
+    case SYNC_REQUEST_SET_ACTION:
+        object->sync.action = data;
+        break;
+
+    // #test
+    // reset
+    // Now we can write
+    // SYNC_REQUEST_RESET_WR
+    case 216:
+
+        //#debug
+        //printf("216:\n"); 
+        //refresh_screen();
+
+        object->sync.action = 0;
+        //object->_flags = (__SWR | __SRD); 
+        object->_flags = __SWR;
+        k_rewind(object);
+        object->_r = 0;
+        object->_w = 0;
+        object->socket_buffer_full = FALSE; //empty buffer
+        return;
+        break;
+
+    // #test
+    // Now we can read
+    // SYNC_REQUEST_RESET_RD
+    case 217:
+
+        //#debug
+        //printf("217:\n"); 
+        //refresh_screen();
+
+        object->sync.action = 0;
+        //object->_flags = (__SWR | __SRD); 
+        object->_flags = __SRD;
+        return;
+        break;
+
+    // ...
+
+    default:
+        debug_print("sys_set_file_sync: [FAIL] Default request\n");
+        return;
+        break;
+    };
+
+    // ...
+}
+
+// ---------------------------------
 // service 10007
 // #todo
 // Comment the purpose of this routine.
 // It is used on socket communication.
 // #todo: Explain the output values.
-
-int sys_get_file_sync (int fd, int request)
+int sys_get_file_sync(int fd, int request)
 {
     struct process_d  *p;
     file *object;
@@ -1940,118 +2054,6 @@ int sys_get_file_sync (int fd, int request)
 
 // ?? Why '0'?
     return 0;
-}
-
-// service 10006
-// #todo
-// Comment the purpose of this routine.
-// It is used on socket communication.
-
-void sys_set_file_sync(int fd, int request, int data)
-{
-    struct process_d  *p;
-    file *object;
-
-    pid_t current_process = (pid_t) get_current_process();
-    
-    //#bugbug
-    // Pensaremos nessa possibilidade.
-
-/*
-    if (fd == 0 || fd == 1 || fd == 2 )
-    {
-        debug_print("sys_close: [FIXME] We can't close the standard stream\n");
-        // WHY NOT ???!!
-        return (int) (-1);
-    }
- */
-
-    if ( fd < 0 || fd >= OPEN_MAX ){
-        debug_print("sys_set_file_sync: fd\n");
-        return;
-    }
-
-// == Process ================
-
-    if ( current_process < 0 || current_process >= PROCESS_COUNT_MAX ){
-        debug_print("sys_set_file_sync: current_process\n");
-        return;
-    }
-
-    p = (void *) processList[current_process];
-    if ((void *) p == NULL){
-        debug_print("sys_set_file_sync: p\n");
-        return;
-    }
-    if (p->magic != 1234){
-        debug_print("sys_set_file_sync: p validation\n");
-        return;
-    }
-
-// object
-// Everything is a file.
-
-    object = (file *) p->Objects[fd];
-    if ((void*) object == NULL){
-        debug_print("sys_set_file_sync: object\n");
-        return;
-    }
-    if ( object->used != TRUE || object->magic != 1234 ){
-        debug_print("sys_set_file_sync: validation\n");
-        return;
-    }
-
-// request.
-
-    switch (request){
-
-    // set last action
-    case SYNC_REQUEST_SET_ACTION:
-        object->sync.action = data;
-        break;
-
-    // #test
-    // reset
-    // Now we can write
-    case 216:
-
-        //#debug
-        //printf("216:\n"); 
-        //refresh_screen();
-
-        object->sync.action = 0;
-        //object->_flags = (__SWR | __SRD); 
-        object->_flags = __SWR;
-        k_rewind(object);
-        object->_r = 0;
-        object->_w = 0;
-        object->socket_buffer_full = FALSE; //empty buffer
-        return;
-        break;
-
-    // #test
-    // Now we can read
-    case 217:
-
-        //#debug
-        //printf("217:\n"); 
-        //refresh_screen();
-
-        object->sync.action = 0;
-        //object->_flags = (__SWR | __SRD); 
-        object->_flags = __SRD;
-        return;
-        break;
-
-    // ...
-
-    default:
-        debug_print("sys_set_file_sync: [FAIL] Default request\n");
-        return;
-        break;
-    };
-
-    // ...
 }
 
 // Get the device number in the dev_dir[] list

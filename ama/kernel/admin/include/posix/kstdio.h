@@ -204,15 +204,19 @@ struct __sbuf
 // =======================================================
 // Sync
 
+// Commands for synchronization.
+#define SYNC_REQUEST_SET_ACTION  1
+#define SYNC_REQUEST_GET_ACTION  2
+#define SYNC_REQUEST_RESET_WR    216  //Now we can write.
+#define SYNC_REQUEST_RESET_RD    217  //Now we can read.
+
+// Action flags.
+// usado em 'file sync'
 #define ACTION_NULL       0
 #define ACTION_REQUEST    1000
 #define ACTION_REPLY      2000
 #define ACTION_EVENT      3000
 #define ACTION_ERROR      4000
-// ...
-#define SYNC_REQUEST_SET_ACTION  1
-#define SYNC_REQUEST_GET_ACTION  2
-// ...
 
 struct kstdio_sync_d
 {

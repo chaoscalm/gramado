@@ -448,10 +448,10 @@ static int __ide_identify_device(uint8_t nport)
 //
 
 // cmd
-    ata_wait (400);
+    ata_wait(400);
     debug_print("__ide_identify_device: ATA_CMD_IDENTIFY_DEVICE\n");
     ata_cmd_write (nport,ATA_CMD_IDENTIFY_DEVICE); 
-    ata_wait (400);
+    ata_wait(400);
 
     // ata_wait_irq(nport);
 
@@ -462,7 +462,7 @@ static int __ide_identify_device(uint8_t nport)
 
     debug_print("__ide_identify_device: ata_status_read(nport)\n");
 
-    if ( ata_status_read(nport) == 0 ){
+    if (ata_status_read(nport) == 0){
         debug_print("__ide_identify_device: ata_status_read(nport)\n");
         goto fail;
     }
@@ -643,7 +643,7 @@ static int __ide_identify_device(uint8_t nport)
         // e eviamos 256 word de dados PIO
 
         ata_wait_drq(nport);
-        __ata_pio_read ( nport, ata_identify_dev_buf, 512 );
+        __ata_pio_read( nport, ata_identify_dev_buf, 512 );
 
         ata_wait_not_busy(nport);
         ata_wait_no_drq(nport);
@@ -738,16 +738,13 @@ static int __ide_identify_device(uint8_t nport)
 
         // Disk
         // See: disk.h
-        disk = (struct disk_d *) kmalloc(  sizeof(struct disk_d) );
-
-        if( (void*) disk == NULL){
+        disk = (struct disk_d *) kmalloc(sizeof(struct disk_d));
+        if ((void*) disk == NULL){
             debug_print("__ide_identify_device: disk on SATA\n");
             goto fail;
         }
-
-        if ((void *) disk != NULL )
+        if ((void *) disk != NULL)
         {
-
             // Object header.
             // #todo
             //disk->objectType = ?
@@ -765,8 +762,8 @@ static int __ide_identify_device(uint8_t nport)
             // name
 
             //disk->name = "SATA-TEST";
-            sprintf ( (char *) name_buffer, "SATA-TEST-%d",nport);
-            disk->name = (char *) strdup ( (const char *) name_buffer);  
+            sprintf( (char *) name_buffer, "SATA-TEST-%d",nport);
+            disk->name = (char *) strdup((const char *) name_buffer);  
 
             // Security
             disk->pid = (pid_t) get_current_process();  //current_process;
@@ -783,10 +780,8 @@ static int __ide_identify_device(uint8_t nport)
 
         // It's a SATA device.
         // 0 = PATA or SATA.
-
         return (int) 0;
     }
-
 
 // ==========================
 // # PATAPI
@@ -797,7 +792,7 @@ static int __ide_identify_device(uint8_t nport)
         ata_cmd_write(nport,ATA_CMD_IDENTIFY_PACKET_DEVICE);
         ata_wait(400);
         ata_wait_drq(nport); 
-        __ata_pio_read ( nport, ata_identify_dev_buf, 512 );
+        __ata_pio_read( nport, ata_identify_dev_buf, 512 );
         ata_wait_not_busy(nport);
         ata_wait_no_drq(nport);
 
@@ -813,15 +808,12 @@ static int __ide_identify_device(uint8_t nport)
 
         // Disk
         // See: disk.h
-
-        disk = (struct disk_d *) kmalloc (  sizeof(struct disk_d) );
-
+        disk = (struct disk_d *) kmalloc(sizeof(struct disk_d));
         if( (void*) disk == NULL){
             debug_print("__ide_identify_device: disk on PATAPI\n");
             goto fail;
         }
-
-        if ((void *) disk != NULL )
+        if ((void *) disk != NULL)
         {
             disk->used = TRUE;
             disk->magic = 1234;
@@ -836,8 +828,6 @@ static int __ide_identify_device(uint8_t nport)
             sprintf ( (char *) name_buffer, "PATAPI-TEST-%d",nport);
             disk->name = (char *) strdup ( (const char *) name_buffer);  
 
-
-
             disk->channel = ata_port[nport].channel;  // Primary or secondary.
             disk->dev_num = ata_port[nport].dev_num;  // Master or slave.
 
@@ -847,7 +837,6 @@ static int __ide_identify_device(uint8_t nport)
 
         // It's a PATAPI device.
         // 0x80 = PATAPI or SATAPI.
-
         return (int) 0x80;
     }
 
@@ -865,7 +854,6 @@ static int __ide_identify_device(uint8_t nport)
         ata_wait_no_drq(nport);
 
         // See: ide.h
-
         ide_ports[nport].id = (uint8_t) nport;
         ide_ports[nport].type = (int) idedevicetypesSATAPI;
         ide_ports[nport].name = "SATAPI";
@@ -876,15 +864,12 @@ static int __ide_identify_device(uint8_t nport)
 
         // Disk
         // See: disk.h
-
-        disk = (struct disk_d *) kmalloc(  sizeof(struct disk_d) );
-
-        if( (void*) disk == NULL){
+        disk = (struct disk_d *) kmalloc(sizeof(struct disk_d));
+        if ((void*) disk == NULL){
             debug_print("__ide_identify_device: disk on SATAPI\n");
             goto fail;
         }
-
-        if ( (void *) disk != NULL )
+        if ((void *) disk != NULL)
         {
             disk->used = TRUE;
             disk->magic = 1234;
@@ -896,8 +881,8 @@ static int __ide_identify_device(uint8_t nport)
             // name
             
             //disk->name = "SATAPI-TEST";
-            sprintf ( (char *) name_buffer, "SATAPI-TEST-%d",nport);
-            disk->name = (char *) strdup ( (const char *) name_buffer);  
+            sprintf((char *) name_buffer, "SATAPI-TEST-%d",nport);
+            disk->name = (char *) strdup((const char *) name_buffer);  
 
             disk->channel = ata_port[nport].channel;  // Primary or secondary.
             disk->dev_num = ata_port[nport].dev_num;  // Master or slave.
@@ -908,23 +893,18 @@ static int __ide_identify_device(uint8_t nport)
 
         // It's a SATAPI device.
         // 0x80 = PATAPI or SATAPI.
-
         return (int) 0x80;
     }
 
 // fail ??
 // Is something wrong here?
-
     // #debug
     //panic("ide_identify_device: type not defined");
-
-
 // 0xFF: Unknown device class.
 fail:
     debug_print("__ide_identify_device: fail\n");
-    return 0xFF;
+    return (int) 0xFF;
 }
-
 
 // ata_initialize_ide_device:
 // ?? Alguma rotina de configuração de dispositivos.
@@ -933,10 +913,7 @@ fail:
 // Agora essa função precisa receber um ponteiro 
 // para a estrutura de disco usada pelo gramado.
 // Para salvarmos os valores que pegamos nos registradores.
-
 // Called by ata_initialize.
-
-
 static int ata_initialize_ide_device(char port)
 {
 // Inicializa uma porta e coloca numa lista encadeada de
@@ -966,39 +943,38 @@ static int ata_initialize_ide_device(char port)
 
 // Limits
 // 4 ports only    
-    if ( port < 0 || port >= 4){
-        printf ("ata_initialize_ide_device: port\n");
+    if (port < 0 || port >= 4){
+        printf("ata_initialize_ide_device: port\n");
         goto fail;
     }
 
 // storage
 // We need this structure.
-    if ( (void*) storage == NULL ){
-        panic("ata_initialize_ide_device: storage");
+    if ((void*) storage == NULL){
+        panic("ata_initialize_ide_device: storage\n");
     }
 
 // boot disk
 // We need this structure.
-    if ( (void*) ____boot____disk == NULL ){
-        panic("ata_initialize_ide_device: ____boot____disk");
+    if ((void*) ____boot____disk == NULL){
+        panic("ata_initialize_ide_device: ____boot____disk\n");
     }
     if ( ____boot____disk->magic != 1234 ){
-        panic("ata_initialize_ide_device: ____boot____disk->magic");
+        panic("ata_initialize_ide_device: ____boot____disk->magic\n");
     }
 
 // boot partition
 // We need this structure.
-    if ( (void*) volume_bootpartition == NULL ){
-        panic("ata_initialize_ide_device: volume_bootpartition");
+    if ((void*) volume_bootpartition == NULL){
+        panic("ata_initialize_ide_device: volume_bootpartition\n");
     }
-    if ( volume_bootpartition->magic != 1234 ){
-        panic("ata_initialize_ide_device: volume_bootpartition->magic");
+    if (volume_bootpartition->magic != 1234){
+        panic("ata_initialize_ide_device: volume_bootpartition->magic\n");
     }
 
 // Is it the boottime ide port?
-
     int boottime_ideport = ata_get_boottime_ide_port_index();
-    
+   
     // YES!
     if (port == boottime_ideport){
         isBootTimeIDEPort = TRUE;
@@ -1012,7 +988,7 @@ static int ata_initialize_ide_device(char port)
 
     // Ata device structure.
     new_dev = 
-        ( struct ata_device_d * ) kmalloc( sizeof(struct ata_device_d) );
+        (struct ata_device_d *) kmalloc(sizeof(struct ata_device_d));
     if ((void *) new_dev ==  NULL){
         printf("ata_initialize_ide_device: new_dev\n");
         goto fail;
@@ -1051,18 +1027,20 @@ static int ata_initialize_ide_device(char port)
 // ================
 // Unidades ATA.
 // 0    = PATA ou SATA
-    if ( data == 0 ){
+    if (data == 0){
 
         // Is it an ata device?
-        new_dev->dev_type = (ata_identify_dev_buf[0] & 0x8000) ? 0xffff : ATA_DEVICE_TYPE;
+        new_dev->dev_type = 
+            (ata_identify_dev_buf[0] & 0x8000) ? 0xffff : ATA_DEVICE_TYPE;
 
         // What kind of lba?
-        new_dev->dev_access = (ata_identify_dev_buf[83] & 0x0400) ? ATA_LBA48 : ATA_LBA28;
+        new_dev->dev_access = 
+            (ata_identify_dev_buf[83] & 0x0400) ? ATA_LBA48 : ATA_LBA28;
 
         // Let's set up the PIO support.
         // Where ATAFlag was defined?
         // Where FORCEPIO was defined?
-        
+
         // Com esse só funciona em pio
         if (ATAFlag == FORCEPIO){
             new_dev->dev_modo_transfere = 0;
@@ -1081,7 +1059,6 @@ static int ata_initialize_ide_device(char port)
         //#test
         //new_dev->dev_total_num_sector  = 
         //    *(unsigned long*) (short *) &ata_identify_dev_buf[60];
-
 
         // #bugbug
         // We can not do this.
@@ -1103,27 +1080,28 @@ static int ata_initialize_ide_device(char port)
         value2 = ata_identify_dev_buf[102];  
         new_dev->lba48_value2 = (unsigned short) value2;
         value2 = ( value2 << 32 );
-        value2 = ( value2 & 0x0000FFFF00000000  );
+        value2 = ( value2 & 0x0000FFFF00000000 );
 
         value3 = ata_identify_dev_buf[101];
         new_dev->lba48_value3 = (unsigned short) value3;  
         value3 = ( value3 << 16 );
-        value3 = ( value3 & 0x00000000FFFF0000  );
+        value3 = ( value3 & 0x00000000FFFF0000 );
 
         value4 = ata_identify_dev_buf[100];
         new_dev->lba48_value4 = (unsigned short) value4;  
         //value4 = ( value4 << 0 );
-        value4 = ( value4 & 0x000000000000FFFF  );
+        value4 = ( value4 & 0x000000000000FFFF );
           
         new_dev->dev_total_num_sector_lba48 = 
-            (unsigned long) (value1 | value2 | value3 | value4 );
+            (unsigned long) (value1 | value2 | value3 | value4);
 
         // #bugbug
         // We can not do this.
         // We need to check the supported sector size.
         // 512 or 4096 ?
 
-        new_dev->dev_size = (new_dev->dev_total_num_sector_lba48 * 512);
+        new_dev->dev_size = 
+            (new_dev->dev_total_num_sector_lba48 * 512);
 
         // Pegando o size.
         // Quantidade de setores.
@@ -1155,10 +1133,11 @@ static int ata_initialize_ide_device(char port)
 // ================
 // Unidades ATAPI. 
 // 0x80 = ATAPI ou SATAPI
-    }else if( data == 0x80 ){
+    }else if (data == 0x80){
 
         // Is this an ATAPI device ?
-        new_dev->dev_type = (ata_identify_dev_buf[0] & 0x8000) ? ATAPI_DEVICE_TYPE : 0xffff;
+        new_dev->dev_type = 
+            (ata_identify_dev_buf[0] & 0x8000) ? ATAPI_DEVICE_TYPE : 0xffff;
 
         // What kind of lba?
         new_dev->dev_access = ATA_LBA28;
@@ -1168,104 +1147,97 @@ static int ata_initialize_ide_device(char port)
         // Where FORCEPIO was defined?
 
         // Com esse só funciona em pio 
-              if (ATAFlag == FORCEPIO){
-                  new_dev->dev_modo_transfere = 0; 
+        if (ATAFlag == FORCEPIO){
+            new_dev->dev_modo_transfere = 0; 
 
-              // Com esse pode funcionar em dma
-              }else{
-                  new_dev->dev_modo_transfere = (ata_identify_dev_buf[49] & 0x0100) ? ATA_DMA_MODO : ATA_PIO_MODO;
-              };
+        // Com esse pode funcionar em dma
+        }else{
+            new_dev->dev_modo_transfere = (ata_identify_dev_buf[49] & 0x0100) ? ATA_DMA_MODO : ATA_PIO_MODO;
+        };
 
-              // ??
-              new_dev->dev_total_num_sector  = 0;
-              new_dev->dev_total_num_sector += 0;
+        // ?
+        new_dev->dev_total_num_sector  = 0;
+        new_dev->dev_total_num_sector += 0;
 
+        // #bugbug
+        // 2024
+        // Is this standard for all kind of CD?
+        // We need to get this information in some place.
 
+        new_dev->dev_byte_per_sector = 2048; 
 
-              // #bugbug
-              // 2024
-              // Is this standard for all kind of CD?
-              // We need to get this information in some place.
+        //#test
+        //new_dev->dev_total_num_sector  = 
+            //*(unsigned long*) (short *) &ata_identify_dev_buf[60];
 
-              new_dev->dev_byte_per_sector = 2048; 
+        new_dev->dev_total_num_sector_lba48  = 0;
+        new_dev->dev_total_num_sector_lba48 |= 0;
+        new_dev->dev_total_num_sector_lba48 |= 0;
+        new_dev->dev_total_num_sector_lba48 |= 0;
 
-              //#test
-              //new_dev->dev_total_num_sector  = 
-                  //*(unsigned long*) (short *) &ata_identify_dev_buf[60];
+        value1 = ata_identify_dev_buf[103];  
+        new_dev->lba48_value1 = (unsigned short) value1;
+        value1 = ( value1 << 48 );           
+        value1 = ( value1 & 0xFFFF000000000000 );    
 
+        value2 = ata_identify_dev_buf[102];  
+        new_dev->lba48_value2 = (unsigned short) value2;
+        value2 = ( value2 << 32 );
+        value2 = ( value2 & 0x0000FFFF00000000 );
 
-              new_dev->dev_total_num_sector_lba48  = 0;
-              new_dev->dev_total_num_sector_lba48 |= 0;
-              new_dev->dev_total_num_sector_lba48 |= 0;
-              new_dev->dev_total_num_sector_lba48 |= 0;
+        value3 = ata_identify_dev_buf[101];
+        new_dev->lba48_value3 = (unsigned short) value3;  
+        value3 = ( value3 << 16 );
+        value3 = ( value3 & 0x00000000FFFF0000 );
 
-              value1 = ata_identify_dev_buf[103];  
-              new_dev->lba48_value1 = (unsigned short) value1;
-              value1 = ( value1 << 48 );           
-              value1 = ( value1 & 0xFFFF000000000000 );    
-        
-              value2 = ata_identify_dev_buf[102];  
-              new_dev->lba48_value2 = (unsigned short) value2;
-              value2 = ( value2 << 32 );
-              value2 = ( value2 & 0x0000FFFF00000000  );
+        value4 = ata_identify_dev_buf[100];
+        new_dev->lba48_value4 = (unsigned short) value4;  
+        //value4 = ( value4 << 0 );
+        value4 = ( value4 & 0x000000000000FFFF );
 
-              value3 = ata_identify_dev_buf[101];
-              new_dev->lba48_value3 = (unsigned short) value3;  
-              value3 = ( value3 << 16 );
-              value3 = ( value3 & 0x00000000FFFF0000  );
+        new_dev->dev_total_num_sector_lba48 = 
+            (unsigned long) (value1 | value2 | value3 | value4);
 
-              value4 = ata_identify_dev_buf[100];
-              new_dev->lba48_value4 = (unsigned short) value4;  
-              //value4 = ( value4 << 0 );
-              value4 = ( value4 & 0x000000000000FFFF  );
-          
-              new_dev->dev_total_num_sector_lba48 = 
-                  (unsigned long) (value1 | value2 | value3 | value4 );
+        // #bugbug
+        // 2024
+        // Is this standard for all kind of CD?
+        // We need to get this information in some place.
 
-            
-              // #bugbug
-              // 2024
-              // Is this standard for all kind of CD?
-              // We need to get this information in some place.
+        new_dev->dev_size = (new_dev->dev_total_num_sector_lba48 * 2048);
 
-              new_dev->dev_size = (new_dev->dev_total_num_sector_lba48 * 2048);
-
-              // Pegando o size.
-              // Quantidade de setores.
-              // Uma parte está em 61 e outra em 60.
+        // Pegando o size.
+        // Quantidade de setores.
+        // Uma parte está em 61 e outra em 60.
  
-              value1 = ata_identify_dev_buf[61];
-              new_dev->lba28_value1 = (unsigned short) value1;  
-              value1 = ( value1 << 16 );           
-              value1 = ( value1 & 0xFFFF0000 );    
-              value2 = ata_identify_dev_buf[60];
-              new_dev->lba28_value2 = (unsigned short) value2;  
-              value2 = ( value2 & 0x0000FFFF );  
-              new_dev->dev_total_num_sector = value1 | value2;
-              new_dev->_MaxLBA = new_dev->dev_total_num_sector;
-              
-              
-              //if ( new_dev->dev_total_num_sector > 0 )
-              //{
-              //   printf ("#debug: >>>> atapi Size %d\n", 
-              //       new_dev->dev_total_num_sector );
-              //   refresh_screen();
-              //   while(1){}
-              //}
+        value1 = ata_identify_dev_buf[61];
+        new_dev->lba28_value1 = (unsigned short) value1;  
+        value1 = ( value1 << 16 );           
+        value1 = ( value1 & 0xFFFF0000 );    
+        value2 = ata_identify_dev_buf[60];
+        new_dev->lba28_value2 = (unsigned short) value2;  
+        value2 = ( value2 & 0x0000FFFF );  
+        new_dev->dev_total_num_sector = (value1 | value2);
+        new_dev->_MaxLBA = new_dev->dev_total_num_sector;
 
-             // #todo
-             // Agora essa função precisa receber um ponteiro 
-             // para a estrutura de disco usada pelo gramado.
+        //if ( new_dev->dev_total_num_sector > 0 )
+        //{
+        //   printf ("#debug: >>>> atapi Size %d\n", 
+        //       new_dev->dev_total_num_sector );
+        //   refresh_screen();
+        //   while(1){}
+        //}
 
+        // #todo
+        // Agora essa função precisa receber um ponteiro 
+        // para a estrutura de disco usada pelo gramado.
 
 // ================
 // Unidade de classe desconhecida.
 // #bugbug: Not panic()
     }else{
-        debug_print ("ata_initialize_ide_device: [ERROR] not ATA, not ATAPI.\n");
+        debug_print("ata_initialize_ide_device: [ERROR] not ATA, not ATAPI.\n");
         return (int) -1;
     };
-
 
 //
 // Dados em comum.
@@ -1299,23 +1271,22 @@ static int ata_initialize_ide_device(char port)
 
     if (isBootTimeIDEPort == TRUE)
     {
-        if ( (void*) ____boot____disk != NULL )
+        if ((void*) ____boot____disk != NULL)
         {
-            if ( ____boot____disk->magic == 1234 )
+            if (____boot____disk->magic == 1234)
             {
                 // ??
                 // Only for ATA devices.
                 ____boot____disk->ata_device = 
                     (struct ata_device_d *) new_dev;
-                
+
                 new_dev->disk = (struct disk_d *) ____boot____disk;
-                
+
                 // YES, it's a boottime device.
                 new_dev->boottime_device = TRUE;
             }
         }
     }
-
 
 //
 // == port ====================================
@@ -1336,17 +1307,15 @@ static int ata_initialize_ide_device(char port)
     case 1:  dev_nport.dev1 = 0x82;  break;
     case 2:  dev_nport.dev2 = 0x83;  break;
     case 3:  dev_nport.dev3 = 0x84;  break;
-    
     default:
         // #bugbug
         // Porque não retornamos daqui mesmo?
-        debug_print ("ata_initialize_ide_device: [ERROR] default port number\n");
+        debug_print("ata_initialize_ide_device: [ERROR] default port number\n");
         break;
     };
 
 // Linked list.
     new_dev->next = NULL;
-
 
 //#ifdef KERNEL_VERBOSE
     // #todo
@@ -1354,29 +1323,23 @@ static int ata_initialize_ide_device(char port)
     // refresh_screen ();
 //#endif
 
-
 // =========================================
 
 //
 // Add no fim da lista (ready_queue_dev).
 //
-    struct ata_device_d  *tmp;
-
-    tmp = ( struct ata_device_d * ) ready_queue_dev;
-    if ( (void *) tmp ==  NULL )
-    {
-        printf ("ata_initialize_ide_device: [FAIL] tmp\n");
+    struct ata_device_d *tmp;
+    tmp = (struct ata_device_d *) ready_queue_dev;
+    if ((void *) tmp ==  NULL){
+        printf("ata_initialize_ide_device: [FAIL] tmp\n");
         goto fail;
     }
 
 // Linked list. Walk.
 // Colocaremos esse novo ponteiro no fim da lista.
-
-    while ( tmp->next )
-    {
+    while (tmp->next){
         tmp = tmp->next;
     };
-
 // Save at the end of th elist.
     tmp->next = new_dev;
 
@@ -1385,17 +1348,14 @@ static int ata_initialize_ide_device(char port)
     new_dev->magic = 1234;
 // Is this structure already initialized or not?
     new_dev->initialized = TRUE;
-
 //done:
     //debug_print ("ata_initialize_ide_device: done\n");
     return 0;
-
 fail:
     refresh_screen();
-    panic ("ata_initialize_ide_device: fail\n");
+    panic("ata_initialize_ide_device: fail\n");
     return -1;  // Not reached.
 }
-
 
 // dev_switch:
 static void dev_switch(void)
@@ -1413,22 +1373,17 @@ static void dev_switch(void)
 // Obter a próxima tarefa a ser executada.
 // Se caímos no final da lista vinculada, 
 // comece novamente do início.
-
     current_sd = current_sd->next;    
-    
-    if ( !current_sd )
-    {
+    if ( !current_sd ){
         current_sd = ready_queue_dev;
     }
 }
 
 static int getnport_dev(void)
 {
-    if ( (void *) current_sd == NULL )
-    {
+    if ((void *) current_sd == NULL){
         return -1;
     }
-
     return (int) current_sd->dev_nport;
 }
 

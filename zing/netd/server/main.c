@@ -1,5 +1,5 @@
 // main.c
-// GNSSRV.BIN
+// netctld.bin
 // Gramado Network Server
 // This is the main server whe Gramado is acting like
 // a server. When the 'product' is the 'Gramado Server'.
@@ -98,13 +98,13 @@ gns_send_error_response (int fd, int code, char *error_message)
 {
     // 500: internal server error!!
     //#todo
-    debug_print ("gnssrv: [TODO] gns_send_error_response\n");
+    debug_print("netctld: [TODO] gns_send_error_response\n");
 }
 
 static void serviceHello(void)
 {
     printf("\n");
-    printf("gnssrv: [1000] Hello from Gramado Network Server!\n");
+    printf("netctld: [1000] Hello from Gramado Network Server!\n");
     next_response[0] = 0;  //wid
     next_response[1] = SERVER_PACKET_TYPE_REPLY; // The response is a reply. 
     next_response[2] = 0;
@@ -128,7 +128,7 @@ static void dispatch(int fd)
 
 // Fail. Cleaning
     if (fd<0){
-        debug_print ("gnssrv: dispatch fd\n");
+        debug_print("netctld: dispatch fd\n");
         message_buffer[0] = 0;
         message_buffer[1] = 0;
         message_buffer[2] = 0;
@@ -150,7 +150,7 @@ static void dispatch(int fd)
     n_reads = (int) read( fd, __buffer, sizeof(__buffer) );
     if (n_reads <= 0)
     {
-        debug_print ("gnssrv: dispatch n_reads\n");
+        debug_print("netctld: dispatch n_reads\n");
         // No reply
         rtl_set_file_sync( 
             fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
@@ -168,7 +168,7 @@ static void dispatch(int fd)
 // Invalid message code.
     if (message_buffer[1] == 0)
     { 
-        debug_print ("gnssrv: dispatch Unknown message\n");
+        debug_print("netctld: dispatch Unknown message\n");
         // No reply
         rtl_set_file_sync( 
             fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
@@ -230,7 +230,7 @@ static void dispatch(int fd)
     n_writes = (int) write( fd, __buffer, sizeof(__buffer) );
     if (n_writes<=0)
     {
-        debug_print ("gnssrv: dispatch Response fail\n");
+        debug_print("netctld: dispatch Response fail\n");
         // No response. It fails.
         rtl_set_file_sync( fd, SYNC_REQUEST_SET_ACTION, ACTION_NULL );
         return;
@@ -274,7 +274,7 @@ gnsProcedure (
         // então devemos drenar input usado loop de mensagens e
         // repassar para o cliente via socket.
         case 8080:
-            //debug_print ("gnssrv: [TODO] 8080. drain messages ...\n");
+            //debug_print("netctld: [TODO] 8080. drain messages ...\n");
             break;
 
         case MSG_SYSKEYUP:
@@ -296,7 +296,7 @@ gnsProcedure (
                 // Enviar a mensagem para o processo associado
                 // com a janela que tem o foco de entrada.
                 default:
-                    debug_print("gnssrv: MSG_SYSKEYUP\n");
+                    debug_print("netctld: MSG_SYSKEYUP\n");
                     break;
             }    
             break;
@@ -309,10 +309,9 @@ gnsProcedure (
             //mas o f1 funciona.
             //printf ("%c", (char) long1); 
             //gws_show_backbuffer ();
-            
-            debug_print ("gnssrv: MSG_KEYDOWN\n");
-            break;
 
+            debug_print("netctld: MSG_KEYDOWN\n");
+            break;
 
         // MSG_GNS_HELLO
         // case 1000:
@@ -324,8 +323,8 @@ gnsProcedure (
 
         // MSG_GNS_INITIALIZENETWORK
         case 1001:
-            printf ("\n");
-            printf ("gnssrv: [1001]\n");
+            printf("\n");
+            printf("netctld: [1001]\n");
             // serviceInitializeNetwork();
             //printf ("\n");
             return 0;
@@ -341,7 +340,7 @@ gnsProcedure (
 
         //MSG_GNS_SHUTDOWN
         case 2010:
-            debug_print ("gnssrv: [2010] Disconnect\n");
+            debug_print("netctld: [2010] Disconnect\n");
             break;
 
         case 2020:
@@ -465,7 +464,7 @@ ip_calculate_checksum(void *ip)
 
 static void gnssrv_yield(void)
 {
-    gramado_system_call (265,0,0,0); 
+    gramado_system_call(265,0,0,0); 
     //  sc82 (265,0,0,0);
 }
 
@@ -473,7 +472,7 @@ static int serviceInitializeNetwork(void)
 {
     // Ring0 routine to initialize network infrastructure.
     // #remember: At this moment we are in the user app memory space.
-    gramado_system_call (968,0,0,0);
+    gramado_system_call(968,0,0,0);
     return 0;
 }
 
@@ -503,7 +502,7 @@ static void __initialize_globals(void)
 static int ServerShutdown(void)
 {
     //#todo
-    printf("gnssrv: [todo] ServerShutdown\n");
+    printf("netctld: [todo] ServerShutdown\n");
 }
 
 // Called by main().
@@ -557,17 +556,17 @@ static int ServerInitialization(void)
 // See: connect.c
     _status = (int) register_ns();
     if (_status<0){
-        printf ("gnssrv: Couldn't register the server\n");
+        printf("netctld: Couldn't register the server\n");
         goto fail;
     }
-    debug_print("gnssrv: Registration ok\n");
+    debug_print("netctld: Registration ok\n");
 
 // -------------------
 // socket
 // Create socket and save the into a global variable.
     server_fd = (int) socket(AF_GRAMADO, SOCK_STREAM, 0);
     if (server_fd < 0){
-        printf("gnssrv: on socket()\n");
+        printf("netctld: on socket()\n");
         goto fail;
     }
     ____saved_server_fd = (int) server_fd;
@@ -581,7 +580,7 @@ static int ServerInitialization(void)
                   addrlen );
 
     if (bind_status < 0){
-        printf("gnssrv: on bind()\n");
+        printf("netctld: on bind()\n");
         goto fail;
     }
 
@@ -606,7 +605,7 @@ static int ServerInitialization(void)
 // via mensagens e repassar via socket. 
 
 // Clients
-    int newconn = -1;
+    register int newconn = -1;
     int curconn = ____saved_server_fd;
 
 // Accept connection from a client. 
@@ -622,7 +621,7 @@ static int ServerInitialization(void)
                       (socklen_t *) addrlen );
 
         if (newconn < 0){
-            debug_print("gnssrv: on accept()\n");
+            debug_print("netctld: on accept()\n");
             gnssrv_yield(); 
         }else{
             // Valid fd.
@@ -633,8 +632,8 @@ static int ServerInitialization(void)
     };
 
 // =======================================
-    debug_print("gnssrv: Bye\n");
-         printf("gnssrv: Bye\n");
+    debug_print("netctld: Bye\n");
+         printf("netctld: Bye\n");
     return 0;
 fail:
     exit(1);

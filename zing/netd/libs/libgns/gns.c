@@ -28,13 +28,14 @@ void *gns_system_call (
     unsigned long c, 
     unsigned long d )
 {
+/*
     unsigned long __Ret=0;
-
     asm volatile ( " int %1 \n"
                  : "=a"(__Ret)
                  : "i"(0x80), "a"(a), "b"(b), "c"(c), "d"(d) );
-
     return (void *) __Ret; 
+*/
+    return (void*) sc80(a,b,c,d);
 }
 
 // Debug vai serial port. (COM1)
@@ -212,7 +213,7 @@ process_reply:
     response_buffer[127] = 0;  //finaliza
 
     if ( *response_buffer != 0 ){
-        printf("RESPONSE: { %s } \n", response_buffer );
+        printf("RESPONSE: { %s }\n", response_buffer );
     }
 
     return (int) n_reads;
@@ -241,8 +242,8 @@ int gns_hello (int fd)
 
 // Reset flags.
 // Configuramos a flag para que possamos escrever.
-   debug_print ("gns_hello: reset flags\n");      
-    
+   debug_print("gns_hello: reset flags\n");      
+
    rtl_set_file_sync( 
        fd,   // 
        216,  // request. (We can write)

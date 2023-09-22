@@ -2431,18 +2431,18 @@ void *sci2 (
 //
 
 // ===============
-    // Business Logic: 
-    // Set file sync action
-    // IN: fd, request, data
-    // see; fs.c
-    if ( number == 10006 ){
+// Business Logic: 
+// Set file sync action
+// IN: fd, request, data
+// see: fs.c
+    if (number == 10006){
         sys_set_file_sync( (int) arg2, (int) arg3, (int) arg4 );
         return NULL;
     }
-    // Get file sync action
-    // IN: fd, request
-    // see; fs.c
-    if ( number == 10007 ){
+// Get file sync action
+// IN: fd, request
+// see: fs.c
+    if (number == 10007){
         return (void*) sys_get_file_sync( (int) arg2, (int) arg3 );
     }
 // ===============

@@ -274,7 +274,6 @@ int rtl_get_global_sync(int sync_id, int request)
 
 // ========================
 
-
 void rtl_set_file_sync(int fd, int request, int data)
 {
     if (fd<0)
@@ -288,13 +287,13 @@ void rtl_set_file_sync(int fd, int request, int data)
 
 int rtl_get_file_sync(int fd, int request)
 {
-    //if(fd<0)
-    //    return -1;
+    //if (fd<0)
+        //return -1;
 
     //if(request<0)
     //    return -1;
 
-    return (int) sc82 (10007,fd,request,0);
+    return (int) sc82(10007,fd,request,0);
 }
 
 unsigned char rtl_to_uchar (char ch)
