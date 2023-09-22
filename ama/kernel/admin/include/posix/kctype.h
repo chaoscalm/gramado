@@ -17,7 +17,6 @@
 #define  _X   0x40  // hex digit 
 #define  _SP  0x80  // hard space (0x20) 
 
-// gramado
 // Apelidos para as letras.
 #define _UPPER   _U  // letra maiúscula
 #define _LOWER   _L  // letra minúscula.

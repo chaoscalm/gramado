@@ -69,7 +69,7 @@
 #include "zcall/overall/debug.h"
 
 // Gramado configuration.
-#include "gramado/jiffies.h"
+#include "cali/jiffies.h"
 
 // Setup input mode.
 #include "dev/io_ctrl.h"
@@ -83,7 +83,7 @@
 #include "public/ktypes.h"
 #include "public/ktypes2.h"
 
-#include "gramado/kobject.h"
+#include "cali/kobject.h"
 
 // Legacy stuff.
 #include "posix/kstdarg.h"
@@ -105,7 +105,7 @@
 #include "posix/kttydef.h"
 
 // Globals. PIDs support.
-#include "gramado/kpid.h"
+#include "cali/kpid.h"
 
 //
 // + (4) Memory management.

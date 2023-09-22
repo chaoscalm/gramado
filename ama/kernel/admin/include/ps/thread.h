@@ -115,10 +115,9 @@ typedef enum {
 // Do not process anything ...
 // Just port the raw byte to the target thread.
 #define IM_RAW_INPUT  1
-// Gramado kernel process the raw input
-// and post the standard gramado input message.
+// Kernel process the raw input
+// and post the standard kernel input message.
 #define IM_MESSAGE_INPUT  2
-
 
 /*
  * thread_state_t:
@@ -236,8 +235,8 @@ struct thread_d
 // Do not process anything ...
 // Just port the raw byte to the target thread.
 // #define IM_RAW_INPUT    1
-// Gramado kernel process the raw input
-// and post the standard gramado input message.
+// Kernel process the raw input
+// and post the standard input message.
 // #define IM_MESSAGE_INPUT 2
     unsigned int input_mode;
 

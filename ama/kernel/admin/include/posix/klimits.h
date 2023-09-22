@@ -5,14 +5,11 @@
  *     2005 - Created by Fred Nora.
  */
 
-
 #ifndef ____LIMITS_H
 #define ____LIMITS_H    1
 
-
 // Max number of open files in a process.
-// See: gramado/limits
-#define OPEN_MAX    GRAMADO_FOPEN_MAX
+#define OPEN_MAX  GRAMADO_FOPEN_MAX
 
 #define PIPE_BUF  GRAMADO_PIPE_BUF
 

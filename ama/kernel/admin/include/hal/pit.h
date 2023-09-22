@@ -26,7 +26,7 @@
 #define PIT_DEV_FREQ  1193182
 
 // Hz
-// see: gramado/jiffies.h
+// see: jiffies.h
 #define HZ                JIFFY_FREQ
 #define PIT_HZ            JIFFY_FREQ
 #define DEFAULT_PIT_FREQ  JIFFY_FREQ
