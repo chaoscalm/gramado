@@ -95,11 +95,24 @@ struct gws_container_d
     unsigned long height;
 };
 
+struct gws_wm_config_d
+{
+// Notification area are the top.
+    int has_na;
+// Taskbar at the bottom.
+    int has_taskbar;
+// Wallpaper
+// #todo: Create a wallpaper structure?
+    int has_wallpaper;
+};
 
 // The window manager global structure.
 struct gws_windowmanager_d
 {
     int initialized;
+
+//
+    struct gws_wm_config_d  Config;
 
 // The window manager mode:
 // 1: tiling.
@@ -125,10 +138,6 @@ struct gws_windowmanager_d
     unsigned int custom_background_color;
     int has_custom_background_color;
 
-// Wallpaper
-// #todo: Create a wallpaper structure?
-    int has_wallpaper;
-
 // Window stack
 // Quando uma janela foi invalidada, significa que ela foi pintada e que
 // precisa receber o refesh, mas também pode significar
@@ -152,6 +161,11 @@ struct gws_windowmanager_d
 // fullscreen_window sera a janela usada.
 // #todo: Create a structure for fullscreen support?
     int is_fullscreen;
+
+// #todo
+// Notification area.
+// At the top of the screen.
+    //struct gws_container_d na;
 
 // The 'Working Area'.
 // The screen size, less the taskbar.

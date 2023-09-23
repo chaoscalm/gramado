@@ -32,7 +32,10 @@ void ServerShutdown(int server_fd)
 {
     static char shutdown_string[64];
 
-    yellow_status("Shutting down ...");
+//-------
+// Tell to the apps to close.
+    gwssrv_broadcast_close();
+
 
     //gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
     //printf             ("GRAMLAND: ServerShutdown\n");
@@ -46,23 +49,22 @@ void ServerShutdown(int server_fd)
     {
         // Clean window
         clear_window_by_id( __root_window->id, TRUE );
+        
+        yellow_status("Shutting down ...");
+  
         // String
         strcat(shutdown_string,"ws: Shutting down ...");
         strcat(shutdown_string,"\0");
         dtextDrawText ( 
             (struct gws_window_d *) __root_window,
             8, 
-            8, 
+            40, 
             (unsigned int) COLOR_WHITE, 
             shutdown_string );
         
         // Show the window and the final message.
         wm_flush_window(__root_window);
     }
-
-//-------
-// Mande mensagens para fecharem os programas clientes.
-    gwssrv_broadcast_close();
 
     __launch_shutdown_cmd();
 

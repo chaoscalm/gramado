@@ -537,10 +537,11 @@ menuProcedure(
     }
     // Reboot
     if (item == _i2){
-        sprintf(filename,mn_app2);
-        string_size = strlen(mn_app2);
-        filename[string_size] = 0;
-        rtl_clone_and_execute(filename);
+        //sprintf(filename,mn_app2);
+        //string_size = strlen(mn_app2);
+        //filename[string_size] = 0;
+        //rtl_clone_and_execute(filename);
+        wm_reboot();
         return 0;
     }
     // Shutdown. 

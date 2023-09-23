@@ -1775,7 +1775,7 @@ int __has_custom_background_color(void)
 
 int __has_wallpaper(void)
 {
-    if (WindowManager.has_wallpaper == TRUE){
+    if (WindowManager.Config.has_wallpaper == TRUE){
         return TRUE;
     }
     return FALSE;
@@ -1786,6 +1786,26 @@ void wmInitializeStructure(void)
 {
     unsigned int bg_color = 
         (unsigned int) get_color(csiDesktop);
+
+
+//
+// Configuration
+//
+
+// Notification area
+    WindowManager.Config.has_na = TRUE;
+    if (CONFIG_USE_NA != 1)
+        WindowManager.Config.has_na = FALSE;
+
+// Taskbar
+    WindowManager.Config.has_taskbar = TRUE;
+    if (CONFIG_USE_TASKBAR != 1)
+        WindowManager.Config.has_taskbar = FALSE;
+
+// Wallpaper
+    WindowManager.Config.has_wallpaper = TRUE;
+    if (CONFIG_USE_WALLPAPER != 1)
+        WindowManager.Config.has_wallpaper = FALSE;
 
 // Clear the structure.
     WindowManager.mode = WM_MODE_TILED;  //tiling
@@ -1842,8 +1862,7 @@ void wmInitializeStructure(void)
     __set_custom_background_color(bg_color);
 
     WindowManager.has_custom_background_color = FALSE;
-// Wallpaper
-    WindowManager.has_wallpaper = FALSE;
+
 // Has loadable theme.
     WindowManager.has_theme = FALSE;
 // Not initialized yet.
@@ -2863,8 +2882,8 @@ wmCreateWindowFrame (
 void wm_reboot(void)
 {
 
-// #todo
-// Create wm_shutdown()?
+// Tell to the apps to close.
+    gwssrv_broadcast_close();
 
 // Draw the root window using the desktop default color.
     if ((void*) __root_window != NULL)
@@ -2876,11 +2895,16 @@ void wm_reboot(void)
             redraw_window(__root_window,FALSE);
             // #todo
             // Print some message, draw some image, etc.
-            printf("wm_reboot:\n");
+            //printf("wm_reboot:\n");
+            yellowstatus0("Rebooting ...",FALSE);
             wm_flush_window(__root_window);
             
             // #todo
             // Free resources
+
+            rtl_yield();
+            //rtl_yield();
+            //rtl_yield();
         }
     }
 
@@ -3416,8 +3440,9 @@ void  wm_update_desktop2(void)
     if ( (void*)__root_window != NULL )
         redraw_window(__root_window,FALSE);
 
-    if ( (void*) first_window == NULL ){
-        printf("No first\n");
+    if ((void*) first_window == NULL){
+        //printf("No first\n");
+        yellow_status("No first window");
         goto done;
     }
 
@@ -5085,7 +5110,7 @@ ProcessEvent:
         // provavelmente teremos outro subsequente.
         if (msg == GWS_MouseMove)
             goto NextEvent;
-            
+  
         return 0;
     }
 
@@ -5133,6 +5158,7 @@ ProcessEvent:
         goto fail;
     }
 
+    /*
 // ??
 // Hotkeys
     if (msg == GWS_HotKey)
@@ -5149,6 +5175,7 @@ ProcessEvent:
         }
         // ...
     }
+    */
 
 // Sys commands
     //if (msg == GWS_Command){
@@ -6155,6 +6182,8 @@ void create_taskbar(int issuper, int show)
 // #todo: Talvez essa função possa receber mais argumentos.
 struct gws_window_d *wmCreateRootWindow(unsigned int bg_color)
 {
+// Called by ...
+
     struct gws_window_d *w;
     int status=-1;
 
@@ -6246,6 +6275,9 @@ struct gws_window_d *wmCreateRootWindow(unsigned int bg_color)
         printf("wmCreateRootWindow: Couldn't register root window\n");
         exit(0);
     }
+
+    // #debug
+    //yellowstatus0("Starting ...",FALSE);
 
 // #
 // Do not register now.
