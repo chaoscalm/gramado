@@ -28,6 +28,7 @@ extern int current_mode;
 // Configuration and debug support.
 #include "config/config.h"
 #include "protocol.h"
+#include "async.h"
 #include "globals.h"
 #include "ui/colors.h"
 #include "ui/themes/humility.h"

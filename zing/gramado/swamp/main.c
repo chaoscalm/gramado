@@ -1613,8 +1613,10 @@ int serviceAsyncCommand(void)
     data3 = (unsigned long) message_address[6];
     data4 = (unsigned long) message_address[7];
 
+// 2222
 // Validate our message number.
-    if (message_id != 2222){
+    if (message_id != GWS_AsyncCommand)
+    {
         gwssrv_debug_print ("serviceAsyncCommand: [ERROR] message_id\n");
                     printf ("serviceAsyncCommand: [ERROR] message_id\n");
         goto fail;
@@ -1631,6 +1633,7 @@ int serviceAsyncCommand(void)
 
     // 1 =  Exit GWS
     // Shutdown the server.
+    // ASYNC_REQUEST_EXIT
     case 1:
         gwssrv_debug_print("serviceAsyncCommand: [1] Exit\n");
         printf            ("serviceAsyncCommand: [1] Exit\n");
@@ -1638,21 +1641,18 @@ int serviceAsyncCommand(void)
         goto done;
         break;
 
-    // ping
+    // hello
     case 2:
-        gwssrv_debug_print ("serviceAsyncCommand: [2] \n");
-        printf("PING\n");
-        //Notify_CloseClient = TRUE;
-        //Notify_PongClient = TRUE;
+        gwssrv_debug_print ("serviceAsyncCommand: [2] hello\n");
+        printf("HELLO 2\n");
         //exit(0);
         //return 0;
-        goto done;
         break;
 
-    // print Hello.
+    // hello
     case 3:
         gwssrv_debug_print ("serviceAsyncCommand: [3] hello\n");
-        printf("HELLO\n");
+        printf("HELLO 3\n");
         //exit(0);
         //return 0;
         goto done;
@@ -1660,8 +1660,9 @@ int serviceAsyncCommand(void)
 
     // Demos:
     // See: demos.c
+    // ASYNC_REQUEST_START_ANIMATION
     case 4:
-        gwssrv_debug_print ("serviceAsyncCommand: [4] \n");
+        gwssrv_debug_print("serviceAsyncCommand: [4] \n");
         if (current_mode == GRAMADO_JAIL){
             gwssrv_debug_print("serviceAsyncCommand: [request 4] demo\n"); 
             demos_startup_animation(subrequest_id);
@@ -1684,6 +1685,7 @@ int serviceAsyncCommand(void)
        //break;
 
     // Setup if we will show or not the 'fps window'.
+    // ASYNC_REQUEST_FPS_FLAG
     case 6:
         gwssrv_debug_print ("serviceAsyncCommand: [6]\n");
         if (subrequest_id == TRUE){ show_fps_window = TRUE;  goto done; }
@@ -1718,6 +1720,7 @@ int serviceAsyncCommand(void)
         break;
 
     // Set focus.
+    // ASYNC_REQUEST_SET_FOCUS_BY_WID
     case 9:
         // gwssrv_debug_print ("serviceAsyncCommand: [9] \n");
         if (data<0){
@@ -1731,33 +1734,37 @@ int serviceAsyncCommand(void)
     // drawing a rect using ring0 and ring3 routines.
     // TRUE = use kgws ; FALSE =  do not use kgws.
     case 10:
-        gwssrv_debug_print("serviceAsyncCommand: [10]\n");
-                    printf("serviceAsyncCommand: [10]\n");
+        //gwssrv_debug_print("serviceAsyncCommand: [10]\n");
+        //            printf("serviceAsyncCommand: [10]\n");
 
-        rectBackbufferDrawRectangle0(
-            10, 10, 40, 40,
-            COLOR_RED,
-            TRUE,
-            0,        // rop falgs
-            FALSE );   // TRUE = use kgws. (kernel service)
+        //rectBackbufferDrawRectangle0(
+        //    10, 10, 40, 40,
+         //   COLOR_RED,
+         //   TRUE,
+        //    0,        // rop falgs
+        //    FALSE );   // TRUE = use kgws. (kernel service)
 
-        gws_refresh_rectangle(10, 10, 40, 40);
+        //gws_refresh_rectangle(10, 10, 40, 40);
         //return 0;
         goto done;
         break;
 
     //see: wm.c
     case 11:
-        wm_update_desktop(TRUE,TRUE);
+        //#bugbug: Maybe not.
+        // Slow the server;
+        //wm_update_desktop(TRUE,TRUE);
         goto done;
         break;
 
+    // ASYNC_REQUEST_SWITCH_ACTIVE_WINDOW
     case 12:
         __switch_active_window(TRUE);
         goto done;
         break;
 
     // data=wid
+    // ASYNC_REQUEST_INVALIDATE_WINDOW_BY_WID
     case 13:
         invalidate_window_by_id(data);
         goto done;
@@ -1765,6 +1772,7 @@ int serviceAsyncCommand(void)
 
 // Clear the window
 // Repaint it using the default background color.
+// ASYNC_REQUEST_CLEAR_WINDOW_BY_WID
     case 14:
         // #todo data = wid
         //printf("14: wid={%d}\n",data);
@@ -1774,6 +1782,7 @@ int serviceAsyncCommand(void)
         break;
 
     // Set active window by id.
+    // ASYNC_REQUEST_SET_ACTIVE_WINDOW_BY_WID
     case 15:
         // gwssrv_debug_print ("serviceAsyncCommand: [9] \n");
         wid = (int) (data & 0xFFFFFFFF);
@@ -1789,12 +1798,14 @@ int serviceAsyncCommand(void)
 
 // poweroff
 // qemu only
+// ASYNC_REQUEST_LAUNCH_SHUTDOWN
     case 22:
         rtl_clone_and_execute("shutdown.bin");
         goto done;
         break;
 
 // Enable ps2-mouse support.
+// ASYNC_REQUEST_ENABLE_PS2_MOUSE
     case 44:
         // Calling the kernel to make the full ps2 initialization.
         // #todo: Create a wrapper fot that syscall.
@@ -1808,6 +1819,7 @@ int serviceAsyncCommand(void)
     // ...
 
     // Set flag to quit the server.
+    // ASYNC_REQUEST_QUIT
     case 88:
         printf("88: IsTimeToQuit\n");
         gwssrv_quit();
@@ -1815,6 +1827,7 @@ int serviceAsyncCommand(void)
         break;
 
     // Reboot the system via ws.
+    // ASYNC_REQUEST_REBOOT
     case 89:
         printf("89: Reboot via ws\n");
         wm_reboot();
@@ -1822,12 +1835,14 @@ int serviceAsyncCommand(void)
         break;
 
     // Destroy window.
+    // ASYNC_REQUEST_DESTROY_WINDOW
     case 90:
         wid = (int) (data & 0xFFFFFFFF);
         // #debug
         printf("90: Destroy window %d\n",wid);
         destroy_window_by_wid(wid);
         break;
+
     /*
     case 91:
         wid = (int) (data & 0xFFFFFFFF);
@@ -1836,9 +1851,10 @@ int serviceAsyncCommand(void)
         break;  */
 
     // put pixel.
+    // IN: color, x, y, rop
+    // ASYNC_REQUEST_PUT_PIXEL
     case 1000:
         //printf("1000: %d %d %d\n",data1,data2,data3);
-        // IN: color, x, y, rop
         libdisp_backbuffer_putpixel(
             (unsigned int) data3,
             (data1 & 0xFFFFFFFF),
