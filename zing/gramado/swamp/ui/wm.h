@@ -4,6 +4,29 @@
 #ifndef ____WM_H
 #define ____WM_H    1
 
+//
+// Gravity
+//
+
+// Circulating
+#define NorthGravity      0
+#define NorthEastGravity  1
+#define EastGravity       2
+#define SouthEastGravity  3
+#define SouthGravity      4
+#define SouthWestGravity  5
+#define WestGravity       6
+#define NorthWestGravity  7
+#define CenterGravity     8
+#define StaticGravity     9
+
+void
+wm_gravity_translate(
+    unsigned long l, unsigned long t, unsigned long w, unsigned long h, 
+    unsigned long oldl, unsigned long oldt,
+    unsigned int gravity, 
+    unsigned long *destl, unsigned long *destt );
+
 //#define DEFAULT_DOUBLE_CLICK_SPEED  250
 #define DEFAULT_DOUBLE_CLICK_SPEED  350
 

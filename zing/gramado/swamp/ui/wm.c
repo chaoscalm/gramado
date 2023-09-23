@@ -4075,6 +4075,71 @@ void wm_remove_window_from_list(struct gws_window_d *window)
 }
 
 
+// Inspired on X.
+// l,t           new window position
+// w,h           width, height
+// oldl,  oldt   old window position
+// destl, destt  new position. (relative to gravity)
+void
+wm_gravity_translate(
+    unsigned long l, unsigned long t, unsigned long w, unsigned long h, 
+    unsigned long oldl, unsigned long oldt,
+    unsigned int gravity, 
+    unsigned long *destl, unsigned long *destt )
+{
+
+    switch (gravity) {
+
+    // ---------------
+    case CenterGravity:
+        *destl = l + w / 2;
+        *destt = t + h / 2;
+        break;
+    // ---------------
+    case StaticGravity:
+        *destl = oldl;
+        *destt = oldt;
+        break;
+    // ---------------
+    case NorthGravity:
+        *destl = l + w / 2;
+        *destt = t;
+        break;
+
+    case NorthEastGravity:
+        *destl = l + w;
+        *destt = t;
+        break;
+    // ---------------
+    case EastGravity:
+        *destl = l + w;
+        *destt = t + h / 2;
+        break;
+    case SouthEastGravity:
+        *destl = l + w;
+        *destt = t + h;
+        break;
+    // ---------------
+    case SouthGravity:
+        *destl = l + w / 2;
+        *destt = t + h;
+        break;
+    case SouthWestGravity:
+        *destl = l;
+        *destt = t + h;
+        break;
+    // ---------------
+    case WestGravity:
+        *destl = l;
+        *destt = t + h / 2;
+        break;
+    case NorthWestGravity:
+    default:
+        *destl = l;
+        *destt = t;
+        break;
+    }
+}
 
 /*
 DEC	HEX	CHARACTER
