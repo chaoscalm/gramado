@@ -2987,6 +2987,7 @@ static void wm_tile(void)
 // Initializing
 
     // Working Area
+    // First initialization. Not definitive.
     unsigned long Left   = WindowManager.wa.left;
     unsigned long Top    = WindowManager.wa.top;
     unsigned long Width  = WindowManager.wa.width;
@@ -3039,7 +3040,7 @@ static void wm_tile(void)
                 // left: Começa na metade da área de tranalho.
                 // top: Depende do indice da janela na lista.
                 Left = (unsigned long) (WindowManager.wa.width / 2) +2;
-                Top  = (unsigned long) (Height * i);
+                Top  = (unsigned long) WindowManager.wa.top + (Height * i);
                 l2 = Left;
                 t2 = Top +2;
                 gwssrv_change_window_position(w, l2, t2);
@@ -3361,6 +3362,8 @@ void wm_update_desktop(int tile, int show)
         return;
     }
 
+    yellowstatus0("White bar",FALSE);
+
 // Invalidate the root window.
 // Shows the whole screen
     //invalidate_window(__root_window);
@@ -3435,6 +3438,10 @@ void  wm_update_desktop2(void)
 done:
 // Flush the screen
     wm_Update_TaskBar("...",FALSE);
+
+// #test
+    yellowstatus0("White bar",FALSE);
+// Show everything
     if ( (void*)__root_window != NULL )
         flush_window(__root_window);
 }
@@ -4850,34 +4857,38 @@ static int wmProcessCombinationEvent(int msg_code)
 // Undo
     if (msg_code == GWS_Undo)
     {
-        printf("ws: undo\n");
+        //printf("ws: undo\n");
+        yellow_status("Undo");
         return 0;
     }
 
 // Control + x
     if (msg_code == GWS_Cut)
     {
-        printf("ws: cut\n"); 
+        //printf("ws: cut\n"); 
+        yellow_status("Cut");
         // #test
         // gwssrv_quit();
         //demoCat();
         //__switch_active_window(TRUE);  //active first
         // Update desktop respecting the current list.
-        wm_update_desktop2();
+        //wm_update_desktop2();
         return 0;
     }
 
 // Control + c
     if (msg_code == GWS_Copy)
     {
-        printf("ws: copy\n");
+        //printf("ws: copy\n");
+        yellow_status("Copy");
         //__switch_active_window(FALSE);  //active NOT FIRST
         return 0;
     }
 
 // Control + v
     if (msg_code == GWS_Paste){
-        printf("ws: paste\n");
+        //printf("ws: paste\n");
+        yellow_status("Paste");
         return 0;
     }
 
@@ -4887,7 +4898,8 @@ static int wmProcessCombinationEvent(int msg_code)
 // Post message to all the overlapped windows.
     if (msg_code == GWS_SelectAll)
     {
-        printf("ws: select all\n");
+        //printf("ws: select all\n");
+        yellow_status("Control + a");
         
         // #test:
         // Sending the wrong message.  
@@ -4900,7 +4912,9 @@ static int wmProcessCombinationEvent(int msg_code)
 // Find
     if (msg_code == GWS_Find)
     {
-        printf("ws: find\n");
+        //printf("ws: find\n");
+        yellow_status("Control + f");
+        
         //printf("root: %s\n", WindowManager.root->name );
         //printf("taskbar: %s\n", WindowManager.taskbar->name );
         return 0;
@@ -4911,7 +4925,9 @@ static int wmProcessCombinationEvent(int msg_code)
 // #test
 // Creates a menu for the root window.
 // Only refresh if it is already created.
-    if (msg_code == GWS_Save){
+    if (msg_code == GWS_Save)
+    {
+        yellow_status("Control + s");
         wmProcessMenuEvent(MENU_EVENT_COMBINATION,-1);
         return 0;
     }
@@ -4919,19 +4935,27 @@ static int wmProcessCombinationEvent(int msg_code)
 // --------------
 
 // Control + Arrow keys.
-    if (msg_code == GWS_ControlArrowUp){
+    if (msg_code == GWS_ControlArrowUp)
+    {
+        yellow_status("Control + up");
         dock_active_window(1);
         return 0;
     }
-    if (msg_code == GWS_ControlArrowRight){
+    if (msg_code == GWS_ControlArrowRight)
+    {
+        yellow_status("Control + right");
         dock_active_window(2);
         return 0;
     }
-    if (msg_code == GWS_ControlArrowDown){
+    if (msg_code == GWS_ControlArrowDown)
+    {
+        yellow_status("Control + down");
         dock_active_window(3);
         return 0;
     }
-    if (msg_code == GWS_ControlArrowLeft){
+    if (msg_code == GWS_ControlArrowLeft)
+    {
+        yellow_status("Control + left");
         dock_active_window(4); 
         return 0;
     }
@@ -4944,6 +4968,7 @@ static int wmProcessCombinationEvent(int msg_code)
 // + Change bg color.
     if (msg_code == 88112)
     {
+        yellow_status("Shift + F12: Enable mouse");
         // Calling the kernel to make the full ps2 initialization.
         // #todo: Create a wrapper fot that syscall.
         // #todo: Allow only the ws pid to make this call.
@@ -5396,23 +5421,41 @@ void wm_exit_fullscreen_mode(int tile)
 // developer status.
 void yellowstatus0(char *string,int refresh)
 {
+// System notifications?
+// Combinations
+
 // methods. get with the w.s., not with the system.
     unsigned long w = gws_get_device_width();
     unsigned long h = gws_get_device_height();
-    unsigned long offset_string1 = 8;  //( 8*1 );
+
+// String offset
+// right after the bmp icon. (16x16)
+    unsigned long offset_string1 = 48;  //( 8*1 );
     //unsigned long offset_string2 = ( 8*5 );
-    unsigned long bar_size = w;
-    struct gws_window_d *aw;
+    //unsigned long bar_size = w;
+    //struct gws_window_d *aw;
+
+    if (WindowManager.initialized != TRUE)
+        return;
+
+    // Working Area
+    unsigned long Left   = 0;  //WindowManager.wa.left;
+    unsigned long Top    = 0;  // WindowManager.wa.top;
+    unsigned long Width  = w;  //WindowManager.wa.width;
+    unsigned long Height = 24; //WindowManager.wa.height;
+
+    unsigned long bar_size = Width;
+    unsigned int bar_color = COLOR_WHITE;
 
 // Validation
     //aw = (struct gws_window_d *) windowList[active_window];
-    aw = (void*) active_window;
-    if ( (void*) aw == NULL ){
-        return;
-    }
-    if (aw->magic!=1234){
-        return;
-    }
+    //aw = (void*) active_window;
+    //if ( (void*) aw == NULL ){
+    //    return;
+    //}
+    //if (aw->magic!=1234){
+    //    return;
+    //}
 
     //if(aw->type!=WT_OVERLAPPED){
     //    return;
@@ -5425,55 +5468,47 @@ void yellowstatus0(char *string,int refresh)
     //if ( *string == 0 ){ return; }
 
 
-// Desenha a barra no backbuffer
+// paint the bar into the backbuffer
+    doFillWindow ( 
+        Left, Top, bar_size, Height, 
+        bar_color, 0 );
 
-    if ( current_mode == GRAMADO_JAIL ){
-        //bar_size = w;
-        bar_size = (w>>1);
-        doFillWindow ( 
-            aw->absolute_x +2, 
-            aw->absolute_y  +2, 
-            bar_size, 
-            24, 
-            COLOR_YELLOW, 
-            0 );
-    }else{
+// paint the bmp into the backbuffer
+// dont show it.
+// bar = 24
+// 24-16 = 8;
+// 8/2=4
+    bmp_decode_system_icon( 
+        (int) 1,  // icon id 
+        (unsigned long) Left +4, 
+        (unsigned long) Top +4,
+        FALSE );  // dont show it
 
-        //bar_size = (offset_string2 + (4*8) );
-        //bar_size = (offset_string2 + (100) );
-        bar_size = (w>>1);
-        doFillWindow ( 
-            aw->absolute_x +2, 
-            aw->absolute_y +2, 
-            bar_size, 
-            24, 
-            COLOR_YELLOW, 
-            0 );
-    };
-
-// Escreve as strings
+// Paint the string, but dont show it.
     grDrawString ( 
-        aw->absolute_x +2 + offset_string1, 
-        aw->absolute_y +2 + 8, 
+        Left + offset_string1, 
+        Top  +8, 
         COLOR_BLACK, 
         string );
-    
+
     //grDrawString ( offset_string2, 8, COLOR_BLACK, "FPS" );
     
-    // Mostra o retângulo.
-     
+
     if (bar_size == 0){
         bar_size = 32;
     }
 
-    if(refresh){
-        gws_refresh_rectangle(
-            (aw->absolute_x +2), (aw->absolute_y +2), bar_size, 24 );
+// Mostra o retângulo.
+    if (refresh){
+        gws_refresh_rectangle( Left, Top, bar_size, Height );
     }
 }
 
 void yellow_status(char *string)
 {
+// System notifications?
+// Combinations
+
     if ( (void*)string==NULL ){
         return;
     }

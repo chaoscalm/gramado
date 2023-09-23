@@ -32,8 +32,10 @@ void ServerShutdown(int server_fd)
 {
     static char shutdown_string[64];
 
-    gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
-    printf             ("GRAMLAND: ServerShutdown\n");
+    yellow_status("Shutting down ...");
+
+    //gwssrv_debug_print ("GRAMLAND: ServerShutdown\n");
+    //printf             ("GRAMLAND: ServerShutdown\n");
 
     memset(shutdown_string, 0 , 64);
 
