@@ -6328,6 +6328,8 @@ int dock_window( struct gws_window_d *window, int position )
     //unsigned long h = gws_get_device_height();
     //#test
     //Using the working area
+    unsigned long l = WindowManager.wa.left;
+    unsigned long t = WindowManager.wa.top;
     unsigned long w = WindowManager.wa.width;
     unsigned long h = WindowManager.wa.height;
     if ( w==0 || h==0 ){
@@ -6361,28 +6363,35 @@ int dock_window( struct gws_window_d *window, int position )
 
     switch (position){
 
-        // top
+        // -----------------
+        // :: top
         // #todo: maximize in this case
         case 1:
-            gwssrv_change_window_position( window, 0, 0 );
+            gwssrv_change_window_position( window, l, t );
             gws_resize_window( window, w, h );
             //gws_resize_window( window, w, h>>1 );
             break;
-        //right
+
+        // -----------------
+        // :: right
         case 2:
-            gwssrv_change_window_position( window, (w>>1), 0 );
+            gwssrv_change_window_position( window, (w>>1), t );
             gws_resize_window( window, (w>>1)-4, h-4 );
             break;
-        //bottom
+
+        // -----------------
+        // :: bottom
         //#todo: restore or put it in the center.
         case 3:
-            gwssrv_change_window_position( window, 0, h>>2 );
+            gwssrv_change_window_position( window, l, h>>2 );
             //gwssrv_change_window_position( window, 0, h>>1 );
             gws_resize_window( window, w, h>>1 );
             break;
-        //left
+
+        // -----------------
+        // :: left
         case 4:
-            gwssrv_change_window_position( window, 0, 0 ); 
+            gwssrv_change_window_position( window, l, t ); 
             gws_resize_window( window, (w>>1)-4, h-4 );
             break;
 
