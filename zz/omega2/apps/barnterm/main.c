@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
     // ...
 
-
+// --------------------------------
 // #test
 // Telling to the kernel that we are a terminal.
 // This way the kernel will create connectors
@@ -121,9 +121,9 @@ int main(int argc, char *argv[])
     // IN: syscall number,  ... signature.
     sc82(901,1234,1234,1234);
 
-// #todo
-// Talvez passar parametros.
-    Status = (int) terminal_init();
+// --------------------------------
+// IN: flags
+    Status = (int) terminal_init(0);
     if (Status != 0)
         printf("main: Something is wrong\n");
 

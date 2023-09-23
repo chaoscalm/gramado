@@ -212,9 +212,10 @@ static void __get_system_event(int fd, int wid);
 static void __get_ws_event(int fd, int event_wid);
 
 static int __input_STDIN(int fd);
-static int __input_STDOUT(int fd);
-static int __input_STDERR(int fd);
-static int __input_GRAMADOTXT(int fd);
+static int __input_from_connector(int fd);
+
+static int embedded_shell_run(int fd);
+static int terminal_run(int fd);
 
 static void compareStrings(int fd);
 static void doPrompt(int fd);
@@ -2931,179 +2932,64 @@ terminalProcedure (
     return 0;
 }
 
-static int __input_GRAMADOTXT(int fd)
-{
-// Pegando o input de GRAMADO.TXT.
-// #importante:
-// Esse event loop pega dados de um arquivo.
-
-    int C=0;
-    int client_fd = fd;
-    int window_id = Terminal.client_window_id;
-
-    FILE *new_stdin;
-
-    new_stdin = (FILE *) fopen("gramado.txt","a+");
-    if( (void*) new_stdin == NULL )
-    {
-        printf ("__input_GRAMADOTXT: new_stdin\n");
-        return -1;
-    }
-
-// O kernel seleciona qual será 
-// o arquivo para teclado ps2.
-    sc80(
-        8002,
-        fileno(new_stdin),
-        0,
-        0 );
-
-// Poisiona no início do arquivo.
-    rewind(new_stdin);
-
-    while (1){
-        C = fgetc(new_stdin);
-        if (C > 0)
-        {
-            terminalProcedure( 
-                client_fd,    // socket
-                window_id,    // window ID
-                MSG_KEYDOWN,  // message code
-                C,            // long1 (ascii)
-                C );          // long2 (ascii)
-        }
-    };
-
-    return 0;
-}
-
-// local
-// Pegando o input de 'stdout'.
-// #bugbug
-// Isso esta falhando porque stdout não é um 'regular file'
-// ele é um console e só esta aceitando saída por enquanto.
-static int __input_STDOUT(int fd)
-{
-// #importante:
-// Esse event loop pega dados de um arquivo.
-
-    FILE *new_stdin;
-    int client_fd = fd;
-    int window_id = Terminal.client_window_id;
-    int C=0;
-
-    //new_stdin = (FILE *) fopen("gramado.txt","a+");
-    new_stdin = stdout;
-
-    printf ("__input_STDOUT: #todo\n");
-    while (1){
-    };
-
-    if( (void*) new_stdin == NULL ){
-        printf ("__input_STDOUT: new_stdin\n");
-        return -1;
-    }
-
-// O kernel seleciona qual será 
-// o arquivo para teclado ps2.
-
-    sc80(
-        8002,
-        fileno(new_stdin),
-        0,
-        0 );
-
-// Poisiona no início do arquivo.
-    rewind(new_stdin);
-
-    while (1){
-        C = fgetc(new_stdin);
-        if ( C == EOF || C == VK_RETURN ){
-            rewind(new_stdin);
-        }
-        if (C > 0)
-        {
-            terminalProcedure( 
-                client_fd,    // socket
-                window_id,    // window ID
-                MSG_KEYDOWN,  // message code
-                C,            // long1 (ascii)
-                C );          // long2 (ascii)
-        }
-    };
-    
-    return 0;
-}
-
-
 // local
 // Pegando o input de 'stderr'.
 // It's working
-static int __input_STDERR(int fd)
+static int __input_from_connector(int fd)
 {
 // #importante:
 // Esse event loop pega dados de um arquivo.
-
-    FILE *new_stdin;
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
     int C=0;
+    const char *test_app = "shell.bin";
 
-    printf ("__input_STDERR: #todo\n");
+    printf ("__input_from_connector: #todo\n");
 
+RelaunchShell:
+
+//-------------------------------------------
+// The terminal is clonning himself and launching the child.
+// It can't be rtl_clone_and_execute2(), where the server
+// will clone and launch it.
+
+    rtl_clone_and_execute(test_app);
+
+// ------------------------------
 // New stdin.
+// Reaproveitando a estrutura em ring3 do stderr.
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
-    new_stdin = stderr;
+    //new_stdin = stderr;
     __terminal_input_fp = stderr;   //save global.
-    if ((void*) new_stdin == NULL)
-    {
-        printf ("__input_STDERR: new_stdin\n");
+    if ((void*) __terminal_input_fp == NULL){
+        printf("__input_from_connector: __terminal_input_fp\n");
         return -1;
     }
 
-// Not standard.
-// Volta ao inicio do arquivo em ring0, 
-// depois de ter apagado o arquivo.
-// GRAMADO_SEEK_CLEAR
-    //lseek( fileno(new_stdin), 0, 1000);
-// Atualiza as coisas em ring3 e ring0.
-    //rewind(new_stdin);
-
-// Launch the child application (PROGRAMS/SHELL.BIN)
-// "#shell.bin"
-    //rtl_clone_and_execute("#shell.bin");
-    rtl_clone_and_execute("shell.bin");
-
+// --------------------------------------
 // #test
-// Let's get the fd for the connectors.
+// Let's get the fd for the connector0.
 // We already told to the kernel that we're a terminal.
 // We did that in main().
 
-    int connector0_fd = 0;
-    int connector1_fd = 0;
-
-    int UseConnectors=TRUE;
-    if (UseConnectors == TRUE){
+    int connector0_fd = -1;
     connector0_fd = (int) sc82(902,0,0,0);
-    //connector1_fd = (int) sc82(902,1,0,0);
-    //#debug
-    //printf("terminal.bin: connector0_fd %d | connector1_fd %d \n",
-    //    connector0_fd, connector1_fd);
-    //while(1){}
-// The terminal is reading from connector 0.
-    new_stdin->_file = (int) connector0_fd;
-// The terminal writing into connector 1.
-    //stdout->_file = (int) connector1_fd
-    }
 
+    if (connector0_fd < 0)
+        goto fail;
+
+// The terminal is reading from connector 0.
+    __terminal_input_fp->_file = (int) connector0_fd;
+
+// -----------------------
 // Loop
+// Reading from stderr, with a new fd.
+
     while (1){
-        
-        // Reading from stdin, actually stderr.
-        C = fgetc(new_stdin);
-        
+        C = fgetc(__terminal_input_fp);
         if (C > 0)
         {
+            // Process the char.
             terminalProcedure( 
                 client_fd,    // socket
                 window_id,    // window ID
@@ -3111,11 +2997,19 @@ static int __input_STDERR(int fd)
                 C,            // long1 (ascii)
                 C );          // long2 (ascii)
         }
+        // EOT - End Of Transmission.
+        //if (C == 4){
+        //    goto done;
+        //}
     };
 
-//done:
-    printf ("__input_STDERR: Stop listening stderr\n");
+    goto RelaunchShell;
+
+done:
+    printf ("__input_from_connector: Stop listening\n");
     return 0;
+fail:
+    return -1;
 }
 
 static int __input_STDIN(int fd)
@@ -3197,6 +3091,36 @@ static int __input_STDIN(int fd)
 fail:
     return (int) -1;
 }
+
+static int embedded_shell_run(int fd)
+{
+    isUsingEmbeddedShell = TRUE;
+    if (fd<0)
+        goto fail;
+    while (1){
+        if (isUsingEmbeddedShell != TRUE)
+            break;
+        __input_STDIN(fd);
+    };
+    return 0;
+fail:
+    return -1;
+}
+
+static int terminal_run(int fd)
+{
+    int InputStatus= -1;
+    isUsingEmbeddedShell = FALSE;
+    while (1){
+        InputStatus = __input_from_connector(fd);
+        if(InputStatus == 0)
+            break;
+    };
+    return 0;
+fail:
+    return -1;
+}
+
 
 static void __get_system_event(int fd, int wid)
 {
@@ -3502,8 +3426,10 @@ static void terminalInitWindowPosition(void)
 
 // Initialization.
 // Called by main() in main.c.
-int terminal_init(void)
+int terminal_init(unsigned short flags)
 {
+// Called by main() in main.c
+
 // Socket address.
     struct sockaddr_in addr_in;
     addr_in.sin_family = AF_INET;
@@ -3864,38 +3790,25 @@ int terminal_init(void)
 // local routine.
     int InputStatus=-1;
 
-// from GRAMADO.TXT
-// ok, it is working.
-    //InputStatus = __input_GRAMADOTXT(client_fd);
+// -------------------------
+// Embedded shell
+    InputStatus = (int) embedded_shell_run(client_fd);
+    if (InputStatus < 0)
+        goto fail;
 
-// from stdout
-// #bugbug
-// Isso esta falhando porque stdout não é um 'regular file'
-// ele é um console e só esta aceitando saída por enquanto.
-    //InputStatus = __input_STDOUT(client_fd);
-
-// from stdin
-// stdin é um 'regular file'
-    InputStatus = __input_STDIN(client_fd);
-// Estavamos lendo em stdin, e vamos começar a ler em stderr.
-    if (InputStatus == 0)
-    {
-        InputStatus = __input_STDERR(client_fd);
-        if (InputStatus == 0)
-            goto done;
-    }
-
-// hang:
-    debug_print ("terminal.bin: Hang\n"); 
-    printf      ("terminal.bin: Hang\n");
-
-    while(1){
-    };
+// -------------------------
+    InputStatus = terminal_run(client_fd);
+    if (InputStatus < 0)
+        goto fail;
 
 done:
     debug_print("terminal.bin: Bye\n"); 
     printf     ("terminal.bin: Bye\n");
     return 0;
+fail:
+    debug_print("terminal.bin: Fail\n"); 
+    printf     ("terminal.bin: Fail\n");
+    return -1;
 }
 
 //

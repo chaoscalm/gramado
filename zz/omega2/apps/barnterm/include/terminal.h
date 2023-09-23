@@ -29,7 +29,7 @@
 // Client-side library.
 #include <gws.h>
 
-int terminal_init(void);
+int terminal_init(unsigned short flags);
 
 
 
