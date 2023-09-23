@@ -217,7 +217,7 @@ do_compare:
     if ( strncmp ( prompt, "about", 5 ) == 0 )
     {
         doLF();
-        printf("This is the shell, sending bytes to the terminal.");
+        printf("shell.bin: This is the shell command");
         //fflush(stdout);
         goto exit_cmp;
     }
@@ -392,8 +392,7 @@ int main(int argc, char *argv[])
     }
 
     doLF();
-    //printf("");
-    //printf("shell.bin: argc={%d} \n",argc);
+    printf("shell.bin: argc={%d} \n",argc);
     if (argc>0){
         for (i=0; i<argc; i++){
             printf("argv[%d]: %s\n", i, argv[i] );

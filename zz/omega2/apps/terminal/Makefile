@@ -97,10 +97,10 @@ all-c:
 
 
 hello-link:
-	ld $(linkFlags) -o BARNTERM.BIN $(myObjects)    
+	ld $(linkFlags) -o TERMINAL.BIN $(myObjects)    
 finalize:
-	cp BARNTERM.BIN  ../bin
+	cp TERMINAL.BIN  ../bin
 clean:
 	-rm *.o
-	-rm BARNTERM.BIN 
+	-rm TERMINAL.BIN 
 	

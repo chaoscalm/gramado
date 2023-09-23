@@ -2942,10 +2942,9 @@ static int __input_from_connector(int fd)
     int client_fd = fd;
     int window_id = Terminal.client_window_id;
     int C=0;
-    //const char *test_app = "shell.bin";
-    const char *test_app = "barnsh.bin";
+    const char *test_app = "shell.bin";
 
-    //printf ("__input_from_connector: #todo\n");
+    printf ("__input_from_connector: #todo\n");
 
 RelaunchShell:
 
@@ -3792,15 +3791,15 @@ int terminal_init(unsigned short flags)
     int InputStatus=-1;
 
 // -------------------------
-// Reading from the child.
-// Reading from connector.
-    InputStatus = terminal_run(client_fd);
+// Embedded shell
+    InputStatus = (int) embedded_shell_run(client_fd);
     if (InputStatus < 0)
         goto fail;
 
 // -------------------------
-// Embedded shell
-    InputStatus = (int) embedded_shell_run(client_fd);
+// Reading from the child.
+// Reading from connector.
+    InputStatus = terminal_run(client_fd);
     if (InputStatus < 0)
         goto fail;
 

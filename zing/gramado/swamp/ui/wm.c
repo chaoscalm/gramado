@@ -74,8 +74,8 @@ struct gws_window_d *top_window;     // z-order
 
 static const char *app1_string = "terminal.bin";
 static const char *app2_string = "editor.bin";
-//static const char *app3_string = "browser.bin";
-//static const char *app4_string = "gdm.bin";
+static const char *app3_string = "barnterm.bin";
+static const char *app4_string = "editor.bin";
 
 static unsigned long last_input_jiffie=0;
 
@@ -279,10 +279,10 @@ static void launch_app_by_id(int id)
         strcpy(name_buffer,app2_string);
         break;
     case 3:
-        strcpy(name_buffer,app1_string);
+        strcpy(name_buffer,app3_string);
         break;
     case 4:
-        strcpy(name_buffer,app2_string);
+        strcpy(name_buffer,app4_string);
         break;
     default:
         goto fail;

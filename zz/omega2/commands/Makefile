@@ -3,7 +3,9 @@
 
 all:
 
-	make -C barnsh
+	make -C barnsh/
+	make -C shell/
+
 	make -C c4
 	make -C cat
 	make -C cmp

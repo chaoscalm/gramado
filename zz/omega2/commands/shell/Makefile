@@ -131,10 +131,10 @@ all-c:
 	cp $(LIBIOOBJ)/libio.o  .
 	
 cat-link:
-	ld -m elf_x86_64 -T ../../link.ld -o BARNSH.BIN $(myObjects)    
+	ld -m elf_x86_64 -T ../../link.ld -o SHELL.BIN $(myObjects)    
 finalize:
-	cp BARNSH.BIN  ../bin/
+	cp SHELL.BIN  ../bin/
 clean:
 	-rm *.o
-	-rm BARNSH.BIN 
+	-rm SHELL.BIN 
 	
