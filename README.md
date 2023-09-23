@@ -96,16 +96,17 @@ desktop/ is a place for the graphical user interface.
 
 ```
  * `aa/` - Ring 0 first loadable module.
+   * `cancun/` - Running gramado commands on Linux host.
 
  * `ama/` - Low level basic components of the system.  
    * `boot` - The boot loader.
    * `kernel` - The Gramado OS kernel.
+   * `kmods` - Kernel module.
+   * `xciting` - init process and data.
 
- * `boring/cancun/` - Running gramado commands on Linux host.
  * `boring/docs/` - Documentation.
 
  * `zing/` - Desktop Environment (DE).
-   * `graminit` - The init process
    * `gramland` - Display server. (GRAMLAND.BIN)
    * `netd` - The network server.
 
