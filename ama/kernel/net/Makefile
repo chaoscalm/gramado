@@ -70,14 +70,20 @@ KERNEL_INCLUDE := -I ../admin/include/ $(USER_INCLUDE)
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-OBJS = socket.o network.o \
+OBJS = network.o \
+socket.o sockint.o \
 arp.o ipv4.o tcp.o udp.o dhcp.o    
 
-
 all:
-	$(CC) -c socket.c   $(KERNEL_INCLUDE) $(CFLAGS) -o socket.o
+
+# network
 	$(CC) -c network.c  $(KERNEL_INCLUDE) $(CFLAGS) -o network.o
-#Protocols
+
+# socket
+	$(CC) -c socket.c   $(KERNEL_INCLUDE) $(CFLAGS) -o socket.o
+	$(CC) -c sockint.c  $(KERNEL_INCLUDE) $(CFLAGS) -o sockint.o
+
+# protocols
 	$(CC) -c prot/arp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o arp.o
 	$(CC) -c prot/ipv4.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ipv4.o
 	$(CC) -c prot/tcp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o tcp.o

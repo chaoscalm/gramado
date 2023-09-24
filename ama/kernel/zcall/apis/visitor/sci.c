@@ -827,7 +827,7 @@ static void *__extra_services (
 // See: socket.c
 // family, type, protocol
     if (number == 7000){
-        return (void *) sys_socket ( (int) arg2, (int) arg3, (int) arg4 );
+        return (void *) sys_socket( (int) arg2, (int) arg3, (int) arg4 );
     }
 
 // 7001 - connect()
@@ -858,7 +858,7 @@ static void *__extra_services (
                             (int) arg2, 
                             (const struct sockaddr *) arg3,
                             (socklen_t) arg4 );
-     }
+    }
 
 // 7004 - listen() support.
 // IN: fd, backlog
