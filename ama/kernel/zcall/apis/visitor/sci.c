@@ -22,25 +22,16 @@ unsigned long sci2_cpl=0;
 // == private functions: prototypes =============
 //
 
-static void *__extra_services ( 
-    unsigned long number, 
-    unsigned long arg2, 
-    unsigned long arg3, 
-    unsigned long arg4 );
 
 static void __service897(void);
 static void __servicePutChar(int c);
 static void __invalidate_surface_rectangle(void);
-
 
 static void __setup_surface_rectangle(
     unsigned long left,
     unsigned long top,
     unsigned long width,
     unsigned long height );
-
-
-
 
 // =============================
 
@@ -289,28 +280,1004 @@ static void __invalidate_surface_rectangle(void)
     r->dirty = TRUE;
 }
 
-
 // =====================================================
 
-// Services abouve 256.
-// Helper function called by sci0().
-static void *__extra_services ( 
+// Handler for the interrupt 0x80.
+void *sci0 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 
     unsigned long arg4 )
 {
-    //struct process_d *__p;
-    //struct process_d *__net_process;
-    struct zing_hook_d *__zh;
-// Generic file pointer
-//    file *__fp;
-// bmp file pointer.
-//    file *__bmfp;
+// E25 - The queen.
+// Getting requests from ring3 applications via systemcalls.
+// #test
+// It's ok when init.bin calls this systemcall.
+
+    struct process_d  *p;
+    //struct thread_d  *t;
+
     unsigned long *message_address = (unsigned long *) arg2;
 
-    pid_t current_process = (pid_t) get_current_process();
+    struct zing_hook_d *__zh;
 
+    unsigned long *a2 = (unsigned long*) arg2;
+    unsigned long *a3 = (unsigned long*) arg3;
+    unsigned long *a4 = (unsigned long*) arg4;
+
+    // Not in use!
+    //char *aa2 = (char *) arg2;
+    //char *aa3 = (char *) arg3;
+    //char *aa4 = (char *) arg4;
+
+    pid_t current_process = (pid_t) get_current_pid();
+    int layer = LAYER_UNDEFINED;
+
+//cpl
+    unsigned long *cpl_buffer = (unsigned long *) &sci0_cpl;
+    int cpl=-1;
+    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
+    cpl = (int) (tmp_cpl & 3);
+
+    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
+    {
+        panic("sci0: cpl");
+    }
+
+    if (cpl == 0){
+        printf("number=%d\n",number);
+        printf("pid=%d\n",current_process);
+        //if(current_process != 0){
+            panic("sci0: cpl 0\n");
+        //}
+    }
+    if (cpl == 1){
+        panic("sci0: cpl 1\n");
+    }
+    if (cpl == 2){
+        panic("sci0: cpl 2\n");
+    }
+    if (cpl == 3){
+        // ok
+    }
+
+    // #debug
+    //debug_print("sc0:\n");
+    //printf("sc0:\n");
+
+    //?? #deprecated?
+    g_profiler_ints_gde_services++;
+
+// Profiling in the process structure.
+
+// Permission
+
+    if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
+        panic("sci0: current_process\n");
+    }
+    p = (struct process_d *) processList[current_process];
+    if ((void*) p == NULL){
+        debug_print("sci0: p\n");
+        panic("sci0: p\n");
+    }
+    if ( p->used != TRUE || p->magic != 1234 ){
+        debug_print("sci0: p validation\n");
+        panic("sci0: p validation\n");
+    }
+
+    layer = p->_layer;
+
+// Feito pra rodar no Gramado OS.
+    if (p->personality != PERSONALITY_GRAMADO_AMAZING)
+    {
+        debug_print("sci0: Personality\n");
+        panic      ("sci0: Personality\n");
+    }
+
+// Counting ...
+    p->syscalls_counter++;
+
+
+// What is the number for SYS_EXIT?
+// #todo: Put this in the right spot.
+// exit
+// Marcamos no processo nossa intenção de fechar.
+// Marcamos na thread de controle nossa intenção de fechar.
+// #todo: as outras threads do processo.
+    if (number == SYS_EXIT)
+    {
+        debug_print("sci0: SYS_EXIT\n");
+        p->exit_in_progress = TRUE;
+        // Quando o scheduler passar por ela,
+        // vai pular ela e marca-la como zombie.
+        if ((void*) p->control != NULL)
+        {
+            if (p->control->magic == 1234){
+                p->control->exit_in_progress = TRUE;
+            }
+        }
+        return NULL;
+    }
+
+// ==== 0 mark ====================================================
+
+
+    // SYS_NULL
+    if (number == 0)
+        return NULL;
+
+
+// Business Logic:
+// 1 (i/o) Essa rotina pode ser usada por 
+// um driver em user mode.
+// #todo: This operation needs permition.
+// #todo: Return value.
+// IN: buffer address and lba address.
+    if (number == SYS_READ_LBA){
+        storage_read_sector( (unsigned long) arg2, (unsigned long) arg3 ); 
+        return NULL;
+    }
+
+// Business Logic:
+// 2 (i/o) Essa rotina pode ser usada por 
+// um driver em user mode.
+// #todo: This operation needs permition.
+// #todo: Return value.
+// IN: buffer address and lba address.
+    if (number == SYS_WRITE_LBA){ 
+        storage_write_sector( (unsigned long) arg2, (unsigned long) arg3 ); 
+        return NULL;
+    }
+
+// Business Logic:
+// 3 
+// Carregar um arquivo do disco para a memória.
+// See: fs/fs.c
+// IN: name, flags, mode
+    if (number == SYS_READ_FILE)
+    {
+        //if ( (void*) a2 == NULL )
+           //return NULL;
+        return (void *) sys_read_file_from_disk ( 
+                            (char *) a2, 
+                            (int)    arg3, 
+                            (mode_t) arg4 ); 
+    }
+
+// Business Logic:
+// 4 
+// Save file.
+// See: fs/fs.c
+// IN: name, size in sectors, size in bytes, adress, flag.
+    if (number == SYS_WRITE_FILE)
+    {
+        sys_write_file_to_disk ( 
+            (char *)        message_address[0],
+            (unsigned long) message_address[1],
+            (unsigned long) message_address[2],
+            (char *)        message_address[3],
+            (char)          message_address[4] );
+        return NULL;
+    }
+
+// Business Logic:
+// 5
+// See: sys.c 
+    if (number == SYS_VSYNC)
+    {
+        sys_vsync();
+        return NULL;
+    }
+
+// Business Logic:
+// 6 - Put pixel. 
+// Coloca um pixel no backbuffer.
+// Isso pode ser usado por um servidor. 
+// cor, x, y, rop_flags.
+// todo: chamar kgws_backbuffer_putpixel
+    if (number == SYS_BUFFER_PUTPIXEL)
+    {
+        backbuffer_putpixel ( 
+            (unsigned long) a2,  // color
+            (unsigned long) a3,  // x
+            (unsigned long) a4,  // y
+            0 );                 // rop_flags
+        return NULL;
+    }
+
+// 7
+
+// Business Logic:
+// 8 
+// #todo: #bugbug: 
+// Aqui precisamos de mais parâmetros.
+    if (number == SYS_BUFFER_DRAWLINE)
+    {
+        backbuffer_draw_horizontal_line ( 
+            (unsigned long) a2, 
+            (unsigned long) a3, 
+            (unsigned long) a4, 
+            COLOR_WHITE,
+            0 );   // rop_flags
+        return NULL;
+    }
+
+// Business Logic:
+// 9 - Draw a rectangle into the backbuffer.
+// SYS_BUFFER_DRAWRECT
+// see: rect.c
+    if (number == 9)
+    {
+        //debug_print("sci0: [9]\n");
+        backbuffer_draw_rectangle ( 
+            (unsigned long) message_address[0],    //x 
+            (unsigned long) message_address[1],    //y
+            (unsigned long) message_address[2],    //width
+            (unsigned long) message_address[3],    //height
+            (unsigned int)  message_address[4],    //color
+            (unsigned long) message_address[5] );  //rop_flags
+        return NULL;
+    }
+
+// Business Logic:
+// 10 - Refresh rectangle.
+// Region?
+    if (number == 10)
+    {
+        //debug_print("sci0: [10]\n");
+        refresh_rectangle ( 
+            (unsigned long) message_address[0],    //x 
+            (unsigned long) message_address[1],    //y
+            (unsigned long) message_address[2],    //width
+            (unsigned long) message_address[3] );  //height 
+        return NULL;
+    }
+
+
+// Business Logic:
+// 11:
+// Flush the backbuffer into the lfb.
+    if (number == SYS_REFRESHSCREEN)
+    { 
+        invalidate_screen();
+        return NULL;
+    }
+
+// Reserved.
+// Netword: 12,13,14,15
+
+// Business Logic: 
+// 16 - open() implementation.
+// In ring3, see: fcntl.c
+// In ring0, see: fs.c
+// IN: pathname, flags, mode
+// OUT: fd
+    if (number == SYS_OPEN)
+    {
+        debug_print ("sci0: SYS_OPEN\n");
+        //if ( (void*) arg2 == NULL )
+            //return NULL;
+        return (void *) sys_open ( 
+                                (const char *) arg2, 
+                                (int)          arg3, 
+                                (mode_t)       arg4 ); 
+    }
+
+// Business Logic:
+// 17 - close() implementation.
+// See: sys.c
+// IN: fd
+    if (number == SYS_CLOSE)
+    {
+        debug_print ("sci0: SYS_CLOSE\n");
+        //if (arg2 < 0)
+            //return NULL;
+        return (void *) sys_close( (int) arg2 );
+    }
+
+// Business Logic:
+// 18 - read() implementation.
+// IN: ?
+// See: sys.c
+    if (number == SYS_READ)
+    {
+        return (void *) sys_read ( 
+                            (unsigned int) arg2, 
+                            (char *)       arg3, 
+                            (int)          arg4 ); 
+    }
+
+// Business Logic:
+// 19 - write() implementation
+// IN: ?
+// See: sys.c
+    if (number == SYS_WRITE)
+    {
+        return (void *) sys_write ( 
+                            (unsigned int) arg2, 
+                            (char *)       arg3, 
+                            (int)          arg4 );  
+    }
+
+
+// == + ==================================================
+
+
+// Reserved:
+// 20~23 - Buffers support 
+// 24~28 - Surface support 
+// 29 - String stuff
+// 30,31,32 - Putpixel?
+// 33 - free number.
+
+// Business Logic:
+// 34
+// Setup cursor position for the current virtual console.
+    if (number == SYS_VIDEO_SETCURSOR)
+    { 
+        newos_set_cursor((unsigned long) arg2, (unsigned long) arg3);
+        return NULL;
+    }
+
+// 35 - free number
+
+// 36 - #deprecated
+// 37 - #deprecated
+
+// Business Logic:
+// 38 - get host name
+    if (number == SYS_GETHOSTNAME){
+        return (void *) __gethostname((char *) arg2);
+    }
+
+// Business Logic:
+// 39 - set host name 
+// #todo: This operation needs permition?
+    if (number == SYS_SETHOSTNAME){
+        return (void *) __sethostname((const char *) arg2);
+    }
+
+// Business Logic:
+// 40 - get user name 
+    if (number == SYS_GETUSERNAME){
+        return (void *) __getusername((char *) arg2);
+    }
+
+// Business Logic:
+// 41 - Set user name 
+// #todo: This operation needs permition?
+    if (number == SYS_SETUSERNAME){
+        return (void *) __setusername((const char *) arg2);
+    }
+
+// 42 - #deprecated
+
+// Business Logic:
+// 43 - Create an empty file.
+// Called by libgws.
+// See: fs.c
+    if (number == 43){
+        return (void *) sys_create_empty_file( (char *) arg2 );
+    }
+
+// Business Logic:
+// 44 - Create an empty directory.
+// Called by libgws.
+// See: fs.c
+    if (number == 44){
+        return (void *) sys_create_empty_directory( (char *) arg2 );
+    }
+
+// 45 - livre
+// #todo: Usar para manipulação de arquivo ou diretório.
+// 46 - livre
+// 47 - livre
+        // 48 - livre
+
+// 49
+// Show system info
+// See: sys.c
+    if (number == 49){
+        sys_show_system_info((int) arg2);
+        return NULL;
+    }
+
+// ...
+
+// Business Logic:
+// 65
+// Put a char in the current virtual console.
+// see: console.c
+// IN: ch, console id.
+    if (number == SYS_KGWS_PUTCHAR)
+    {
+        //if (arg3<0)
+            //return NULL;
+        console_putchar ( (int) arg2, (int) arg3 ); 
+        return NULL;
+    }
+
+//
+// ## EXIT ##
+//
+
+// 70 - Exit.
+// Atende a funcao exit() da libc. 
+// Criaremos um 'request' que sera atendido somente quando 
+// houver uma interrupcao de timer. 
+// Enquanto isso a thread deve esperar em um loop.
+// #bugbug: Pode haver sobreposicao de requests?
+// Assincrono.
+// IN: ??
+// #todo: 
+// Criar um wrapper em sys.c ou exit.c
+// See: request.c
+// Request number 12. (Exit thread)
+
+    // #todo: See at the beginning of this routine.
+    if (number == SYS_EXIT){
+        panic("sci.c: SYS_EXIT\n");
+        return NULL;
+    }
+
+// 71 - fork?
+
+// Business Logic:
+// 72
+// See: sys.c
+// Cria uma thread que fica no estado INITIALIZED.
+// Outra syscall tem que colocar ela em STANDBY.
+    if (number == SYS_CREATETHREAD)
+    {
+        debug_print("sci0: [FIXME] SYS_CREATETHREAD\n");
+        return (void *) sys_create_thread (
+                            NULL,
+                            arg2,             // init eip
+                            arg3,             // init stack
+                            current_process,  // pid
+                            (char *) a4 );    // name
+    }
+
+// Business Logic:
+// 73
+// See: sys.c
+// Cria um processo e coloca a thread primária pra rodar.
+// #bugbug: 
+// Na inicializacao do kernel, nos criamos um processo
+// usando create_process. Mas nesse momento estavamos usando
+// o diretorio de paginas do kernel e os registradores de segmento
+// pertenciam ao kernel.
+// Nessa tentativa de criarmos um processo usando create_process
+// as coisas estao um pouco diferentes ... provavelmente
+// estamos usando o diretorio de paginas do processo e os
+// registradores de segmento podem estar em ring3.
+// ?? Talvez poderiamos criar um request, da mesma maneira 
+// que fazemos com a criaçao de threads e o spawn.
+// #todo
+// Aqui no kernel, precisamos criar mais rotinas de suporte
+// a criacao de processos.
+// Temos poucas opçoes e tudo esta meio fora de ordem ainda.
+// syscall: 
+// arg2 = name
+// arg3 = process priority
+// arg4 = nothing
+
+    if (number == SYS_CREATEPROCESS)
+    {
+        debug_print("sci0: [FIXME] SYS_CREATEPROCESS\n");
+        return (void *) sys_create_process ( 
+                            NULL,             // zing hook
+                            0,                // Reserved
+                            arg3,             // priority
+                            current_process,  // ppid
+                            (char *) a2,      // name
+                            RING3 );          // iopl 
+    }
+
+// 74,75,76,77,78,79.
+
+// 80 - Show current process info.
+// #todo: Mostrar em uma janela própria.
+// #todo: Devemos chamar uma função que 
+// mostre informações apenas do processo atual. 
+    if (number == SYS_CURRENTPROCESSINFO)
+    {
+        show_currentprocess_info();
+        return NULL;
+    }
+
+// Business Logic:
+// 81: Get parent process id.
+// See: sys.c
+    if (number == SYS_GETPPID){ 
+        return (void *) sys_getppid();
+    }
+
+// 82 - Mostra informações sobre todos os processos.
+    if (number == 82){
+        show_process_information();
+        return NULL;
+    }
+
+// 83
+// Suporte a chamada da libc waitpid(...).
+// schedi.c
+// #todo.
+// TID, PID 
+// TID eh a thread atual.
+// PID veio via argumento.
+// IN: pid, status, option
+// #todo: Change the name to sys_xxxx
+    if (number == SYS_WAIT4PID)
+    { 
+        debug_print("sci0: [FIXME] SYS_WAIT4PID\n");
+        return (void *) do_waitpid( 
+                            (pid_t) arg2, 
+                            (int *) arg3, 
+                            (int)   arg4 );
+                
+       //block_for_a_reason ( (int) current_thread, (int) arg2 ); //suspenso
+    }
+
+// 84 - livre.
+
+// Business Logic:
+// 85
+    if (number == SYS_GETPID){
+        return (void *) get_current_pid();
+   }
+
+// 86,87 - livre.
+
+// Testa se o processo é válido
+// se for valido retorna 1234
+// testando ...
+    if (number == SYS_88){
+        return (void *) processTesting(arg2);
+    }
+
+// 89 - livre
+
+// ------------------
+// 90~99 Reservado para thread support
+
+// Business Logic:
+// 94
+    if (number == SYS_STARTTHREAD){
+        debug_print("sci0: SYS_STARTTHREAD\n");
+        return (void *) newos_start_thread((struct thread_d *) arg2);
+    }
+
+// ------------------
+
+// 100~109: free
+
+// Business Logic:
+// 110
+// IN: flags.
+// see: ke/sys.c
+    int reb_ret=-1;
+    if (number == SYS_REBOOT){
+        debug_print("sci0: SYS_REBOOT\n");
+        reb_ret = (int) sys_reboot(0);
+        return (void *) (reb_ret & 0xFFFFFFFF);
+    }
+
+// Business Logic:
+// 111
+// See: tlib.c
+// Get the next system message.
+// IN: buffer for message elements.
+    if (number == 111){
+        //debug_print("sci0: 111\n");
+        return (void *) sys_get_message( (unsigned long) &message_address[0] );
+    }
+
+// Business Logic:
+// tlib.c
+// Post message to tid.
+// Asynchronous.
+// IN: tid, message buffer address.
+    if (number == 112){
+        //if (arg2<0)
+            //return NULL;
+        return (void *) sys_post_message_to_tid( 
+                            (int) arg2, 
+                            (unsigned long) arg3 );
+    }
+
+// 113~117: 
+// 118~119: 
+
+// Pop data from network queue.
+// IN: user buffer, buffer lenght.
+    if (number == 118){
+        return (void*) network_pop_packet( 
+                           (unsigned long) &message_address[0], 
+                           (int) arg3 );
+    }
+
+// Push data into the network queue?
+    //case 119:
+        //break;
+
+// 120
+// Get a message given the index.
+// With restart support.
+    if (number == 120)
+    {
+        //debug_print("sci0: \n");
+        return (void *) sys_get_message2( 
+                (unsigned long) &message_address[0], arg3, arg4 );
+    }
+
+// 121,122,123
+
+// 124 (teste)
+// Defered system procedure call.
+// #todo: 
+// Precisamos armazenasr os argumentos em algum lugar.
+// #bugbug: Precisamos criar um request.
+    if (number == 124){
+        kernel_request = KR_DEFERED_SYSTEMPROCEDURE;
+        return NULL;
+    }
+
+// 125
+
+// Business Logic:
+// 126
+// Permitindo que drivers e servidores em usermode acessem as portas.
+// #todo: This operation needs permition?
+// #bugbug
+// #todo: 
+// Tem que resolver as questoes de privilegios.
+// IN: bits, port
+    if (number == SYS_USERMODE_PORT_IN)
+    {
+        return (void *) portsx86_IN ( 
+                            (int) (arg2 & 0xFFFFFFFF), 
+                            (unsigned short) (arg3 & 0xFFFF) );
+    }
+
+// Business Logic:
+// 127
+// Permitindo que drivers e servidores em usermode acessem as portas.
+// #todo: This operation needs permition?
+// #bugbug
+// #todo: 
+// Tem que resolver as questoes de privilegios.
+// IN: bits, port, value
+    if (number == SYS_USERMODE_PORT_OUT)
+    {
+        portsx86_OUT ( 
+            (int) arg2, 
+            (unsigned short) (arg3 & 0xFFFF), 
+            (unsigned int)   (arg4 & 0xFFFFFFFF) );
+        return NULL;
+    }
+
+// 128~129: free
+// --------
+// 130, 131
+
+// 132 - d_draw_char
+// Desenha um caractere e pinta o pano de fundo.
+// #todo: We do not have an api routine yet.
+// IN: x, y, c, fg color, bg color
+    if (number == 132)
+    { 
+        d_draw_char(
+            (unsigned long)  message_address[0],    // x
+            (unsigned long)  message_address[1],    // y 
+            (unsigned long)  message_address[2],    // c
+            (unsigned long)  message_address[3],    // fg
+            (unsigned long)  message_address[4] );  // bg
+        return NULL;
+    }
+
+// 133 - d_drawchar_transparent
+// Desenha um caractere sem alterar o pano de fundo.
+// IN: x, y, color, c
+    if (number == 133)
+    {
+        d_drawchar_transparent(
+            (unsigned long)  message_address[0],   // x
+            (unsigned long)  message_address[1],   // y 
+            (unsigned long)  message_address[2],   // color
+            (unsigned long)  message_address[3] ); // c
+        return NULL;
+    }
+
+// 134~136: free
+
+// 137 - #deprecated?
+    if (number == SYS_GETCH)
+    {
+        panic("SYS_GETCH: #deprecated?\n"); 
+        return NULL;
+    }
+
+// 138 - Get key state.
+// IN: vk.
+    if (number == 138){
+        return (void *) keyboardGetKeyState((unsigned char) arg2);
+    }
+
+// 139
+
+// -----------------
+// 140~149
+// -----------------
+
+// 150~156 User and group support.
+
+// 152 - get uid
+    if (number == SYS_GETCURRENTUSERID){
+        return (void *) current_user; 
+    }
+
+// 154 - get gid
+    if (number == SYS_GETCURRENTGROUPID){
+        return (void *) current_group; 
+    }
+
+// 157~159: Security
+
+// 157 - get user session id
+    if (number == SYS_GETCURRENTUSERSESSION){
+        return (void *) current_usersession; 
+    }
+
+// 158 - free
+
+// 159 - get current zing hook id
+    if (number == SYS_GETCURRENTDESKTOP){
+        return (void *) current_zh; 
+    }
+
+// ----------------
+// 160~169: Reserved to network support.
+
+// 161
+// get socket IP
+// Gramado API socket support. (not libc)
+    if (number == 161){
+        return (void *) getSocketIPV4( (struct socket_d *) arg2 );
+    }
+
+// 162
+// get socket port
+// Gramado API socket support. (not libc)
+    if (number == 162){
+        return (void *) getSocketPort( (struct socket_d *) arg2 );
+    }
+
+// 163
+// update socket  
+// retorno 0=ok 1=fail
+// Gramado API socket support. (not libc)
+    if (number == 163){
+        return (void *) update_socket ( 
+                            (struct socket_d *) arg2, 
+                            (unsigned int)      (arg3 & 0xFFFFFFFF), 
+                            (unsigned short)    (arg4 & 0xFFFF) );
+    }
+
+// ----------------
+
+// 170 - command 'pwd'.
+// Cada processo tem seu proprio pwd.
+// Essa rotina mostra o pathname usado pelo processo.
+// See: fs.c
+// #test
+// Isso é um teste. Essa chamada não precisa disso.
+    if (number == SYS_PWD)
+    {
+        if (is_superuser() == TRUE)
+        {
+            debug_print("sci0: [SYS_PWD] Yes, I'm the super user\n");
+            printf     ("sci0: [SYS_PWD] Yes, I'm the super user\n");
+        }
+        sys_pwd();
+        return NULL;
+    }
+
+// 171 - retorna o id do volume atual.
+    if (number == SYS_GETCURRENTVOLUMEID){
+        return (void *) current_volume;
+    }
+
+//172 - configura o id do volume atual.
+//#bugbug: Estamos modificando, sem aplicar nenhum filtro.
+    if (number == SYS_SETCURRENTVOLUMEID){
+        current_volume = (int) arg2;
+        return NULL;
+    }
+
+// 173
+// Lista arquivos de um diretório, dado o número do disco,
+// o numero do volume e o número do diretório,
+// args in: disk id, volume id, directory id
+// See: fs.c
+    if (number == SYS_LISTFILES){
+        fsListFiles( arg2, arg3, arg4 );
+        return NULL;
+    }
+
+// 174
+    if (number == SYS_SEARCHFILE){
+        debug_print ("sci0: SYS_SEARCHFILE\n");
+        return (void *) search_in_dir ( 
+                            (const char *) arg2, 
+                            (unsigned long)   arg3 );
+    }
+
+
+// 175 - 'cd' command support.
+// +Atualiza o pathname na estrutura do processo atual.
+// +Atualiza o pathname na string global.
+// +Carrega o arquivo referente ao diretório atual.
+// See: fs.c
+    if (number == 175){
+        debug_print("sci0: 175\n");
+        sys_cd_command((char *) arg2);
+        return NULL;
+    }
+
+// 176
+// Remove n nomes de diretório do pathname do processo 
+// indicado no argumento.
+// Copia o nome para a string global.
+    if (number == 176)
+    {
+        debug_print("sci0: 176\n");
+        fs_pathname_backup( current_process, (int) arg3 );
+        return NULL;
+    }
+
+// 177 -  'dir' command.
+// Comando dir no shell.
+// Listando arquivos em um diretório dado seu nome.
+// #bugbug: Talvez tenhamos que usr a sci2.
+// See: fs.c
+    if (number == 177)
+    {
+        debug_print("sci0: [177]\n");
+        fsList((const char *) arg2);
+        return NULL;
+    }
+
+// 178
+// See: sys.c
+    if (number == 178){
+        return (void *) sys_get_file_size((unsigned char *) arg2);
+    }
+
+// 179
+
+//----------
+// 180~189: memory support.
+// (Privilegies)
+
+// 184
+// Pega o endereço do heap do processo dado seu id.
+// See: process.c
+    if (number == SYS_GETPROCESSHEAPPOINTER)
+    {
+        debug_print("sci0: [184]\n");
+        return (void *) GetProcessHeapStart((int) arg2);
+    }
+
+//----------
+// 190~199: free
+// 200~209: free
+
+//----------
+// 210~219: terminal/virtual console support.
+
+//211
+    if (number == SYS_GETCURRENTTERMINAL){
+        return (void *) current_terminal;
+    }
+
+//212
+    if (number == SYS_SETCURRENTTERMINAL)
+    {
+        // #todo: Permissions.
+        current_terminal = (int) arg2;
+        return NULL;
+    }
+
+//----------
+
+// 223 - Get sys time info.
+// informaçoes variadas sobre o sys time.
+    if (number == 223){
+        return (void *) get_systime_info((int) arg2);
+    }
+
+// Business Logic:
+// 224
+    if (number == SYS_GETTIME){
+        return (void *) get_time();
+    }
+
+// Business Logic:
+// 225
+    if (number == SYS_GETDATE){
+        return (void *) get_date();
+    }
+
+// 226 - get
+// Obs: 
+// #todo: 
+// Poderia ser uma chamada para configurar o posicionamento 
+// e outra para configurar as dimensões.
+// #todo: Atomic stuff.
+    if (number == SYS_GET_KERNELSEMAPHORE){
+        return (void *) __spinlock_ipc;
+    }
+
+// 227 - close gate
+// Entering critical section.
+// See: process.c
+    if (number == SYS_CLOSE_KERNELSEMAPHORE){
+        process_close_gate(current_process);
+        return NULL;
+    }
+
+// 228 - open gate
+// Exiting critical section.
+// #todo: Quando um processo fechar e estiver
+// em sua sessão crítica, então devemos liberar
+// essa flag. Isso fica mais fácil de lembrar se
+// existir uma flag na estrutura de processo.
+// See: process.c
+    if (number == SYS_OPEN_KERNELSEMAPHORE){
+        process_open_gate(current_process);
+        return NULL;
+    }
+
+// 229
+
+//---------------------
+// 230~239: Reserved for tty support.
+
+// 236 - get tty id
+    if (number == 236){
+        return (void *) current_tty;
+    }
+
+//---------------------
+
+// 240~249: Reserved for text editing support.
+
+// 240, 241
+    if (number == SYS_GETCURSORX){
+        return (void *) get_cursor_x();
+    }
+    if (number == SYS_GETCURSORY){
+        return (void *) get_cursor_y();
+    }
+
+// =====================================
+// (250 ~ 255) - Info support.
+
+// Business Logic: Get system metrics.
+// 250
+// IN: index
+    if (number == SYS_GETSYSTEMMETRICS)
+    {
+        //if (arg2<0)
+            //return NULL;
+       return (void *) sys_get_system_metrics((int) arg2);
+    }
+
+// == - ==================================================
+
+
+// ==== 260 mark ===================================================
 
 // Outro numero fará esse trabalhao.
     if (number == 260)
@@ -330,6 +1297,7 @@ static void *__extra_services (
                             (int)          arg4 );
     }
 
+
 // read on virtual console!
 // range: 0 ~ 3
 // chamado por read_VC em ring3.
@@ -348,6 +1316,8 @@ static void *__extra_services (
                             (const void *) arg3, (size_t) arg4 );
     }
 
+
+
 // 266
 // Pega o número da tty de um processo, dado o pid.
 // process.c
@@ -363,6 +1333,7 @@ static void *__extra_services (
     //if (number == 267){
     //    return (void *) pty_link_by_pid ( (int) arg2, (int) arg3 );
     //}
+
 
 // Channel is a file descriptor in the file list 
 // of the current process.
@@ -386,6 +1357,8 @@ static void *__extra_services (
                             (int)          arg4 );  // nr
     }
 
+
+
 // Get current virtual console.
     if (number == 277){
         return (void *) console_get_current_virtual_console();
@@ -397,6 +1370,7 @@ static void *__extra_services (
         console_set_current_virtual_console((int) arg2);
         return NULL;
     }
+    
 
 // Returns the current runlevel.
     if (number == 288){
@@ -430,6 +1404,7 @@ static void *__extra_services (
         printf("350:\n"); 
         return (void *) sys_initialize_component((int) arg2);
     }
+
 
 // 377 
 // Get info to fill the utsname structure.
@@ -495,9 +1470,7 @@ static void *__extra_services (
 // Called by the ring 3 display server.
 // arg2 = zing hook structure pointer.
 // arg3 = The display erver PID.
-
     int display_server_ok=FALSE;
-
     if (number == SYS_SET_WS_PID)
     {
         debug_print("__extra_services: SYS_SET_WS_PID\n");
@@ -514,13 +1487,13 @@ static void *__extra_services (
         return NULL;
     }   
 
+
 // #deprecated
 // 514 - get wm PID for a given zing hook
     if ( number == SYS_GET_WM_PID ){
         panic("__extra_services: SYS_GET_WM_PID\n");
         return NULL;
     }
-
 // #deprecated
 // 515 - set wm PID for a given zing hook
     if (number == SYS_SET_WM_PID){
@@ -536,9 +1509,8 @@ static void *__extra_services (
         return (void *) CurrentZingHook;
     }
 
-
-// network server
 // 521 - set ns PID for a given zing hook.
+// network server
 // Register a network server.
     if (number == 521)
     {
@@ -559,6 +1531,8 @@ static void *__extra_services (
         }
         return NULL; //fail
     }    
+
+
 
 // 600 - dup
     if (number == 600){
@@ -626,6 +1600,8 @@ static void *__extra_services (
         }
         return NULL;
     }
+
+
 
 // 770 - Show device list.
     if (number == 770)
@@ -724,13 +1700,14 @@ static void *__extra_services (
         return NULL;
     }
 
+
+
 // 893 - Invalidate the thread's surface rectangle.
     if (number == 893)
     {
         __invalidate_surface_rectangle();
         return NULL;
     }
-
 // 896 - Invalidate the whole screen
     if ( number == 896 )
     {
@@ -738,14 +1715,12 @@ static void *__extra_services (
         //screen_is_dirty = TRUE;
         return NULL;
     }
-
 // 897 - Create a rectangle.
     if (number == 897)
     {
         __service897();
         return NULL;
     }
-
 // 898 - Enable prompt
     if ( number == 898 )
     {
@@ -754,7 +1729,6 @@ static void *__extra_services (
         ShellFlag = TRUE;
         return NULL;
     }
-
 // 899 - Desable prompt
     if ( number == 899 )
     {
@@ -763,7 +1737,6 @@ static void *__extra_services (
         ShellFlag = FALSE;
         return NULL;
     }
-
 // is the socket full?
 // See: sys.c
 // IN: fd
@@ -771,6 +1744,7 @@ static void *__extra_services (
     if ( number == 913 ){
         return (void *) sys_sleep_if_socket_is_empty(arg2);
     }
+
 
 // get screen window.
 // #todo. checar validade
@@ -804,6 +1778,7 @@ static void *__extra_services (
         return NULL;
     }
 
+
 // api - load file (string ???)
 // #todo: Tem que retornar algum identificador para a api.
 // poderia ser um indice na tabela de arquivos abertos pelo processo.
@@ -820,6 +1795,8 @@ static void *__extra_services (
         fs_show_root_fs_info();
         return NULL;
     }
+
+
 
     //7000 ~ 7020 for network sockets
 
@@ -898,6 +1875,7 @@ static void *__extra_services (
         return NULL;
     }
 
+
 // 8000 - ioctl() implementation.
 // See: fs.c
 // IN: fd, request, arg
@@ -936,1004 +1914,12 @@ static void *__extra_services (
         return (void *) ui_get_system_icon((int) arg2);
     }
 
-    // ...
-
-// fail
-    return NULL;
-}
-
-// Handler for the interrupt 0x80.
-void *sci0 ( 
-    unsigned long number, 
-    unsigned long arg2, 
-    unsigned long arg3, 
-    unsigned long arg4 )
-{
-// E25 - The queen.
-// Getting requests from ring3 applications via systemcalls.
-// #test
-// It's ok when init.bin calls this systemcall.
-
-    struct process_d  *p;
-    //struct thread_d  *t;
-
-    unsigned long *message_address = (unsigned long *) arg2;
-
-    unsigned long *a2 = (unsigned long*) arg2;
-    unsigned long *a3 = (unsigned long*) arg3;
-    unsigned long *a4 = (unsigned long*) arg4;
-
-    // Not in use!
-    //char *aa2 = (char *) arg2;
-    //char *aa3 = (char *) arg3;
-    //char *aa4 = (char *) arg4;
-
-    pid_t current_process = (pid_t) get_current_pid();
-    int layer = LAYER_UNDEFINED;
-
-//cpl
-    unsigned long *cpl_buffer = (unsigned long *) &sci0_cpl;
-    int cpl=-1;
-    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
-    cpl = (int) (tmp_cpl & 3);
-
-    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
-    {
-        panic("sci0: cpl");
-    }
-
-    if (cpl == 0){
-        printf("number=%d\n",number);
-        printf("pid=%d\n",current_process);
-        //if(current_process != 0){
-            panic("sci0: cpl 0\n");
-        //}
-    }
-    if (cpl == 1){
-        panic("sci0: cpl 1\n");
-    }
-    if (cpl == 2){
-        panic("sci0: cpl 2\n");
-    }
-    if (cpl == 3){
-        // ok
-    }
-
-    // #debug
-    //debug_print("sc0:\n");
-    //printf("sc0:\n");
-
-    //?? #deprecated?
-    g_profiler_ints_gde_services++;
-
-// Profiling in the process structure.
-
-// Permission
-
-    if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
-        panic("sci0: current_process\n");
-    }
-    p = (struct process_d *) processList[current_process];
-    if ((void*) p == NULL){
-        debug_print("sci0: p\n");
-        panic("sci0: p\n");
-    }
-    if ( p->used != TRUE || p->magic != 1234 ){
-        debug_print("sci0: p validation\n");
-        panic("sci0: p validation\n");
-    }
-
-    layer = p->_layer;
-
-// Feito pra rodar no Gramado OS.
-    if (p->personality != PERSONALITY_GRAMADO_AMAZING)
-    {
-        debug_print("sci0: Personality\n");
-        panic      ("sci0: Personality\n");
-    }
-
-// Counting ...
-    p->syscalls_counter++;
-
-// exit
-// Marcamos no processo nossa intenção de fechar.
-// Marcamos na thread de controle nossa intenção de fechar.
-// #todo: as outras threads do processo.
-    if (number == SYS_EXIT)
-    {
-        debug_print("sci0: SYS_EXIT\n");
-        p->exit_in_progress = TRUE;
-        // Quando o scheduler passar por ela,
-        // vai pular ela e marca-la como zombie.
-        if ((void*) p->control != NULL)
-        {
-            if (p->control->magic == 1234){
-                p->control->exit_in_progress = TRUE;
-            }
-        }
-        return NULL;
-    }
-
-/*
-// #debug
-// #todo: Explain it better.
-    if (number == 4321){
-        printf ("4321: arg2 %x | arg3 %x | arg4 %x \n",
-            arg2,arg3,arg4);
-        invalidate_screen();
-        return NULL;
-    }
-*/
-
-// Extra services
-    if (number > 256){
-        return (void *) __extra_services(number,arg2,arg3,arg4);
-    }
-
-//
-// Switch
-//
-
-    switch (number){
-
-        case SYS_NULL:
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 1 (i/o) Essa rotina pode ser usada por 
-        // um driver em user mode.
-        // #todo: This operation needs permition.
-        // #todo: Return value.
-        // IN: buffer address and lba address.
-        case SYS_READ_LBA: 
-            storage_read_sector( 
-                (unsigned long) arg2, (unsigned long) arg3 ); 
-            break;
-
-        // Business Logic:
-        // 2 (i/o) Essa rotina pode ser usada por 
-        // um driver em user mode.
-        // #todo: This operation needs permition.
-        // #todo: Return value.
-        // IN: buffer address and lba address.
-        case SYS_WRITE_LBA: 
-            storage_write_sector( 
-                (unsigned long) arg2, (unsigned long) arg3 ); 
-            break;
-
-        // Business Logic:
-        // 3 
-        // Carregar um arquivo do disco para a memória.
-        // See: fs/fs.c
-        // IN: name, flags, mode
-        case SYS_READ_FILE:
-            //if ( (void*) a2 == NULL )
-                //return NULL;
-            return (void *) sys_read_file_from_disk ( 
-                                (char *) a2, 
-                                (int)    arg3, 
-                                (mode_t) arg4 ); 
-            break;
-
-        // Business Logic:
-        // 4 
-        // Save file.
-        // See: fs/fs.c
-        // IN: name, size in sectors, size in bytes, adress, flag.
-        case SYS_WRITE_FILE:
-            sys_write_file_to_disk ( 
-                (char *)        message_address[0],
-                (unsigned long) message_address[1],
-                (unsigned long) message_address[2],
-                (char *)        message_address[3],
-                (char)          message_address[4] );
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 5
-        // See: sys.c 
-        case SYS_VSYNC:
-            sys_vsync();
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 6 - Put pixel. 
-        // Coloca um pixel no backbuffer.
-        // Isso pode ser usado por um servidor. 
-        // cor, x, y, rop_flags.
-        // todo: chamar kgws_backbuffer_putpixel
-        case SYS_BUFFER_PUTPIXEL:
-            backbuffer_putpixel ( 
-                (unsigned long) a2,  // color
-                (unsigned long) a3,  // x
-                (unsigned long) a4,  // y
-                0 );                 // rop_flags
-            return NULL;
-            break;
-
-        // 7
-        
-        // Business Logic:
-        // 8 
-        // #todo: #bugbug: 
-        // Aqui precisamos de mais parâmetros.
-        case SYS_BUFFER_DRAWLINE:
-            backbuffer_draw_horizontal_line ( 
-                (unsigned long) a2, 
-                (unsigned long) a3, 
-                (unsigned long) a4, 
-                COLOR_WHITE,
-                0 );   // rop_flags
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 9 - Draw a rectangle into the backbuffer.
-        // see: rect.c
-        case 9:
-        //case SYS_BUFFER_DRAWRECT:
-            //debug_print("sci0: [9]\n");
-            backbuffer_draw_rectangle ( 
-                (unsigned long) message_address[0],    //x 
-                (unsigned long) message_address[1],    //y
-                (unsigned long) message_address[2],    //width
-                (unsigned long) message_address[3],    //height
-                (unsigned int)  message_address[4],    //color
-                (unsigned long) message_address[5] );  //rop_flags
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 10 - Refresh rectangle.
-        // Region?
-        case 10:
-            //debug_print("sci0: [10]\n");
-            refresh_rectangle ( 
-                (unsigned long) message_address[0],    //x 
-                (unsigned long) message_address[1],    //y
-                (unsigned long) message_address[2],    //width
-                (unsigned long) message_address[3] );  //height 
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 11:
-        // Flush the backbuffer into the lfb.
-        case SYS_REFRESHSCREEN: 
-            invalidate_screen();
-            return NULL;
-            break;
-
-        // Reserved.
-        // Netword: 12,13,14,15
-
-        // Business Logic: 
-        // 16 - open() implementation.
-        // In ring3, see: fcntl.c
-        // In ring0, see: fs.c
-        // IN: pathname, flags, mode
-        // OUT: fd
-        case SYS_OPEN:
-            debug_print ("sci0: SYS_OPEN\n");
-            //if ( (void*) arg2 == NULL )
-                //return NULL;
-            return (void *) sys_open ( 
-                                (const char *) arg2, 
-                                (int)          arg3, 
-                                (mode_t)       arg4 ); 
-            break;
-
-        // Business Logic:
-        // 17 - close() implementation.
-        // See: sys.c
-        // IN: fd
-        case SYS_CLOSE:
-            debug_print ("sci0: SYS_CLOSE\n");
-            //if (arg2 < 0)
-                //return NULL;
-            return (void *) sys_close( (int) arg2 );
-            break;
-
-        // Business Logic:
-        // 18 - read() implementation.
-        // IN: ?
-        // See: sys.c
-        case SYS_READ:
-            return (void *) sys_read ( 
-                                (unsigned int) arg2, 
-                                (char *)       arg3, 
-                                (int)          arg4 ); 
-            break;
-
-        // Business Logic:
-        // 19 - write() implementation
-        // IN: ?
-        // See: sys.c
-        case SYS_WRITE:
-            return (void *) sys_write ( 
-                                (unsigned int) arg2, 
-                                (char *)       arg3, 
-                                (int)          arg4 );  
-            break;
-
-        // Reserved:
-        // 20~23 - Buffers support 
-        // 24~28 - Surface support 
-        // 29 - String stuff
-        // 30,31,32 - Putpixel?
-        // 33 - free number.
-
-        // Business Logic:
-        // 34
-        // Setup cursor position for the current virtual console.
-        case SYS_VIDEO_SETCURSOR: 
-            newos_set_cursor((unsigned long) arg2, (unsigned long) arg3);
-            return NULL;
-            break;
-
-        // 35 - free number
-
-        // 36 - #deprecated
-        // 37 - #deprecated
-
-        // Business Logic:
-        // 38 - get host name
-        case SYS_GETHOSTNAME:
-            return (void *) __gethostname((char *) arg2);
-            break;
-        
-        // Business Logic:
-        // 39 - set host name 
-        // #todo: This operation needs permition?
-        case SYS_SETHOSTNAME:
-            return (void *) __sethostname((const char *) arg2);
-            break;
-
-        // Business Logic:
-        // 40 - get user name 
-        case SYS_GETUSERNAME:
-            return (void *) __getusername((char *) arg2);
-            break;
-
-        // Business Logic:
-        // 41 - Set user name 
-        // #todo: This operation needs permition?
-        case SYS_SETUSERNAME:
-            return (void *) __setusername((const char *) arg2);
-            break;
-
-        // 42 - #deprecated
-
-        // Business Logic:
-        // 43 - Create an empty file.
-        // Called by libgws.
-        // See: fs.c
-        case 43:
-            return (void *) sys_create_empty_file( (char *) arg2 );
-            break;
-
-        // Business Logic:
-        // 44 - Create an empty directory.
-        // Called by libgws.
-        // See: fs.c
-        case 44:
-            return (void *) sys_create_empty_directory( (char *) arg2 );
-            break;
-
-        // 45 - livre
-        // #todo: Usar para manipulação de arquivo ou diretório.
-
-        // 46 - livre
-
-        // 47 - livre
-        // Show cpu info.
-        case 47:
-            //show_cpu_info();
-            return NULL;
-            break;
-
-        // 48 - livre
-
-        // 49
-        // Show system info
-        // See: sys.c
-        case 49:
-            sys_show_system_info((int) arg2);
-            return NULL;
-            break;
-
-        // ...
-        
-        // Business Logic:
-        // 65
-        // Put a char in the current virtual console.
-        // see: console.c
-        // IN: ch, console id.
-        case SYS_KGWS_PUTCHAR:
-            //if (arg3<0)
-                //return NULL;
-            console_putchar ( (int) arg2, (int) arg3 ); 
-            return NULL;
-            break;
-
-        //
-        // ## EXIT ##
-        //
-
-        // 70 - Exit.
-        // Atende a funcao exit() da libc. 
-        // Criaremos um 'request' que sera atendido somente quando 
-        // houver uma interrupcao de timer. 
-        // Enquanto isso a thread deve esperar em um loop.
-        // #bugbug: Pode haver sobreposicao de requests?
-        // Assincrono.
-        // IN: ??
-        // #todo: 
-        // Criar um wrapper em sys.c ou exit.c
-        // See: request.c
-        // Request number 12. (Exit thread)
-  
-        case SYS_EXIT:
-            panic("sci.c: SYS_EXIT\n");
-            return NULL;
-            break;
-   
-        // 71 - fork?
-
-        // Business Logic:
-        // 72
-        // See: sys.c
-        // Cria uma thread que fica no estado INITIALIZED.
-        // Outra syscall tem que colocar ela em STANDBY.
-        case SYS_CREATETHREAD:
-            debug_print("sci0: [FIXME] SYS_CREATETHREAD\n");
-            return (void *) sys_create_thread (
-                                NULL,
-                                arg2,             // init eip
-                                arg3,             // init stack
-                                current_process,  // pid
-                                (char *) a4 );    // name
-            break; 
-
-        // Business Logic:
-        // 73
-        // See: sys.c
-        // Cria um processo e coloca a thread primária pra rodar.
-        // #bugbug: 
-        // Na inicializacao do kernel, nos criamos um processo
-        // usando create_process. Mas nesse momento estavamos usando
-        // o diretorio de paginas do kernel e os registradores de segmento
-        // pertenciam ao kernel.
-        // Nessa tentativa de criarmos um processo usando create_process
-        // as coisas estao um pouco diferentes ... provavelmente
-        // estamos usando o diretorio de paginas do processo e os
-        // registradores de segmento podem estar em ring3.
-        // ?? Talvez poderiamos criar um request, da mesma maneira 
-        // que fazemos com a criaçao de threads e o spawn.
-        // #todo
-        // Aqui no kernel, precisamos criar mais rotinas de suporte
-        // a criacao de processos.
-        // Temos poucas opçoes e tudo esta meio fora de ordem ainda.
-        // syscall: 
-        // arg2 = name
-        // arg3 = process priority
-        // arg4 = nothing
-        
-        case SYS_CREATEPROCESS:
-            debug_print("sci0: [FIXME] SYS_CREATEPROCESS\n");
-            return (void *) sys_create_process ( 
-                                NULL,             // zing hook
-                                0,                // Reserved
-                                arg3,             // priority
-                                current_process,  // ppid
-                                (char *) a2,      // name
-                                RING3 );          // iopl 
-            break;
-
-        // 74,75,76,77,78,79.
-
-        // 80 - Show current process info.
-        // #todo: Mostrar em uma janela própria.
-        // #todo: Devemos chamar uma função que 
-        // mostre informações apenas do processo atual. 
-        case SYS_CURRENTPROCESSINFO:
-            show_currentprocess_info();
-            return NULL;
-            break;
-
-        // Business Logic:
-        // 81: Get parent process id.
-        // See: sys.c
-        case SYS_GETPPID: 
-            return (void *) sys_getppid();
-            break;
-
-        // 82 - Mostra informações sobre todos os processos.
-        case 82:
-            show_process_information();
-            return NULL;
-            break;
-
-        // 83
-        // Suporte a chamada da libc waitpid(...).
-        // schedi.c
-        // #todo.
-        // TID, PID 
-        // TID eh a thread atual.
-        // PID veio via argumento.
-        // IN: pid, status, option
-        // #todo: Change the name to sys_xxxx
-        case SYS_WAIT4PID: 
-            debug_print("sci0: [FIXME] SYS_WAIT4PID\n");
-            return (void *) do_waitpid( 
-                                (pid_t) arg2, 
-                                (int *) arg3, 
-                                (int)   arg4 );
-                
-            //block_for_a_reason ( (int) current_thread, (int) arg2 ); //suspenso
-            break;
-
-        // 84 - livre.
-
-        // Business Logic:
-        // 85
-        case SYS_GETPID: 
-            return (void *) get_current_pid();
-            break;
-
-        // 86,87 - livre.
-
-        // Testa se o processo é válido
-        // se for valido retorna 1234
-        // testando ...
-        case SYS_88:
-            return (void *) processTesting(arg2);
-            break;
-
-        // 89 - livre
-
-        // ------------------
-        // 90~99 Reservado para thread support
-
-        // Business Logic:
-        // 94
-        case SYS_STARTTHREAD:
-            debug_print("sci0: SYS_STARTTHREAD\n");
-            return (void *) newos_start_thread((struct thread_d *) arg2);
-            break;
-
-        // ------------------
-
-        // 100~109: free
-
-        // Business Logic:
-        // 110
-        // IN: flags.
-        // see: ke/sys.c
-        int reb_ret=-1;
-        case SYS_REBOOT:
-            debug_print("sci0: SYS_REBOOT\n");
-            reb_ret = (int) sys_reboot(0);
-            return (void *) (reb_ret & 0xFFFFFFFF);
-            break;
-
-        // Business Logic:
-        // 111
-        // See: tlib.c
-        // Get the next system message.
-        // IN: buffer for message elements.
-        case 111:
-            //debug_print("sci0: 111\n");
-            return (void *) sys_get_message( 
-                (unsigned long) &message_address[0] );
-            break;
-
-        // Business Logic:
-        // tlib.c
-        // Post message to tid.
-        // Asynchronous.
-        // IN: tid, message buffer address.
-        case 112:
-            //if (arg2<0)
-                //return NULL;
-            return (void *) sys_post_message_to_tid( 
-                                (int) arg2, 
-                                (unsigned long) arg3 );
-            break;
-
-        // 113~117: 
-        // 118~119: 
-
-        // Pop data from network queue.
-        case 118:
-            // IN: user buffer, buffer lenght.
-            return (void*) network_pop_packet( 
-                               (unsigned long) &message_address[0], 
-                               (int) arg3 );
-            break;
-
-        // Push data into the network queue?
-        //case 119:
-            //break;
-
-        // 120
-        // Get a message given the index.
-        // With restart support.
-        case 120:
-            //debug_print("sci0: \n");
-            return (void *) sys_get_message2( 
-                (unsigned long) &message_address[0], arg3, arg4 );
-            break;
-
-        // 121,122,123
-
-        // 124 (teste)
-        // Defered system procedure call.
-        // #todo: 
-        // Precisamos armazenasr os argumentos em algum lugar.
-        // #bugbug: Precisamos criar um request.
-        case 124:
-            kernel_request = KR_DEFERED_SYSTEMPROCEDURE;
-            return NULL;
-            break;
-
-        // 125
-
-        // Business Logic:
-        // 126
-        // Permitindo que drivers e servidores em usermode acessem
-        // as portas.
-        // #todo: This operation needs permition?
-        // #bugbug
-        // #todo: 
-        // Tem que resolver as questoes de privilegios.
-        // IN: bits, port
-        case SYS_USERMODE_PORT_IN:
-            return (void *) portsx86_IN ( 
-                                (int) (arg2 & 0xFFFFFFFF), 
-                                (unsigned short) (arg3 & 0xFFFF) );
-            break;
-
-        // Business Logic:
-        // 127
-        // Permitindo que drivers e servidores em usermode acessem
-        // as portas.
-        // #todo: This operation needs permition?
-        // #bugbug
-        // #todo: 
-        // Tem que resolver as questoes de privilegios.
-        // IN: bits, port, value
-        case SYS_USERMODE_PORT_OUT:
-            portsx86_OUT ( 
-                (int) arg2, 
-                (unsigned short) (arg3 & 0xFFFF), 
-                (unsigned int)   (arg4 & 0xFFFFFFFF) );
-            return NULL;
-            break;
-
-        // 128~129: free
-
-        // -------------
-        
-        // 130, 131
-
-        // 132 - d_draw_char
-        // Desenha um caractere e pinta o pano de fundo.
-        // #todo: We do not have an api routine yet.
-        // IN: x, y, c, fg color, bg color
-        case 132: 
-            d_draw_char(
-                (unsigned long)  message_address[0],    // x
-                (unsigned long)  message_address[1],    // y 
-                (unsigned long)  message_address[2],    // c
-                (unsigned long)  message_address[3],    // fg
-                (unsigned long)  message_address[4] );  // bg
-            return NULL;
-            break;
-
-        // 133 - d_drawchar_transparent
-        // Desenha um caractere sem alterar o pano de fundo.
-        // IN: x, y, color, c
-        case 133:
-            d_drawchar_transparent(
-                (unsigned long)  message_address[0],   // x
-                (unsigned long)  message_address[1],   // y 
-                (unsigned long)  message_address[2],   // color
-                (unsigned long)  message_address[3] ); // c
-            return NULL;
-            break;
-
-        // 134~136: free
-
-        // 137 - #deprecated?
-        case SYS_GETCH:
-            panic("SYS_GETCH: #deprecated ?\n"); 
-            return NULL;
-            break;
-
-        // 138 - Get key state.
-        // IN: vk.
-        case 138:
-            return (void *) keyboardGetKeyState((unsigned char) arg2);
-            break;
-
-        // 139
-        
-        // -----------------
-        // 140~149
-        // -----------------
-
-        // 150~156 User and group support.
-
-        // 152 - get uid
-        case SYS_GETCURRENTUSERID:  
-            return (void *) current_user; 
-            break;
-        // 154 - get gid
-        case SYS_GETCURRENTGROUPID: 
-            return (void *) current_group; 
-            break;
-
-        // 157~159: Security
-
-        // 157 - get user session id
-        case SYS_GETCURRENTUSERSESSION:
-            return (void *) current_usersession; 
-            break;
-        
-        // 158 - free
-       
-        // 159 - get current zing hook id
-        case SYS_GETCURRENTDESKTOP:
-            return (void *) current_zh; 
-            break;
-
-        // ----------------
-        // 160~169: Reserved to network support.
-
-        // 161
-        // get socket IP
-        // Gramado API socket support. (not libc)
-        case 161:
-            return (void *) getSocketIPV4( (struct socket_d *) arg2 );
-            break;
-
-        // 162
-        // get socket port
-        // Gramado API socket support. (not libc)
-        case 162:
-            return (void *) getSocketPort( (struct socket_d *) arg2 );
-            break;
-
-        // 163
-        // update socket  
-        // retorno 0=ok 1=fail
-        // Gramado API socket support. (not libc)
-        case 163:
-            return (void *) update_socket ( 
-                                (struct socket_d *) arg2, 
-                                (unsigned int)      (arg3 & 0xFFFFFFFF), 
-                                (unsigned short)    (arg4 & 0xFFFF) );
-            break;
-
-
-        // ----------------
-
-        // 170 - command 'pwd'.
-        // Cada processo tem seu proprio pwd.
-        // Essa rotina mostra o pathname usado pelo processo.
-        // See: fs.c
-        case SYS_PWD:
-            // #test
-            // Isso é um teste. Essa chamada não precisa disso.
-            if (is_superuser() == TRUE)
-            {
-                debug_print("sci0: [SYS_PWD] Yes, I'm the super user\n");
-                printf     ("sci0: [SYS_PWD] Yes, I'm the super user\n");
-            }
-            sys_pwd();
-            return NULL;
-            break;
-
-        // 171 - retorna o id do volume atual.
-        case SYS_GETCURRENTVOLUMEID:
-            return (void *) current_volume;
-            break;
-
-        //172 - configura o id do volume atual.
-        //#bugbug: Estamos modificando, sem aplicar nenhum filtro.
-        case SYS_SETCURRENTVOLUMEID:
-            current_volume = (int) arg2;
-            return NULL;
-            break;
-
-        // 173
-        // Lista arquivos de um diretório, dado o número do disco,
-        // o numero do volume e o número do diretório,
-        // args in: disk id, volume id, directory id
-        // See: fs.c
-        case SYS_LISTFILES:
-            fsListFiles ( arg2, arg3, arg4 );
-            return NULL;
-            break;
-
-        // 174
-        case SYS_SEARCHFILE:
-            debug_print ("sci0: SYS_SEARCHFILE\n");
-            return (void *) search_in_dir ( 
-                                (const char *) arg2, 
-                                (unsigned long)   arg3 );
-            break;
-
-
-        // 175 - 'cd' command support.
-        // +Atualiza o pathname na estrutura do processo atual.
-        // +Atualiza o pathname na string global.
-        // +Carrega o arquivo referente ao diretório atual.
-        // See: fs.c
-        case 175:
-            debug_print("sci0: 175\n");
-            sys_cd_command((char *) arg2);
-            return NULL;
-            break;
-
-        // 176
-        // Remove n nomes de diretório do pathname do processo 
-        // indicado no argumento.
-        // Copia o nome para a string global.
-        case 176:
-            debug_print("sci0: 176\n");
-            fs_pathname_backup( current_process, (int) arg3 );
-            return NULL;
-            break;
-
-        // 177 -  'dir' command.
-        // Comando dir no shell.
-        // Listando arquivos em um diretório dado seu nome.
-        // #bugbug: Talvez tenhamos que usr a sci2.
-        // See: fs.c
-        case 177:
-            debug_print("sci0: [177]\n");
-            fsList((const char *) arg2);
-            return NULL;
-            break;
-
-        // 178
-        // See: sys.c
-        case 178:
-            return (void *) sys_get_file_size((unsigned char *) arg2);
-            break;
-
-        // 179
-
-        //----------
-        // 180~189: memory support.
-        // (Privilegies)
-
-        // 184
-        // Pega o endereço do heap do processo dado seu id.
-        // See: process.c
-        case SYS_GETPROCESSHEAPPOINTER:
-            debug_print("sci0: [184]\n");
-            return (void *) GetProcessHeapStart((int) arg2);
-            break;
-
-        //----------
-        
-        // 190~199: free
-        // 200~209: free
-
-        //----------
-
-        // 210~219: terminal/virtual console support.
-
-        //211
-        case SYS_GETCURRENTTERMINAL:
-            return (void *) current_terminal;
-            break;
-
-        //212
-        case SYS_SETCURRENTTERMINAL:
-            current_terminal = (int) arg2;
-            break;
-
-        //----------
-
-        // 223 - Get sys time info.
-        // informaçoes variadas sobre o sys time.
-        case 223:
-            return (void *) get_systime_info((int) arg2);
-            break;
-
-        // Business Logic:
-        // 224
-        case SYS_GETTIME:
-            return (void *) get_time();
-            break;
-
-        // Business Logic:
-        // 225
-        case SYS_GETDATE:
-            return (void *) get_date();
-            break;
-
-// 226 - get
-// Obs: 
-// #todo: 
-// Poderia ser uma chamada para configurar o posicionamento 
-// e outra para configurar as dimensões.
-// #todo: Atomic stuff.
-        case SYS_GET_KERNELSEMAPHORE:
-            return (void *) __spinlock_ipc;
-            break;
-
-// 227 - close gate
-// Entering critical section.
-// See: process.c
-        case SYS_CLOSE_KERNELSEMAPHORE:
-            process_close_gate(current_process);
-            return NULL;
-            break;
-
-// 228 - open gate
-// Exiting critical section.
-// #todo: Quando um processo fechar e estiver
-// em sua sessão crítica, então devemos liberar
-// essa flag. Isso fica mais fácil de lembrar se
-// existir uma flag na estrutura de processo.
-// See: process.c
-        case SYS_OPEN_KERNELSEMAPHORE:
-            process_open_gate(current_process);
-            return NULL;
-            break;
-
-        // 229
-
-        //---------------------
-        // 230~239: Reserved for tty support.
-
-        // 236 - get tty id
-        case 236:
-            return (void *) current_tty;
-            break;
-
-        //---------------------
-        
-        // 240~249: Reserved for text editing support.
-        
-        // 240, 241
-        case SYS_GETCURSORX:  return (void *) get_cursor_x(); break;
-        case SYS_GETCURSORY:  return (void *) get_cursor_y(); break;
-        // ...
-
-        // =====================================
-        // (250 ~ 255) - Info support.
-
-        // Business Logic: Get system metrics.
-        // 250
-        // IN: index
-        case SYS_GETSYSTEMMETRICS:
-            //if (arg2<0)
-                //return NULL;
-            return (void *) sys_get_system_metrics((int) arg2);
-            break;
-
-        // Business Logic: Invalid request.
-        default:
-            __default_syscall_counter++;
-            debug_print("sci0: [FIXME] Default\n");
-            printf     ("sci0: [FIXME] Default SYSCALL {%d}\n", number );
-            invalidate_screen();
-            return NULL;
-            break;
-    };
-
+// ========================================================
 //done:
+    __default_syscall_counter++;
     return NULL;
 }
+
 
 // Handler for the interrupt 0x81.
 void *sci1 ( 
