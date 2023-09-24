@@ -19,6 +19,8 @@
 #define NorthWestGravity  7
 #define CenterGravity     8
 #define StaticGravity     9
+#define DefaultGravity    NorthWestGravity  
+
 
 void
 wm_gravity_translate(

@@ -433,6 +433,7 @@ struct gws_window_d
     //unsigned long client_area_width;
     //unsigned long client_area_height;
 
+    int gravity;
 
 // tipo? ... (editbox, normal, ...) 
 // Isso pode ser 'int'

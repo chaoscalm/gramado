@@ -516,11 +516,8 @@ struct windowframe_d
 };
 
 
-/*
- * gws_window_d:
- *     The window structure.
- */
-
+// gws_window_d:
+// The window structure.
 // #todo
 // Se uma janela tiver o id da thread ao qual ela pertence
 // então podemos colocar ela em foreground quando a janela
@@ -650,8 +647,7 @@ struct gws_window_d
     unsigned long full_width;
     unsigned long full_height;
 
-
-    // #todo    
+    // #todo
     //unsigned long border_color;
     //unsigned long border_width;
 
@@ -736,7 +732,6 @@ struct gws_window_d
     // para tornarem-se visíveis.
     struct gws_rect_d  *dirty_rects;
 
-
 //
 // == window stack ================================
 //
@@ -747,14 +742,14 @@ struct gws_window_d
 // 1
 // Shadow
 
-    unsigned int shadow_color; 
+    unsigned int shadow_color;
     int shadow_style;
     int shadowUsed;
 
 // 2
 // Background
 
-    unsigned int bg_color; 
+    unsigned int bg_color;
     int background_style;
     int backgroundUsed;
 
@@ -871,7 +866,7 @@ struct gws_window_d
 // 12
 
 // Menu da janela.
-    struct gwssrv_menu_d *contextmenu;          // Menu da janela.
+    struct gwssrv_menu_d *contextmenu;    // Menu da janela.
 
 //==================================
 
@@ -1005,24 +1000,21 @@ struct gws_window_d
 // embedded mode = dentro de uma janela ou de um navegador. 
 
 // ??
-    // unsigned long status;                
+    // unsigned long status;
 
 // Seu status de relacionamento com outras janelas.
     unsigned long relationship_status;   
 
-//
-// z-order.
-//
-
+// z-order
 // Ordem na pilha de janelas do eixo z.
 // A janela mais ao topo é a janela foreground.
 
     int zIndex;
 
 //z-order global.
-//Sua ordem em relação a janela gui->main.    
+//Sua ordem em relação a janela gui->main.
 // suspenso .... isso é muito importante.
-    
+
     // struct zorder_d *zorder;
 
 //
@@ -1072,15 +1064,14 @@ struct gws_window_d
 
 // fica para uma versão estendida da estrutura.
 // Estrutura de cursor para a janela.
-    
+
     //struct cursor_d	*cursor;
 
-    //unsigned long bgcolor;		// Background color.
-    //unsigned long fgcolor;		// Foreground color. 
+    //unsigned long bgcolor;  // Background color.
+    //unsigned long fgcolor;  // Foreground color.
 
-    //struct button_d *current_button;  //Botão atual.      
+    //struct button_d *current_button;  //Botão atual.
     //struct button_d *buttonList;      //Lista encadeada de botões em uma janela.
-
 
 // Mouse cursor support ???
 // Abaixo ficam os elementos referenciados com menor frequência.
@@ -1115,7 +1106,7 @@ extern struct gws_window_d *__demo_window;
 
 // If the window server has a taskbar.
 // maybe we don't need that.
-extern struct gws_window_d  *taskbar_window; 
+extern struct gws_window_d  *taskbar_window;
 extern struct gws_window_d  *taskbar_startmenu_button_window; 
 //char startmenu_string[32];
 
@@ -1126,8 +1117,6 @@ extern struct gws_window_d *first_window;
 extern struct gws_window_d *last_window;
 
 
-
-
 //
 // == Window list =============================
 //
@@ -1135,32 +1124,27 @@ extern struct gws_window_d *last_window;
 // This is gonna be used to register the windows.
 // These indexes will be returned to the caller.
 
-#define WINDOW_COUNT_MAX 1024
-
+#define WINDOW_COUNT_MAX  1024
 extern unsigned long windowList[WINDOW_COUNT_MAX];
-
 
 //
 // == z order list =============================
 //
 
-#define ZORDER_MAX 1024
-#define ZORDER_TOP (ZORDER_MAX-1)
-#define ZORDER_BOTTOM 0
+#define ZORDER_MAX  1024
+#define ZORDER_TOP  (ZORDER_MAX-1)
+#define ZORDER_BOTTOM  0
 //...
 
 #define TOP_WINDOW    ZORDER_TOP
-#define BOTTOM_WINDOW 0
+#define BOTTOM_WINDOW  0
 // ...
-
 
 unsigned long zList[ZORDER_MAX];
 
 //
 // ================================================================
 //
-
-
 
 // #test
 // Uma janela criada pelo kgws em ring0 será representada 
@@ -1171,7 +1155,7 @@ struct gws_surface_d
 {
     int used;
     int magic;
-    
+
     // Pointer to the window in kgws.
     // Redirection?
     void *window_object;

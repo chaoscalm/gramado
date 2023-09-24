@@ -135,16 +135,16 @@ __transform_from_modelspace_to_screespace(
  *     The device context was created in the beginning of
  * of the initialization.
  *     To handle the device context we have the structures:
- * 'display' and 'screen'. The clients will use the data in these
- *  structures.
+ * 'display' and 'screen'. The clients will use the data 
+ * in these structures.
  */
 
-int grInit (void)
+int grInit(void)
 {
     unsigned long deviceWidth  = gws_get_device_width();
     unsigned long deviceHeight = gws_get_device_height();
 
-    gwssrv_debug_print ("grInit:\n");
+    gwssrv_debug_print("grInit:\n");
 
     if ( deviceWidth == 0 || deviceHeight == 0 )
     {
@@ -157,15 +157,15 @@ int grInit (void)
 // #todo: 
 // We need the option to put the hotspot 
 // at the center of the window.
-    HotSpotX = (deviceWidth>>1);
-    HotSpotY = (deviceHeight>>1);
+    HotSpotX = (deviceWidth >> 1);
+    HotSpotY = (deviceHeight >> 1);
 
 // == Projection =========
 // Initialize the current projection.
 // Change the view for the current projection.
-    gwssrv_debug_print ("grInit: projection\n");
+    gwssrv_debug_print("grInit: projection\n");
     projection_initialize();
-    // Changing the view for the current projection.
+// Changing the view for the current projection.
     gr_depth_range(CurrentProjection,0,40);
 
 // == Camera ==========
@@ -217,8 +217,8 @@ gr_clamp(
 
 
 // Configurando o viewport.
-// Isso determina os limites onde podemos
-// pintar com 2d. Esse é nosso 'raster'.
+// Isso determina os limites onde podemos pintar com 2D. 
+// Esse é nosso 'raster'.
 // See: projection_initialize
 void 
 gwsViewport(
@@ -230,25 +230,23 @@ gwsViewport(
 
 // Esses valores não podem ser maiores
 // que os valores da tela.
-    
+
     if (topleft_x<0)
         topleft_x=0;
-    if(topleft_y<0)
+    if (topleft_y<0)
         topleft_y=0;
 
     if (width<0)
         width=0;
-    if(height<0)
+    if (height<0)
         width=0;
 
     // ...
-    
+
     // #todo
     // call that routine.
     //projection_initialize(...)
 }
-
-
 
 // Limites da profundidade usada pelo raster.
 // See: view().
@@ -258,9 +256,8 @@ gwsDepthRange(
     int maxZ)     // far
 {
 // Changing the view for the current projection
-    gr_depth_range(CurrentProjection,minZ,maxZ);
+    gr_depth_range(CurrentProjection, minZ, maxZ);
 }
-
 
 /*
 //#test
@@ -327,8 +324,6 @@ __transform_from_modelspace_to_screespace(
 // This is the origin of the 'world space'.
 // model space.
 // Been the reference for all the 'object spaces'.
-
-
 
 // ===================================================
 // X::
@@ -401,23 +396,24 @@ done:
     }
 
 // ===================================================
-// Return values:
-
-    if( (void*) res_x != NULL ){ *res_x = (int) X; }
-    if( (void*) res_y != NULL ){ *res_y = (int) Y; }
+// Return the values
+    if ((void*) res_x != NULL){
+        *res_x = (int) X;
+    }
+    if ((void*) res_y != NULL){
+        *res_y = (int) Y;
+    }
 
     return;
 }
 
 /*
  * grPlot0:
- *      plot pixel.
- *      Viewport Transformation.
- *      Low level routine.
- *      Origin at center of the device screen. 
- *      #todo: Plot into a 'normalized' 2d rater screen. 
- *      #new: Plotting into a clipping window.
- * low level plot.
+ * Low leve routine to plot a pixel.
+ * Viewport Transformation.
+ * Origin at center of the device screen.
+ * #todo: Plot into a 'normalized' 2d rater screen.
+ * #new: Plotting into a clipping window.
  * History:
  *      2020 - Created by Fred Nora.
  */
@@ -498,14 +494,14 @@ done:
 // see:
 // https://www3.ntu.edu.sg/home/ehchua/programming/opengl/CG_BasicsTheory.html
 // IN:
-// clipping window near: Near window.
-// clipping window far: Far window.
-// x,y,z
-// color
+//   + Clipping window
+//   + x, y, z
+//   + Color
+//   + ROP
 
 int 
 grPlot0 ( 
-    struct gws_window_d *clipping_window,   
+    struct gws_window_d *clipping_window,
     int z, int x, int y, 
     unsigned int color,
     unsigned long rop )
@@ -540,17 +536,17 @@ grPlot0 (
 
 //-------------------------------------
 // tmp: zNear zFar
-// clipping
-     int zNear =  0; 
-     int zFar =  80;
-     if ( (void*) CurrentProjection != NULL ){
-          zNear = (int) CurrentProjection->zNear;
-          zFar  = (int) CurrentProjection->zFar;
-     }
-     if (z<zNear)
-         return 0;
-     if (z>=zFar)
-         return 0;
+// Clipping
+    int zNear =  0;
+    int zFar =  80;
+    if ((void*) CurrentProjection != NULL){
+        zNear = (int) CurrentProjection->zNear;
+        zFar  = (int) CurrentProjection->zFar;
+    }
+    if (z < zNear)
+        goto fail;
+    if (z >= zFar)
+        goto fail;
 //-------------------------------------
 
 //-------------------------------------
@@ -584,7 +580,8 @@ grPlot0 (
 // Maybe we need to use the device context structure,
 // or something like that.
 
-    if ( (void*) clipping_window != NULL )
+// Window validation.
+    if ((void*) clipping_window != NULL)
     {
         if ( clipping_window->used  == TRUE && 
              clipping_window->magic == 1234 )
@@ -601,7 +598,7 @@ grPlot0 (
 // See: screen.h
 
     // #debug
-    if ( (void *) DeviceScreen == NULL ){
+    if ((void *) DeviceScreen == NULL){
         Draw = FALSE;
         printf("grPlot0: DeviceScreen\n");
         exit(1);
@@ -634,7 +631,7 @@ grPlot0 (
 // se a flag indicar que não precisava desenhar.
 
     if (Draw != TRUE)
-        return -1;
+        goto fail;
 
 // #todo: 
 // We need to check the window limits
@@ -643,8 +640,8 @@ grPlot0 (
 // #bugbug
 // Já fizemos isso logo acima?
 
-    if (finalx<0){ return -1; }
-    if (finaly<0){ return -1; }
+    if (finalx<0){ goto fail; }
+    if (finaly<0){ goto fail; }
     if ( 0 <= finalx < DeviceScreen->width && 
          0 <= finaly < DeviceScreen->height )
     {
@@ -665,6 +662,8 @@ grPlot0 (
             // IN: color, x, y, rop
             libdisp_backbuffer_putpixel( 
                 (unsigned int) color, finalx, finaly, rop ); 
+
+            //return 0;
         }
 
         // Se temos uma janela válida.
@@ -680,22 +679,24 @@ grPlot0 (
                      // IN: color, x, y, rop
                      libdisp_backbuffer_putpixel(
                          (unsigned int) color, finalx, finaly, rop ); 
+
+                     //return 0;
                  }
         }
 
         // #todo
         // This is a work in progress
             
-        //if( UsingDepthBuffer == TRUE )
-        //{
+        //if( UsingDepthBuffer == TRUE ){
         //    depth_buffer[ offset ] = Z;
         //}
 
+        // OK
         return 0;
     }
 
-// Fail 
-    return (-1);
+fail:
+    return (int) (-1);
 }
 
 // Plot with graphics effects.
@@ -797,23 +798,22 @@ void plotLine(int x0, int y0, int x1, int y1)
 {
     int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
-    int err = dx+dy, e2;                                  // error value e_xy 
+    int err = dx+dy, e2;                          // error value e_xy 
 
-    for (;;) {                                                  // loop 
+    for (;;) {                                    // loop 
         setPixel(x0,y0);
         e2 = 2*err;
-        if (e2 >= dy) {                                       // e_xy+e_x > 0
+        if (e2 >= dy) {                           // e_xy+e_x > 0
             if (x0 == x1) break;
             err += dy; x0 += sx;
         }
-        if (e2 <= dx) {                                // e_xy+e_y < 0 
+        if (e2 <= dx) {                           // e_xy+e_y < 0 
             if (y0 == y1) break;
             err += dx; y0 += sy;
         }
     }
 }
 */
-
 
 // plotLine3d:
 // Bresenham in 3D
@@ -862,9 +862,9 @@ plotLine3dEx (
     unsigned long rop )
 {
 
-    if ( (void*) window == NULL )
+    if ((void*) window == NULL)
         return;
-    if (window->magic!=1234)
+    if (window->magic != 1234)
         return;
 
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
@@ -914,28 +914,27 @@ plotLine3dEx (
     };
 }
 
-
 // #todo
 // plot line given two colors.
 // interpolation ?
 void 
 plotLine3d2 (
     int x0, int y0, int z0, unsigned long color1,
-    int x1, int y1, int z1, unsigned long color2, 
+    int x1, int y1, int z1, unsigned long color2,
     int flag )
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-    int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
-    int dz = abs(z1-z0), sz = z0<z1 ? 1 : -1; 
-   
+    int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    int dz = abs(z1-z0), sz = z0<z1 ? 1 : -1;
+
     //#bugbug: This macro is wrong?!
     //int dm = grMAX3 (dx,dy,dz), i = dm; /* maximum difference */
-   
+
     int dm = grMAX3(dx,dy,dz);
     register int i = dm;
-   
+
     // x1 = y1 = z1 = dm/2; /* error offset */
- 
+
     x1 = (dm >> 1);
     y1 = x1;
     z1 = x1;
@@ -945,14 +944,14 @@ plotLine3d2 (
     flag=0;
 
 //
-// Loop 
+// Loop
 //
 
-    for (;;) {  
+    for (;;) {
 
         grPlot0 ( NULL, z0, x0, y0, color1, 0 );
         //grPlot0 ( NULL, z0, x0, y0, color2, 0 );
-      
+
         if (i-- == 0) 
             break;
         x1 -= dx; if (x1 < 0) { x1 += dm; x0 += sx; } 
@@ -1001,12 +1000,12 @@ rectangle_from_two_points (
         color );
 }
 
-
-// worker
-// 4 3d lines, not filled.
-void __rectangleZZ ( struct gr_rectangle_d *rect )
+// __rectangleZZ:
+// Worker
+// Draw 4 3d lines, not filled rectangle.
+void __rectangleZZ(struct gr_rectangle_d *rect)
 {
-    if ( (void*) rect == NULL ){
+    if ((void*) rect == NULL){
         return;
     }
 
@@ -1053,8 +1052,8 @@ void __rectangleZZ ( struct gr_rectangle_d *rect )
 
 int grRectangle(struct gr_rectangle_d *rect)
 {
-    if( (void*) rect == NULL )
-        return -1;
+    if ((void*) rect == NULL)
+        goto fail;
 
 // #todo
 // Use options
@@ -1069,18 +1068,20 @@ int grRectangle(struct gr_rectangle_d *rect)
 // ...
 
     return 0;
+fail:
+    return (int) -1;
 }
 
-
+// rectangle_ras3D:
 // Rectangle rasterization using 3d lines.
 // It's not the standard quad rasterization routine
 // using the viewport 2d coordenates.
 // It uses the model 3d coordenates.
 // It applies only on few cases.
 // IN:
-// upper-left corner, 
-// lower-right corner,
-// color
+//   + upper-left corner, 
+//   + lower-right corner,
+//   + color
 
 void
 rectangle_ras3D (
@@ -1101,7 +1102,7 @@ rectangle_ras3D (
 // Estamos no eixo y, para cima, maior que 0.
 // Entao top tem um valor maior que bottom.
 
-    if (top  <= bottom){return;} 
+    if (top  <= bottom){return;}
     if (left >= right) {return;}
 
 // #todo
@@ -1124,11 +1125,12 @@ rectangle_ras3D (
     };
 }
 
-// Triangle.
-int xxxTriangleZ ( struct gr_triangle_d *triangle )
+// xxxTriangleZ:
+// ...
+int xxxTriangleZ(struct gr_triangle_d *triangle)
 {
-    if ( (void*) triangle == NULL ){
-        return -1;
+    if ((void*) triangle == NULL){
+        goto fail;
     }
 
 // Draw:
@@ -1152,24 +1154,30 @@ int xxxTriangleZ ( struct gr_triangle_d *triangle )
         triangle->p[0].color );
 
     return 0;
+fail:
+    return (int) -1;
 }
 
-int grTriangle( struct gr_triangle_d *triangle )
+// grTriangle:
+// ...
+int grTriangle(struct gr_triangle_d *triangle)
 {
-    int Status=0;
-    if ( (void*) triangle == NULL )
-        return -1;
-    // #todo
-    // something
-    Status = (int) xxxTriangleZ(triangle);
+    register int Status=0;
 
+    if ((void*) triangle == NULL){
+        goto fail;
+    }
+    Status = (int) xxxTriangleZ(triangle);
     return Status;
+fail:
+    return (int) -1;
 }
 
+// xxxPolygonZ:
 // Polyline
 // O segundo ponto da linha 
 // vira o primeiro ponto da próxima linha.
-int xxxPolygonZ ( struct gr_polygon_d *polygon )
+int xxxPolygonZ(struct gr_polygon_d *polygon)
 {
     register int i=0;
     int NumberOfElements=0;
@@ -1185,24 +1193,24 @@ int xxxPolygonZ ( struct gr_polygon_d *polygon )
     int PolygonType=0;
 
 // structure
-    if ( (void*) polygon == NULL ){
+    if ((void*) polygon == NULL){
         goto fail;
     }
 
 // list
-    if ( (void*) list == NULL ){
+    if ((void*) list == NULL){
         goto fail;
     }
 
-// number of elements
+// Number of elements
     NumberOfElements = polygon->n;
-    if ( NumberOfElements > Max ){
+    if (NumberOfElements > Max){
         goto fail;
     }
 
 // polygon type
     PolygonType = polygon->type;
-    switch(PolygonType){
+    switch (PolygonType){
     case POLYGON_POLYPOINT:  goto do_polypoint;  break;
     case POLYGON_POLYLINE:   goto do_polyline;   break;
     default:
@@ -1219,9 +1227,9 @@ do_polypoint:
     for ( i=0; i<NumberOfElements; i++ )
     {
         v1 = (struct gr_vec3D_d *) list[i];
-        if ( (void*) v1 == NULL ){ 
+        if ((void*) v1 == NULL){ 
             gwssrv_debug_print(">>>> BREAK\n");
-            break; 
+            break;
         }
 
         // draw
@@ -1265,6 +1273,7 @@ fail:
     return -1;
 }
 
+// xxxDrawCubeZ:
 // #test
 // >>>> wired cube <<<< 
 // "with ugly rasterization in some of the fazes"
@@ -1277,7 +1286,7 @@ fail:
 // We can create a function only for wired cube, 
 // and another one for cube with some kind of rasterization.
 
-int xxxDrawCubeZ (struct gr_cube_d *cube)
+int xxxDrawCubeZ(struct gr_cube_d *cube)
 {
 
 // #todo: 
@@ -1291,9 +1300,8 @@ int xxxDrawCubeZ (struct gr_cube_d *cube)
 // Maybe we will receive a function parameter for that.
     int UseRasterization = TRUE;
 
-    if ( (void*) cube == NULL )
-    {
-        return -1;
+    if ((void*) cube == NULL){
+        goto fail;
     }
 
 // #todo
@@ -1436,6 +1444,8 @@ int xxxDrawCubeZ (struct gr_cube_d *cube)
 
     // ok
     return 0;
+fail:
+    return (int) -1;
 }
 
 // sevice 2041
@@ -1453,6 +1463,7 @@ int serviceGrRectangle(void)
     return -1;
 }
 
+// plotCircle:
 // Circle
 // This is an implementation of the circle algorithm.
 // ?? what means 'm' ???
@@ -1465,45 +1476,46 @@ plotCircle (
 {
 
     /* II. Quadrant */ 
-   //int x = -r, y = 0, err = 2-2*r; 
-   
-    //loop
+    //int x = -r, y = 0, err = 2-2*r; 
+
+    // loop
     register int x = -r;
-   
+
     int y = 0;
     int err = (2-(2*r));
 
     do {
-      
-      //setPixel(xm-x, ym+y); /*   I. Quadrant */
-      //setPixel(xm-y, ym-x); /*  II. Quadrant */
-      //setPixel(xm+x, ym-y); /* III. Quadrant */
-      //setPixel(xm+y, ym+x); /*  IV. Quadrant */
 
-      grPlot0 ( NULL, 0, xm-x, ym+y, color, 0);
-      grPlot0 ( NULL, 0, xm-y, ym-x, color, 0);
-      grPlot0 ( NULL, 0, xm+x, ym-y, color, 0);
-      grPlot0 ( NULL, 0, xm+y, ym+x, color, 0);
-      
-      r = err;
-      
-      // #ugly routine.
-      
-      /* e_xy+e_y < 0 */
-      if (r <= y) 
-      { 
-           err += ++y * 2 + 1; 
-      }           
-      
-      /* e_xy+e_x > 0 or no 2nd y-step */
-      if (r > x || err > y) 
-      { 
-          err += ++x * 2+1; 
-      }
-      
+    //setPixel(xm-x, ym+y); /*   I. Quadrant */
+    //setPixel(xm-y, ym-x); /*  II. Quadrant */
+    //setPixel(xm+x, ym-y); /* III. Quadrant */
+    //setPixel(xm+y, ym+x); /*  IV. Quadrant */
+
+    grPlot0 ( NULL, 0, xm-x, ym+y, color, 0);
+    grPlot0 ( NULL, 0, xm-y, ym-x, color, 0);
+    grPlot0 ( NULL, 0, xm+x, ym-y, color, 0);
+    grPlot0 ( NULL, 0, xm+y, ym+x, color, 0);
+
+    r = err;
+
+     // #ugly routine.
+
+    /* e_xy+e_y < 0 */
+    if (r <= y) 
+    { 
+        err += ++y * 2 + 1; 
+    }
+
+    /* e_xy+e_x > 0 or no 2nd y-step */
+    if (r > x || err > y) 
+    {
+        err += ++x * 2+1; 
+    }
+
     } while (x < 0);
 }
 
+// plotCircleZ:
 // ?? what means 'm' ???
 void 
 plotCircleZ ( 
@@ -1519,50 +1531,49 @@ plotCircleZ (
 
     //loop
     register int x = -r;
-   
+
     int y = 0;
     int err =  (2-(2*r));
 
     do {
-      
-      //setPixel(xm-x, ym+y); /*   I. Quadrant */
-      //setPixel(xm-y, ym-x); /*  II. Quadrant */
-      //setPixel(xm+x, ym-y); /* III. Quadrant */
-      //setPixel(xm+y, ym+x); /*  IV. Quadrant */
-      
-      grPlot0 ( NULL, z, xm-x, ym+y, color, 0);
-      grPlot0 ( NULL, z, xm-y, ym-x, color, 0);
-      grPlot0 ( NULL, z, xm+x, ym-y, color, 0);
-      grPlot0 ( NULL, z, xm+y, ym+x, color, 0);
 
-      r = err;
-      
-      // #ugly routine.
-      
-      /* e_xy+e_y < 0 */
-      if (r <= y) 
-      { 
-           err += ++y * 2 + 1; 
-      }           
-      
-      /* e_xy+e_x > 0 or no 2nd y-step */
-      if (r > x || err > y) 
-      { 
-          err += ++x * 2+1; 
-      }
+    //setPixel(xm-x, ym+y); /*   I. Quadrant */
+    //setPixel(xm-y, ym-x); /*  II. Quadrant */
+    //setPixel(xm+x, ym-y); /* III. Quadrant */
+    //setPixel(xm+y, ym+x); /*  IV. Quadrant */
+
+    grPlot0 ( NULL, z, xm-x, ym+y, color, 0);
+    grPlot0 ( NULL, z, xm-y, ym-x, color, 0);
+    grPlot0 ( NULL, z, xm+x, ym-y, color, 0);
+    grPlot0 ( NULL, z, xm+y, ym+x, color, 0);
+
+    r = err;
+
+    // #ugly routine.
+
+    /* e_xy+e_y < 0 */
+    if (r <= y) 
+    {
+        err += ++y * 2 + 1; 
+    }
+
+    /* e_xy+e_x > 0 or no 2nd y-step */
+    if (r > x || err > y) 
+    { 
+        err += ++x * 2+1; 
+    }
 
     } while (x < 0);
 }
-
 
 /* 
  //credits: uVGA
 void __fillCircle(int xm, int ym, int r, int color)
 {
-	int x, y;
+    int x, y;
 
-	for (y = -r; y <= r; y++)
-	{
+    for (y = -r; y <= r; y++)
+    {
 		for (x = -r; x <= r; x++)
 		{
 			if ((x * x) + (y * y) <= (r * r))
@@ -1573,7 +1584,7 @@ void __fillCircle(int xm, int ym, int r, int color)
 				break;
 			}
 		}
-	}
+    };
 }
 */
 
@@ -1603,22 +1614,23 @@ void uVGA::fillEllipse(int x0, int y0, int x1, int y1, int color)
 }
 */
 
-//Ellipse
-//This program example plots an ellipse inside a specified rectangle.
 
+// plotEllipseRect:
+// Ellipse
+// Plots an ellipse inside a specified rectangle.
 void 
 plotEllipseRect (
     int x0, int y0, 
     int x1, int y1, 
     unsigned long color )
 {
-    int a = abs(x1-x0), b = abs(y1-y0), b1 = b&1; /* values of diameter */
-    long dx = 4*(1-a)*b*b, dy = 4*(b1+1)*a*a; /* error increment */
-    long err = dx+dy+b1*a*a, e2; /* error of 1.step */
+    int a = abs(x1-x0), b = abs(y1-y0), b1 = b&1;  /* values of diameter */
+    long dx = 4*(1-a)*b*b, dy = 4*(b1+1)*a*a;      /* error increment */
+    long err = dx+dy+b1*a*a, e2;                   /* error of 1.step */
 
-    if (x0 > x1) { x0 = x1; x1 += a; } /* if called with swapped points */
-    if (y0 > y1) y0 = y1; /* .. exchange them */
-    y0 += (b+1)/2; y1 = y0-b1;   /* starting pixel */
+    if (x0 > x1) { x0 = x1; x1 += a; }    /* if called with swapped points */
+    if (y0 > y1) y0 = y1;                 /* .. exchange them */
+    y0 += (b+1)/2; y1 = y0-b1;            /* starting pixel */
     a *= 8*a; b1 = 8*b*b;
 
     do {
@@ -1626,10 +1638,10 @@ plotEllipseRect (
        grPlot0 ( NULL, 0, x0, y0, color, 0);  //  II. Quadrant
        grPlot0 ( NULL, 0, x0, y1, color, 0);  // III. Quadrant
        grPlot0 ( NULL, 0, x1, y1, color, 0);  //  IV. Quadrant
-       
+
        e2 = (2*err);
-       if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */ 
-       if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; } /* x step */
+       if (e2 <= dy) { y0++; y1--; err += dy += a; }                 /* y step */ 
+       if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; }  /* x step */
     
     } while (x0 <= x1);
 
@@ -1642,6 +1654,7 @@ plotEllipseRect (
     };
 }
 
+// plotEllipseRectZ: 
 void 
 plotEllipseRectZ (
     int x0, int y0, 
@@ -1649,13 +1662,13 @@ plotEllipseRectZ (
     unsigned long color,
     int z )
 {
-    int a = abs(x1-x0), b = abs(y1-y0), b1 = b&1; /* values of diameter */
-    long dx = 4*(1-a)*b*b, dy = 4*(b1+1)*a*a; /* error increment */
-    long err = dx+dy+b1*a*a, e2; /* error of 1.step */
+    int a = abs(x1-x0), b = abs(y1-y0), b1 = b&1;  /* values of diameter */
+    long dx = 4*(1-a)*b*b, dy = 4*(b1+1)*a*a;      /* error increment */
+    long err = dx+dy+b1*a*a, e2;                   /* error of 1.step */
 
-    if (x0 > x1) { x0 = x1; x1 += a; } /* if called with swapped points */
-    if (y0 > y1) y0 = y1; /* .. exchange them */
-    y0 += (b+1)/2; y1 = y0-b1;   /* starting pixel */
+    if (x0 > x1) { x0 = x1; x1 += a; }  /* if called with swapped points */
+    if (y0 > y1) y0 = y1;               /* .. exchange them */
+    y0 += (b+1)/2; y1 = y0-b1;          /* starting pixel */
     a *= 8*a; b1 = 8*b*b;
 
     do {
@@ -1663,11 +1676,11 @@ plotEllipseRectZ (
        grPlot0 ( NULL, z, x0, y0, color, 0);  //  II. Quadrant
        grPlot0 ( NULL, z, x0, y1, color, 0);  // III. Quadrant
        grPlot0 ( NULL, z, x1, y1, color, 0);  //  IV. Quadrant
-       
+
        e2 = (2*err);
-       if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */ 
-       if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; } /* x step */
-    
+       if (e2 <= dy) { y0++; y1--; err += dy += a; }                 /* y step */ 
+       if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; }  /* x step */
+
     } while (x0 <= x1);
 
 /* too early stop of flat ellipses a=1 */
@@ -1679,11 +1692,10 @@ plotEllipseRectZ (
     };
 }
 
-/*
- * plotCharBackbufferDrawcharTransparent:
- *     Desenha um caractere sem alterar o pano de fundo.
- *     >> no backbuffer.
- */
+
+// plotCharBackbufferDrawcharTransparent:
+// Desenha um caractere sem alterar o pano de fundo.
+// >> no backbuffer.
 // #bugbug
 // Nessa função estamos usando globais.
 // Talvez devamos pegá-las antes e não 
@@ -1719,13 +1731,14 @@ plotCharBackbufferDrawcharTransparent (
          gcharWidth <= 0 || 
          gcharHeight <= 0 )
     {
-        //gws_currentfont_address = (unsigned long) BIOSFONT8X8;    //ROM bios.
-        //gcharWidth = DEFAULT_CHAR_WIDTH;               //8.
-        //gcharHeight = DEFAULT_CHAR_HEIGHT;             //8.
+        //gws_currentfont_address = (unsigned long) BIOSFONT8X8;  //ROM bios.
+        //gcharWidth = DEFAULT_CHAR_WIDTH;    //8.
+        //gcharHeight = DEFAULT_CHAR_HEIGHT;  //8.
         // #debug
         // Estamos parando para testes.
-        printf ("gws_drawchar_transparent : Initialization fail\n");
-        while(1){}
+        printf("gws_drawchar_transparent: Initialization?\n");
+        while (1){
+        };
     }
 
 // #todo: 
@@ -1740,24 +1753,24 @@ plotCharBackbufferDrawcharTransparent (
 		    //set_char_width(8);
 			//set_char_height(8);
 			//break;
-		
+
         //case FONT8X16:
 	        //gws_currentfont_address = (unsigned long) BIOSFONT8X16;    //getFontAddress(...)
 		    //gcharWidth = 8;
 		    //gcharHeight = 16;
 		    //set_char_width(8);
-			//set_char_height(16);			
+			//set_char_height(16);
 		    //break;
-		 
+
 		//#todo: 
 		//Criar opções
 		//...
-		
+
 		// #importante:
 		// #BUGBUG
 		// Se não temos um tamanho selecionado então teremos 
 		// que usar o tamanho padrão.
-		
+
         default:
             //gws_currentfont_address = (unsigned long) BIOSFONT8X8;    //ROM bios.
             //set_char_width(8);
@@ -1799,11 +1812,9 @@ plotCharBackbufferDrawcharTransparent (
     };
 }
 
-/*
- * plotCharBackbufferDrawcharTransparentZ:
- *     Desenha um caractere sem alterar o pano de fundo.
- *     >> no backbuffer.
- */
+// plotCharBackbufferDrawcharTransparentZ:
+// Desenha um caractere sem alterar o pano de fundo.
+// >> no backbuffer.
 // #bugbug
 // Nessa função estamos usando globais.
 // Talvez devamos pegá-las antes e não 
@@ -1873,7 +1884,7 @@ plotCharBackbufferDrawcharTransparentZ (
 		//#todo: 
 		//Criar opções
 		//...
-		
+
 		// #importante:
 		// #BUGBUG
 		// Se não temos um tamanho selecionado então teremos 
@@ -1924,6 +1935,7 @@ plotCharBackbufferDrawcharTransparentZ (
     };
 }
 
+// plotQuadBezierSeg:
 // Bézier curve
 // This program example plots a quadratic Bézier curve 
 // limited to gradients without sign change.
@@ -1948,7 +1960,7 @@ plotQuadBezierSeg (
     long cur = xx*sy - yy*sx;
 
     /* sign of gradient must not change */
-    //assert(xx*sx <= 0 && yy*sy <= 0);  
+    //assert(xx*sx <= 0 && yy*sy <= 0);
 
     if ( xx*sx <= 0 && 
          yy*sy <= 0 )
@@ -2000,13 +2012,12 @@ plotQuadBezierSeg (
     }
 
 /* plot remaining part to end */
-    //plotLine(x0,y0, x2,y2);   
+    //plotLine(x0,y0, x2,y2);
     plotLine3d (
         x0,y0,z0, 
         x2,y2,z2, 
         color ); 
 }
-
 
 /*
  #todo
@@ -2025,6 +2036,8 @@ xxxFindReplaceColor(
 }
 */
 
+// servicepixelBackBufferPutpixel:
+// ...
 int servicepixelBackBufferPutpixel(void)
 {
     unsigned long *message_address = (unsigned long *) &__buffer[0];
@@ -2035,12 +2048,16 @@ int servicepixelBackBufferPutpixel(void)
     color = (unsigned int) message_address[6];
     //rop = message_address[?];
 
-    if (x<0){ return -1; }
-    if (y<0){ return -1; }
+    if (x<0){ goto fail; }
+    if (y<0){ goto fail; }
 
+// #bugbug:
+// color is 'unsigned int' i guess.
     libdisp_backbuffer_putpixel(color,x,y,0);
 
     return 0;
+fail:
+    return (int) -1;
 }
 
 //

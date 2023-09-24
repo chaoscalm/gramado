@@ -2180,10 +2180,11 @@ struct gws_window_d *do_create_titlebar(
     // Color and rop.
     unsigned int TitleBarColor = color;
     unsigned long rop=0;
+    //unsigned long rop= 0x20;
 
-    if ( (void*) parent == NULL )
+    if ((void*) parent == NULL)
         return NULL;
-    if (parent->magic!=1234)
+    if (parent->magic != 1234)
         return NULL;
 
 // Se a parent é uma overlapped  e esta maximizada
@@ -4949,6 +4950,8 @@ static int wmProcessCombinationEvent(int msg_code)
     {
         //printf("ws: undo\n");
         yellow_status("Undo");
+        //demoCat();
+        demoTriangle();
         return 0;
     }
 

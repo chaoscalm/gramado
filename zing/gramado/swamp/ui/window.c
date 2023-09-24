@@ -570,6 +570,9 @@ void *doCreateWindow (
     window->window_class.procedure_is_server_side = 0;
     window->window_class.procedure = 0;
 
+// Gravity
+    window->gravity = DefaultGravity;
+
 // Type
     window->type = (unsigned long) type;
 // Style

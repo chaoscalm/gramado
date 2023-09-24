@@ -66,7 +66,7 @@ static void usage(void)
 }
 
 // Main
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 // The kernel will put the strings here.
     struct utsname  un;
