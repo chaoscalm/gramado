@@ -38,12 +38,12 @@ struct	accept_filter_arg {
 };
 */
 
-/*
- * Level number for (get/set)sockopt() to apply to socket itself.
- */
-//#define	SOL_SOCKET	0xffff		/* options for socket level */
 
+// Level number for (get/set)sockopt() to apply to socket itself.
+// Options for socket level
+//#define SOL_SOCKET    0xffff
 
+// Used by AF_UNIX, AF_LOCAL and AF_GRAMADO
 struct sockaddr 
 {
     unsigned short sa_family;

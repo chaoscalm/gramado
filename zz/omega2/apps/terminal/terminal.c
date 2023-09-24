@@ -3433,7 +3433,7 @@ int terminal_init(unsigned short flags)
 // Socket address.
     struct sockaddr_in addr_in;
     addr_in.sin_family = AF_INET;
-    addr_in.sin_port = PORTS_WS;
+    addr_in.sin_port = __PORTS_DISPLAY_SERVER;  //PORTS_WS;
     addr_in.sin_addr.s_addr = IP(127,0,0,1);    //ok
     //addr_in.sin_addr.s_addr = IP(127,0,0,9);  //fail
 
