@@ -67,7 +67,7 @@ void x_panic( char *string )
 // string 1
     draw_string(8,8,COLOR_WHITE,"x_panic: ");
 // string2
-    if( (void*) string != NULL ){
+    if ((void*) string != NULL){
         draw_string(80,8,COLOR_WHITE,string);
     }
 // done:

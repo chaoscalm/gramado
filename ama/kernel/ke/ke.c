@@ -4,6 +4,38 @@
 
 #include <kernel.h>
 
+
+// 
+// Imports
+//
+
+
+//--------------------------------------
+// Ponteiros para ícones
+// Ponteiros para o endereço onde os ícones 
+// foram carregados.
+// queremos saber se o endereço alocado eh compartilhado ...
+// para o window server usar ... entao chamaremos de sharedbufferIcon.
+
+// Icon cache structure.
+// see: window.h
+struct icon_cache_d  icon_cache;
+
+
+// ============================
+static unsigned long presence_level=32;
+static unsigned long flush_fps=30;
+
+// ============================
+
+// Endereços dos charmaps usados:
+// Obs: Incluídos na estrutura.
+//unsigned long normal_charmap_address;
+//unsigned long shift_charmap_address;
+//unsigned long control_charmap_address;
+
+
+
 // ==========================
 
 //
@@ -52,7 +84,362 @@ static void __check_refresh_support(void);
 static void __print_resolution_info(void);
 static void __check_gramado_mode(void);
 static void __import_data_from_linker(void);
+
+static unsigned long __last_tick(void);
+
+
 //-------------------
+
+static unsigned long __last_tick(void)
+{
+    return (unsigned long) jiffies;
+}
+
+//----------------------------------------------
+
+// windowLoadGramadoIcons:
+// Carrega alguns ícones do sistema.
+// It's a part of the window system's initialization.
+int windowLoadGramadoIcons(void)
+{
+    unsigned long fRet=0;
+
+    icon_cache.initialized = FALSE;
+
+    //#debug
+    //printf("windowLoadGramadoIcons:\n");
+
+// ## Icon support ##
+// iconSupport:
+// Carregando alguns ícones básicos usados pelo sistema.
+// ## size ##
+// Vamos carregar ícones pequenos.
+// @todo checar a validade dos ponteiros.
+// #bugbug
+// Size determinado, mas não sabemos o tamanho dos ícones.
+// 4 pages.
+// 16 KB ? Is it enough ?
+// Sim, os ícones que estamos usam possuem no máximo 2KB.
+// See: base/
+
+    unsigned long tmp_size = (4*4096);
+    icon_cache.size_in_bytes = (size_t) tmp_size;
+
+// See: window.h
+    icon_cache.app          = (void *) allocPages(4);
+    icon_cache.file           = (void *) allocPages(4);
+    icon_cache.folder      = (void *) allocPages(4);
+    icon_cache.terminal  = (void *) allocPages(4);
+    icon_cache.cursor      = (void *) allocPages(4);
+    // ...
+
+    if ( (void *) icon_cache.app == NULL ){
+        printf ("windowLoadGramadoIcons: app\n");
+        goto fail;
+    }
+    if ( (void *) icon_cache.file == NULL ){
+        printf ("windowLoadGramadoIcons: file\n");
+        goto fail;
+    }
+    if ( (void *) icon_cache.folder == NULL ){
+        printf ("windowLoadGramadoIcons: folder\n");
+        goto fail;
+    }
+    if ( (void *) icon_cache.terminal == NULL ){
+        printf ("windowLoadGramadoIcons: terminal\n");
+        goto fail;
+    }
+    if ( (void *) icon_cache.cursor == NULL ){
+        printf ("windowLoadGramadoIcons: cursor\n");
+        goto fail;
+    }
+
+//
+// Load .BMP images.
+//
+
+// app icon
+    fRet = 
+        (unsigned long) fsLoadFile ( 
+                            VOLUME1_FAT_ADDRESS,
+                            VOLUME1_ROOTDIR_ADDRESS, 
+                            FAT16_ROOT_ENTRIES,
+                            "APP     BMP", 
+                            (unsigned long) icon_cache.app,
+                            tmp_size );
+    if (fRet != 0){
+        printf("windowLoadGramadoIcons: APP.BMP\n");
+        goto fail;
+    }
+
+// file icon
+    fRet = 
+        (unsigned long) fsLoadFile ( 
+                            VOLUME1_FAT_ADDRESS,
+                            VOLUME1_ROOTDIR_ADDRESS, 
+                            FAT16_ROOT_ENTRIES, 
+                            "FILE    BMP", 
+                            (unsigned long) icon_cache.file,
+                            tmp_size );
+    if (fRet != 0){
+        printf("windowLoadGramadoIcons: FILE.BMP\n");
+        goto fail;
+    }
+
+// folder icon
+    fRet = 
+        (unsigned long) fsLoadFile ( 
+                            VOLUME1_FAT_ADDRESS, 
+                            VOLUME1_ROOTDIR_ADDRESS, 
+                            FAT16_ROOT_ENTRIES,
+                            "FOLDER  BMP", 
+                            (unsigned long) icon_cache.folder,
+                            tmp_size );
+    if (fRet != 0){
+        printf("windowLoadGramadoIcons: FOLDER.BMP\n");
+        goto fail;
+    }
+
+// terminal icon
+    fRet = 
+        (unsigned long) fsLoadFile ( 
+                            VOLUME1_FAT_ADDRESS, 
+                            VOLUME1_ROOTDIR_ADDRESS, 
+                            FAT16_ROOT_ENTRIES, 
+                            "TERMINALBMP", 
+                            (unsigned long) icon_cache.terminal,
+                            tmp_size );
+    if (fRet != 0){
+        printf("windowLoadGramadoIcons: TERMINAL.BMP\n");
+        goto fail;
+    }
+
+// cursor icon
+    fRet = 
+        (unsigned long) fsLoadFile ( 
+                            VOLUME1_FAT_ADDRESS, 
+                            VOLUME1_ROOTDIR_ADDRESS, 
+                            FAT16_ROOT_ENTRIES,
+                            "CURSOR  BMP", 
+                            (unsigned long) icon_cache.cursor,
+                            tmp_size );
+    if (fRet != 0){
+        printf("windowLoadGramadoIcons: CURSOR.BMP\n");
+        goto fail;
+    }
+
+// More?
+// Podemos checar se eles foram carregados corretamente,
+// conferindo apenas a assinatura em cada um deles.
+    icon_cache.initialized = TRUE;
+    return 0;
+fail:
+    icon_cache.initialized = FALSE;
+    panic ("windowLoadGramadoIcons: Fail\n");
+    return -1;
+}
+
+
+// ============================
+// Get a shared buffer to a system icon.
+// it is gonna be used by the window server.
+// It is a pre allocated buffer containg an bmp icon loaded at it.
+// Service 9100
+// See: window.h
+
+void *ui_get_system_icon(int n)
+{
+    if (icon_cache.initialized != TRUE){
+        return NULL;
+    }
+
+    if (n < 1 || n > 5){
+        return NULL;
+    }
+
+// #bugbug
+// This is very unsafe.
+// The app can mess up our memory.
+// #todo
+// Only the window server can access this routine.
+
+    switch (n){
+    case 1: return (void *) icon_cache.app;       break;
+    case 2: return (void *) icon_cache.file;      break;
+    case 3: return (void *) icon_cache.folder;    break;
+    case 4: return (void *) icon_cache.terminal;  break;
+    case 5: return (void *) icon_cache.cursor;    break;
+    // ...
+    };
+
+    return NULL;
+}
+
+unsigned long get_update_screen_frequency(void)
+{
+    return (unsigned long) flush_fps;
+}
+
+
+void set_update_screen_frequency(unsigned long fps)
+{
+    if (fps==0)   { fps=1; };
+    if (fps>=1000){ fps=1000; };
+
+// See: sched.h
+    flush_fps = (unsigned long) (fps&0xFFFF);
+    presence_level = (unsigned long) (1000/flush_fps);
+    presence_level = (unsigned long) (presence_level & 0xFFFF);
+}
+
+
+
+unsigned long get_presence_level(void)
+{
+    return (unsigned long) presence_level;
+}
+
+void set_presence_level(unsigned long value)
+{
+    if (value==0)  { value=1; }
+    if (value>1000){ value=1000; }
+    presence_level = value;
+}
+
+// Called by task_switch
+void schedulerUpdateScreen(void)
+{
+    register int i=0;
+    struct thread_d *TmpThread;
+
+    unsigned long deviceWidth  = (unsigned long) screenGetWidth();
+    unsigned long deviceHeight = (unsigned long) screenGetHeight();
+    if ( deviceWidth == 0 || deviceHeight == 0 ){
+        debug_print ("schedulerUpdateScreen: w h\n");
+        panic       ("schedulerUpdateScreen: w h\n");
+    }
+
+// Atualizado pelo timer.
+    if (UpdateScreenFlag != TRUE){
+        return;
+    }
+
+    deviceWidth  = (deviceWidth & 0xFFFF);
+    deviceHeight = (deviceHeight & 0xFFFF);
+
+// ============================
+// Precisamos apenas validar todos retangulos
+// porque fizemos refresh da tela toda.
+    
+    int validate_all= FALSE;
+
+// Flush the whole screen and exit.
+// The whole screen is invalidated.
+// Validate the screen
+    if (screen_is_dirty == TRUE)
+    {
+        refresh_screen();
+        validate_all = TRUE;
+        screen_is_dirty = FALSE;
+    }
+
+/*
+//=========================
+// Blue bar:
+    unsigned long fps = get_update_screen_frequency();
+    char data[32];
+    backbuffer_draw_rectangle( 
+        0, 0, deviceWidth, 24, COLOR_KERNEL_BACKGROUND, 0 );
+    sprintf(data,"  FPS %d       ",fps);
+    data[12]=0;
+    keDrawString(0,8,COLOR_YELLOW,data);
+    refresh_rectangle ( 0, 0, deviceWidth, 24 );
+//=========================
+*/
+
+
+// Flush a list of dirty surfaces.
+
+    for ( i=0; i < THREAD_COUNT_MAX; ++i )
+    {
+        TmpThread = (void *) threadList[i];
+
+        if ( (void *) TmpThread != NULL )
+        {
+            if ( TmpThread->used == TRUE && 
+                 TmpThread->magic == 1234 && 
+                 TmpThread->state == READY )
+            {
+                // #test 
+                debug_print("  ---- Compositor ----  \n");
+                
+                if ( (void *) TmpThread->surface_rect != NULL )
+                {
+                    if ( TmpThread->surface_rect->used == TRUE && 
+                         TmpThread->surface_rect->magic == 1234 )
+                    {
+                        // Como fizemos refresh da tela toda,
+                        // então precisamos validar todos os retângulos.
+                        
+                        if ( validate_all == TRUE )
+                            TmpThread->surface_rect->dirty = FALSE;
+
+                        // dirty rectangle
+                        // Se uma surface está suja de tinta.
+                        // Precisamos copiar para o framebuffer.
+
+                        if ( TmpThread->surface_rect->dirty == TRUE )
+                        {
+                            refresh_rectangle ( 
+                                TmpThread->surface_rect->left, 
+                                TmpThread->surface_rect->top, 
+                                TmpThread->surface_rect->width, 
+                                TmpThread->surface_rect->height );
+
+                            // Validate the surface. (Rectangle)
+                            TmpThread->surface_rect->dirty = FALSE;
+                        }
+
+                    }
+                }
+            }
+        }
+    };
+
+// Chamamos o 3d demo do kernel.
+// See: kgws.c
+
+    if (DemoFlag==TRUE)
+    {
+        //demo0();
+        DemoFlag=FALSE;
+    }
+
+// Atualizado pelo timer.
+    UpdateScreenFlag = FALSE;
+}
+
+
+
+// see: bldisp.c
+void keRefreshScreen(void)
+{
+    bldisp_flush(0);
+}
+
+void 
+keDrawString ( 
+    unsigned long x,
+    unsigned long y,
+    unsigned int color,
+    const char *string )
+{
+    if ((void*) string == NULL)
+        return;
+    if (*string == 0)
+        return;
+    draw_string(x, y, color, string);
+}
 
 // Worker
 static void __check_refresh_support(void)
@@ -366,6 +753,73 @@ void ke_x64ExecuteInitialProcess(void)
     panic("keInitialize: phase 3\n");
     //goto InitializeEnd;
 }
+
+// Called by I_init().
+int psInitializeMKComponents(void)
+{
+    //int Status = FALSE;
+
+    Initialization.microkernel_checkpoint = TRUE;
+
+    debug_print("psInitializeMKComponents:\n");
+
+
+// Init scheduler.
+// See: sched/sched.c
+    init_scheduler(0);
+
+// Init processes and threads, 
+// See: process.c and thread.c
+    init_processes();
+    init_threads();    
+
+// #todo: Init IPC and Semaphore.
+    //ipc_init();
+    //create_semaphore(); 
+
+// queue
+// #deprecated ?
+
+    queue = NULL;
+
+// Dispatch Count Block
+// see: dispatch.c
+
+    DispatchCountBlock = 
+        (void *) kmalloc ( sizeof( struct dispatch_count_d ) );
+
+    if ( (void *) DispatchCountBlock == NULL ){
+        printf ("init_microkernel: DispatchCountBlock\n");
+        return FALSE;
+    }
+
+    DispatchCountBlock->SelectIdleCount = 0;
+    DispatchCountBlock->SelectInitializedCount = 0;
+    DispatchCountBlock->SelectNextCount = 0;
+    DispatchCountBlock->SelectCurrentCount = 0;
+    DispatchCountBlock->SelectAnyCount = 0;
+    DispatchCountBlock->SelectIdealCount = 0;
+    DispatchCountBlock->SelectDispatcherQueueCount = 0;
+    // ...
+    DispatchCountBlock->used=TRUE;
+    DispatchCountBlock->magic=1234;
+    DispatchCountBlock->initialized = TRUE;
+
+    Initialization.microkernel_checkpoint = TRUE;
+
+// #debug 
+// A primeira mensagem só aparece após a inicialização da runtime
+// por isso não deu pra limpar a tela antes.
+
+#ifdef BREAKPOINT_TARGET_AFTER_MK
+    printf ("#breakpoint: after init_microkernel");
+    die();
+#endif
+
+    return TRUE;
+}
+
+
 
 // OUT: TRUE or FALSE.
 int keInitialize(int phase)

@@ -1,7 +1,6 @@
 
-// ws.c
-// #todo
-// Use the term Display server for everything.
+// dispsrv.c
+// Handle the usermode display server initialization.
 
 #include <kernel.h>
 

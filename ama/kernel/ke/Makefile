@@ -74,7 +74,6 @@ LDFLAGS := -m elf_x86_64 -s -x -static
 OBJS = process.o plib.o thread.o tlib.o \
 msg.o \
 create.o clone.o \
-callback.o \
 detect.o \
 ke.o \
 hal.o \
@@ -82,10 +81,10 @@ apic.o \
 pit.o ports64.o rtc.o \
 x64.o x64info.o x64init.o x64mi.o x64nmi.o x64smp.o \
 queue.o \
-mk.o \
-ws.o \
 ts.o dispatch.o spawn.o x64cont.o \
-sched.o schedi.o schedq.o    
+sched.o schedi.o schedq.o \
+pixel.o line.o rect.o bitblt.o bg.o font.o char.o text.o gre.o \
+input.o dispsrv.o callback.o    
 
 all:
 
@@ -130,13 +129,25 @@ all:
 
 #--------
 
-	$(CC) -c callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
 	$(CC) -c queue.c     $(KERNEL_INCLUDE) $(CFLAGS) -o queue.o
-	$(CC) -c mk.c        $(KERNEL_INCLUDE) $(CFLAGS) -o mk.o
-	$(CC) -c ws.c        $(KERNEL_INCLUDE) $(CFLAGS) -o ws.o
 	$(CC) -c ke.c        $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
 	$(CC) -c hal.c       $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
 
+# gre - Graphics Engine
+	$(CC) -c gre/pixel.c   $(KERNEL_INCLUDE) $(CFLAGS) -o pixel.o
+	$(CC) -c gre/line.c    $(KERNEL_INCLUDE) $(CFLAGS) -o line.o
+	$(CC) -c gre/rect.c    $(KERNEL_INCLUDE) $(CFLAGS) -o rect.o
+	$(CC) -c gre/bitblt.c  $(KERNEL_INCLUDE) $(CFLAGS) -o bitblt.o
+	$(CC) -c gre/bg.c      $(KERNEL_INCLUDE) $(CFLAGS) -o bg.o
+	$(CC) -c gre/font.c    $(KERNEL_INCLUDE) $(CFLAGS) -o font.o
+	$(CC) -c gre/char.c    $(KERNEL_INCLUDE) $(CFLAGS) -o char.o
+	$(CC) -c gre/text.c    $(KERNEL_INCLUDE) $(CFLAGS) -o text.o
+	$(CC) -c gre/gre.c     $(KERNEL_INCLUDE) $(CFLAGS) -o gre.o
+
+#
+	$(CC) -c caliuser/input.c     $(KERNEL_INCLUDE) $(CFLAGS) -o input.o
+	$(CC) -c caliuser/dispsrv.c   $(KERNEL_INCLUDE) $(CFLAGS) -o dispsrv.o
+	$(CC) -c caliuser/callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
 
 # link
 	$(LD) -r -o ar_ke.o $(OBJS)

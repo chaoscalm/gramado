@@ -36,6 +36,12 @@ wmKeyEvent(
     int prefix );
 int wmTimerEvent(int signature);
 
+int 
+keProcessInput ( 
+    int msg, 
+    unsigned long long1, 
+    unsigned long long2 );
+
 
 #endif    
 

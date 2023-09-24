@@ -159,7 +159,6 @@ int consoleInputChar( int c );
 //
 
 void consolePrompt (void);
-int consoleCompareStrings(void);
 
 void csi_P (int nr, int console_number);
 void csi_at (int nr, int console_number);

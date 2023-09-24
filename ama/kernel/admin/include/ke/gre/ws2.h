@@ -323,13 +323,6 @@ extern struct gui_d  *gui;
 // pixel
 //
 
-int 
-putpixel0 ( 
-    unsigned int  _color,
-    unsigned long _x, 
-    unsigned long _y, 
-    unsigned long _rop_flags,
-    unsigned long buffer_va );
 
 int 
 backbuffer_putpixel ( 
@@ -447,11 +440,6 @@ bitblt(
 void exit_kernel_console(void);
 
 // ==========
-int 
-wmProcedure ( 
-    int msg, 
-    unsigned long long1, 
-    unsigned long long2 );
 
 #endif    
 

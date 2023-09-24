@@ -1,5 +1,7 @@
 
-// grinput.c - Gramado input.
+// caliuser/input.c - Input.
+// mouse/kdb/timer
+
 // This is an in-kernel input event handler.
 // PS2 keyboard, PS2 mouse and pit timer events goes here.
 // see: wmKeyEvent, wmMouseEvent and wmTimerEvent.
@@ -21,6 +23,13 @@
 #define BREAK_MASK  0x80
 
 // ------------------------------
+static int __CompareStrings(void);
+
+static void __enter_embedded_shell(int kernel_in_debug_mode);
+static void __exit_embedded_shell(void);
+
+static void __launch_app_via_initprocess(int index);
+
 
 static int 
 __ProcessExtendedKeyboardKeyStroke(
@@ -30,7 +39,446 @@ __ProcessExtendedKeyboardKeyStroke(
     unsigned long rawbyte );
     
 // ------------------------------
-    
+
+// local
+// Launch an app via init process.
+// Just a small range of messages are accepted.
+// range: 4001~4009
+
+static void __launch_app_via_initprocess(int index)
+{
+    tid_t src_tid = 0;  //#todo
+    tid_t dst_tid = (tid_t) INIT_TID;
+
+    if ( index < 4001 || index > 4009 )
+    {
+        return;
+    }
+// Post
+// #todo: sender.
+    post_message_to_tid(
+        (tid_t) src_tid,        // sender tid
+        (tid_t) dst_tid,        // receiver tid
+        (int) MSG_COMMAND,      // msg code
+        (unsigned long) index,  // range: 4001~4009
+        0 );
+}
+
+
+// Local
+// Compare the strings that were
+// typed into the kernel virtual console.
+static int __CompareStrings(void)
+{
+    int status=0;
+    int fpu_status = -1;
+
+    //debug_print("consoleCompareStrings: \n");
+    printf("\n");
+
+// smp
+// #todo
+// Use the structure smp_info 
+// to show the information about the smp initialization.
+    if ( kstrncmp(prompt,"smp",3) == 0 )
+    {
+        printf("Processor count: {%d}\n",
+            smp_info.number_of_processors );
+        goto exit_cmp;
+    }
+
+
+// test mbr
+// see: storage.c
+    if ( kstrncmp(prompt,"mbr",3) == 0 )
+    {
+        disk_show_mbr_info();
+        goto exit_cmp;
+    }
+
+// test nic
+    if ( kstrncmp(prompt,"test-nic",8) == 0 ){
+        network_test_NIC();
+        goto exit_cmp;
+    }
+    if ( kstrncmp(prompt,"test-arp",8) == 0 ){
+        network_send_arp_request();
+        goto exit_cmp;
+    }
+    if ( kstrncmp(prompt,"test-arp2",9) == 0 ){
+        network_send_arp_request2();
+        goto exit_cmp;
+    }
+    if ( kstrncmp(prompt,"test-udp",8) == 0 ){
+        network_test_udp();
+        goto exit_cmp;
+    }
+    if ( kstrncmp(prompt,"test-udp2",9) == 0 ){
+        network_test_udp2();
+        goto exit_cmp;
+    }
+
+    if ( kstrncmp(prompt,"test-dhcp",9) == 0 ){
+        network_initialize_dhcp();
+        goto exit_cmp;
+    }
+
+    if ( kstrncmp(prompt,"dhcp",4) == 0 ){
+        network_show_dhcp_info();
+        goto exit_cmp;
+    }
+
+    if ( kstrncmp(prompt,"str",3) == 0 )
+    {
+        console_print_indent(4,fg_console);
+        console_write_string(fg_console,"This is a string\n");
+        console_print_indent(8,fg_console);
+        console_write_string(fg_console,"This is another string\n");
+        //__respond(fg_console);
+        goto exit_cmp;
+    }
+
+// see: mod.c
+// Vamos testar um modulo que ja foi carregado previamente?
+    if ( kstrncmp(prompt,"mod0",4) == 0 ){
+        test_mod0();
+        goto exit_cmp;
+    }
+
+// dir:
+// List the files in a given directory.
+// root dir. Same as '/'.
+    if ( kstrncmp(prompt,"dir",3) == 0 ){
+        fsList("[");
+        goto exit_cmp;
+    }
+
+// Testing vga stuff.
+// #
+// We already called vga1.bin in ring 3?
+// #test
+// Notificando o window server que a resolução mudou.
+// #todo
+// Muidas estruturas aindapossuem valores que estão condizentes
+// com a resolução antiga e precisa ser atualizados.
+
+    if ( kstrncmp(prompt,"vga1",4) == 0 )
+    {
+        printf ("vga1: This is a work in progress ...\n");
+        goto exit_cmp;
+    }
+
+// mm1: Show paged memory list.
+// IN: max index.
+    if ( kstrncmp(prompt,"mm1",3) == 0 ){
+        mmShowPagedMemoryList(512); 
+        goto exit_cmp;
+    }
+
+// mm2: show the blocks allocated by the kernel allocator.
+// inside the kernel heap.
+// IN: max index.
+    if ( kstrncmp(prompt,"mm2",3) == 0 ){
+        mmShowMemoryBlocksForTheKernelAllocator(); 
+        goto exit_cmp;
+    }
+
+// exit: Exit the embedded kernel console.
+    if ( kstrncmp(prompt,"exit",4) == 0 ){
+        exit_kernel_console(); 
+        goto exit_cmp;
+    }
+
+
+// disk:
+// Show disk info.
+// storage.c
+    if ( kstrncmp( prompt, "disk", 4 ) == 0 )
+    {
+        //diskShowCurrentDiskInfo();  // Current disk
+        disk_show_info();  // All disks.
+        goto exit_cmp;
+    }
+
+// ata:
+// disk: Show some disk information.
+// See: atainfo.c
+    if ( kstrncmp( prompt, "ata", 3 ) == 0 )
+    {
+        //printf("ATA controller information:\n");
+        //ata_show_ata_controller_info();
+        //ata_show_ide_info();
+        //ata_show_device_list_info();
+        ata_show_ata_info_for_boot_disk();
+        printf("Number of sectors in boot disk: {%d}\n",
+            gNumberOfSectorsInBootDisk );
+        goto exit_cmp;
+    }
+
+// volume: Show some volume information.
+    if ( kstrncmp(prompt,"volume",6) == 0 )
+    {
+        volume_show_info();
+        goto exit_cmp;
+    }
+// #test
+// Get volume label from the first entry.
+// see: fat16.c
+    if ( kstrncmp(prompt,"vol-label",9) == 0 )
+    {
+        test_fat16_find_volume_info();
+        goto exit_cmp;
+    }
+
+
+
+// device: Device list.
+// Show tty devices, pci devices and devices with regular file.
+// See: devmgr.c
+    if ( kstrncmp(prompt,"device",6) == 0 )
+    {
+        printf("tty devices:\n");
+        devmgr_show_device_list(ObjectTypeTTY);
+        printf("pci devices:\n");
+        devmgr_show_device_list(ObjectTypePciDevice);
+        printf("devices with regular files:\n");
+        devmgr_show_device_list(ObjectTypeFile);
+        //...
+        goto exit_cmp;
+    }
+
+// pci:
+    if ( kstrncmp( prompt, "pci", 3 ) == 0 ){
+        printf("~pci:\n");
+        pciInfo();
+        goto exit_cmp;
+    }
+
+// about:
+    if ( kstrncmp( prompt, "about", 5 ) == 0 ){
+        // Crear screen and print version string.
+        zero_show_banner();
+        printf("About: The kernel console\n");
+        goto exit_cmp;
+    }
+
+// user:
+    if ( kstrncmp( prompt, "user", 4 ) == 0 )
+    {
+        if ((void*) CurrentUser == NULL)
+            goto exit_cmp;
+        if (CurrentUser->magic != 1234)
+            goto exit_cmp;
+        if (CurrentUser->initialized != TRUE){
+            goto exit_cmp;
+        }
+        printf("Username: {%s}\n",CurrentUser->__username);
+        if ( CurrentUser->userId == current_user )
+        {
+            if ( is_superuser() == TRUE )
+                printf("It's super\n");
+        }
+        goto exit_cmp;
+    }
+
+// display:
+    if ( kstrncmp( prompt, "display", 7 ) == 0 )
+    {
+        bldisp_show_info();  //bl display device.
+        goto exit_cmp;
+    }
+
+// cls:
+    if ( kstrncmp( prompt, "cls", 3 ) == 0 ){
+        console_clear();
+        goto exit_cmp;
+    }
+
+// cpu: Display cpu info.
+    if ( kstrncmp( prompt, "cpu", 3 ) == 0 ){
+        x64_info();
+        goto exit_cmp;
+    }
+
+// pit: Display PIT info.
+    if ( kstrncmp( prompt, "pit", 3 ) == 0 )
+    {
+        // #todo: Create pitShowInfo() in pit.c.
+        printf("Dev freq: %d | Clocks per sec: %d HZ | Period: %d\n",
+            PITInfo.dev_freq,
+            PITInfo.clocks_per_sec,
+            PITInfo.period );
+        goto exit_cmp;
+    }
+
+// help:
+    if ( kstrncmp( prompt, "help", 4 ) == 0 ){
+        printf("Commands: about, help, reboot, cpu, memory, ...\n");
+        goto exit_cmp;
+    }
+
+// memory:
+    if ( kstrncmp( prompt, "memory", 6 ) == 0 ){
+        mmShowMemoryInfo();
+        goto exit_cmp;
+    }
+
+// path:
+// Test the use of 'pathnames' with multiple levels.
+// #test: This test will allocate some pages
+// for the buffer where we are gonna load the file.
+    if ( kstrncmp(prompt,"path",4) == 0 ){
+        //__test_path();
+        goto exit_cmp;
+    }
+
+// process:
+    if ( kstrncmp( prompt, "process", 7 ) == 0 ){
+        //__test_process();
+        goto exit_cmp;
+    }
+
+// ps2-qemu:
+// Testing the full initialization of ps2 interface.
+// This is a work in progress.
+// See: dev/i8042.c
+    if ( kstrncmp( prompt, "ps2-qemu", 8 ) == 0 )
+    {
+        if (HVInfo.initialized == TRUE){
+            if (HVInfo.type == HV_TYPE_QEMU){
+                printf("#test: PS2 full initialization on qemu\n");
+                PS2_initialization();
+            }
+        }
+        goto exit_cmp;
+    }
+
+// ps2-kvm: Initializze the ps2 support when running on kvm.
+// #bugbug
+// The initialization is not working on kvm.
+    if ( kstrncmp( prompt, "ps2-kvm", 7 ) == 0 )
+    {
+        printf ("#todo: Initialization not working on kvm\n");
+        if (HVInfo.initialized == TRUE){
+            if (HVInfo.type == HV_TYPE_KVM){
+                //printf("#test: PS2 full initialization on kvm\n");
+                //PS2_initialization();
+            }
+        }
+        goto exit_cmp;
+    }
+
+// reboot:
+    if ( kstrncmp( prompt, "reboot", 6 ) == 0 ){
+        keReboot();
+        goto exit_cmp;
+    }
+
+// beep:
+    if ( kstrncmp( prompt, "beep", 4 ) == 0 ){
+        hal_test_speaker();
+        goto exit_cmp;
+    }
+
+// time:
+    if ( kstrncmp( prompt, "time", 4 ) == 0 )
+    {
+        printf ("Init stime %d\n",InitThread->stime);
+        printf ("Init utime %d\n",InitThread->utime);
+        goto exit_cmp;
+    }
+
+// tty: Read and write from tty device.
+    if ( kstrncmp( prompt, "tty", 3 ) == 0 )
+    {
+        // Esgotando as filas.
+        //while (1){
+           // __test_tty();
+        //};
+        goto exit_cmp;
+    }
+
+// serial: Display serial support info.
+// #todo: Only com1 for now.
+// But we can get information for all the 4 ports.
+    if ( kstrncmp( prompt, "serial", 6 ) == 0 )
+    {
+        //#todo: Create serialShowInfo in serial.c.
+        //#todo: Only com1 for now.
+        printf("com1.divisor:       %d\n",
+            SerialPortInfo.com1.divisor);
+        printf("com1.divisorLoByte: %d\n",
+            SerialPortInfo.com1.divisorLoByte);
+        printf("com1.divisorHiByte: %d\n",
+            SerialPortInfo.com1.divisorHiByte);
+        printf("com1.baudrate:      %d\n",
+            SerialPortInfo.com1.baudrate);
+        goto exit_cmp;
+    }
+
+// ========
+// close: Sending a MSG_CLOSE messsage to the init thread.
+    if ( kstrncmp(prompt,"close",5) == 0 ){
+        keCloseInitProcess();
+        goto exit_cmp;
+    }
+
+// Invalid command
+
+    //printf("\n");
+    printf ("Error: Command not found!\n");
+    //printf("\n");
+
+exit_cmp:
+   //nothing
+done:
+    consolePrompt();
+    return 0;
+}
+
+
+
+static void __enter_embedded_shell(int kernel_in_debug_mode)
+{
+    int console_index = fg_console;
+
+    // ShellFlag = FALSE;
+
+// Set up console
+
+    jobcontrol_switch_console(0);
+// Message
+    if (kernel_in_debug_mode){
+        printf("[[ KERNEL IN DEBUG MODE ]]\n");
+    }
+    printf("kernel console number %d\n",console_index);
+    printf("Prompt ON: Type something\n");
+    consolePrompt();  // It will refresh the screen.
+// Flag
+    ShellFlag = TRUE;
+}
+
+static void __exit_embedded_shell(void)
+{
+// log
+    printf("\n");
+    printf ("Prompt OFF: Bye\n");
+    printf("\n");
+    refresh_screen();
+// done
+    ShellFlag = FALSE;
+}
+
+
+void exit_kernel_console(void)
+{
+    __exit_embedded_shell();
+// suficiente para o modo debug.
+    ShellFlag = FALSE;
+}
+
+
+
 //private
 static int 
 __ProcessExtendedKeyboardKeyStroke(
@@ -899,7 +1347,7 @@ done:
     // ShellFlag == TRUE
 
     Status = 
-        (int) wmProcedure(
+        (int) keProcessInput(
                   (int) Event_Message,
                   (unsigned long) Event_LongASCIICode,
                   (unsigned long) Event_LongRawByte );
@@ -986,6 +1434,490 @@ int wmTimerEvent(int signature)
 
     return 0;
 }
+
+
+/*
+ * keProcessInput:
+ *       Some combinations with control + F1~F12
+ */
+// Called by kgws_event_dialog in kgws.c
+// Called by si_send_longmessage_to_ws and si_send_message_to_ws
+// in siws.c 
+// #bugbug: We don't wanna call the window server. Not now.
+// #important:
+// Isso garante que o usuário sempre podera alterar o foco
+// entre as janelas do kgws usando o teclado, pois essa rotina
+// é independente da thread que está em foreground.
+// #todo
+// Talvez a gente possa usar algo semelhando quando o window
+// server estiver ativo. Mas possivelmente precisaremos 
+// usar outra rotina e não essa. Pois lidaremos com uma estrutura
+// de janela diferente, que esta localizada em ring3.
+// From Windows:
+// Because the mouse, like the keyboard, 
+// must be shared among all the different threads, the OS 
+// must not allow a single thread to monopolize the mouse cursor 
+// by altering its shape or confining it to a small area of the screen.
+// #todo
+// This functions is the moment to check the current input model,
+// and take a decision. It will help us to compose the event message.
+// It is because each environment uses its own event format.
+
+int 
+keProcessInput ( 
+    int msg, 
+    unsigned long long1, 
+    unsigned long long2 )
+{
+// Called by wmKeyEvent() in grinput.c
+
+    int Status = -1;
+    int UseSTDIN=TRUE;  // Input model
+    char ch_buffer[2];  // char string.
+    char buffer[128];   // string buffer
+    unsigned long tmp_value=0;
+
+    //debug_print("wmProcedure:\n");
+    sprintf (buffer,"My \x1b[8C string!\n"); 
+
+// ===================================
+// Control:
+//     'Control + ?' belongs to the kernel.
+
+// ===================================
+// Shift:
+//     'Shift + ?' belongs to the window server.
+
+
+//
+// Dispatcher
+//
+
+    if (msg<0){
+        debug_print("wmProcedure: Invalid msg\n");
+        return -1;
+    }
+
+    switch (msg){
+
+// ==============
+// msg:
+// Mouse stuff.
+    case MSG_MOUSEMOVE:
+    case MSG_MOUSEPRESSED:
+    case MSG_MOUSERELEASED:
+        return -1;
+        break;
+
+// ==============
+// msg:
+// Keydown.
+    case MSG_KEYDOWN:
+
+        // Para todas as teclas quando o console não está ativo.
+        // Serão exibidas pelo window server 
+        // na janela com foco de entrada,
+        // Se ela for do tipo editbox.
+        // O ws mandará mensagens para a thread associa
+        // à janela com foco de entrada.
+            
+        if (ShellFlag!=TRUE){
+            //wmSendInputToWindowManager(0,MSG_KEYDOWN,long1,long2);
+        }
+
+        switch (long1){
+
+        case VK_RETURN:
+            //if(ShellFlag!=TRUE){
+                //wmSendInputToWindowManager(0,MSG_KEYDOWN,long1,long2);
+                //return 0;
+            //}
+            if(ShellFlag==TRUE)
+            {
+                kinput('\0');               // finalize
+                __CompareStrings();   // compare
+                //invalidate_screen();
+                refresh_screen();
+                return 0;
+            }
+            break;
+
+         //case 'd':
+         //case 'D':
+         //    if(ctrl_status==TRUE && alt_status==TRUE)
+         //    {
+         //        __enter_embedded_shell(FALSE);
+         //        return 0;
+         //    }
+         //    break;
+
+        //case VK_TAB: 
+            //printf("TAB\n"); 
+            //invalidate_screen();
+            //break;
+
+        default:
+
+            // Console!
+            // YES, we're using the embedded kernel console.
+            // O teclado vai colocar o char no prompt[]
+            // e exibir o char na tela somente se o prompt
+            // estiver acionado.
+            if (ShellFlag==TRUE)
+            {
+                consoleInputChar(long1);
+                console_putchar ( (int) long1, fg_console );
+                return 0;
+            }
+
+
+            // Not console.
+            // NO, we're not using the kernel console.
+            // Pois não queremos que algum aplicativo imprima na tela
+            // enquanto o console virtual está imprimindo.
+            if (ShellFlag != TRUE)
+            {
+                if (ctrl_status == TRUE && long1 == 'c'){
+                    post_message_to_ws( MSG_COPY, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 'v'){
+                    post_message_to_ws( MSG_PASTE, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 'x'){
+                    post_message_to_ws( MSG_CUT, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 'z'){
+                    post_message_to_ws( MSG_UNDO, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 'a'){
+                    post_message_to_ws( MSG_SELECT_ALL, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 'f'){
+                    post_message_to_ws( MSG_FIND, long1, long2 );
+                    return 0;
+                }
+
+                if (ctrl_status == TRUE && long1 == 's'){
+                    post_message_to_ws( MSG_SAVE, long1, long2 );
+                    return 0;
+                }
+
+                // ...
+
+                // No caso da combinação não ter sido tratada na rotina acima.
+                // Enviamos combinação de [shift + tecla] de digitaçao.
+                post_message_to_ws( msg, long1, long2 );
+                // return 0;
+
+                // Send it to the window server.
+                //wmSendInputToWindowManager(0,MSG_KEYDOWN,long1,long2);
+                // #test
+                // Write into stdin
+                if (UseSTDIN == TRUE)
+                {
+                    //debug_print ("wmProcedure: Writing into stdin ...\n");
+                    //stdin->sync.can_write = TRUE;
+                    //ch_buffer[0] = (char) (long1 & 0xFF);
+                    //sys_write(0,ch_buffer,1);
+                    return 0;
+                }
+            }
+
+            //debug_print ("wmProcedure: done\n");
+            return 0;
+            break;
+        };
+        break;
+
+// ==============
+// msg:
+// Syskeyup.
+// liberadas: teclas de funçao
+// syskeyup foi enviado antes pela função que chamou essa função.
+// não existe combinação de tecla de controle e syskeyup.
+    case MSG_SYSKEYUP:
+        // Se nenhum modificador esta acionado,
+        // entao apenas enviamos a tecla de funçao 
+        // para o window server.
+        // Send it to the window server.
+        if( shift_status != TRUE &&
+            ctrl_status != TRUE &&
+            alt_status != TRUE )
+        {
+            return 0;
+        }
+        break;
+
+// ==============
+// msg:
+// Syskeydown.
+// Pressionadas: teclas de funçao
+// Se nenhum modificador esta acionado,
+// entao apenas enviamos a tecla de funçao 
+// para o window server.
+// Send it to the window server.
+// #bugbug:
+// Esse tratamento é feito pela rotina que chamou
+// essa rotina. Mas isso também pode ficar aqui.
+        
+    case MSG_SYSKEYDOWN:
+
+        // #??
+        // Não enviamos mensagem caso não seja combinação?
+        if ( shift_status != TRUE && ctrl_status != TRUE && alt_status != TRUE )
+        {
+            return 0;
+        }
+
+        // Process a set of combinations.
+        switch (long1){
+
+            // Exibir a surface do console.
+            case VK_F1:
+                if (ctrl_status == TRUE){
+                    // control + shift + F1
+                    // Full ps2 initialization and launch the app.
+                    // #danger: Mouse is not well implemented yet.
+                    if( shift_status == TRUE){
+                        //PS2_initialization();
+                        //__launch_app_via_initprocess(4001);
+                        return 0;
+                    }
+                    __launch_app_via_initprocess(4001);  //terminal
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77101, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    jobcontrol_switch_console(0);
+                    //post_message_to_ws( (int) 88101, 0, 0 );
+                }
+                return 0;
+                break;
+
+            case VK_F2:
+                if (ctrl_status == TRUE){
+                    //__launch_app_via_initprocess(4002);  //fileman
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77102, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    jobcontrol_switch_console(1);
+                    //post_message_to_ws( (int) 88102, 0, 0 );
+                }
+                return 0;
+                break;
+
+            case VK_F3:
+                if (ctrl_status == TRUE){
+                    //__launch_app_via_initprocess(4003);  //editor
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77103, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    jobcontrol_switch_console(2);
+                    //post_message_to_ws( (int) 88103, 0, 0 );
+                }
+                return 0;
+                break;
+
+            case VK_F4:
+                if (ctrl_status == TRUE){
+                    
+                    // kill fg thread if it is possible.
+                    if ( shift_status == TRUE){
+                        // #todo: see: tlib.c 
+                        // kill_thread(foreground_thread)
+                        return 0;
+                    }
+                    //__launch_app_via_initprocess(4004);
+                    //post_message_to_ws( 33888, 0, 0 ); //#TEST
+                    return 0;
+                }
+                // alt+f4: The vm handle this combination.
+                // We can't use it on vms.
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77104, 0, 0 );
+                    return 0;
+                }
+                if (shift_status == TRUE){
+                    jobcontrol_switch_console(3);
+                    //post_message_to_ws( (int) 88104, 0, 0 );
+                }
+                return 0;
+                break;
+
+            // Reboot
+            case VK_F5:
+                if (ctrl_status == TRUE){
+                    //__launch_app_via_initprocess(4005);
+                    //post_message_to_ws( 33888, 0, 0 ); //#TEST
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77105, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    //post_message_to_ws( (int) 88105, 0, 0 );
+                    //post_message_to_foreground_thread(
+                    //   ??, 1234, 1234 );
+                }
+                return 0;
+                break;
+
+            // Send a message to the Init process.
+            // 9216 - Launch the redpill application
+            case VK_F6:
+                if (ctrl_status == TRUE){
+                    // __launch_app_via_initprocess(4006);
+                    return 0; 
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77106, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    //post_message_to_ws( (int) 88106, 0, 0 );
+                }
+                return 0;
+                break;
+
+            // Test 1.
+            case VK_F7:
+                if (ctrl_status == TRUE){
+                    //__launch_app_via_initprocess(4007);
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77107, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    //post_message_to_ws( (int) 88107, 0, 0 );
+                }
+                return 0;
+                break;
+
+            // Test 2.
+            case VK_F8:
+                if (ctrl_status == TRUE){
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77108, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    //post_message_to_ws( (int) 88108, 0, 0 );
+                    // MSG_HOTKEY=8888 | 1 = Hotkey id 1.
+                    post_message_to_ws( (int) MSG_HOTKEY, 1, 0 );
+                }
+                return 0;
+                break;
+
+            case VK_F9:
+                // Enter ring0 embedded shell.
+                if (ctrl_status == TRUE){
+                    __enter_embedded_shell(FALSE);
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77109, 0, 0 );
+                }
+                // [Shift+F9] - Reboot
+                if (shift_status == TRUE){
+                    sys_reboot(0);
+                }
+                return 0;
+                break;
+
+            case VK_F10:
+                // Exit ring0 embedded shell.
+                if (ctrl_status == TRUE){
+                    __exit_embedded_shell();
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77110, 0, 0 );
+                }
+                if (shift_status == TRUE){
+                    displayInitializeBackground(COLOR_KERNEL_BACKGROUND,TRUE);
+                    show_slots();   //See: tlib.c
+                    //pages_calc_mem();
+                    //post_message_to_ws( (int) 88110, 0, 0 );
+                    refresh_screen();
+                }
+                return 0;
+                break;
+
+            case VK_F11:
+                // Mostra informaçoes sobre as threads.
+                if (ctrl_status == TRUE){
+                    show_slots();
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77111, 0, 0 );
+                }
+                // [Shift+F11] - Force reboot.
+                if (shift_status == TRUE){
+                   hal_reboot();
+                }
+                return 0;
+                break;
+
+            case VK_F12:
+                // Mostra informaçoes sobre os processos.
+                if (ctrl_status == TRUE){
+                    show_process_information();
+                    return 0;
+                }
+                if (alt_status == TRUE){
+                    //post_message_to_ws( (int) 77112, 0, 0 );
+                }
+
+                // [SHIFT + F12]
+                // Update all windows and show the mouse pointer.
+                // IN: window, msg code, data1, data2.
+                if (shift_status == TRUE){
+                    post_message_to_ws( (int) 88112, 0, 0 );
+                }
+                return 0;
+                break;
+
+            default:
+                // nothing
+                return 0;
+            }
+
+// ==============
+    default:
+        return -1;
+        break;
+    };
+
+//unexpected_fail:
+    return -1;
+
+fail:
+    debug_print("wmProcedure: fail\n");
+    return -1;
+}
+
+
+
 
 
 

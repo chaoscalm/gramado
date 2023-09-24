@@ -181,19 +181,24 @@
 // Serial devices ------------------
 //
 
-// fb device
-#include "dev/display/color.h"
+// hw stuff - display device
 // display device support.
 #include "dev/display/common/display.h"
 // bootloader display device
 #include "dev/display/bldisp/bldisp.h"
-#include "dev/display/fonts.h"
-#include "dev/display/ascii.h"
-#include "dev/display/ws.h"
-#include "dev/display/ws2.h"
-#include "dev/display/bg.h"
-#include "dev/display/graphics.h"
-#include "dev/grinput.h"
+
+// sw - Graphics Engine
+#include "ke/gre/color.h"
+#include "ke/gre/fonts.h"
+#include "ke/gre/ascii.h"
+#include "ke/gre/bg.h"
+#include "ke/gre/ws2.h"
+#include "ke/gre/gre.h"
+
+// caliuser
+#include "ke/caliuser/ws.h"
+#include "ke/caliuser/input.h"
+#include "ke/caliuser/callback.h"
 
 // Serial port. (COM).
 #include "dev/tty/serial.h"
@@ -291,7 +296,6 @@
 #include "ps/x64cont.h"
 #include "ps/ts.h"
 #include "ps/tasks.h"
-#include "ps/callback.h"
 #include "ps/queue.h"
 #include "ps/mk.h"
 #include "ps/dispatch.h"

@@ -48,7 +48,21 @@ void hal_mp_idle(void)
 }
 */
 
-void hal_set_machine_type ( unsigned long type )
+// see: bldisp.c
+void refresh_screen(void)
+{
+    bldisp_flush(0);
+}
+
+// Monitor vertical sync.
+// See: vsync.c
+void hal_vsync(void)
+{
+    bldisp_vsync();
+}
+
+
+void hal_set_machine_type(unsigned long type)
 {
     g_machine_type = (unsigned long) type;
 }
@@ -137,12 +151,6 @@ void hal_shutdown (void)
 }
 
 
-// Monitor vertical sync.
-// See: vsync.c
-void hal_vsync(void)
-{
-    vsync();
-}
 
 
 /*

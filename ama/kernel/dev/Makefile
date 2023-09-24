@@ -75,12 +75,11 @@ OBJS = \
 ata.o atadma.o atahdd.o atainfo.o atairq.o atapci.o \
 disk_r.o disk_w.o storage.o \
 bldisp.o \
-xpixel.o line.o rect.o bitblt.o bg.o font.o char.o text.o graphics.o kgwm.o \
 tty.o console.o pty.o \
 i8042.o kbdmap.o ps2kbd.o ps2mouse.o keyboard.o mouse.o \
 serial.o \
 e1000.o \
-devmgr.o io.o grinput.o \
+devmgr.o io.o \
 pci.o pciinfo.o pciscan.o     
 
 all:
@@ -101,17 +100,7 @@ all:
 
 # bl display device
 	$(CC) -c chardev/display/bldisp/bldisp.c  $(KERNEL_INCLUDE) $(CFLAGS) -o bldisp.o
-# graphics
-	$(CC) -c chardev/display/xpixel.c   $(KERNEL_INCLUDE) $(CFLAGS) -o xpixel.o
-	$(CC) -c chardev/display/line.c     $(KERNEL_INCLUDE) $(CFLAGS) -o line.o
-	$(CC) -c chardev/display/rect.c     $(KERNEL_INCLUDE) $(CFLAGS) -o rect.o
-	$(CC) -c chardev/display/bitblt.c   $(KERNEL_INCLUDE) $(CFLAGS) -o bitblt.o
-	$(CC) -c chardev/display/font.c     $(KERNEL_INCLUDE) $(CFLAGS) -o font.o
-	$(CC) -c chardev/display/char.c     $(KERNEL_INCLUDE) $(CFLAGS) -o char.o
-	$(CC) -c chardev/display/text.c     $(KERNEL_INCLUDE) $(CFLAGS) -o text.o
-	$(CC) -c chardev/display/bg.c       $(KERNEL_INCLUDE) $(CFLAGS) -o bg.o
-	$(CC) -c chardev/display/graphics.c $(KERNEL_INCLUDE) $(CFLAGS) -o graphics.o
-	$(CC) -c chardev/display/kgwm.c     $(KERNEL_INCLUDE) $(CFLAGS) -o kgwm.o
+
 # kbd
 	$(CC) -c chardev/kbd/kbdmap.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kbdmap.o
 	$(CC) -c chardev/kbd/keyboard.c $(KERNEL_INCLUDE) $(CFLAGS) -o keyboard.o
@@ -134,7 +123,6 @@ all:
 
 
 # i/o
-	$(CC) -c grinput.c  $(KERNEL_INCLUDE) $(CFLAGS) -o grinput.o
 	$(CC) -c devmgr.c   $(KERNEL_INCLUDE) $(CFLAGS) -o devmgr.o 
 	$(CC) -c io.c       $(KERNEL_INCLUDE) $(CFLAGS) -o io.o
 # pci

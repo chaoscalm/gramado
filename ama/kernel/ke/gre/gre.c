@@ -1,5 +1,7 @@
 
-// graphics.c
+// gre.c
+// Graphics Engine.
+// Environment: kernel
 
 #include <kernel.h>  
 

@@ -110,7 +110,16 @@ extern struct display_device_d *bl_display_device;
 
 // ----------------------
 
-void vsync (void);
+void bldisp_flush(unsigned long flags);
+void bldisp_vsync(void);
+
+int 
+bldisp_putpixel0 ( 
+    unsigned int  _color,
+    unsigned long _x, 
+    unsigned long _y, 
+    unsigned long _rop_flags,
+    unsigned long buffer_va );
 
 
 // The whole screen is dirty.
@@ -122,8 +131,6 @@ unsigned long screenGetHeight (void);
 unsigned long screenGetBPP (void);
 unsigned long screenGetPitch (void);
 unsigned long screen_scanline_va( int scanline );
-void fb_refresh_screen (unsigned long flags);
-void refresh_screen (void);
 int screenInit (void);
 
 unsigned long videoGetMode (void);

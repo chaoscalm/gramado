@@ -1,6 +1,6 @@
 
 // bldisp.c
-// bl display device
+// bl display device device driver.
 
 // Rotinas paga gerenciar os controladores de video.
 // Crt, Vga ...
@@ -128,133 +128,16 @@ static unsigned long __cga_pa=0;
 // == Private functions: Prototypes ========
 //
 
+static void __bldisp_flush_into_lfb(unsigned long flags);
+
 static int __videoInit(void);
 static char vsync_inb(int port);
 
 
 // ============================
 
-// vsync_inb: 
-// Pega um byte na porta. 
-static char vsync_inb(int port)
-{
-    char Value = 0;
-
-    Value = (char) in8 (port); 
-
-    asm (" nop \n");
-    asm (" nop \n");
-    asm (" nop \n");
-    asm (" nop \n");
-
-	//#todo: io_delay();
-
-    return (char) Value;    
-}
-
-// ===============================
-
-
-// Called by hal_vsync
-void vsync (void)
-{
-
-	// Método 1
-	//================================
-	
-	// while ( ( vsync_inb (0x3DA) & 8 ) != 8 );
-	// while ( ( vsync_inb (0x3DA) & 8 ) == 8 );
-	// return;
-	
-	// Método 2
-	//================================
-	
-	// Checar se vsync foi gerado.
-
-    unsigned long MaxDelay=0;
-
-    out8 ( 0x3c4, 0 );
-
-    if (  vsync_inb( 0x3c5 ) & 0x2 ) 
-    {
-        MaxDelay = 100000;
-        while ( ( ( vsync_inb (0x3DA) & 8 ) == 8 ) && MaxDelay-- );
-
-        MaxDelay = 100000;
-        while ( ( ( vsync_inb (0x3DA) & 8 ) == 0  ) && MaxDelay-- );
-    }
-}
-
-
-
-
-
-// Qual é o endereço virtual do início de uma dada linha da tela?
-unsigned long screen_scanline_va(int scanline)
-{
-    unsigned long scanline_va=0;
-    unsigned long start = FRONTBUFFER_VA;
-
-// pitch
-    unsigned long pitch = (unsigned long) screenGetHeight();
-    if ( pitch == 0 ){
-        panic ("screen_scanline_va: pitch limits");
-    }
-
-// height
-    unsigned long height = (unsigned long) screenGetHeight();
-    if ( height == 0 ){
-        panic ("screen_scanline_va: height limits");
-    }
-
-    if (scanline >= height){
-        panic ("screen_scanline_va: scanline limits");
-    }
-
-    scanline_va = (unsigned long) ( start + (pitch * scanline) );
-
-// É o endereço virtual do início de uma dada linha da tela.
-    return (unsigned long) scanline_va;
-}
-
-// Get screen width
-unsigned long screenGetWidth (void)
-{
-    return (unsigned long) screen_width;
-}
-
-// Get screen height
-unsigned long screenGetHeight (void)
-{
-    return (unsigned long) screen_height;
-}
-
-// Get screen bpp
-unsigned long screenGetBPP (void)
-{
-    return (unsigned long) screen_bpp;
-}
-
-// Get screen pitch
-unsigned long screenGetPitch (void)
-{
-    return (unsigned long) screen_pitch;
-}
-
-
-// screenSetSize:
-//     Configura as dimensões da tela.
-//     Tamanho do monitor.
-
-void screenSetSize( unsigned long width, unsigned long height )
-{
-    screen_width  = (unsigned long) width;
-    screen_height = (unsigned long) height;
-}
-
-
 /*
- * fb_refresh_screen:
+ * __bldisp_flush_into_lfb:
  * Coloca o conteúdo do BackBuffer no LFB da memória de vídeo.
  * Ok, isso está no lugar certo. Pois somente o driver display device  
  * pode acessar o LFB.
@@ -279,7 +162,7 @@ void screenSetSize( unsigned long width, unsigned long height )
 // #todo
 // We can also use 16 bytes ... SSE?
 
-void fb_refresh_screen(unsigned long flags)
+static void __bldisp_flush_into_lfb(unsigned long flags)
 {
 
 // #option
@@ -361,22 +244,380 @@ void fb_refresh_screen(unsigned long flags)
 // #todo: Suspend this.
 // Vertical synchonization?
 //  if(flags & 1)
-    vsync();
+    bldisp_vsync();
 
 // Refresh
     refresh_rectangle( 0, 0, gSavedX, gSavedY );
 }   
 
-void refresh_screen (void)
+// Flush the content of the backbuffer
+// into the LFB.
+void bldisp_flush(unsigned long flags)
 {
-// #bugbug
-// This routine is not working for higher resolutions.
-// We are missing the last few bytes.
-    fb_refresh_screen(0);
+    __bldisp_flush_into_lfb(flags);
+}
 
-// #option
-// It is working
-    //refresh_rectangle( 0, 0, gSavedX, gSavedY ); 
+// vsync_inb: 
+// Pega um byte na porta. 
+static char vsync_inb(int port)
+{
+    char Value = 0;
+
+    Value = (char) in8(port); 
+
+    asm (" nop \n");
+    asm (" nop \n");
+    asm (" nop \n");
+    asm (" nop \n");
+
+	//#todo: io_delay();
+
+    return (char) Value;    
+}
+
+// ===============================
+
+// Called by hal_vsync
+void bldisp_vsync(void)
+{
+
+	// Método 1
+	//================================
+	
+	// while ( ( vsync_inb (0x3DA) & 8 ) != 8 );
+	// while ( ( vsync_inb (0x3DA) & 8 ) == 8 );
+	// return;
+	
+	// Método 2
+	//================================
+	
+	// Checar se vsync foi gerado.
+
+    unsigned long MaxDelay=0;
+
+    out8( 0x3c4, 0 );
+
+    if ( vsync_inb(0x3c5) & 0x2 ) 
+    {
+        MaxDelay = 100000;
+        while ( ( ( vsync_inb (0x3DA) & 8 ) == 8 ) && MaxDelay-- );
+
+        MaxDelay = 100000;
+        while ( ( ( vsync_inb (0x3DA) & 8 ) == 0  ) && MaxDelay-- );
+    }
+}
+
+/*
+ * bldisp_putpixel0:
+ *     Ok. 
+ *     O servidor kgws pode acessar um buffer. Mas não tem acesso
+ * ao frontbuffer. Para isso ele precisa usasr o diálogo do driver 
+ * de vídeo.
+ * IN: 
+ *     color, x, y, rop_flags
+ */
+// #todo
+// + Change the names of these parameters.
+// + Create a parameter for the address of the buffer.
+// Colors:
+// b,   g,  r,  a = Color from parameter.
+// b2, g2, r2, a2 = Color from backbuffer.
+// b3, g3, r3, a3 = Color to be stored.
+
+int 
+bldisp_putpixel0 ( 
+    unsigned int  _color,
+    unsigned long _x, 
+    unsigned long _y, 
+    unsigned long _rop_flags,
+    unsigned long buffer_va )
+{
+    unsigned char *where = (unsigned char *) buffer_va;
+    unsigned int Color = (unsigned int) (_color & 0xFFFFFFFF);
+// ----------------------------
+// A cor passada via argumento.
+    char b, g, r, a;
+    b = (Color & 0xFF);
+    g = (Color & 0xFF00) >> 8;
+    r = (Color & 0xFF0000) >> 16;
+    a = (Color >> 24) + 1;
+
+// The first byte;
+// 0 ~ FF
+    int Operation = (int) (_rop_flags & 0xFF);
+
+// Positions
+    int x = (int) (_x & 0xFFFF);
+    int y = (int) (_y & 0xFFFF);
+// 3 = 24 bpp
+// 2 = 16 bpp
+// ...
+    int bytes_count=0;
+
+// Buffer address validation.
+    if (buffer_va == 0){
+        panic("putpixel0: buffer_va\n");
+    }
+
+//
+// bpp
+//
+
+// #danger
+// This is a global variable.
+// Esse valor foi herdado do bootloader.
+
+    switch (gSavedBPP){
+    case 32:  bytes_count=4;  break;
+    case 24:  bytes_count=3;  break;
+    //#testando
+    //case 16:
+    //    bytes_count = 2;
+    //    break;
+    //case 8:
+    //    bytes_count = 1;
+    //    break;
+    default:
+        //#todo: Do we have panic ar this moment?
+        //panic ("putpixel0: gSavedBPP\n");
+        debug_print_string("putpixel0: gSavedBPP\n");
+        while(1){}
+        break;
+    };
+
+// #importante
+// Pegamos a largura do dispositivo.
+    int width = (int) (gSavedX & 0xFFFF);
+    width = (int) (width & 0xFFFF);
+
+    int offset=0;
+    //int offset = (int) ( (bytes_count*width*y) + (bytes_count*x) );
+
+// Offset.
+
+// 32bpp
+    if (bytes_count==4){
+        offset = (int) ( ((width<<2)*y) + (x<<2) );
+    }
+// 24bpp
+    if (bytes_count==3){
+        offset = (int) ( (bytes_count*width*y) + (bytes_count*x) );
+    }
+// 16bpp
+    //if (bytes_count==2){
+    //    offset = (int) ( ((width<<1)*y) + (x<<1) );
+    //}
+
+
+//
+// == Modify ==============================
+//
+
+// ------------------------------------------
+// A cor que estava no framebuffer.
+    unsigned char b2, g2, r2, a2;
+// Get yhe color.
+    b2 = where[offset];
+    g2 = where[offset +1];
+    r2 = where[offset +2];
+    if (gSavedBPP == 32){ a2 = where[offset +3]; };
+
+// ------------------------------
+// A cor transformada.
+// A cor a ser gravada.
+    unsigned char b3, g3, r3, a3;
+// -------------------------
+// 0 - Sem modificação
+// A cor a ser registrada é a mesma enviada por argumento.
+    if (Operation == 0){
+        r3=r; g3=g; b3=b; a3=a;
+    }
+// -------------------------
+// 1 = or
+    if (Operation == 1)
+    {
+        r3 = (r2 | r);
+        g3 = (g2 | g);
+        b3 = (b2 | b);
+        a3 = a2;
+    }
+// -------------------------
+// 2 = and
+    if (Operation == 2)
+    {
+        r3 = (r2 & r);
+        g3 = (g2 & g);
+        b3 = (b2 & b);
+        a3 = a2;
+    }
+// -------------------------
+// 3 = xor
+    if (Operation == 3)
+    {
+        r3 = (r2 ^ r);
+        g3 = (g2 ^ g);
+        b3 = (b2 ^ b);
+        a3 = a2;
+    }
+// -------------------------
+// 4 - nand? #text
+    if (Operation == 4)
+    {
+        r2 = ~r2;
+        g2 = ~g2;
+        b2 = ~b2;
+        r3 = (r2 & r);
+        g3 = (g2 & g);
+        b3 = (b2 & b);
+        a3 = a2;
+    }
+
+// -------------------------
+// 10 - less red
+    if (Operation == 10)
+    {
+        r3 = (r2 & 0xFE);
+        g3 = g2;
+        b3 = b2; 
+        a3 = a2;
+    }
+// -------------------------
+// 11 - less green
+    if (Operation == 11)
+    {
+        r3 = r2;
+        g3 = (g2 & 0xFE);
+        b3 = b2; 
+        a3 = a2;
+    }
+// -------------------------
+// 12 - less blue
+    if (Operation == 12)
+    {
+        r3 = r2;
+        g3 = g2;
+        b3 = (b2 & 0xFE); 
+        a3 = a2;
+    }
+// -------------------------
+// 20 - gray
+    if (Operation == 20)
+    {
+        r3 = (r2 & 0x80);
+        g3 = (g2 & 0x80);
+        b3 = (b2 & 0x80);
+        a3 = a2;
+    }
+// -------------------------
+// 21 - no red 
+    if (Operation == 21)
+    {
+        r3 = (r2 & 0x00);
+        g3 = (g2 & 0xFF);
+        b3 = (b2 & 0xFF);
+        a3 = a2;
+    }
+
+// Luminosity
+// Gray: luminosity = R*0.3 + G*0.59 + B *0.11
+
+/*
+ // #test
+ // This is a test yet.
+    unsigned char common_gray=0;
+    if (Operation == 22)
+    {
+        r3 = ((r2 * 30 )/100);
+        g3 = ((g2 * 59 )/100);
+        b3 = ((b2 * 11 )/100);
+        common_gray = (unsigned char) (r3+g3+b3);
+        r3=(unsigned char)common_gray;
+        g3=(unsigned char)common_gray;
+        b3=(unsigned char)common_gray;
+        a3 = a2;
+    }
+*/
+
+
+//
+// == Register =====================
+// 
+
+// ----------------------------
+// BGR and A
+    where[offset]    = b3;
+    where[offset +1] = g3;
+    where[offset +2] = r3;
+    if (gSavedBPP == 32){ where[offset +3] = a3; };
+
+// Number of changed pixels.
+    return (int) 1;
+}
+
+
+
+
+// Qual é o endereço virtual do início de uma dada linha da tela?
+unsigned long screen_scanline_va(int scanline)
+{
+    unsigned long scanline_va=0;
+    unsigned long start = FRONTBUFFER_VA;
+
+// pitch
+    unsigned long pitch = (unsigned long) screenGetHeight();
+    if ( pitch == 0 ){
+        panic ("screen_scanline_va: pitch limits");
+    }
+
+// height
+    unsigned long height = (unsigned long) screenGetHeight();
+    if ( height == 0 ){
+        panic ("screen_scanline_va: height limits");
+    }
+
+    if (scanline >= height){
+        panic ("screen_scanline_va: scanline limits");
+    }
+
+    scanline_va = (unsigned long) ( start + (pitch * scanline) );
+
+// É o endereço virtual do início de uma dada linha da tela.
+    return (unsigned long) scanline_va;
+}
+
+// Get screen width
+unsigned long screenGetWidth (void)
+{
+    return (unsigned long) screen_width;
+}
+
+// Get screen height
+unsigned long screenGetHeight (void)
+{
+    return (unsigned long) screen_height;
+}
+
+// Get screen bpp
+unsigned long screenGetBPP (void)
+{
+    return (unsigned long) screen_bpp;
+}
+
+// Get screen pitch
+unsigned long screenGetPitch (void)
+{
+    return (unsigned long) screen_pitch;
+}
+
+
+// screenSetSize:
+//     Configura as dimensões da tela.
+//     Tamanho do monitor.
+
+void screenSetSize( unsigned long width, unsigned long height )
+{
+    screen_width  = (unsigned long) width;
+    screen_height = (unsigned long) height;
 }
 
 // The whole screen is dirty.
