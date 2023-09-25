@@ -254,6 +254,7 @@
 #include "net/prot/icmp.h" 
 
 #include "net/nports.h"     //(network) Network Ports  (sw)
+#include "net/inet.h"
 #include "net/network.h"     //(network) Gerenciamento de rede.  
 #include "net/socklib.h"     //
 #include "net/socket.h"      //last always
