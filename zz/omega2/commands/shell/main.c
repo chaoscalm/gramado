@@ -29,7 +29,12 @@ unsigned long device_height=0;
 //======================================
 
 static void shellPrompt(void);
+
 static unsigned long shellCompare(void);
+
+static unsigned long shellProcessCmdline(void);
+static unsigned long shellProcessPrintableChar(int c);
+
 static void doExit(void);
 static void doLF(void);
 
@@ -352,6 +357,48 @@ done:
     return (unsigned long) ret_value;
 }
 
+// Wrapper
+static unsigned long shellProcessCmdline(void)
+{
+    return (unsigned long) shellCompare();
+}
+
+static unsigned long shellProcessPrintableChar(int c)
+{
+
+    if (c<0)
+        return 0;
+
+// Feed the command line in prompt[], I guess.
+    input(c);
+
+//
+// Sending data to the terminal.
+//
+
+// #debug
+// O terminal vai imprimir errado.
+// ok funcionou.
+    //printf("%c", (C+1) ); 
+      
+    printf("%c",c);
+    fflush(stdout);
+
+// + precisamos nos certificar que eh o shell
+// que esta enviando chars para o terminal
+// e nao o kernel
+// + precisamos nos certivicar que o shell esta lendo de um arquivo.
+// isso eh uma tentativa
+    //if (C == 'q')
+    //{
+        //printf("%c",'9');
+        //fflush(stdout);
+        //exit(0);   //#test
+    //}
+
+    return 0;
+}
+
 //
 // Main
 //
@@ -426,43 +473,13 @@ int main(int argc, char *argv[])
         // Valid char.
         if (C>0)
         {
-            // [ Enter ]
-            if (C == VK_RETURN)
-            {
-                //printf("%c",'$');
-                //fflush(stdout);
- 
-                // #bugbug #todo: Compare the string.
-                shellCompare();
-            }
-
-            // Printable chars.
-            if (C >= 0x20 && C <= 0x7F)
-            {
-
-                // Feed the command line in 'prompt', i guess.
-                input(C);
-
-                // #debug
-                // O terminal vai imprimir errado.
-                // ok funcionou.
-                //printf("%c", (C+1) ); 
-      
-                printf("%c",C);
-                fflush(stdout);
-                 
-                // + precisamos nos certificar que eh o shell
-                // que esta enviando chars para o terminal
-                // e nao o kernel
-                // + precisamos nos certivicar que o shell esta lendo de um arquivo.
-                // isso eh uma tentativa
-                //if (C == 'q')
-                //{
-                    //printf("%c",'9');
-                    //fflush(stdout);
-                    //exit(0);   //#test
-                //}
-            }
+            // Enter: So, process the command line
+            if (C == VK_RETURN){
+                shellProcessCmdline();
+            // printable chars: So print a regular key.
+            } else if (C >= 0x20 && C <= 0x7F){
+                shellProcessPrintableChar(C);
+            };
         }
     };
 
