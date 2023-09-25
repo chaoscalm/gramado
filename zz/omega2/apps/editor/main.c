@@ -140,6 +140,8 @@ static int editor_init_globals(void);
 static void __test_text(int fd, int wid);
 static void __test_load_file(int socket, int wid);
 
+void pump(int fd, int wid);
+
 // ============
 
 static void update_clients(int fd)
@@ -573,6 +575,38 @@ static void __test_load_file(int socket, int wid)
     };
 }
 
+void pump(int fd, int wid)
+{
+    struct gws_event_d lEvent;
+    lEvent.used = FALSE;
+    lEvent.magic = 0;
+    lEvent.type = 0;
+    lEvent.long1 = 0;
+    lEvent.long2 = 0;
+
+    struct gws_event_d *e;
+
+    if (fd<0)
+        return;
+    if (wid<0)
+        return;
+
+    e = 
+        (struct gws_event_d *) gws_get_next_event(
+                                   fd, 
+                                   wid,
+                                   (struct gws_event_d *) &lEvent );
+
+    if ((void *) e == NULL)
+        return;
+    if (e->magic != 1234){
+        return;
+    }
+    if (e->type <0)
+        return;
+    editorProcedure( fd, e->window, e->type, e->long1, e->long2 );
+}
+
 int main( int argc, char *argv[] )
 {
     int client_fd = -1;
@@ -945,15 +979,6 @@ int main( int argc, char *argv[] )
 // Event loop
 //
 
-    struct gws_event_d lEvent;
-    lEvent.used = FALSE;
-    lEvent.magic = 0;
-    lEvent.type = 0;
-    lEvent.long1 = 0;
-    lEvent.long2 = 0;
-
-    struct gws_event_d *e;
-
 // loop
 // The server will return an event from the client's event queue.
 // Call the local window procedure if a valid event was found.
@@ -972,23 +997,10 @@ int main( int argc, char *argv[] )
     {
         //if ( Display->running != TRUE )
             //break;
-
         if (isTimeToQuit == TRUE)
             break;
 
-        e = 
-        (struct gws_event_d *) gws_get_next_event(
-                                   client_fd, 
-                                   main_window,
-                                   (struct gws_event_d *) &lEvent );
-
-        if ((void *) e != NULL)
-        {
-            if (e->magic == 1234){
-                editorProcedure(
-                    client_fd, e->window, e->type, e->long1, e->long2 );
-            }
-        }
+        pump(client_fd,main_window);
     };
 
     if (isTimeToQuit == TRUE){

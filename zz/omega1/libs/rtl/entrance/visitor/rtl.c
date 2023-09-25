@@ -95,6 +95,34 @@ void *sc82 (
 
 // =============================================================
 
+int 
+rtl_is_either_this_or_that(
+    char *str, 
+    int offset, 
+    char __this, 
+    char __that )
+{
+    char ch=0;
+    char *p;
+
+// #danger
+// Get the byte from the given offset.
+    p = (str + offset);
+    ch = *p;
+// Is either?
+    if ( ch == __this || 
+         ch == __that )
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
+
+
+
 /*
 
   // #todo

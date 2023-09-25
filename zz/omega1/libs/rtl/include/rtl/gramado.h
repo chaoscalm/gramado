@@ -97,6 +97,12 @@ void *sc82 (
 
 // =====================================================
 
+int 
+rtl_is_either_this_or_that(
+    char *str, 
+    int offset, 
+    char __this, 
+    char __that );
 
 void *rtl_shm_get_2mb_surface(void);
 
