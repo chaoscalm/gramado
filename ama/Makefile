@@ -234,8 +234,6 @@ copy-extras:
 #-------------------------
 #driver/
 
-#	-sudo cp ../zz/omega2/drivers/nicd/bin/NICCTL.BIN   $(BASE)/
-#	-sudo cp ../zz/omega2/drivers/nicd/bin/NICCTLD.BIN  $(BASE)/
 #	-sudo cp ../zz/omega2/drivers/bin/VGA1.BIN  $(BASE)/
 
 #----------------------------------

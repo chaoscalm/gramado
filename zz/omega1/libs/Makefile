@@ -5,12 +5,6 @@ all:
 
 	make -C libdisp/
 
-# Client-side lib
-	make -C libgns/
-
-# Client-side lib
-	make -C libgns2/
-
 # Graphics support (Server-side?)
 	make -C libgr/
 # 3D Graphics support (Server-side?)
@@ -29,12 +23,6 @@ clean:
 
 	-rm -f libdisp/*.o
 	-rm -f libdisp/obj/*.o
-
-	-rm -f libgns/*.o
-	-rm -f libgns/obj/*.o
-
-	-rm -f libgns2/*.o
-	-rm -f libgns2/obj/*.o
 
 	-rm -f libgr/*.o
 	-rm -f libgr/obj/*.o

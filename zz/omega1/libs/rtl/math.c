@@ -4,7 +4,6 @@
 // #todo
 // Remember: double is double precision float.
 
-
 double sin(double __x)
 {
     return 0;
@@ -17,7 +16,6 @@ double tan(double __x)
 {
     return 0;
 }
-
 
 // Returns the arcsine of x.
 double asin(double __x)
@@ -35,6 +33,40 @@ double atan(double __x)
     return 0;
 }
 
+// ----------------------------------
+
+// IN: angle
+float sinf(float arg)
+{
+    float ret = 0.0f;
+    asm(
+        "fsin"
+        : "=t"(ret)
+        : "0"(arg) );
+
+    return (float) ret;
+}
+
+// IN: angle
+float cosf(float arg)
+{
+    float ret= 0.0f;
+
+    asm(
+        "fcos"
+        : "=t"(ret)    // Output
+        : "0"(arg));   // Input
+
+    return (float) ret;
+}
+
+// IN: angle
+float tanf(float arg)
+{
+    return (float) __builtin_tan(arg);
+}
+
+// ----------------------------------
 
 // It returns the 
 // integer value which is 
@@ -54,27 +86,15 @@ double ceil(double __x)
     return 0;
 }
 
-
-// #todo
-// x to power of y
-double pow(double __x, double __y)
-{
-// If x^0 return 1
-    if (__y == 0){ return (double) 1; }
-// If we need to find of 0^y
-    if (__x == 0){ return 0; }
-
-// #todo
-
-    return 0;
-}
-
-
+// -------------------------------
 // fsqrt:
-// Computes the square root of the source 
-// value in the ST(0) register and stores the result in ST(0).
-// OUT: Square root of __x
-// Credits: Sirius OS.
+// Computes the square root of 
+// the source value in the ST(0) register and 
+// stores the result in ST(0).
+// OUT: 
+//     Square root of __x.
+// Credits: 
+//     Sirius OS
 
 double sqrt(double __x)
 {
@@ -82,32 +102,51 @@ double sqrt(double __x)
 
     asm volatile (
         "finit;"
-        "fldl %1;"  // st(0) => st(1), st(0) = x. FLDL means load double float
-        "fsqrt;"    // st(0) = square root st(0)
-        : "=t"(Value) 
-        : "m"(__x) );
+        "fldl %1;"     // st(0) => st(1), st(0) = x. FLDL means load double float
+        "fsqrt;"       // st(0) = square root st(0)
+        : "=t"(Value)  // Output operands
+        : "m"(__x) );  // Input operands
 //OUT:
     return (double) Value;
 }
 
- 
+
 // -----------------------------
+
+// #todo
+// x to power of y
+double pow(double __x, double __y)
+{
+
+// If x^0 return 1
+    if (__y == 0){
+        return (double) 1;
+    }
+
+// If we need to find of 0^y
+    if (__x == 0){
+        return 0;
+    }
+
+// #todo
+
+    return 0;
+}
 
 // Credits:
 // https://www.geeksforgeeks.org/write-a-c-program-to-calculate-powxn/
 long power0(long x, unsigned int n)
 {
-// Iterator.
+// Iterator
     register int i=0;
-// Initialize result to 1
+// Initialize result to 1.
     long Pow=1;
+
 // Multiply x for n times
-    for (i=0; i<n; i++)
-    {
+    for (i=0; i<n; i++){
         Pow = (long) (Pow * x);
     };
- 
-    return (long) Pow;
+     return (long) Pow;
 }
 
 // Credits:
@@ -115,9 +154,14 @@ long power0(long x, unsigned int n)
 long power1(long x, unsigned int n)
 {
 // If x^0 return 1
-    if (n == 0){ return (long) 1; }
+    if (n == 0){
+        return (long) 1;
+    }
 // If we need to find of 0^y
-    if (x == 0){ return 0; }
+    if (x == 0){
+        return 0;
+    }
+
 // For all other cases.
     long p = (long) power1( (long) x, (unsigned int) n-1 ); 
 
@@ -197,36 +241,5 @@ double power4(double x, int y)
             return (double) ((temp * temp) / x);
         };
     };
-}
-
-// -------------------------------
-
-// IN: angle
-float sinf(float arg)
-{
-    float ret = 0.0f;
-    asm(
-        "fsin"
-        : "=t"(ret)
-        : "0"(arg) );
-
-    return (float) ret;
-}
-
-// IN: angle
-float cosf(float arg)
-{
-    float ret= 0.0f;
-    asm(
-        "fcos"
-        : "=t"(ret)
-        : "0"(arg));
-    return (float) ret;
-}
-
-// IN: angle
-float tanf(float arg)
-{
-    return (float) __builtin_tan(arg);
 }
 
