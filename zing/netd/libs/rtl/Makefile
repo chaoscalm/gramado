@@ -99,6 +99,8 @@ libc-content:
 
 	gcc  -c  sched.c  $(CFLAGS) -I. -I include/ -o sched.o
 
+	gcc  -c  inet.c  $(CFLAGS) -I. -I include/ -o inet.o
+
 # ...
 
 

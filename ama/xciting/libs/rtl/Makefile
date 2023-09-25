@@ -95,6 +95,7 @@ libc-content:
 	gcc  -c  linkaddr.c  $(CFLAGS) -I. -I include/ -o linkaddr.o
 # ...
 
+	gcc  -c  inet.c  $(CFLAGS) -I. -I include/ -o inet.o
 
 #tests 
 #	gcc  -c  tests/test1.c   $(CFLAGS) -I. -I include/ -o test1.o

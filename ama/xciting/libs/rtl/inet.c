@@ -11,7 +11,6 @@
 #include <rtl/gramado.h> 
 #include <arpa/inet.h>
 
-
 static uint32_t __htonl_imp(uint32_t hostlong);
 static uint16_t __htons_imp(uint16_t hostshort);
 static uint32_t __ntohl_imp(uint32_t netlong);
