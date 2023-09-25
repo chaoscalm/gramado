@@ -23,13 +23,9 @@
 
 struct sockaddr_un
 {
-    //#bugbug
-    //ps: It needs to be 16 bit.
-
     uint16_t sun_family;
     char sun_path[UNIX_PATH_MAX];
 };
-
 
 /*
 // #todo

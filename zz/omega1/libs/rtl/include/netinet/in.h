@@ -1,6 +1,5 @@
 /*
  * File: in.h
- * 
  *   Socket support for internet style. 
  */
 

@@ -263,12 +263,17 @@ typedef struct socket_context {
 } socket_t;
 
 
-// not bsd.
 struct sockaddr 
 {
-    //unsigned char   sa_len;
-    unsigned short  sa_family;
-    char            sa_data[14];
+    unsigned short sa_family;
+    char           sa_data[14];
+};
+
+// #test
+struct sockaddr_gram  
+{
+    unsigned short sa_family;
+    char           sa_data[14];
 };
 
 

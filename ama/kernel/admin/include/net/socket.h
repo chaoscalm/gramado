@@ -43,12 +43,21 @@ struct	accept_filter_arg {
 // Options for socket level
 //#define SOL_SOCKET    0xffff
 
-// Used by AF_UNIX, AF_LOCAL and AF_GRAMADO
+
 struct sockaddr 
 {
     unsigned short sa_family;
     char sa_data[14];
 };
+
+// #test
+struct sockaddr_gram  
+{
+    unsigned short sa_family;
+    char           sa_data[14];
+};
+
+
 
 /*
  * Structure used by kernel to pass protocol
