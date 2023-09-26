@@ -124,14 +124,7 @@ losethos os - Adam1a.HPP.
 
 #define MPN_VECT		0x7F
 #define MP_VECT_ADDR	(MPN_VECT*0x1000)
-//I/O APIC Memory mapped window
-#define IOAPIC_REG		0xFEC00000 //U8
-#define IOAPIC_DATA		0xFEC00010 //U32
-//I/O APIC Registers
-#define IOAPICID		0x00
-#define IOAPICVER		0x01
-#define IOAPICARB		0x02
-#define IOREDTAB		0x10
+
 // msr
 // Model specific registers.
 #define IA32F_SCE	0x001
