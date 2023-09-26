@@ -2,7 +2,7 @@
 # dev/
 # Compile all the files and create ar_dev.o
 
-GOD = ../god
+CALI = ../cali
 
 AS	= as
 LD	= ld
@@ -59,7 +59,7 @@ CFLAGS := \
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(GOD)/includes/    
+KERNEL_INCLUDE := -I $(CALI)/includes/    
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.

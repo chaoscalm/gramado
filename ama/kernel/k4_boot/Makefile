@@ -1,11 +1,11 @@
 
-GOD = ../god
+CALI = ../cali
 
 NASM = nasm
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(GOD)/includes/   
+KERNEL_INCLUDE := -I $(CALI)/includes/   
 
 STARTUP_INCLUDE := -I x86_64/startup/  
 

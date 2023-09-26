@@ -2,7 +2,7 @@
 # user/
 # Compile all the files and create ar_user.o
 
-GOD = ../god
+CALI = ../cali
 
 AS	= as
 LD	= ld
@@ -58,7 +58,7 @@ CFLAGS := \
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(GOD)/includes/  
+KERNEL_INCLUDE := -I $(CALI)/includes/  
 
 
 # See: https://linux.die.net/man/1/ld
