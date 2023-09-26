@@ -798,6 +798,8 @@ void I_kmain(int arch_type)
             
             // #todo
             // Setup ioapic.
+            // see: ioapic.c
+            //enable_ioapic();
         }
     } 
 

@@ -408,6 +408,8 @@ unsigned long cpu_get_apic_base (void)
   for correct APIC operation. */
 void enable_apic(void)
 {
+// Called by I_kmain() in main.c.
+
 // #todo
 // We need to setup a lot of registers 
 // before enabling the apic.

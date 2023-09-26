@@ -28,3 +28,9 @@ void cpuWriteIoApic(void *ioapicaddr, uint32_t reg, uint32_t value)
 }
 */
 
+void enable_ioapic(void)
+{
+// Called by I_kmain() in main.c.
+    // ...
+}
+
