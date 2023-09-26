@@ -27,7 +27,7 @@ As I behold Your beauty with unworthy eyes
 The only song my soul can find to sing
 Is hallelujah
 Hallelujah
-Hallelujah, my King
+Hallelujah, my King - (Transfiguration)
 */
 
 // Product and version.
