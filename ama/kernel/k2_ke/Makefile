@@ -74,7 +74,7 @@ create.o clone.o \
 detect.o \
 ke.o \
 hal.o \
-apic.o \
+apic.o ioapic.o \
 pit.o ports64.o rtc.o \
 x64.o x64info.o x64init.o x64mi.o x64nmi.o x64smp.o \
 queue.o \
@@ -108,9 +108,9 @@ all:
 
 	$(CC) -c x86_64/detect.c  $(KERNEL_INCLUDE) $(CFLAGS) -o detect.o
 
-	#Interrupts
-	$(CC) -c x86_64/inter/apic.c  $(KERNEL_INCLUDE) $(CFLAGS) -o apic.o
-	#$(CC) -c x86_64/inter/ioapic.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ioapic.o
+# Interrupts
+	$(CC) -c x86_64/inter/apic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o apic.o
+	$(CC) -c x86_64/inter/ioapic.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ioapic.o
 	#$(CC) -c x86_64/inter/pic.c  $(KERNEL_INCLUDE) $(CFLAGS) -o pic.o
 
 	$(CC) -c x86_64/pit.c      $(KERNEL_INCLUDE) $(CFLAGS) -o pit.o

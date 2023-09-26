@@ -199,7 +199,7 @@ void cpu_set_apic_base(unsigned long apic);
 unsigned long cpu_get_apic_base(void); 
 void lapic_initializing(unsigned long lapic_pa);
 
-void apic_disable_legacy_pic(void);
+
 void enable_apic(void); 
 
 

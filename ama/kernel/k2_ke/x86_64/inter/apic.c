@@ -55,6 +55,17 @@
 
 #include <kernel.h>
 
+#define APIC_CONFIG_DATA_LVT(TimerMode,Mask,TriggerMode,Remote,InterruptInput,DeliveryMode,Vector)(\
+(((unsigned int)(TimerMode) &0x3 ) << 17) |\
+(((unsigned int)(Mask) &0x1 ) << 16) |\
+(((unsigned int)(TriggerMode) &0x1 ) << 15) |\
+(((unsigned int)(Remote) &0x1 ) << 14) |\
+(((unsigned int)(InterruptInput) &0x1 ) << 13) |\
+(((unsigned int)(DeliveryMode) &0x7 ) << 8) |\
+((unsigned int)(Vector) &0xff )\
+)
+
+
 
 //
 // == private functions: prototypes =====================
@@ -70,6 +81,8 @@ static void local_apic_eoi(void);
 // apic stuffs for x86.
 static inline void imcr_pic_to_apic (void);
 static inline void imcr_apic_to_pic (void);
+
+static void __apic_disable_legacy_pic(void);
 
 // =====================
 
@@ -411,29 +424,84 @@ void enable_apic(void)
 
 
 // Hardware enable the Local APIC if it wasn't enabled.
-    cpu_set_apic_base ( cpu_get_apic_base() );
+    cpu_set_apic_base( cpu_get_apic_base() );
 
+//
+// Disable legacy PIC
+//
+
+    //__apic_disable_legacy_pic();
 
 /*
-// Clear task priority to enable all interrupts.
-// Task Priority Register (TPR), to inhibit softint delivery?
-    local_apic_write_command(
-        (unsigned short) 0x0080, 
-        (unsigned int) 0 );
-*/
-/*
+// Destination Format Register (DFR)
 // Logical Destination Mode
     // Flat mode
     local_apic_write_command(
         (unsigned short) 0x00e0, 
         (unsigned int) 0xffffffff);
 */
+
 /*
-    // All cpus use logical id 1. ?
+// Logical Destination Register (LDR)
+// All cpus use logical id 1. ?
     local_apic_write_command(
         (unsigned short) 0x00d0, 
         (unsigned int) 0x01000000);
 */
+
+
+/*
+// Task Priority Register (TPR), to inhibit softint delivery?
+// Clear task priority to enable all interrupts.
+    local_apic_write_command(
+        (unsigned short) 0x0080, 
+        (unsigned int) 0 );
+*/
+
+// -- Interrupts ----------------------------------------------------
+
+
+/*
+//---------------------
+#test
+#todo
+
+// #warning: We already did that above.
+//Task Priority Register (TPR), to inhibit softint delivery
+    *(volatile unsigned int*)(lapicbase + APIC_TPR) = 0; //0x20;
+
+// Timer interrupt vector, 
+// to disable timer interrupts
+    //*(volatile unsigned int*)(lapicbase + APIC_LVT_TIMER) = 
+        APIC_CONFIG_DATA_LVT(0,1,0,0,0,null,0x20);
+
+// Performance counter interrupt, 
+// to disable performance counter interrupts
+    //*(volatile unsigned int*)(lapicbase + APIC_LVT_PERFORMANCE) = 
+        APIC_CONFIG_DATA_LVT(null,1,0,0,0,0,0x21);
+
+// Local interrupt 0, 
+// to enable normal external interrupts, Trigger Mode = Level
+    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT0) = 
+        APIC_CONFIG_DATA_LVT(null,1,null,null,1,7,0x22);
+
+// Local interrupt 1, 
+// to enable normal NMI processing
+    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT1) = 
+        APIC_CONFIG_DATA_LVT(null,1,null,null,0,4,0x23);
+
+// Error interrupt, 
+// to disable error interrupts
+    //*(volatile unsigned int*)(lapicbase + APIC_LVT_ERROR) = 
+        APIC_CONFIG_DATA_LVT(null,1,null,null,null,0,0x24);
+
+// #warning: see the routine below.
+// Spurious interrupt Vector Register, to enable the APIC and set
+// spurious vector to 255
+    //*(volatile unsigned int*)(lapicbase + APIC_S_INT_VECTOR) = 0x1ff;
+//---------------------
+*/
+
 
 /*
 Spurious-Interrupt Vector Register:
@@ -479,55 +547,7 @@ So:
     //    (unsigned short) 0x00F0,  
     //    (unsigned int) (local_apic_read_command(0xF0) | 0x100) );
 
-
-/*
-//---------------------
-#test
-#todo
-//Task Priority Register (TPR), to inhibit softint delivery
-    *(volatile unsigned int*)(lapicbase + APIC_TPR) = 0; //0x20;
-// Timer interrupt vector, to disable timer interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_TIMER) = APIC_CONFIG_DATA_LVT(0,1,0,0,0,null,0x20);
-// Performance counter interrupt, to disable performance counter interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_PERFORMANCE) = APIC_CONFIG_DATA_LVT(null,1,0,0,0,0,0x21);
-// Local interrupt 0, to enable normal external interrupts, Trigger Mode = Level
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT0) = APIC_CONFIG_DATA_LVT(null,1,null,null,1,7,0x22);
-// Local interrupt 1, to enable normal NMI processing
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT1) = APIC_CONFIG_DATA_LVT(null,1,null,null,0,4,0x23);
-// Error interrupt, to disable error interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_ERROR) = APIC_CONFIG_DATA_LVT(null,1,null,null,null,0,0x24);
-// Spurious interrupt Vector Register, to enable the APIC and set
-// spurious vector to 255
-    //*(volatile unsigned int*)(lapicbase + APIC_S_INT_VECTOR) = 0x1ff;
-//---------------------
-*/
-
 }
-
-//
-// IO APIC Configuration 
-//
-
-
-/*
-uint32_t cpuReadIoApic(void *ioapicaddr, uint32_t reg);
-uint32_t cpuReadIoApic(void *ioapicaddr, uint32_t reg)
-{
-   uint32_t volatile *ioapic = (uint32_t volatile *)ioapicaddr;
-   ioapic[0] = (reg & 0xff);
-   return ioapic[4];
-}
-*/
- 
-/* 
-void cpuWriteIoApic(void *ioapicaddr, uint32_t reg, uint32_t value); 
-void cpuWriteIoApic(void *ioapicaddr, uint32_t reg, uint32_t value)
-{
-   uint32_t volatile *ioapic = (uint32_t volatile *)ioapicaddr;
-   ioapic[0] = (reg & 0xff);
-   ioapic[4] = value;
-}
-*/
 
 
 /*
@@ -648,8 +668,7 @@ void Send_STARTUP_IPI_Twice(unsigned int apic_id)
     };
 }
 
-
-void apic_disable_legacy_pic(void)
+static void __apic_disable_legacy_pic(void)
 {
 // Legacy PIC mask all off.
 

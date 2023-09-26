@@ -1248,12 +1248,6 @@ static int I_initKernelComponents(void)
         // Essa rotina eh valida para AMD e Intel.
         detect_hv();
 
-        // #test
-        // #todo
-        // We need to setup a lot of registers 
-        // before enabling the apic.
-        //enable_apic();
-
         //#breakpoint
         //printf("#breakpoint in I_init()\n");
         //refresh_screen();

@@ -774,7 +774,7 @@ void I_kmain(int arch_type)
     if (UserStatus != TRUE)
         panic("I_kmain: on userCreateRootUser\n");
 
-
+// ----------------------------------
 // Last thing
 
     int smp_status = FALSE;
@@ -785,9 +785,19 @@ void I_kmain(int arch_type)
         if ( processor_type == Processor_AMD ||
              processor_type == Processor_INTEL )
         {
+            // k2_ke/x86_64/x64smp.c
             smp_status = (int) x64_initialize_smp();
             //if (smp_status != TRUE)
                 //panic("smp\n");
+            
+            // Lets enable the apic, only if smp is supported.
+            // #warning
+            // This routine is gonna disable the legacy PIC.
+            // see: apic.c
+            //enable_apic();
+            
+            // #todo
+            // Setup ioapic.
         }
     } 
 
