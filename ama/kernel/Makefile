@@ -11,7 +11,7 @@ linkTarget = KERNEL.BIN
 # LDFLAGS := -m elf_x86_64 -static
 # LDFLAGS := -m elf_x86_64 -s -x -static  
 linkFlags := -m elf_x86_64 \
--s -x -static -T arch/x86_64/startup/link.ld
+-s -x -static -T k4_boot/x86_64/startup/link.ld
 
 # Make variables (CC, etc...)
 AS	= as
@@ -107,7 +107,7 @@ KERNEL_INCLUDE := -I include/ $(USER_INCLUDE)
 
 # ========================
 # :: Head
-# See: arch/
+# See: k4_boot/
 objects-y := head_64.o 
 
 # ========================
@@ -124,42 +124,34 @@ objects-y += ar_zcall.o
     
 # ========================
 PHONY := all
-all: k1 k2 k3 \
+all: k1 k2 k3 k4 \
 link-kernel \
 clean    
 
 	@echo "Done?"
-
-
-#--------------------
-#kernel-header:
-# The x86 head of the monster.
-# The boot \o/
+#----------------
+# The kingdom.
 k1:
-# Top layer.
 	@echo "Compiling: Compiling k1/"
-# Build head_64.o
-	$(MAKE) -C arch/
-
-#--------------------
-#kernel-content:
+	$(MAKE) -C k1_mm/
+#----------------
+# The boat.
 k2:
-# Middle layer.
 	@echo "Compiling: Compiling k2/"
-	$(MAKE) -C crt/
-	$(MAKE) -C dev/
-	$(MAKE) -C fs/
-	$(MAKE) -C ke/
-	$(MAKE) -C mm/
-	$(MAKE) -C net/
-	$(MAKE) -C user/
-
-#--------------------
-#kernel-footer:
+	$(MAKE) -C k2_crt/
+	$(MAKE) -C k2_fs/
+	$(MAKE) -C k2_ke/
+	$(MAKE) -C k2_net/
+	$(MAKE) -C k2_user/
+	$(MAKE) -C k2_zcall/
+#----------------
+# The fishermen.
 k3:
-# Bottom layer.
 	@echo "Compiling: Compiling k3/"
-	$(MAKE) -C zcall/
+	$(MAKE) -C k3_dev/
+#----------------
+k4:
+	$(MAKE) -C k4_boot/
 
 link-kernel:
 	@echo "Linking: Linking the kernel image ..."
