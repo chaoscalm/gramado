@@ -20,11 +20,21 @@
 // + (1) Configuration of product and version.
 //
 
+/*
+Holy is the Lord revealed before my eyes
+And my burning heart can scarcely take it in
+As I behold Your beauty with unworthy eyes
+The only song my soul can find to sing
+Is hallelujah
+Hallelujah
+Hallelujah, my King
+*/
+
 // Product and version.
 // ==================================
-#include "amazing/product.h"  // Product type
-#include "amazing/version.h"  // Product version
-#include "amazing/config.h"
+#include "beauty/product.h"  // Product type
+#include "beauty/version.h"  // Product version
+#include "beauty/config.h"
 
 // ==================================
 #include "k4/bootinfo.h"
