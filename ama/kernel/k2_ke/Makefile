@@ -87,21 +87,21 @@ all:
 
 #--------
 # ps/
-	$(CC) -c ps/msg/msg.c          $(KERNEL_INCLUDE) $(CFLAGS) -o msg.o
-	$(CC) -c ps/process/process.c  $(KERNEL_INCLUDE) $(CFLAGS) -o process.o
-	$(CC) -c ps/process/plib.c     $(KERNEL_INCLUDE) $(CFLAGS) -o plib.o
-	$(CC) -c ps/thread/thread.c    $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
-	$(CC) -c ps/thread/tlib.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
-	$(CC) -c ps/create.c           $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
-	$(CC) -c ps/clone.c            $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
+	$(CC) -c intake/msg.c          $(KERNEL_INCLUDE) $(CFLAGS) -o msg.o
+	$(CC) -c intake/process.c  $(KERNEL_INCLUDE) $(CFLAGS) -o process.o
+	$(CC) -c intake/plib.c     $(KERNEL_INCLUDE) $(CFLAGS) -o plib.o
+	$(CC) -c intake/thread.c    $(KERNEL_INCLUDE) $(CFLAGS) -o thread.o
+	$(CC) -c intake/tlib.c      $(KERNEL_INCLUDE) $(CFLAGS) -o tlib.o
+	$(CC) -c intake/create.c           $(KERNEL_INCLUDE) $(CFLAGS) -o create.o
+	$(CC) -c intake/clone.c            $(KERNEL_INCLUDE) $(CFLAGS) -o clone.o
 # Entrance 
-	$(CC) -c ps/intake/disp/ts.c              $(KERNEL_INCLUDE)  $(CFLAGS) -o ts.o  
-	$(CC) -c ps/intake/disp/dispatch.c        $(KERNEL_INCLUDE)  $(CFLAGS) -o dispatch.o  
-	$(CC) -c ps/intake/disp/spawn.c           $(KERNEL_INCLUDE)  $(CFLAGS) -o spawn.o  
-	$(CC) -c ps/intake/disp/x86_64/x64cont.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o x64cont.o  
-	$(CC) -c ps/intake/sched/sched.c          $(KERNEL_INCLUDE)  $(CFLAGS) -o sched.o  
-	$(CC) -c ps/intake/sched/schedi.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedi.o  
-	$(CC) -c ps/intake/sched/schedq.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedq.o  
+	$(CC) -c intake/disp/ts.c              $(KERNEL_INCLUDE)  $(CFLAGS) -o ts.o  
+	$(CC) -c intake/disp/dispatch.c        $(KERNEL_INCLUDE)  $(CFLAGS) -o dispatch.o  
+	$(CC) -c intake/disp/spawn.c           $(KERNEL_INCLUDE)  $(CFLAGS) -o spawn.o  
+	$(CC) -c intake/disp/x86_64/x64cont.c  $(KERNEL_INCLUDE)  $(CFLAGS) -o x64cont.o  
+	$(CC) -c intake/sched/sched.c          $(KERNEL_INCLUDE)  $(CFLAGS) -o sched.o  
+	$(CC) -c intake/sched/schedi.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedi.o  
+	$(CC) -c intake/sched/schedq.c         $(KERNEL_INCLUDE)  $(CFLAGS) -o schedq.o  
 
 #--------
 # x86_64/

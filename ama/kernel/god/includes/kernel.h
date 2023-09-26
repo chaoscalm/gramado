@@ -298,20 +298,20 @@ Hallelujah, my King - (Transfiguration)
 //
 
 // ps
-#include "k2/ps/prio.h"     // Priority
-#include "k2/ps/quantum.h"  // Quantum
-#include "k2/ps/image.h"
-#include "k2/ps/x64cont.h"
-#include "k2/ps/ts.h"
-#include "k2/ps/tasks.h"
-#include "k2/ps/queue.h"
-#include "k2/ps/mk.h"
-#include "k2/ps/dispatch.h"
-#include "k2/ps/msg.h"
-#include "k2/ps/thread.h"
-#include "k2/ps/process.h"
-#include "k2/ps/sched.h"
-#include "k2/ps/schedq.h"
+#include "k2/intake/prio.h"     // Priority
+#include "k2/intake/quantum.h"  // Quantum
+#include "k2/intake/image.h"
+#include "k2/intake/x64cont.h"
+#include "k2/intake/ts.h"
+#include "k2/intake/tasks.h"
+#include "k2/intake/queue.h"
+#include "k2/intake/mk.h"
+#include "k2/intake/dispatch.h"
+#include "k2/intake/msg.h"
+#include "k2/intake/thread.h"
+#include "k2/intake/process.h"
+#include "k2/intake/sched.h"
+#include "k2/intake/schedq.h"
 
 // Precisa de todos os componentes de ke/
 #include "k2/ke/ke.h"
@@ -348,7 +348,7 @@ Hallelujah, my King - (Transfiguration)
 #include "k2/zcall/apis/newos/newos.h"
 
 // Maskable interrupts
-#include "k2/ps/x64mi.h"
+#include "k2/intake/x64mi.h"
 
 #include "k2/cali/product.h"
 
