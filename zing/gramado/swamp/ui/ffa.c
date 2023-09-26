@@ -1,6 +1,7 @@
 
-#include "../gwsint.h"
+// ffa.c
 
+#include "../gwsint.h"
 
 
 // yellow bar. (rectangle not window)
@@ -78,7 +79,6 @@ void yellowstatus0(char *string,int refresh)
         string );
 
     //grDrawString ( offset_string2, 8, COLOR_BLACK, "FPS" );
-    
 
     if (bar_size == 0){
         bar_size = 32;
@@ -90,21 +90,16 @@ void yellowstatus0(char *string,int refresh)
     }
 }
 
-
-
-
 void yellow_status(char *string)
 {
-// System notifications?
-// Combinations
-
     if ( (void*)string==NULL ){
         return;
     }
     yellowstatus0(string,TRUE);
 }
 
-
+// System notifications?
+// Combinations?
 void ffa_status(char *string)
 {
     if ((void*) string == NULL)
