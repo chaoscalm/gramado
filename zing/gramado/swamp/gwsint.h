@@ -48,6 +48,10 @@ extern int current_mode;
 #include "ui/metrics.h"
 
 #include "ui/window.h"
+
+#include "ui/areas/ffa.h"    // Far Far Away
+#include "ui/areas/wa.h"     // Working Area
+#include "ui/areas/swamp.h"  // Swamp
 #include "ui/wm.h"
 
 #include "rtl/bitblt.h"

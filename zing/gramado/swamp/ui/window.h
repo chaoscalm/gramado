@@ -1043,13 +1043,6 @@ void activate_last_window(void);
 
 struct gws_window_d *get_parent(struct gws_window_d *w);
 
-//
-// Yellow status bar.
-//
-
-void yellowstatus0(char *string,int refresh);
-void yellow_status(char *string);
-
 int 
 is_within2 ( 
     struct gws_window_d *window, 

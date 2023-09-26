@@ -4,10 +4,20 @@
 #ifndef ____WM_H
 #define ____WM_H    1
 
+struct gws_container_d
+{
+    unsigned long left;
+    unsigned long top;
+    unsigned long width;
+    unsigned long height;
+};
+
+
 //
 // Gravity
 //
 
+// #todo: Move this to window.h
 // Circulating
 #define NorthGravity      0
 #define NorthEastGravity  1
@@ -22,12 +32,17 @@
 #define DefaultGravity    NorthWestGravity  
 
 
+// #todo: Move this to window.h
 void
 wm_gravity_translate(
     unsigned long l, unsigned long t, unsigned long w, unsigned long h, 
     unsigned long oldl, unsigned long oldt,
     unsigned int gravity, 
     unsigned long *destl, unsigned long *destt );
+
+//
+// double click
+//
 
 //#define DEFAULT_DOUBLE_CLICK_SPEED  250
 #define DEFAULT_DOUBLE_CLICK_SPEED  350
@@ -54,45 +69,6 @@ extern struct double_click_d DoubleClick;
 #define WM_MODE_MONO        3
 // ...
 
-struct taskbar_d
-{
-    int initialized;
-
-    unsigned long left;
-    unsigned long top;
-    unsigned long height;
-    unsigned long width;
-
-    int is_super;  // Higher
-    // ...
-};
-extern struct taskbar_d  TaskBar;
-
-// Start menu
-struct start_menu_d
-{
-    int initialized;
-    int wid;
-    int is_created;
-    int is_selected;   // Focus
-    int is_visible;  // Pressed
-};
-extern struct start_menu_d StartMenu;
-
-// Quick launch area
-// default left position.
-#define QUICK_LAUNCH_AREA_PADDING  80
-#define QL_BUTTON_MAX  4
-struct quick_launch_d
-{
-    int initialized;
-// Número de botões efetivamente criados.
-    int buttons_count;
-// List of buttons. (wid)
-    int buttons[QL_BUTTON_MAX];
-};
-extern struct quick_launch_d QuickLaunch;
-
 
 // ===============================================================
 // #todo
@@ -112,14 +88,6 @@ struct desktop_composition_d
     // ...
 };
 
-struct gws_container_d
-{
-    unsigned long left;
-    unsigned long top;
-    unsigned long width;
-    unsigned long height;
-};
-
 struct gws_wm_config_d
 {
 // Notification area are the top.
@@ -136,7 +104,11 @@ struct gws_windowmanager_d
 {
     int initialized;
 
-//
+// Info for the areas.
+    struct ffa_info_d    ffa_info;
+    struct wa_info_d     wa_info;
+    struct swamp_info_d  swamp_info;
+
     struct gws_wm_config_d  Config;
 
 // The window manager mode:
@@ -215,17 +187,7 @@ struct gws_windowmanager_d
 // Not a pointer.
 extern struct gws_windowmanager_d  WindowManager;
 
-
-
 // =========================================
-
-
-//
-// Taskbar
-//
-
-void create_taskbar(int issuper, int show);
-
 
 //
 // Input support
@@ -236,10 +198,8 @@ int wmInputReader(void);
 int wmInputReader2(void);
 int wmSTDINInputReader(void);
 
-
 void wmInitializeGlobals(void);
 unsigned long wmGetLastInputJiffie(int update);
-void wm_Update_TaskBar( char *string, int flush );
 
 // Associa a estrutura de janela
 // com uma estrutura de cliente. 

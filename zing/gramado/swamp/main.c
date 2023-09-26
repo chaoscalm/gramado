@@ -2291,7 +2291,7 @@ int serviceCreateWindow(int client_fd)
         // Atualiza a barra de tarefas,
         // notificando a criaçao dessa janela.
         // #obs: don't show yet.
-        wm_Update_TaskBar((char *) w_name,TRUE);
+        swamp_update_taskbar((char *) w_name,TRUE);
     }
 
 // The client's fd.
@@ -3352,7 +3352,7 @@ static int initGUI(void)
 // See: wm.c
     //create_taskbar(TRUE,FALSE);
     create_taskbar(FALSE,FALSE);
-    wm_Update_TaskBar("Welcome!",TRUE);
+    swamp_update_taskbar("Welcome!",TRUE);
 
     //#debug
     //gws_show_backbuffer();

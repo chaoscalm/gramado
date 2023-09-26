@@ -100,7 +100,8 @@ myObjects = wm.o \
 menu.o \
 font.o \
 painter.o \
-window.o    
+window.o \
+ffa.o wa.o swamp.o    
 
 
 
@@ -117,7 +118,11 @@ all-c:
 	$(CC)  -c font.c     $(CFLAGS) $(CINCLUDES) -o font.o
 	$(CC)  -c painter.c  $(CFLAGS) $(CINCLUDES) -o painter.o
 	$(CC)  -c window.c   $(CFLAGS) $(CINCLUDES) -o window.o
-	
+
+	$(CC)  -c ffa.c    $(CFLAGS) $(CINCLUDES) -o ffa.o
+	$(CC)  -c wa.c     $(CFLAGS) $(CINCLUDES) -o wa.o
+	$(CC)  -c swamp.c  $(CFLAGS) $(CINCLUDES) -o swamp.o
+
 gws-link:
 #	$(LD) $(linkFlags) -o $(linkTarget) $(myObjects)
 # link
