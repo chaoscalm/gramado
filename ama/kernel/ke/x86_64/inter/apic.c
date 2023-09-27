@@ -1,5 +1,9 @@
 /*
  * File: apic.c
+ * Document created by Fred Nora - (2023)
+ * Credits:
+ * Some parts was ported from Sirius-x86-64, created by Nelson Cole.
+ *
  *    APIC - Advanced Programmable Interrupt Controller.
  *    Controlador APIC.
  *    APIC ("Advanced Programmable Interrupt Controller") 

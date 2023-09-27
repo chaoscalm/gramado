@@ -1,9 +1,8 @@
 
 // ioapic.c
-//
-//     2023 - Created by Fred Nora.
-// Creadits:
-//   + Nelson Cole. (Sirius-x86-64).
+// Document created by Fred Nora - (2023)
+// Credits:
+//   + Ported from Sirius-x86-64, created by Nelson Cole.
 
 
 #include <kernel.h>
