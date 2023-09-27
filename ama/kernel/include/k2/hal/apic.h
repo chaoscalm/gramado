@@ -77,6 +77,11 @@ losethos os - Adam1a.HPP.
 #define LAPIC_LVT_LINT1    0x360
 #define LAPIC_LVT_ERR      0x370
 
+#define LAPIC_INITIAL_COUNT_TIMER 	0x380
+#define LAPIC_CURRENT_COUNT_TIMER	0x390
+#define LAPIC_DIVIDE_TIMER		    0x3e0
+
+
 // ====================
 
 //

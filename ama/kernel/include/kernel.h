@@ -159,6 +159,7 @@ Hallelujah, my King - (Transfiguration)
 // hal pic/apic
 #include "k2/hal/pic.h"
 #include "k2/hal/apic.h"
+#include "k2/hal/apictim.h"
 #include "k2/hal/ioapic.h"
 #include "k2/hal/breaker.h"
 // hal timers.

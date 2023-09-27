@@ -797,7 +797,7 @@ void I_kmain(int arch_type)
             // This routine is gonna disable the legacy PIC.
             // see: apic.c
             //if (ENABLE_APIC == 1)
-            //    enable_apic();
+             //   enable_apic();
             
             // #todo
             // Setup ioapic.
@@ -808,7 +808,7 @@ void I_kmain(int arch_type)
             //printf(">>>> breakpoint\n");
             //while(1){asm ("cli"); asm ("hlt");}
             //while(1){
-            //}
+            //};
         }
     }
 

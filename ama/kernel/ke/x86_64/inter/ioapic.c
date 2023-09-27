@@ -23,7 +23,7 @@ static unsigned long ioapic_base=0;
 // ----------------------------------------
 
 static int 
-set_ioapic_redir_table(
+__set_ioapic_redir_table(
     int n,
     unsigned char vector,
     unsigned char delv_mode,
@@ -107,10 +107,8 @@ int ioapic_umasked(int n)
     return 0;
 }
 
-
-
 static int 
-set_ioapic_redir_table(
+__set_ioapic_redir_table(
     int n,
     unsigned char vector,
     unsigned char delv_mode,
@@ -133,7 +131,7 @@ set_ioapic_redir_table(
 // Invalid entry
 // range: (0~23)
     if (n >= 24)
-        panic("set_ioapic_redir_table: n \n");
+        panic("__set_ioapic_redir_table: n\n");
 
 
 // Fill the entry.
@@ -206,23 +204,24 @@ static int ioapic_configuration(int maximum_redirection)
 // starting at '0x40'. Why?
 
     register int i=0;
-    for ( i=0; i<Max; i++) 
+    for (i=0; i<Max; i++) 
     {
             if (i == 11){
             }
             // else
             
-	        set_ioapic_redir_table(
-	            i,  //IRQn
+            // Escrene na tabela e configura registradores.
+	        __set_ioapic_redir_table(
+	            i,         // IRQn
 	            0x40 + i,  // vector
-	            0,  // Delivery Mode
-	            0,  // Destination Mode
-	            0,  // RO
-	            0,  // Interrupt Input Pin Polarity
-	            0,  // RO
+	            0,         // Delivery Mode
+	            0,         // Destination Mode
+	            0,         // RO
+	            0,         // Interrupt Input Pin Polarity
+	            0,         // RO
 	            0,
-	            1,   // /masked 
-	            id );  // lapic id.
+	            1,         // masked 
+	            id );      // lapic id.
 
     };
 

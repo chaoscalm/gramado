@@ -402,7 +402,7 @@ void cpu_set_apic_base(unsigned long apic)
  * Get the physical address of the APIC registers page
  * make sure you map it to virtual memory ;)
  */
-unsigned long cpu_get_apic_base (void) 
+unsigned long cpu_get_apic_base(void) 
 {
     unsigned int eax=0;
     unsigned int edx=0;
@@ -448,7 +448,8 @@ void enable_apic(void)
 
 
 // Hardware enable the Local APIC if it wasn't enabled.
-    cpu_set_apic_base( cpu_get_apic_base() );
+// Went to the end of this routine.
+    //cpu_set_apic_base( cpu_get_apic_base() );
 
 //
 // Disable legacy PIC
@@ -571,7 +572,33 @@ So:
         (unsigned short) 0x00F0,  
         (unsigned int) (  0x100 | 0xFF ) );
 
+
+
+/*
+//
+// Global enable
+    enableapic(
+        cpu_get_apic_base() 
+    );
+*/
+// Hardware enable the Local APIC if it wasn't enabled.
+    cpu_set_apic_base( cpu_get_apic_base() );
+
+
+/*
+ // #debug
+    printf("APIC Global enable 0x%x \n",
+        getapicbase() );
+*/
+
+/*
+    printf("Setup APIC Timer 0 ...\\\\\n");
+    apic_timer(lapicbase);
+*/
+// see: apictim.c
+    apic_timer();
 }
+
 
 /*
  # SIPI Sequence 
