@@ -11,7 +11,7 @@ linkTarget = KERNEL.BIN
 # LDFLAGS := -m elf_x86_64 -static
 # LDFLAGS := -m elf_x86_64 -s -x -static  
 linkFlags := -m elf_x86_64 \
--s -x -static -T k4_boot/x86_64/startup/link.ld
+-s -x -static -T arch/x86_64/startup/link.ld
 
 # Make variables (CC, etc...)
 AS	= as
@@ -84,15 +84,6 @@ CFLAGS := \
 	-fno-optimize-sibling-calls    
 
 
-# Exported files. Kernel api;
-# Used by the kernel modules and user space applications.
-USER_INCLUDE   := -I include/uapi/
-
-# Internal files
-# Used to build the kernel.
-KERNEL_INCLUDE := -I include/ $(USER_INCLUDE)  
-
-
 # ========================
 # Config
 
@@ -124,35 +115,36 @@ objects-y += ar_zcall.o
     
 # ========================
 PHONY := all
-all: k1 k2 k3 k4 \
+all: k1 k2 k3 \
 link-kernel \
 clean    
 
 	@echo "Done?"
 #----------------
-# The kingdom.
+# The head.
 k1:
 	@echo "Compiling: Compiling k1/"
-	$(MAKE) -C k1_mm/
+	$(MAKE) -C arch/
+
 #----------------
-# The boat.
+# Legacy - The Unix Engine.
 k2:
 	@echo "Compiling: Compiling k2/"
-	$(MAKE) -C k2_crt/
-	$(MAKE) -C k2_fs/
-	$(MAKE) -C k2_ke/
-	$(MAKE) -C k2_net/
-	$(MAKE) -C k2_user/
-	$(MAKE) -C k2_zcall/
+	$(MAKE) -C crt/
+	$(MAKE) -C dev/
+	$(MAKE) -C mm/
+	$(MAKE) -C fs/
+	$(MAKE) -C net/
+
 #----------------
-# The fishermen.
+# Originals - Cali.
 k3:
 	@echo "Compiling: Compiling k3/"
-	$(MAKE) -C k3_dev/
-#----------------
-k4:
-	$(MAKE) -C k4_boot/
+	$(MAKE) -C ke/
+	$(MAKE) -C user/
+	$(MAKE) -C zcall/
 
+#----------------
 link-kernel:
 	@echo "Linking: Linking the kernel image ..."
 	$(LD) $(linkFlags) -o $(linkTarget) $(objects-y)    

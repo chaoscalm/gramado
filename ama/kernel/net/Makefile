@@ -1,8 +1,8 @@
 
-# crt/
-# Compile all the files and create ar_zero.o
+# net/
+# Compile all the files and create ar_net.o
 
-CALI = ../cali
+INCLUDE = ../include
 
 AS	= as
 LD	= ld
@@ -19,6 +19,7 @@ PYTHON	= python
 PYTHON2	= python2
 PYTHON3	= python3
 RUBY	= ruby
+
 
 # test: gramado 64bit
 # See: https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html
@@ -58,7 +59,8 @@ CFLAGS := \
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/   
+KERNEL_INCLUDE := -I $(INCLUDE)
+
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -67,24 +69,34 @@ KERNEL_INCLUDE := -I $(CALI)/includes/
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-# Everything is a file.
-OBJS = kctype.o kstdio.o ksignal.o kstdlib.o kstring.o kunistd.o    
+OBJS = network.o inet.o \
+socket.o sockint.o \
+arp.o ipv4.o tcp.o udp.o dhcp.o    
 
 all:
-	$(CC) -c kctype.c  $(KERNEL_INCLUDE) $(CFLAGS) -o kctype.o
-	$(CC) -c kstdio.c  $(KERNEL_INCLUDE) $(CFLAGS) -o kstdio.o
-	$(CC) -c ksignal.c $(KERNEL_INCLUDE) $(CFLAGS) -o ksignal.o
-	$(CC) -c kstdlib.c $(KERNEL_INCLUDE) $(CFLAGS) -o kstdlib.o
-	$(CC) -c kstring.c $(KERNEL_INCLUDE) $(CFLAGS) -o kstring.o
-	$(CC) -c kunistd.c $(KERNEL_INCLUDE) $(CFLAGS) -o kunistd.o
+
+# network
+	$(CC) -c network.c  $(KERNEL_INCLUDE) $(CFLAGS) -o network.o
+	$(CC) -c inet.c     $(KERNEL_INCLUDE) $(CFLAGS) -o inet.o
+
+# socket
+	$(CC) -c socket.c   $(KERNEL_INCLUDE) $(CFLAGS) -o socket.o
+	$(CC) -c sockint.c  $(KERNEL_INCLUDE) $(CFLAGS) -o sockint.o
+
+# protocols
+	$(CC) -c prot/arp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o arp.o
+	$(CC) -c prot/ipv4.c  $(KERNEL_INCLUDE) $(CFLAGS) -o ipv4.o
+	$(CC) -c prot/tcp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o tcp.o
+	$(CC) -c prot/udp.c   $(KERNEL_INCLUDE) $(CFLAGS) -o udp.o
+	$(CC) -c prot/dhcp.c  $(KERNEL_INCLUDE) $(CFLAGS) -o dhcp.o
 
 # link
-	$(LD) -r -o ar_crt.o $(OBJS)
-	cp ar_crt.o ../
+	$(LD) -r -o ar_net.o $(OBJS)
+	cp ar_net.o ../
 	rm *.o
 	
 clean:
 	rm *.o    
 	
 	
-	
+

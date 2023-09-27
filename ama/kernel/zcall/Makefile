@@ -1,8 +1,8 @@
 
-# mm/
-# Compile all the files and create ar_mm.o
+# zcall/
+# Compile all the files and create ar_user.o
 
-CALI = ../cali
+INCLUDE = ../include
 
 AS	= as
 LD	= ld
@@ -19,7 +19,6 @@ PYTHON	= python
 PYTHON2	= python2
 PYTHON3	= python3
 RUBY	= ruby
-
 
 # test: gramado 64bit
 # See: https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html
@@ -56,9 +55,10 @@ CFLAGS := \
 	-fno-omit-frame-pointer \
 	-fno-optimize-sibling-calls    
 
+
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/
+KERNEL_INCLUDE := -I $(INCLUDE)
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -67,36 +67,48 @@ KERNEL_INCLUDE := -I $(CALI)/includes/
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-# Everything is a file.
-OBJS = globals.o \
-mmsize.o \
-mmusage.o \
-mm.o \
-mminfo.o \
-mmpool.o \
-pages.o \
-mmrt.o \
-mmft.o    
+OBJS = debug.o \
+info.o \
+panic.o \
+reboot.o \
+request.o \
+system.o \
+mod.o \
+cali.o \
+kmain.o \
+zero.o \
+sys.o \
+sci.o    
 
 
 all:
-	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
 
-	$(CC) -c mmsize.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmsize.o
-	$(CC) -c mmusage.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mmusage.o
-	$(CC) -c mm.c       $(KERNEL_INCLUDE) $(CFLAGS) -o mm.o
-	$(CC) -c mminfo.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
-	$(CC) -c mmpool.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
-	$(CC) -c pages.c    $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
-	$(CC) -c mmrt.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
-	$(CC) -c mmft.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmft.o
+# Overall routines.
+	$(CC) -c overall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
+	$(CC) -c overall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
+	$(CC) -c overall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
+	$(CC) -c overall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
+	$(CC) -c overall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
+	$(CC) -c overall/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
+	$(CC) -c overall/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
 
+	$(CC) -c overall/cali.c   $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
+
+# kmain
+	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
+
+# APIs
+	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
+	$(CC) -c apis/visitor/sci.c  $(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
+	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
+
+# ----------------------------------------------
 # link
-	$(LD) -r -o ar_mm.o $(OBJS)
-	cp ar_mm.o ../
+	$(LD) -r -o ar_zcall.o $(OBJS)
+	cp ar_zcall.o ../
 	rm *.o
 	
 clean:
-	rm *.o    
+	rm *.o     
 	
 	

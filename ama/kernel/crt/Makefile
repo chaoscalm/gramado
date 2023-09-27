@@ -1,8 +1,8 @@
 
-# zcall/
-# Compile all the files and create ar_user.o
+# crt/
+# Compile all the files and create ar_zero.o
 
-CALI = ../cali
+INCLUDE = ../include
 
 AS	= as
 LD	= ld
@@ -58,7 +58,7 @@ CFLAGS := \
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/    
+KERNEL_INCLUDE := -I $(INCLUDE)
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -67,48 +67,24 @@ KERNEL_INCLUDE := -I $(CALI)/includes/
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-OBJS = debug.o \
-info.o \
-panic.o \
-reboot.o \
-request.o \
-system.o \
-mod.o \
-cali.o \
-kmain.o \
-zero.o \
-sys.o \
-sci.o    
-
+# Everything is a file.
+OBJS = kctype.o kstdio.o ksignal.o kstdlib.o kstring.o kunistd.o    
 
 all:
+	$(CC) -c kctype.c  $(KERNEL_INCLUDE) $(CFLAGS) -o kctype.o
+	$(CC) -c kstdio.c  $(KERNEL_INCLUDE) $(CFLAGS) -o kstdio.o
+	$(CC) -c ksignal.c $(KERNEL_INCLUDE) $(CFLAGS) -o ksignal.o
+	$(CC) -c kstdlib.c $(KERNEL_INCLUDE) $(CFLAGS) -o kstdlib.o
+	$(CC) -c kstring.c $(KERNEL_INCLUDE) $(CFLAGS) -o kstring.o
+	$(CC) -c kunistd.c $(KERNEL_INCLUDE) $(CFLAGS) -o kunistd.o
 
-# Overall routines.
-	$(CC) -c overall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
-	$(CC) -c overall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
-	$(CC) -c overall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
-	$(CC) -c overall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
-	$(CC) -c overall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
-	$(CC) -c overall/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
-	$(CC) -c overall/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
-
-	$(CC) -c overall/cali.c   $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
-
-# kmain
-	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
-
-# APIs
-	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
-	$(CC) -c apis/visitor/sci.c  $(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
-	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
-
-# ----------------------------------------------
 # link
-	$(LD) -r -o ar_zcall.o $(OBJS)
-	cp ar_zcall.o ../
+	$(LD) -r -o ar_crt.o $(OBJS)
+	cp ar_crt.o ../
 	rm *.o
 	
 clean:
-	rm *.o     
+	rm *.o    
+	
 	
 	

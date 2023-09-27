@@ -1,11 +1,11 @@
 
-CALI = ../cali
+INCLUDE = ../include/
 
 NASM = nasm
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/   
+KERNEL_INCLUDE := -I $(INCLUDE)   
 
 STARTUP_INCLUDE := -I x86_64/startup/  
 

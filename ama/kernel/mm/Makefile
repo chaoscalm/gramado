@@ -1,8 +1,8 @@
 
-# user/
-# Compile all the files and create ar_user.o
+# mm/
+# Compile all the files and create ar_mm.o
 
-CALI = ../cali
+INCLUDE = ../include
 
 AS	= as
 LD	= ld
@@ -19,6 +19,7 @@ PYTHON	= python
 PYTHON2	= python2
 PYTHON3	= python3
 RUBY	= ruby
+
 
 # test: gramado 64bit
 # See: https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html
@@ -55,11 +56,9 @@ CFLAGS := \
 	-fno-omit-frame-pointer \
 	-fno-optimize-sibling-calls    
 
-
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/  
-
+KERNEL_INCLUDE := -I $(INCLUDE)
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
@@ -68,17 +67,36 @@ KERNEL_INCLUDE := -I $(CALI)/includes/
 # LDFLAGS := -m elf_x86_64 -static
 LDFLAGS := -m elf_x86_64 -s -x -static  
 
-OBJS = user.o    
+# Everything is a file.
+OBJS = globals.o \
+mmsize.o \
+mmusage.o \
+mm.o \
+mminfo.o \
+mmpool.o \
+pages.o \
+mmrt.o \
+mmft.o    
+
 
 all:
-	$(CC) -c user.c  $(KERNEL_INCLUDE) $(CFLAGS) -o user.o
+	$(CC) -c globals.c $(KERNEL_INCLUDE) $(CFLAGS) -o globals.o
+
+	$(CC) -c mmsize.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmsize.o
+	$(CC) -c mmusage.c  $(KERNEL_INCLUDE) $(CFLAGS) -o mmusage.o
+	$(CC) -c mm.c       $(KERNEL_INCLUDE) $(CFLAGS) -o mm.o
+	$(CC) -c mminfo.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
+	$(CC) -c mmpool.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
+	$(CC) -c pages.c    $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
+	$(CC) -c mmrt.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
+	$(CC) -c mmft.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmft.o
 
 # link
-	$(LD) -r -o ar_user.o $(OBJS)
-	cp ar_user.o ../
+	$(LD) -r -o ar_mm.o $(OBJS)
+	cp ar_mm.o ../
 	rm *.o
 	
 clean:
-	rm *.o     
+	rm *.o    
 	
 	

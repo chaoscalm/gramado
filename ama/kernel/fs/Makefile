@@ -2,7 +2,8 @@
 # fs/
 # Compile all the files and create ar_fs.o
 
-CALI = ../cali
+INCLUDE = ../include
+
 
 AS	= as
 LD	= ld
@@ -59,8 +60,7 @@ CFLAGS := \
 
 # Internal files
 # Used to build the kernel.
-KERNEL_INCLUDE := -I $(CALI)/includes/   
-
+KERNEL_INCLUDE := -I $(INCLUDE)
 
 # See: https://linux.die.net/man/1/ld
 # -s --strip-all:   Omit all symbol information from the output file.
