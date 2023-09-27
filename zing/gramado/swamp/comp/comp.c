@@ -291,8 +291,13 @@ long comp_get_mouse_y_position(void)
     return (long) __new_mouse_y;
 }
 
+// #todo
+// We need to put this routine in another file.
+// maybe mouse.c
 static void draw_mouse_pointer(void)
 {
+    unsigned long rectLeft = __new_mouse_x;
+    unsigned long rectTop = __new_mouse_y;
     unsigned long rectWidth = 8;
     unsigned long rectHeight = 8;
     unsigned int rectColor = COLOR_RED;
@@ -318,10 +323,8 @@ static void draw_mouse_pointer(void)
 // print directly into the lfb.
 // DRAW
     frontbuffer_draw_rectangle( 
-        (unsigned long) __new_mouse_x, 
-        (unsigned long) __new_mouse_y, 
-        (unsigned long) rectWidth, 
-        (unsigned long) rectHeight, 
+        (unsigned long) rectLeft, (unsigned long) rectTop, 
+        (unsigned long) rectWidth, (unsigned long) rectHeight, 
         (unsigned int) rectColor, 
         (unsigned long) rectROP );
 }
