@@ -736,9 +736,6 @@ static unsigned long __mapping_nic1_device_address(unsigned long pa)
     unsigned long nic1_va = NIC_INTEL_E1000_VA;
 
 // pd index:
-// entry=393
-// PD_ENTRY_NIC1
-// see: gentry.h
     int pdindex = (int) X64_GET_PDE_INDEX(nic1_va);
 
 // Flags:

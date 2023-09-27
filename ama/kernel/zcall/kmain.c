@@ -790,18 +790,27 @@ void I_kmain(int arch_type)
             //if (smp_status != TRUE)
                 //panic("smp\n");
             
+            // #warning: See the flags in config.h
+            
             // Lets enable the apic, only if smp is supported.
             // #warning
             // This routine is gonna disable the legacy PIC.
             // see: apic.c
-            //enable_apic();
+            //if (ENABLE_APIC == 1)
+            //    enable_apic();
             
             // #todo
             // Setup ioapic.
             // see: ioapic.c
-            //enable_ioapic();
+            //if (ENABLE_IOAPIC == 1)
+            //    enable_ioapic();
+        
+            //printf(">>>> breakpoint\n");
+            //while(1){asm ("cli"); asm ("hlt");}
+            //while(1){
+            //}
         }
-    } 
+    }
 
     // #debug Breakpoint
     //refresh_screen();

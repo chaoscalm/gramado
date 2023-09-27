@@ -55,6 +55,9 @@
 
 #include <kernel.h>
 
+// Initialization control.
+struct lapic_info_d  LAPIC;
+
 #define APIC_CONFIG_DATA_LVT(TimerMode,Mask,TriggerMode,Remote,InterruptInput,DeliveryMode,Vector)(\
 (((unsigned int)(TimerMode) &0x3 ) << 17) |\
 (((unsigned int)(Mask) &0x1 ) << 16) |\
@@ -65,7 +68,9 @@
 ((unsigned int)(Vector) &0xff )\
 )
 
+unsigned int localId=0;
 
+#define APIC_NULL  0
 
 //
 // == private functions: prototypes =====================
@@ -253,18 +258,31 @@ void lapic_initializing(unsigned long lapic_pa)
         //panic("lapic_initializing: APIC not supported\n");
 
 // ===================
+// Mapping
 
 // page table
+// Isso serve pra pegarmos um endereço físico
+// que servira de base para criarmos uma pagetable.
+// Mas endereço físico e virtual são iguais nessa região.
+// Identidade 1:1.
     unsigned long *pt_lapic = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_RES5;
+        (unsigned long *) get_table_pointer_va();
+
+// -------------
 // pa
     LAPIC.lapic_pa = (unsigned long) (lapic_pa & 0xFFFFFFFF);
+
+// -------------
 // va
+// see: x64gva.h
     LAPIC.lapic_va = (unsigned long) LAPIC_VA;
+
+// -------------
 // pagedirectory entry
     int pdindex = (int) X64_GET_PDE_INDEX(LAPIC_VA);
     LAPIC.entry = (int) pdindex; 
 
+// -------------
 // Create the table and include the pointer 
 // into the kernel page directory.
 // ## Estamos passando o ponteiro para o
@@ -272,9 +290,9 @@ void lapic_initializing(unsigned long lapic_pa)
 
     mm_fill_page_table( 
       (unsigned long) KERNEL_PD_PA,    // pd 
-      (int) pdindex,            // entry
+      (int) pdindex,                   // entry
       (unsigned long) &pt_lapic[0],    // pt
-      (unsigned long) (lapic_pa & 0xFFFFFFFF),    // region base (pa)
+      (unsigned long) LAPIC.lapic_pa,  // region base (pa)
       (unsigned long) ( PAGE_WRITE | PAGE_PRESENT ) );  // flags=3
 
 //==========================================
@@ -414,7 +432,7 @@ void enable_apic(void)
 // We need to setup a lot of registers 
 // before enabling the apic.
 
-    printf("enable_apic: \n");
+    printf("enable_apic:\n");
 
 // #todo
 // Do we have apic support in this processor?
@@ -432,78 +450,78 @@ void enable_apic(void)
 // Disable legacy PIC
 //
 
-    //__apic_disable_legacy_pic();
+    __apic_disable_legacy_pic();
 
-/*
+
 // Destination Format Register (DFR)
+// LAPIC_DFR
 // Logical Destination Mode
     // Flat mode
     local_apic_write_command(
         (unsigned short) 0x00e0, 
         (unsigned int) 0xffffffff);
-*/
 
-/*
+
 // Logical Destination Register (LDR)
+// LAPIC_LDR
 // All cpus use logical id 1. ?
     local_apic_write_command(
         (unsigned short) 0x00d0, 
         (unsigned int) 0x01000000);
-*/
 
 
-/*
+    localId = local_apic_get_id();
+
+// -- Interrupts ----------------------------------------------------
+
 // Task Priority Register (TPR), to inhibit softint delivery?
 // Clear task priority to enable all interrupts.
     local_apic_write_command(
         (unsigned short) 0x0080, 
         (unsigned int) 0 );
-*/
-
-// -- Interrupts ----------------------------------------------------
 
 
-/*
+
 //---------------------
-#test
-#todo
+//#test
+//#todo
+
+    
 
 // #warning: We already did that above.
 //Task Priority Register (TPR), to inhibit softint delivery
-    *(volatile unsigned int*)(lapicbase + APIC_TPR) = 0; //0x20;
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_TASK_PRIORITY) = 
+        0; //0x20;
+
 
 // Timer interrupt vector, 
 // to disable timer interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_TIMER) = 
-        APIC_CONFIG_DATA_LVT(0,1,0,0,0,null,0x20);
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_LVT_TIMER) = 
+        APIC_CONFIG_DATA_LVT(0,1,0,0,0,APIC_NULL,0x20);
+
 
 // Performance counter interrupt, 
 // to disable performance counter interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_PERFORMANCE) = 
-        APIC_CONFIG_DATA_LVT(null,1,0,0,0,0,0x21);
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_LVT_PERF) = 
+        APIC_CONFIG_DATA_LVT(APIC_NULL,1,0,0,0,0,0x21);
+
 
 // Local interrupt 0, 
 // to enable normal external interrupts, Trigger Mode = Level
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT0) = 
-        APIC_CONFIG_DATA_LVT(null,1,null,null,1,7,0x22);
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_LVT_LINT0) = 
+        APIC_CONFIG_DATA_LVT(APIC_NULL,1,APIC_NULL,APIC_NULL,1,7,0x22);
+
 
 // Local interrupt 1, 
 // to enable normal NMI processing
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_LINT1) = 
-        APIC_CONFIG_DATA_LVT(null,1,null,null,0,4,0x23);
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_LVT_LINT1) = 
+        APIC_CONFIG_DATA_LVT(APIC_NULL,1,APIC_NULL,APIC_NULL,0,4,0x23);
+
 
 // Error interrupt, 
 // to disable error interrupts
-    //*(volatile unsigned int*)(lapicbase + APIC_LVT_ERROR) = 
-        APIC_CONFIG_DATA_LVT(null,1,null,null,null,0,0x24);
-
-// #warning: see the routine below.
-// Spurious interrupt Vector Register, to enable the APIC and set
-// spurious vector to 255
-    //*(volatile unsigned int*)(lapicbase + APIC_S_INT_VECTOR) = 0x1ff;
-//---------------------
-*/
-
+    *(volatile unsigned int*)(LAPIC.lapic_va + LAPIC_LVT_ERR) = 
+        APIC_CONFIG_DATA_LVT(APIC_NULL,1,APIC_NULL,APIC_NULL,APIC_NULL,0,0x24);
 
 /*
 Spurious-Interrupt Vector Register:
@@ -513,8 +531,8 @@ The Spurious-Interrupt Vector Register contains
    to the processor in the event of a spurious interrupt. 
 This register is 32 bits and has the following format:
 
-... | 9  | 8  |   7~4  | 3 | 2 | 1 | 0 
-... | FC | EN | VECTOR | 1 | 1 | 1 | 1
+... | 9  | 8  | (  7~4  | 3 | 2 | 1 | 0) 
+... | FC | EN | (VECTOR | 1 | 1 | 1 | 1)
 
 EN bit (8):
 This allows software to enable or disable the APIC module at any time. 
@@ -522,6 +540,7 @@ Writing a value of 1 to this bit enables the APIC module, and
 writing a value of 0 disables it.
 
 VECTOR(7~4):
+Bits 4-7 of this field are programmable by software.
 This field of the Spurious-Interrupt Vector Register 
 specifies which interrupt vector is delivered to the processor 
 in the event of a spurious interrupt. 
@@ -531,26 +550,24 @@ at the vector number delivered to it by the APIC.
 Basically, the VECTOR field specifies 
 which interrupt handler to transfer control 
 to in the event of a spurious interrupt.
+VECTOR(0~3)
 Bits 0-3 of this vector field are hard-wired to 1111b, or 15. 
-Bits 4-7 of this field are programmable by software.
 
 So:
    0x1FF:
-   1 (1111) 1111.
-   We are setting the bits 4~7 of the vector.
+   1 ((1111) 1111).
+   We are setting the bits 4~7 of the vector
+   Interrupt 256 i guess.
 */
 
+    // LAPIC_SVR = 0x00F0
+    // Value = 0x1FF.
+    //Interrupt 256 i guess.
     local_apic_write_command (
         (unsigned short) 0x00F0,  
-        (unsigned int) ( 0xFF | 0x100) );
-
-    // IN: address, value
-    //local_apic_write_command (
-    //    (unsigned short) 0x00F0,  
-    //    (unsigned int) (local_apic_read_command(0xF0) | 0x100) );
+        (unsigned int) (  0x100 | 0xFF ) );
 
 }
-
 
 /*
  # SIPI Sequence 

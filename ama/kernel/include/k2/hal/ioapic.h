@@ -16,15 +16,32 @@
 #define IOREDTAB		0x10
 */
 
-#define IO_APIC_BASE 	0xFEC00000
-#define IO_APIC_IND 	0
-#define IO_APIC_DAT 	(IO_APIC_IND +0x10)
-#define IO_APIC_EOIR	(IO_APIC_IND +0x40)
+// #warning: Hard coded.
+#define IO_APIC_BASE    0xFEC00000
 
-#define IO_APIC_ID 		0x0
-#define IO_APIC_VER 	0x1
-#define IO_APIC_ARB		0x2
-#define IO_APIC_REDIR_TBL(n) 	(0x10 + 2 * n) //REDIR_TBL[0:23] 64 bits 
+#define IO_APIC_IND  0
+#define IO_APIC_DAT   (IO_APIC_IND +0x10)
+#define IO_APIC_EOIR  (IO_APIC_IND +0x40)
+
+#define IO_APIC_ID   0x0
+#define IO_APIC_VER  0x1
+#define IO_APIC_ARB  0x2
+#define IO_APIC_REDIR_TBL(n)  \
+    (0x10 + 2 * n)  //REDIR_TBL[0:23] 64 bits 
+
+
+
+// Initialization control.
+// The base address to accesses IOAPIC.
+struct ioapic_info_d
+{
+    int initialized;
+    unsigned long ioapic_va;
+    unsigned long ioapic_pa; 
+    int entry;  // pagedirectory entry.
+};
+extern struct ioapic_info_d  IOAPIC;
+
 
 
 struct __IOAPIC_REDIR_TBL 
@@ -44,6 +61,10 @@ struct __IOAPIC_REDIR_TBL
 
 }__attribute__((packed));
 
+
+
+int ioapic_masked(int n);
+int ioapic_umasked(int n);
 
 void enable_ioapic(void);
 

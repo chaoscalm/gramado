@@ -8,8 +8,13 @@
 
 // Flags:
 #define USE_SERIALDEBUG    0
-#define USE_SMP            1
 #define USE_E1000          1
+
+// lapic/ioapic debug.
+// see: kmain.c, apic.c, ioapic.c.
+#define USE_SMP        1
+#define ENABLE_APIC    0
+#define ENABLE_IOAPIC  0
 // ...
 
 

@@ -192,22 +192,25 @@
 #define MOD0_IMAGE_VA       EXTRAHEAP1_VA
 #define MOD0_ENTRYPOINT_VA  0x0000000030A01000
 
-
-//
-// LAPIC VA ----------------------------------------------
-//
-
+// -----------------------------------
+// free :)
 // 768MB + 16MB mark (VA)
-// Os registradores do lapic.
-#define LAPIC_VA   0x0000000031000000
+// 0x0000000031000000
 
-//
-// NIC Intel VA -----------------------------------------------
-//
-
+// -----------------------------------
+// e1000 NIC Intel.
 // 768MB + 18MB mark (VA)
-// NIC Intel e1000, entry 393 no pd.
 #define NIC_INTEL_E1000_VA  0x0000000031200000
+
+// -----------------------------------
+// LAPIC registers
+// 768MB + 20MB mark (VA)
+#define LAPIC_VA            0x0000000031400000
+
+// -----------------------------------
+// IOAPIC registers
+// 768MB + 22MB mark (VA)
+#define IOAPIC_VA           0x0000000031600000
 
 
 //
