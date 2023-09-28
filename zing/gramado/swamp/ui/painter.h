@@ -54,11 +54,6 @@ redraw_window (
     unsigned long flags ); 
 int redraw_window_by_id(int wid, unsigned long flags);
 
-int 
-update_window ( 
-    struct gws_window_d *window, 
-    unsigned long flags );
-
 void validate_window(struct gws_window_d *window);
 void validate_window_by_id(int wid);
 

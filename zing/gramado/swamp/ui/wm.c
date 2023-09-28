@@ -604,20 +604,14 @@ wmProcessKeyboardEvent(
                 0 );      // long2 = 
             */
 
-            // Enter fullscreen mode.
-            if (WindowManager.is_fullscreen != TRUE)
-            {
-                //set_input_status(FALSE);
+            // Enter fullscreen mode
+            if (WindowManager.is_fullscreen != TRUE){
                 wm_enter_fullscreen_mode();
-                //set_input_status(TRUE);
                 return 0;
             }
             // Exit fullscreen mode.
-            if (WindowManager.is_fullscreen == TRUE)
-            {
-                //set_input_status(FALSE);
+            if (WindowManager.is_fullscreen == TRUE){
                 wm_exit_fullscreen_mode(TRUE);
-                //set_input_status(TRUE);
                 return 0;
             }
 
@@ -3408,7 +3402,7 @@ void wm_update_desktop(int tile, int show)
         return;
     }
 
-    yellowstatus0("White bar",FALSE);
+    yellowstatus0("Gramado",FALSE);
 
 // Invalidate the root window.
 // Shows the whole screen
@@ -3517,7 +3511,7 @@ done:
     swamp_update_taskbar("...",FALSE);
 
 // #test
-    yellowstatus0("White bar",FALSE);
+    yellowstatus0("Gramado",FALSE);
 
 // Show everything
     if ( (void*)__root_window != NULL )
@@ -3588,13 +3582,104 @@ done:
     wm_update_desktop2();
 }
 
+// Here we're gonna redraw the given window
+// and invalidate it.
+int 
+update_window ( 
+    struct gws_window_d *window, 
+    unsigned long flags )
+{
+// Only WT_OVERLAPPED.
+
+    int ret_val=0;
+    //unsigned long fullWidth = 0;
+    //unsigned long fullHeight = 0;
+
+
+    if ((void*) window == NULL)
+        return -1;
+    if (window->magic != 1234)
+        return -1;
+    if (window->type != WT_OVERLAPPED){
+        return -1;
+    }
+
+    //ret_val = (int) redraw_window(window,flags);
+// Paint the childs of the window with focus.
+//    on_update_window(window,GWS_Paint);
+
+// #test
+// Empilhando verticalmente.
+    if (WindowManager.initialized != TRUE){
+        return -1;
+    }
+
+// Fullscreen?
+    if (WindowManager.is_fullscreen == TRUE)
+    {
+        // #test
+        // for titlebar color support.
+        // the active window.
+        window->active = TRUE;
+        //window->focus = TRUE;
+        window->border_size = 2;
+        keyboard_owner = (void*) window;
+        last_window    = (void*) window;
+        top_window     = (void*) window;  //z-order: top window.
+
+        // #bugbug
+        // At the moment we'ew using a notification
+        // bar above the working area.
+        // So, let's use only the working area.
+        // But the purpose the expose only the client area
+        // of the window.
+
+        //fullWidth  = gws_get_device_width();
+        //fullHeight = gws_get_device_height();
+
+        //#bugbug: resize first, always.
+        gws_resize_window(
+            window,
+            WindowManager.wa.width -4,
+            WindowManager.wa.height  -4);
+        gwssrv_change_window_position(
+            window,
+            WindowManager.wa.left +2,
+            WindowManager.wa.top +2);
+    }
+
+    //keyboard_owner = (void *) window;
+    //last_window    = (void *) window;
+    //top_window     = (void *) window;
+
+    set_active_window(window);
+    set_focus(window);
+
+    if (flags == TRUE){
+        redraw_window(window,TRUE);
+        // Paint the childs of the window with focus.
+        on_update_window(window,GWS_Paint);
+    } else {
+        redraw_window(window,FALSE);
+    }
+    //redraw_window(window,FALSE);
+    //invalidate_window(window);
+
+//#todo: string
+    //swamp_update_taskbar("Win",TRUE);
+
+    return (int) ret_val;
+}
+
+
+
 // #todo
 // Explain it better.
 void wm_update_window_by_id(int wid)
 {
+// Redraw and show.
+
     struct gws_window_d *w;
-    unsigned long fullWidth = 0;
-    unsigned long fullHeight = 0;
 
 // Redraw and show the root window.
     //redraw_window(__root_window,TRUE);
@@ -3616,60 +3701,8 @@ void wm_update_window_by_id(int wid)
     if (w->type != WT_OVERLAPPED){
         return;
     }
-
-// #test
-// Empilhando verticalmente.
-    if (WindowManager.initialized != TRUE){
-        return;
-    }
-
-// Tiled mode.
-// Esses metodos irao atualizar tambem os valores da barra de titulos.
-    if (WindowManager.mode == WM_MODE_TILED)
-    {
-        gws_resize_window(
-            w,
-            WindowManager.wa.width,
-            WindowManager.wa.height);
-        gwssrv_change_window_position(w,0,0);
-    }
-
-    if (WindowManager.is_fullscreen == TRUE)
-    {
-        // #test
-        // for titlebar color support.
-        // the active window.
-        w->active = TRUE;
-        w->focus = TRUE;
-        w->border_size = 2;
-        keyboard_owner = (void*) w;
-        last_window    = (void*) w;
-        top_window     = (void*) w;  //z-order: top window.
-
-        fullWidth  = gws_get_device_width();
-        fullHeight = gws_get_device_height();
-        gws_resize_window(
-            w,
-            fullWidth,
-            fullHeight);
-        gwssrv_change_window_position(w,0,0);
-    }
-
-    //keyboard_owner = (void *) w;
-    //last_window    = (void *) w;
-    //top_window     = (void *) w;
-
-    set_active_window(w);
-    //set_focus(w);
-
-    redraw_window(w,FALSE);
-    invalidate_window(w);
-
-// Paint the childs of the window with focus.
-    on_update_window(w,GWS_Paint);
-
-//#todo: string
-    //swamp_update_taskbar("Win",TRUE);
+    
+    update_window(w,TRUE);
 }
 
 /*
@@ -5564,14 +5597,13 @@ void wm_enter_fullscreen_mode(void)
         (struct gws_window_d *) w;
 
 // Update window
-    wm_update_window_by_id(w->id);
+    //wm_update_window_by_id(w->id);
+    update_window(w,TRUE);
 
 // Setup the mouse hover window
     mouse_hover = NULL;
-
 // Set up the mouse owner.    
     mouse_owner = NULL;
-
 // Set the window with focus.
     keyboard_owner = NULL;
 }

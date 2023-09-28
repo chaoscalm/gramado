@@ -27,20 +27,6 @@ doFillWindow(
     return 0; 
 }
 
-// Here we're gonna redraw the given window
-// and invalidate it.
-int 
-update_window ( 
-    struct gws_window_d *window, 
-    unsigned long flags )
-{
-    if ( (void*) window == NULL )
-        return -1;
-
-    return (int) redraw_window(window,flags);
-}
-
-
 // Clear the window
 // Repaint it using the default background color.
 // Only valid for WT_SIMPLE.
