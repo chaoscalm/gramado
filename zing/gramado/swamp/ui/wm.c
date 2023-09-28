@@ -2407,6 +2407,18 @@ struct gws_window_d *do_create_titlebar(
 // Controls
     do_create_controls(tbWindow);
 
+
+    tbWindow->dirty = TRUE;
+    if ( (void*) tbWindow->titlebar != NULL )
+    {
+        invalidate_window_by_id(
+            tbWindow->titlebar->Controls.minimize_wid );
+        invalidate_window_by_id(
+            tbWindow->titlebar->Controls.maximize_wid );
+        invalidate_window_by_id(
+            tbWindow->titlebar->Controls.close_wid );
+    }
+
 //----------------------
     parent->titlebar = (struct gws_window_d *) tbWindow;  // Window pointer!
 
@@ -3043,6 +3055,8 @@ static void wm_tile(void)
             break;
         }
 
+        // Order: resize, then change position.
+
         // Window manager in tiled mode.
         if (WindowManager.mode == WM_MODE_TILED)
         {
@@ -3403,6 +3417,36 @@ void wm_update_desktop(int tile, int show)
         flush_window(__root_window);
     }
 
+
+// ------------------
+// If i'm gonna show the whoe screen, so
+// i need to validate all the windows
+// to avoid the re-refresh.
+// #todo:
+// We can create a worker to this routine.
+    w = (struct gws_window_d *) first_window;
+    while (1){
+        // End of the list?
+        if ((void*) w == NULL)
+            break;
+        if (w->type == WT_OVERLAPPED)
+        {
+            w->dirty == FALSE;  // Validate
+            if ( (void*) w->titlebar != NULL )
+            {
+                w->titlebar->dirty = FALSE;
+                validate_window_by_id(
+                    w->titlebar->Controls.minimize_wid );
+                validate_window_by_id(
+                    w->titlebar->Controls.maximize_wid );
+                validate_window_by_id(
+                    w->titlebar->Controls.close_wid );
+            }
+        }
+        w = w->next;
+    };    
+
+
 // #test
 // #debug
 // envia paint pra todo mundo.
@@ -3443,26 +3487,26 @@ void  wm_update_desktop2(void)
     set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
     WindowManager.is_fullscreen = FALSE;
 
-
 // Root
-    if ( (void*)__root_window != NULL )
+    if ((void*)__root_window != NULL)
         redraw_window(__root_window,FALSE);
 
-    if ((void*) first_window == NULL){
-        //printf("No first\n");
-        yellow_status("No first window");
-        goto done;
-    }
 
+// List
 // Get the first window.
     w = (struct gws_window_d *) first_window;
+    if ( (void*) w == NULL )
+        goto done;
     while (1){
         // End of the list.
         if ((void*)w == NULL)
             break;
         // Redraw, but do not show it.
-        if ((void*)w->magic == 1234){
-            redraw_window(w,FALSE);
+        if ((void*)w->magic == 1234)
+        {
+            if (w->type == WT_OVERLAPPED){
+                redraw_window(w,FALSE);
+            }
         }
         // Next window from the list.
         w = (struct gws_window_d *) w->next;
@@ -3474,9 +3518,40 @@ done:
 
 // #test
     yellowstatus0("White bar",FALSE);
+
 // Show everything
     if ( (void*)__root_window != NULL )
+    {
         flush_window(__root_window);
+        
+        // ------------------
+        // If i'm gonna show the whoe screen, so
+        // i need to validate all the windows
+        // to avoid the re-refresh.
+        // #todo:
+        // We can create a worker to this routine.
+        w = (struct gws_window_d *) first_window;
+        while (1){
+            // End of the list?
+            if ((void*) w == NULL)
+                break;
+            if (w->type == WT_OVERLAPPED)
+            {
+                w->dirty == FALSE;  // Validate
+                if ( (void*) w->titlebar != NULL )
+                {
+                    w->titlebar->dirty = FALSE;
+                    validate_window_by_id(
+                        w->titlebar->Controls.minimize_wid );
+                    validate_window_by_id(
+                        w->titlebar->Controls.maximize_wid );
+                    validate_window_by_id(
+                        w->titlebar->Controls.close_wid );
+                }
+            }
+            w = w->next;
+        };    
+    }
 }
 
 void wm_update_desktop3(struct gws_window_d *new_active_window)
@@ -3503,7 +3578,7 @@ void wm_update_desktop3(struct gws_window_d *new_active_window)
 
 // Se ela for a primeira da lista, 
 // entao a segunda vira a primeira da lista
-    if ( new_active_window == first_window)
+    if (new_active_window == first_window)
         first_window = new_active_window->next;
 
 done:
@@ -3511,7 +3586,6 @@ done:
     set_active_window(new_active_window);
 // Update the desktop, respecting the list.
     wm_update_desktop2();
-    on_update_window(new_active_window,GWS_Paint);
 }
 
 // #todo
@@ -3551,12 +3625,13 @@ void wm_update_window_by_id(int wid)
 
 // Tiled mode.
 // Esses metodos irao atualizar tambem os valores da barra de titulos.
-    if (WindowManager.mode == WM_MODE_TILED){
-        gwssrv_change_window_position(w,0,0);
+    if (WindowManager.mode == WM_MODE_TILED)
+    {
         gws_resize_window(
             w,
             WindowManager.wa.width,
             WindowManager.wa.height);
+        gwssrv_change_window_position(w,0,0);
     }
 
     if (WindowManager.is_fullscreen == TRUE)
@@ -3573,11 +3648,11 @@ void wm_update_window_by_id(int wid)
 
         fullWidth  = gws_get_device_width();
         fullHeight = gws_get_device_height();
-        gwssrv_change_window_position(w,0,0);
         gws_resize_window(
             w,
             fullWidth,
             fullHeight);
+        gwssrv_change_window_position(w,0,0);
     }
 
     //keyboard_owner = (void *) w;
@@ -6058,46 +6133,46 @@ int dock_window( struct gws_window_d *window, int position )
         // :: top
         // #todo: maximize in this case
         case 1:
-            gwssrv_change_window_position( window, 
-              (l +2), 
-              (t +2) );
             gws_resize_window( window, 
               (w -4), 
               (h -4));
+            gwssrv_change_window_position( window, 
+              (l +2), 
+              (t +2) );
             break;
 
         // -----------------
         // :: right
         case 2:
-            gwssrv_change_window_position( window, 
-              ((w>>1) +2), 
-              (t+2) );
             gws_resize_window( window, 
               (w>>1)-4, 
               h-4 );
+            gwssrv_change_window_position( window, 
+              ((w>>1) +2), 
+              (t+2) );
             break;
 
         // -----------------
         // :: bottom
         //#todo: restore or put it in the center.
         case 3:
-            gwssrv_change_window_position( window, 
-              (l +2), 
-              h>>2 );
             gws_resize_window( window, 
               (w -4), 
               h>>1 );
+            gwssrv_change_window_position( window, 
+              (l +2), 
+              h>>2 );
             break;
 
         // -----------------
         // :: left
         case 4:
-            gwssrv_change_window_position( window, 
-              l +2, 
-              t +2); 
             gws_resize_window( window, 
               ((w>>1) -4), 
               (h -4) );
+            gwssrv_change_window_position( window, 
+              l +2, 
+              t +2); 
             break;
 
         default:
@@ -6106,17 +6181,14 @@ int dock_window( struct gws_window_d *window, int position )
     };
 
 
-/*
-    set_active_window(window);
-    //set_focus(window);
-    redraw_window(window,TRUE);
-    // Post message to the main window.
-    // Paint the childs of the window with focus.
-    on_update_window(window,GWS_Paint);
-*/
+// Set a new active window.
+// Update all the windows,
+// respecting the position.
+   wm_update_desktop3(window);
 
-    wm_update_desktop3(window);
-    //on_update_window(window,GWS_Paint);
+// Send a message to the window
+// to repaint the client windows.
+    on_update_window(window,GWS_Paint);
 
     return 0; 
 }
@@ -6539,9 +6611,6 @@ gwssrv_change_window_position (
                             ( window->titlebar->absolute_y + tmp_window->top );
                     }
                 }
-
-
-
             }
         }
         // Client area . (rectangle).
@@ -6571,7 +6640,6 @@ gwssrv_change_window_position (
             }
         }
     }
-
 
 // #bugbug
 // Precisa mesmo pinta toda vez que mudar a posiçao?

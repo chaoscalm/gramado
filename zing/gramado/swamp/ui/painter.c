@@ -413,6 +413,8 @@ __draw_window_border(
 // IN: Titlebar window.
 int redraw_controls(struct gws_window_d *window)
 {
+// Paint the controls, but do not show them.
+
     struct gws_window_d *tb_window;
     register int wid = -1;
 
@@ -586,6 +588,13 @@ int redraw_titlebar_window(struct gws_window_d *window)
         }
     }
 
+
+// Invalidate
+    window->dirty = TRUE;
+
+// IN: titlebar
+    redraw_controls(window); 
+
     return 0;
 }
 
@@ -732,17 +741,17 @@ redraw_window (
 // à sua janela mãe. Já uma overlapped pode ser relativo a janela 
 // gui->main ou relativo à janela mãe.
 
-// background rectangle.
+// Background rectangle.
     if (window->backgroundUsed == TRUE)
     {
-        // redraw the background rectandle.
+        // Redraw the background rectangle.
         rectBackbufferDrawRectangle ( 
                 window->absolute_x, 
                 window->absolute_y, 
                 window->width, 
                 window->height, 
                 window->bg_color, 
-                TRUE, 
+                TRUE,  //fill
                 (unsigned long) window->rop );   // ROP for this window.
 
         // All done for WT_SIMPLE type.
@@ -882,14 +891,14 @@ redraw_window (
          window->type == WT_EDITBOX_MULTIPLE_LINES )
     {
         // Invalid window
-        if ( (void*) window == NULL )
+        if ((void*) window == NULL)
             goto fail;
         if (window->magic != 1234)
             goto fail;
 
         // Invalid parent window
         // # root has no parent, but its type is WT_SIMPLE.
-        if ( (void*) window->parent == NULL )
+        if ((void*) window->parent == NULL)
             goto fail;
         if (window->parent->magic != 1234)
             goto fail;
@@ -899,13 +908,15 @@ redraw_window (
         // #todo: Not if the window is in fullscreen mode.
         if (window->type == WT_OVERLAPPED)
         {
-            // Redraw the title bar.
-            if ( (void*) window->titlebar != NULL )
+            // Redraw the title bar and controls.
+            if ((void*) window->titlebar != NULL)
             {
                 if (window->titlebar->magic == 1234)
                 {
+                    // #warning: Not recursive. 
+                    // Paint, but do not show them.
+                    // It also redraw the controls.
                     redraw_titlebar_window( window->titlebar );
-                    redraw_controls( window->titlebar );
                 }
             }
         }
@@ -934,8 +945,49 @@ redraw_window (
     // ...
 
 done:
-    if (flags == TRUE){
+
+    window->dirty = TRUE;
+
+    // If this is a overlapped, 
+    // so we need o invalidate a lot of subwindows.
+    if (window->type == WT_OVERLAPPED)
+    {
+        window->dirty == TRUE;  // Validate
+        if ( (void*) window->titlebar != NULL )
+        {
+            window->titlebar->dirty = TRUE;
+            invalidate_window_by_id(
+                window->titlebar->Controls.minimize_wid );
+            invalidate_window_by_id(
+                window->titlebar->Controls.maximize_wid );
+            invalidate_window_by_id(
+                window->titlebar->Controls.close_wid );
+        }
+    }
+
+
+// -------------------------
+// If we show the window,
+// so, we need to validate it.
+// Show or not.
+    if (flags == TRUE)
+    {
         gws_show_window_rect(window);
+        window->dirty = FALSE;  // Validate
+        if (window->type == WT_OVERLAPPED)
+        {
+            if ((void*)window->titlebar != NULL)
+            {
+                window->titlebar->dirty = FALSE;
+                //#todo: Validate by id.
+                validate_window_by_id(
+                    window->titlebar->Controls.minimize_wid );
+                validate_window_by_id(
+                    window->titlebar->Controls.maximize_wid );
+                validate_window_by_id(
+                    window->titlebar->Controls.close_wid );
+            }
+        }
     }
     return 0;
 fail:
@@ -964,6 +1016,32 @@ fail:
     return (int) (-1);
 }
 
+
+void validate_window_by_id(int wid)
+{
+    struct gws_window_d *w;
+
+// #todo: 
+// Chamar o metodo de validação de janela.
+
+// wid
+    if (wid < 0 || wid >= WINDOW_COUNT_MAX){
+        return;
+    }
+// Window structure
+    w = (struct gws_window_d *) windowList[wid];
+    if ((void*) w == NULL){
+        return;
+    }
+    if (w->used != TRUE){
+        return;
+    }
+    if (w->magic != 1234){
+        return;
+    }
+    validate_window(w);    
+}
+
 // validate
 void validate_window (struct gws_window_d *window)
 {
@@ -975,6 +1053,7 @@ void validate_window (struct gws_window_d *window)
         }
     }
 }
+
 
 void invalidate_window_by_id(int wid)
 {

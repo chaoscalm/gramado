@@ -59,7 +59,8 @@ update_window (
     struct gws_window_d *window, 
     unsigned long flags );
 
-void validate_window (struct gws_window_d *window);
+void validate_window(struct gws_window_d *window);
+void validate_window_by_id(int wid);
 
 void wm_flush_rectangle(struct gws_rect_d *rect);
 void wm_flush_screen(void);
