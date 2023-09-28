@@ -1032,14 +1032,14 @@ struct thread_d *create_thread (
     //#todo: Usar Thread->name. 
     //#todo: Thread->cmd.
     //#test 64 bytes max.
-    strcpy ( Thread->__threadname, (const char *) name );
+    strcpy( Thread->__threadname, (const char *) name );
 
 // This thread can be preempted.
     Thread->is_preemptable = PREEMPTABLE;
 
     // ...
 
-    //Nothing.
+    // Nothing
 
 // Loop.
 // Vamos gerar um TID válido.
@@ -1130,26 +1130,9 @@ try_next_slot:
 
 // ===================================
 
-// @todo: 
-// Essa parte � dependente da arquitetura i386.
-// Poder� ir pra outro arquivo.
-
-// init_stack:
-// O endere�o de in�cio da pilha � passado via argumento.
-// Ent�o quem chama precisa alocar mem�ria para a pilha.
-// @todo: Podemos checar a validade dessa pilha ou � problema 
-// na certa.
-
-// init_eip:
-// O endere�o in�cio da sess�o de c�digo da thread � 
-// passado via argumento. Ent�o quem chama essa rotina 
-// deve providendiar um endere�o v�lido.
-// Obs: init_eip Aceita endere�os inv�lidos pois a thread 
-// fecha nesses casos por PG fault. Mas o sistema pode travar 
-// se for a �nica thread e um �nico processo. 
-
-    //if( init_stack == 0 ){ ... }
-    //if( init_eip == 0 ){ ... }
+// Transition counter.
+    Thread->transition_counter.to_supervisor = 0;
+    Thread->transition_counter.to_user = 0;
 
 //
 // == Context support ================

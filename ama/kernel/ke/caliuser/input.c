@@ -380,14 +380,6 @@ static int __CompareStrings(void)
         goto exit_cmp;
     }
 
-// time:
-    if ( kstrncmp( prompt, "time", 4 ) == 0 )
-    {
-        printf ("Init stime %d\n",InitThread->stime);
-        printf ("Init utime %d\n",InitThread->utime);
-        goto exit_cmp;
-    }
-
 // tty: Read and write from tty device.
     if ( kstrncmp( prompt, "tty", 3 ) == 0 )
     {

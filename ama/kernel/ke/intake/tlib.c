@@ -63,12 +63,9 @@ fail:
     return (int) -1;
 }
 
-
-
-
+// -------------------------
 // show_slot:
 // Show info about a thread.
-
 void show_slot(int tid)
 {
     struct thread_d  *t;
@@ -100,7 +97,9 @@ void show_slot(int tid)
         t->context.rflags,
         t->name_address );
 
-    printf(":: stime{%d} utime{%d}\n",t->stime,t->utime);
+    printf(":: to supervisor{%d} | to user{%d}\n",
+        t->transition_counter.to_supervisor,
+        t->transition_counter.to_user);
 
     if (t->tid == foreground_thread)
         printf("[__FOREGROUND__]\n");

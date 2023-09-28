@@ -639,6 +639,7 @@ dispatch_current:
     IncrementDispatcherCount(SELECT_DISPATCHER_COUNT);
 
 // MOVEMENT 4 (Ready --> Running).
+// It also restores the context.
     dispatcher(DISPATCHER_CURRENT); 
 
 //done:

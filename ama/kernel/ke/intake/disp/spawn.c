@@ -273,6 +273,9 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
 
     if (target_thread->cpl == RING0)
     {
+        // ring0 --> ring0 ?
+        // No prob, this time!
+        target_thread->transition_counter.to_supervisor++;
 
         // #bugbug
         // Suspended.
@@ -320,6 +323,7 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
     
     if (target_thread->cpl == RING3)
     {
+        target_thread->transition_counter.to_user++;
         spawn_enter_usermode( 
             TRUE,  // EOI
             (unsigned long) target_thread->context.rip,

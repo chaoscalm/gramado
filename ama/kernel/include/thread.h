@@ -188,6 +188,12 @@ typedef enum {
 // ...
 
 
+struct thread_transition_counter_d
+{
+    unsigned long to_supervisor;
+    unsigned long to_user;
+};
+
 // --------------------------------
 
 #define MSG_QUEUE_MAX  64
@@ -419,17 +425,9 @@ struct thread_d
 // ?
 // Podemos criar a estrutura 'thread_time_d' t->time.step
 
-// stime and utime.
-// Quando o timer interrompe uma thread,
-// ela pode esta qualquer um dos ambientes.
-// temos que incrementar conforme o ambiente que ela estava 
-// quando foi interrompida
-// cpl - current privilege level
-// See:
 
-    unsigned long stime;   // supervisor ticks
-    unsigned long utime;   // usermode ticks.
-
+// Transitions.
+    struct thread_transition_counter_d transition_counter;
 
 // Quanto tempo passou, 
 // mesmo quando a tarefa não esteve rodando.

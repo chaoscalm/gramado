@@ -295,7 +295,28 @@ void *sci0 (
 // It's ok when init.bin calls this systemcall.
 
     struct process_d  *p;
-    //struct thread_d  *t;
+
+    struct thread_d  *t;
+    
+// #test
+// ---------------------------------
+    if ( current_thread<0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    { 
+        return NULL; }
+    t = (struct thread_d *) threadList[current_thread];
+    if ( (void*) t == NULL )
+        return NULL;
+    if (t->magic != 1234)
+        return NULL;
+    // Increment stime.
+    // see: x64cont.c
+    t->transition_counter.to_supervisor++;
+    // Antecipando, ja que fica dificil
+    // fazer isso na saida por enquanto.
+    t->transition_counter.to_user++;
+// ---------------------------------
+
 
     unsigned long *message_address = (unsigned long *) arg2;
 
@@ -1935,6 +1956,28 @@ void *sci1 (
 
     debug_print ("sci1: [TODO]\n");
 
+    struct thread_d  *t;
+    
+// #test
+// ---------------------------------
+    if ( current_thread<0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    { 
+        return NULL; }
+    t = (struct thread_d *) threadList[current_thread];
+    if ( (void*) t == NULL )
+        return NULL;
+    if (t->magic != 1234)
+        return NULL;
+    // Increment stime.
+    // see: x64cont.c
+    t->transition_counter.to_supervisor++;
+    // Antecipando, ja que fica dificil
+    // fazer isso na saida por enquanto.
+    t->transition_counter.to_user++;
+// ---------------------------------
+
+
     pid_t current_process = (pid_t) get_current_process();
     int layer = LAYER_UNDEFINED;
 
@@ -2043,6 +2086,25 @@ void *sci2 (
 
     struct process_d  *p;
     struct thread_d  *t;
+    
+// #test
+// ---------------------------------
+    if ( current_thread<0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    { 
+        return NULL; }
+    t = (struct thread_d *) threadList[current_thread];
+    if ( (void*) t == NULL )
+        return NULL;
+    if (t->magic != 1234)
+        return NULL;
+    // Increment stime.
+    // see: x64cont.c
+    t->transition_counter.to_supervisor++;
+    // Antecipando, ja que fica dificil
+    // fazer isso na saida por enquanto.
+    t->transition_counter.to_user++;
+// ---------------------------------
 
     // Array de longs.
     // Not in use!

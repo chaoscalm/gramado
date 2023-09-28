@@ -106,14 +106,16 @@ void save_current_context (void)
 
 // Structure ~ Colocando o contexto na estrutura.
 
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
-        printk ("save_current_context: TID=%d\n", 
-            current_thread );
+    if ( current_thread < 0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    {
+        printk("save_current_context: TID=%d\n", current_thread );
         goto fail0;
     }
 
+// The thread structure.
     t = (void *) threadList[current_thread];
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         printk ("save_current_context: [ERROR] Struct Thread={%d}\n",
             current_thread );
         goto fail1;
@@ -169,10 +171,8 @@ void save_current_context (void)
             (unsigned char) context_fpu_buffer[i];
     };
 
-// stime and utime
-
 // 
-// cpl
+// -- cpl --------
 //
 
 // This cpl came from the cs register found in the iretq stack frame,
@@ -181,7 +181,7 @@ void save_current_context (void)
 // Maybe it is not the same in the actual cs register
 // in the moment of the irq handler routine.
 
-    int cpl=-1;
+    int cpl = -1;
     unsigned long tmp_cpl = (unsigned long) context_cpl[0];
 
 // 2 bits
@@ -192,15 +192,7 @@ void save_current_context (void)
         panic("save_current_context: cpl != t->cpl\n");
 
 
-/*
-    if (cpl){
-        t->utime++;
-    }else{
-        t->stime++;
-    };
-*/
-
-    //ja temos o valor do current process nesse momento?
+// Ja temos o valor do current process nesse momento?
     //pid_t current_process = (pid_t) get_current_process();
     
     if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
@@ -208,29 +200,27 @@ void save_current_context (void)
         panic("save_current_context: cpl\n");
     }
 
-    if(cpl == 0){
-        //ja temos o valor do current process nesse momento?
-        //if(current_process != 0){
-        //    panic("save_current_context: cpl 0\n");
-        //}
-        t->stime++;
+// Isso significa que um thread que estava rodando em ring0,
+// foi interrompida e teve seu contexto salvo por essa rotina.
+    if (cpl == 0){
+        panic("save_current_context: cpl 0\n");
     }
-    if(cpl == 1){
-        //printf("cs %x\n",t->cs);
+    if (cpl == 1){
         panic("save_current_context: cpl 1\n");
     }
-    if(cpl == 2){
+    if (cpl == 2){
         panic("save_current_context: cpl 2\n");
     }
-    if(cpl == 3){
-        t->utime++;
+// Significa que uma thread que estava rodando em ring3,
+// foi interrompida e teve seu context salvo por essa rotina.
+    if (cpl == 3){
+        t->transition_counter.to_supervisor++;
     }
-
 
 // rflags
 // ok, it's working
     unsigned long rflags = (unsigned long) t->context.rflags;
-    int rflags_iopl = (int) (rflags & 0x200 );
+    int rflags_iopl = (int) (rflags & 0x200);
 
 // changing it on the fly
     t->rflags_current_iopl = (unsigned int) rflags_iopl;
@@ -350,8 +340,18 @@ void restore_current_context (void)
             (unsigned char) t->context.fpu_buffer[i];
     };
 
+
+// Is ring3?
+    if (t->cpl != 3){
+       panic ("restore_current_context: t->cpl\n");
+    }
+// Transition counter
+    if (t->cpl == 3){
+        t->transition_counter.to_user++;
+    }
+
 // Restore CR3 and flush TLB.
-    load_pml4_table ( (unsigned long) t->pml4_PA );
+    load_pml4_table((unsigned long) t->pml4_PA);
 // #bugbug: rever isso.
     asm ("movq %cr3, %rax");
     asm ("movq %rax, %cr3");
@@ -366,7 +366,7 @@ fail0:
 // Checar um contexto valido para threads em ring 3. 
 // #bugbug: 
 // Nao usaremos mais isso.
-int contextCheckThreadRing3Context (int tid)
+int contextCheckThreadRing3Context(int tid)
 {
     struct thread_d  *t;
 
@@ -374,7 +374,7 @@ int contextCheckThreadRing3Context (int tid)
         return FALSE;
     }
     t = (void *) threadList[tid]; 
-    if ( (void *) t == NULL ){
+    if ((void *) t == NULL){
         return FALSE;
     }
     if ( t->used != TRUE || t->magic != 1234 ){
@@ -395,12 +395,12 @@ int contextCheckThreadRing3Context (int tid)
 
 // For now we only accept ring 3 threads with weak protection
 
-    if ( t->rflags_initial_iopl != 3 ){
+    if (t->rflags_initial_iopl != 3){
         debug_print("contextCheckThreadRing3Context: rflags_initial_iopl\n");
         return FALSE;
     }
 
-    if ( t->rflags_current_iopl != 3 ){
+    if (t->rflags_current_iopl != 3){
         debug_print("contextCheckThreadRing3Context: rflags_current_iopl\n");
         return FALSE;
     }
