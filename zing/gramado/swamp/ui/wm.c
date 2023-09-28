@@ -1480,7 +1480,10 @@ static void on_mouse_released(void)
 // Post a message into the window with focus message queue.
 // #todo: We need a worker for posting messages into the queues.
 // Do we already have one?
-static void on_update_window(struct gws_window_d *window, int event_type)
+static void 
+on_update_window(
+    struct gws_window_d *window, 
+    int event_type )
 {
 // Post a message to the window with focus.
 
@@ -3508,6 +3511,7 @@ done:
     set_active_window(new_active_window);
 // Update the desktop, respecting the list.
     wm_update_desktop2();
+    on_update_window(new_active_window,GWS_Paint);
 }
 
 // #todo
@@ -6012,8 +6016,9 @@ int dock_window( struct gws_window_d *window, int position )
 // Use the working area, not the device area.
     //unsigned long w = gws_get_device_width();
     //unsigned long h = gws_get_device_height();
-    //#test
-    //Using the working area
+
+// #test
+// Using the working area
     unsigned long l = WindowManager.wa.left;
     unsigned long t = WindowManager.wa.top;
     unsigned long w = WindowManager.wa.width;
@@ -6053,32 +6058,46 @@ int dock_window( struct gws_window_d *window, int position )
         // :: top
         // #todo: maximize in this case
         case 1:
-            gwssrv_change_window_position( window, l, t );
-            gws_resize_window( window, w, h );
-            //gws_resize_window( window, w, h>>1 );
+            gwssrv_change_window_position( window, 
+              (l +2), 
+              (t +2) );
+            gws_resize_window( window, 
+              (w -4), 
+              (h -4));
             break;
 
         // -----------------
         // :: right
         case 2:
-            gwssrv_change_window_position( window, (w>>1), t );
-            gws_resize_window( window, (w>>1)-4, h-4 );
+            gwssrv_change_window_position( window, 
+              ((w>>1) +2), 
+              (t+2) );
+            gws_resize_window( window, 
+              (w>>1)-4, 
+              h-4 );
             break;
 
         // -----------------
         // :: bottom
         //#todo: restore or put it in the center.
         case 3:
-            gwssrv_change_window_position( window, l, h>>2 );
-            //gwssrv_change_window_position( window, 0, h>>1 );
-            gws_resize_window( window, w, h>>1 );
+            gwssrv_change_window_position( window, 
+              (l +2), 
+              h>>2 );
+            gws_resize_window( window, 
+              (w -4), 
+              h>>1 );
             break;
 
         // -----------------
         // :: left
         case 4:
-            gwssrv_change_window_position( window, l, t ); 
-            gws_resize_window( window, (w>>1)-4, h-4 );
+            gwssrv_change_window_position( window, 
+              l +2, 
+              t +2); 
+            gws_resize_window( window, 
+              ((w>>1) -4), 
+              (h -4) );
             break;
 
         default:
@@ -6097,7 +6116,7 @@ int dock_window( struct gws_window_d *window, int position )
 */
 
     wm_update_desktop3(window);
-    on_update_window(window,GWS_Paint);
+    //on_update_window(window,GWS_Paint);
 
     return 0; 
 }
