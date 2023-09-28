@@ -864,6 +864,11 @@ void initializeFramesAlloc (void);
 
 void *slab_1MB_allocator(void);
 
+int 
+mm_map_2mb_region(
+    unsigned long pa,
+    unsigned long va);
+
 #endif    
 
 

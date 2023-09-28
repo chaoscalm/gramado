@@ -47,7 +47,11 @@ __E1000AllocCont (
     uint32_t amount, 
     unsigned long *virt );
 
-static unsigned long __mapping_nic1_device_address(unsigned long pa);
+static int 
+__mapping_nic1_device_address(
+    unsigned long pa,
+    unsigned long va);
+
 static void __e1000_enable_interrupt(struct intel_nic_info_d *nic_info);
 static void __e1000_setup_irq (int irq_line);
 static void __initialize_tx_support(struct intel_nic_info_d *d);
@@ -724,33 +728,14 @@ static void __e1000_setup_irq(int irq_line)
     asm_nic_create_new_idt_entry();
 }
 
-static unsigned long __mapping_nic1_device_address(unsigned long pa)
+static int 
+__mapping_nic1_device_address(
+    unsigned long pa,
+    unsigned long va)
 {
-// pt
-// 0x00088000
-    unsigned long *nic1_page_table = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_NIC1;
-// pa
-    unsigned long nic1_pa = (unsigned long) pa;
-// va
-    unsigned long nic1_va = NIC_INTEL_E1000_VA;
-
-// pd index:
-    int pdindex = (int) X64_GET_PDE_INDEX(nic1_va);
-
-// Flags:
-// 10=cache desable 8= Write-Through 0x002 = Writeable 0x001 = Present
-// 0001 1011
-    unsigned long flags = (unsigned long) 0x1B;
-
-    mm_fill_page_table( 
-        (unsigned long) KERNEL_PD_PA,         // pd 
-        (int) pdindex,                        // entry
-        (unsigned long) &nic1_page_table[0],  // pt
-        (unsigned long) pa,                   // region base
-        (unsigned long) flags );              // flags=1b
-
-    return (unsigned long) nic1_va; 
+// OUT: 0=ok | -1=fail
+// see: pages.c
+    return (int) mm_map_2mb_region(pa,va);
 }
 
 // ---------------------------------------------
@@ -904,10 +889,16 @@ e1000_init_nic (
 // #bugbug: 
 // >> Isso é um improviso. Ainda falta criar rotinas melhores.
 
-    virt_address = 
-        (unsigned long) __mapping_nic1_device_address(phy_address);
-    if (virt_address == 0){
-        panic("e1000_init_nic: Invalid virt_address\n");
+    virt_address = NIC_INTEL_E1000_VA;
+
+    int map_status = -1;
+    map_status = 
+        (int) __mapping_nic1_device_address(
+                (unsigned long) phy_address,     // pa
+                (unsigned long) virt_address );  // va
+
+    if (map_status != 0){
+        panic("e1000_init_nic: on __mapping_nic1_device_address()\n");
     }
 
 // Endereço base.

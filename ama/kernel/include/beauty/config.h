@@ -17,7 +17,6 @@
 #define ENABLE_IOAPIC  0
 // ...
 
-
 //#bugbug
 // see: process.c
 //#define IMAGESIZE_LIMIT_IN_KB  400

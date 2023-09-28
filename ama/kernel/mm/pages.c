@@ -1712,6 +1712,69 @@ void *slab_1MB_allocator(void)
 }
 
 
+// mm_map_2mb_region
+// OUT: 0=OK -1=FAIL.
+int 
+mm_map_2mb_region(
+    unsigned long pa,
+    unsigned long va)
+{
+//
+// >>> For ring 0 regions only!
+//
+// Flags: = 0x1B
+// 10=cache desable 
+// 8= Write-Through 
+// 0x002 = Writeable 
+// 0x001 = Present
+// 0001 1011
+
+// #todo
+// We can create another version of this function,
+// but with flags into parameters.
+
+    unsigned long _pa = (unsigned long) pa;
+    unsigned long _va = (unsigned long) va;
+
+// pt
+// 0x00088000
+    unsigned long *_pt = 
+        (unsigned long *) get_table_pointer_va();  //PAGETABLE_NIC1;
+
+    if ( (void*) _pt == NULL )
+        goto fail;
+
+// pd index:
+    int pdindex = (int) X64_GET_PDE_INDEX(_va);
+
+    if (pdindex < 0)
+        goto fail;
+    if (pdindex >= 512)
+        goto fail;
+
+// Flags:
+// 10=cache desable 
+// 8= Write-Through 
+// 0x002 = Writeable 
+// 0x001 = Present
+// 0001 1011
+    unsigned long flags = (unsigned long) 0x1B;
+
+    mm_fill_page_table( 
+        (unsigned long) KERNEL_PD_PA,  // pd 
+        (int) pdindex,                 // entry
+        (unsigned long) &_pt[0],       // pt
+        (unsigned long) _pa,           // region base
+        (unsigned long) flags );       // flags=1b
+
+//ok
+    return 0;
+fail:
+    return (int) -1;
+}
+
+
+
 // local worker
 // Heaps support.
 // Pool de heaps.

@@ -275,29 +275,21 @@ void lapic_initializing(unsigned long lapic_pa)
 // -------------
 // pa
     LAPIC.lapic_pa = (unsigned long) (lapic_pa & 0xFFFFFFFF);
-
 // -------------
 // va
 // see: x64gva.h
     LAPIC.lapic_va = (unsigned long) LAPIC_VA;
 
-// -------------
-// pagedirectory entry
-    int pdindex = (int) X64_GET_PDE_INDEX(LAPIC_VA);
-    LAPIC.entry = (int) pdindex; 
+// -------------------------------------
+// Mapping area for registers.
 
-// -------------
-// Create the table and include the pointer 
-// into the kernel page directory.
-// ## Estamos passando o ponteiro para o
-// diretorio de paginas do kernel.
-
-    mm_fill_page_table( 
-      (unsigned long) KERNEL_PD_PA,    // pd 
-      (int) pdindex,                   // entry
-      (unsigned long) &pt_lapic[0],    // pt
-      (unsigned long) LAPIC.lapic_pa,  // region base (pa)
-      (unsigned long) ( PAGE_WRITE | PAGE_PRESENT ) );  // flags=3
+    int map_status = -1;
+    map_status = 
+        (int) mm_map_2mb_region(
+            LAPIC.lapic_pa,
+            LAPIC.lapic_va );
+    if (map_status != 0)
+        panic("lapic_initializing: on mm_map_2mb_region()\n");
 
 //==========================================
 

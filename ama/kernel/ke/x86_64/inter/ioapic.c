@@ -297,30 +297,21 @@ void enable_ioapic(void)
 // #warning: Hard coded.
 // see: ioapic.h
     IOAPIC.ioapic_pa = (unsigned long) (IO_APIC_BASE & 0xFFFFFFFF);
-
 // -------------
 // va
 // see: x64gva.h
     IOAPIC.ioapic_va = (unsigned long) IOAPIC_VA;
 
-// -------------
-// pagedirectory entry
-    int pdindex = (int) X64_GET_PDE_INDEX(IOAPIC_VA);
-    IOAPIC.entry = (int) pdindex; 
+// -------------------------------------
+// Mapping area for registers.
 
-// -------------
-// Create the table and include the pointer 
-// into the kernel page directory.
-// ## Estamos passando o ponteiro para o
-// diretorio de paginas do kernel.
-
-    mm_fill_page_table( 
-      (unsigned long) KERNEL_PD_PA,      // pd 
-      (int) pdindex,                     // entry
-      (unsigned long) &pt_ioapic[0],     // pt
-      (unsigned long) IOAPIC.ioapic_pa,  // region base (pa)
-      (unsigned long) ( PAGE_WRITE | PAGE_PRESENT ) );  // flags=3
-
+    int map_status = -1;
+    map_status = 
+        (int) mm_map_2mb_region(
+            IOAPIC.ioapic_pa,
+            IOAPIC.ioapic_va );
+    if (map_status != 0)
+        panic("enable_ioapic: on mm_map_2mb_region()\n");
 
 // OK, the structure is initialized,
 // now this module can use the values in it.
@@ -331,7 +322,6 @@ void enable_ioapic(void)
 //
 // Initialize the interrupts.
 //
-
     __setup_ioapic();
 }
 
