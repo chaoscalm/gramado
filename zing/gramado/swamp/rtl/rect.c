@@ -10,7 +10,10 @@
 // == private functions: prototypes ====================
 //
 
-static void *__rect_memcpy32( void *v_dst, const void *v_src, unsigned long c );
+static void *__rect_memcpy32( 
+    void *v_dst, 
+    const void *v_src, 
+    unsigned long c );
 
 // Calling kgws in ring0.
 // Using the kgws to draw the rectangle.
@@ -229,7 +232,7 @@ copy_offset_rect (
 // Devemos ajustar quando falhar?
 // Talvez o termo empty nao seja o apropriado aqui,
 // pois empty pode significar apenas nao pintado. not fill.
-int rect_validate_size( struct gws_rect_d *rect )
+int rect_validate_size(struct gws_rect_d *rect)
 {
     if ( (void*) rect == NULL ){
         return -1;
@@ -259,13 +262,14 @@ int rect_validate_size2(struct gws_rect_d *rect)
     return TRUE;
 }
 
-int is_rect_null( struct gws_rect_d *rect )
+// If w=0 and h=0.
+int is_rect_null(struct gws_rect_d *rect)
 {
-    if ( (void*) rect == NULL ){
+    if ((void*) rect == NULL){
         return -1;
     }
 
-    if (rect->width == 0 && rect->height == 0 )
+    if (rect->width == 0 && rect->height == 0)
     {
         return TRUE;
     }
@@ -428,10 +432,10 @@ static void *__rect_memcpy32 (
 // We are using a flag to guide us if we realy need to refresh 
 // the given rectangle.
 
-int gwssrv_refresh_this_rect (struct gws_rect_d *rect)
+int gwssrv_refresh_this_rect(struct gws_rect_d *rect)
 {
-    if ( (void*) rect == NULL ){ return -1; }
 
+    if ( (void*) rect == NULL ){ return -1; }
     if (rect->dirty != TRUE){ 
         return -1; 
     }
@@ -1123,7 +1127,7 @@ __drawrectangle0(
         {
             if (Y > ClippingRect.bottom){
                 break;
-            };
+            }
         }
 
         // Decrementa o contador.
@@ -1319,7 +1323,6 @@ rectBackbufferDrawRectangle0 (
              rop_flags );
          rect.dirty = TRUE;
          goto done;
-         //return;
     }
 
 //===============================================================
