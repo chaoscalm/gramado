@@ -1181,7 +1181,7 @@ void __initialize_default_physical_regions(void)
     SMALL_user_pa        = (unsigned long) SMALLSYSTEM_USERBASE;
     SMALL_cga_pa         = (unsigned long) SMALLSYSTEM_CGA;
     SMALL_frontbuffer_pa = (unsigned long) gSavedLFB;                    //frontbuffer // #todo: precisamos que o bl passe  endereço físico para mapearmos o lfb.
-    SMALL_backbuffer_pa  = (unsigned long) SMALLSYSTEM_BACKBUFFER;       //backbuffer
+    SMALL_backbuffer_pa  = (unsigned long) BACKBUFFER_PA;       //backbuffer
     SMALL_pagedpool_pa   = (unsigned long) SMALLSYSTEM_PAGEDPOLL_START;  //PAGED POOL
     SMALL_heappool_pa    = (unsigned long) SMALLSYSTEM_HEAPPOLL_START;
     SMALL_extraheap1_pa  = (unsigned long) SMALLSYSTEM_EXTRAHEAP1_START;
@@ -1194,7 +1194,7 @@ void __initialize_default_physical_regions(void)
     MEDIUM_user_pa        = (unsigned long) MEDIUMSYSTEM_USERBASE;
     MEDIUM_cga_pa         = (unsigned long) MEDIUMSYSTEM_CGA;
     MEDIUM_frontbuffer_pa = (unsigned long) gSavedLFB; // #todo: precisamos que o bl passe  endereço físico para mapearmos o lfb.
-    MEDIUM_backbuffer_pa  = (unsigned long) MEDIUMSYSTEM_BACKBUFFER;
+    MEDIUM_backbuffer_pa  = (unsigned long) BACKBUFFER_PA;
     MEDIUM_pagedpool_pa   = (unsigned long) MEDIUMSYSTEM_PAGEDPOLL_START;
     MEDIUM_heappool_pa    = (unsigned long) MEDIUMSYSTEM_HEAPPOLL_START;
     MEDIUM_extraheap1_pa  = (unsigned long) MEDIUMSYSTEM_EXTRAHEAP1_START;
@@ -1207,7 +1207,7 @@ void __initialize_default_physical_regions(void)
     LARGE_user_pa        = (unsigned long) LARGESYSTEM_USERBASE;
     LARGE_cga_pa         = (unsigned long) LARGESYSTEM_CGA;
     LARGE_frontbuffer_pa = (unsigned long) gSavedLFB; // #todo: precisamos que o bl passe  endereço físico para mapearmos o lfb.
-    LARGE_backbuffer_pa  = (unsigned long) LARGESYSTEM_BACKBUFFER;
+    LARGE_backbuffer_pa  = (unsigned long) BACKBUFFER_PA;
     LARGE_pagedpool_pa   = (unsigned long) LARGESYSTEM_PAGEDPOLL_START;
     LARGE_heappool_pa    = (unsigned long) LARGESYSTEM_HEAPPOLL_START;
     LARGE_extraheap1_pa  = (unsigned long) LARGESYSTEM_EXTRAHEAP1_START;
@@ -1411,62 +1411,58 @@ static void __initialize_kernelimage_region(void)
 }
 
 
+// The frontbuffer - (LFB)
 // local worker
-// framebuffer - LFB  0x30200000 ~ 0x303FFFFF 
-// 0x30200000virt
-// FRONTBUFFER_VA
-// 385 = frontbuffer. LFB.
-// mm_used_lfb = (1024 * 2);  
-// framebuffer_pa = Endereço físico do lfb.
-// 0x????pys = 0x30200000virt
-// Uma área em user mode.
-// O endereço físico foi passado pelo bootblock.
-// Mapear 2MB à partir do endereço configurado
-// como início do LFB.
-// O Boot Manager configurou VESA e obteve o endereço do LFB.
-// O Boot Manager passou para o Boot Loader esse endereço.
-// Mapeando 2MB da memória fisica começando no 
-// endereço passado pelo Boot Manager.
-// O endereço de memória virtual utilizada é 0x30200000virt.
-// lfb_address = Endereço do LFB, passado pelo Boot Manager.
-// (2 MB).
-// Criamos uma pagetable.
-// Apontamos a pagetable para a entrada 385 do diretório.
-// framebuffer_pa = Endereço físico do lfb.
+// see: x64gva.h
+// FRONTBUFFER_VA - 0x0000000030200000
+// The physical address of the LFB was given by the bootloader.
+// The bootloader got this address via VESA initialization
+// in 16bit mode using BIOS.
+// ------------------------------------
+// Size?
+// We don't know the size of the LFB.
+// #todo: We need a routine to get this information.
+// So, this way we're gonna map only 2MB of the LFB,
+// given us a resolution of 800x600.
+// ------------------------------------
+// mm_used_lfb = (1024 * 2); 
+// ------------------------------------
+// In this routine:
+//  + Criamos uma pagetable.
+//  + Apontamos a pagetable para uma entrada do diretório do kernel.
 
 static void __initialize_frontbuffer(void)
 {
+
+// The pagetable for the frontbuffer.
+// #warning: 
+// It has 512 entries, given us 2MB, using 4KB pages.
     unsigned long *pt_frontbuffer = 
         (unsigned long *) get_table_pointer_va();  //PAGETABLE_FRONTBUFFER;
+
+// -----------------------------------------
 // pa
-// framebuffer_pa:
-// frontbuffer, VESA LFB from boot manager.
+// Saving the physical address into a global variable.
+    g_frontbuffer_pa = 
+        (unsigned long) SMALL_frontbuffer_pa;
+    // Local variable.
     unsigned long framebuffer_pa = 
         (unsigned long) SMALL_frontbuffer_pa;
+
+// -----------------------------------------
 // va
+// Saving the virtual address into a global variable.
     g_frontbuffer_va = (unsigned long) FRONTBUFFER_VA;
+
+// -----------------------------------------
 // pd index
+// Using the va.
     int pdindex = (int) X64_GET_PDE_INDEX(FRONTBUFFER_VA);
+
+// -----------------------------------------
 // size
+// Provisorio.
     mm_used_lfb = (1024 * 2);
-
-// framebuffer_pa = Endereço físico do lfb.
-// 0x????pys = 0x30200000virt
-// Uma área em user mode.
-// O endereço físico foi passado pelo bootblock.
-
-// Mapear 2MB à partir do endereço configurado
-// como início do LFB.
-// O Boot Manager configurou VESA e obteve o endereço do LFB.
-// O Boot Manager passou para o Boot Loader esse endereço.
-// Mapeando 2MB da memória fisica começando no 
-// endereço passado pelo Boot Manager.
-// O endereço de memória virtual utilizada é 0x30200000virt.
-// lfb_address = Endereço do LFB, passado pelo Boot Manager.
-// (2 MB).
-// Criamos uma pagetable.
-// Apontamos a pagetable para a entrada 385 do diretório.
-// framebuffer_pa = Endereço físico do lfb.
 
 // IN:
 // Endereço virtual do diretório de páginas.
@@ -1485,44 +1481,61 @@ static void __initialize_frontbuffer(void)
 }
 
 
+// The backbuffer.
 // local worker
-// 2mb backbuffer
-// backbuffer    0x30400000 ~ 0x305FFFFF
-// 0x30400000virt
-// BACKBUFFER_VA
-// 386 = backbuffer. Começa na área de 16MB da memória física.
+// (2MB Backbuffer)
+// -------------------------
+// va:
+//   BACKBUFFER_VA = 0x30400000.
+//   (0x30400000 ~ 0x305FFFFF? )
+// -----------------------------
 // mm_used_backbuffer = (1024 * 2);  
-// backbuffer_pa = 0x01000000pys
-// 16mb mark.
-// 0x01000000pys = 0x30400000virt
-// Mapeando 2mb de memória em ring3 para o backbuffer.
-// Criamos a pagetable.
-// Apontamos a pagetable para a entrada 386 do diretório.
+// -----------------------------
+//   #warning:
+//   We already reserved a big area in the physical memory
+//   for the backbuffer. Maybe we're gonna have a bigger backbuffer,
+//   stay tuned.
+// -----------------------------
+// This routine:
+//  + Mapeando 2mb de memória em ring3 para o backbuffer.
+//  + Criamos a pagetable.
+//  + Apontamos a pagetable para uma entrada do diretório do kernel.
+//
 
 static void __initialize_backbuffer(void)
 {
-// The pagetable for the first 2MB.
+// Mapping the backbuffer.
+// see: BACKBUFFER_PA in x64gpa.h
+// see: BACKBUFFER_VA in x64gva.h
+
+
+// The pagetable for the backbuffer.
+// #warning: 
+// It has 512 entries, given us 2MB, using 4KB pages.
     unsigned long *pt_backbuffer = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_BACKBUFFER;
+        (unsigned long *) get_table_pointer_va();
 
-// 8mb mark
-// This is the right place: see: x64gpa.h
+// #warning:
+// SMALL_backbuffer_pa points to BACKBUFFER_PA.
 
+// ----------------------------
 // pa
+// Saving the physical address into a global variable.
+    g_backbuffer_pa = (unsigned long) SMALL_backbuffer_pa; 
+    // Local variable.
     unsigned long backbuffer_pa = (unsigned long) SMALL_backbuffer_pa; 
+
+// ----------------------------
 // va
+// Saving the virtual address into a global variable.
     g_backbuffer_va = (unsigned long) BACKBUFFER_VA;
+
+// ----------------------------
 // pd index
+// Based on our va.
     int pdindex = (int) X64_GET_PDE_INDEX(BACKBUFFER_VA);
 // size
     mm_used_backbuffer = (1024 * 2);
-
-// backbuffer_pa = 0x01000000pys
-// 16mb mark.
-// 0x01000000pys = 0x30400000virt
-// Mapeando 2mb de memória em ring3 para o backbuffer.
-// Criamos a pagetable.
-// Apontamos a pagetable para a entrada 386 do diretório.
 
 // IN:
 // Endereço virtual do diretório de páginas.
@@ -1531,6 +1544,9 @@ static void __initialize_backbuffer(void)
 // Endereço físico da região de 2MB que queremos mapear.
 // As flags usadas em todas as entradas da pagetable
 // e na entrada do diretório de páginas.
+// #importante:
+// Flags for user mode.
+// The display server is gonna need this.
 
     mm_fill_page_table( 
         (unsigned long) KERNEL_PD_PA,       // pd 

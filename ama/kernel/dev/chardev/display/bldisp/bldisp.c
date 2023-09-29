@@ -95,10 +95,6 @@ struct display_device_d *bl_display_device;
 #define VIDEO_BIOS_FONT8X8_HEIGHT  8
 //...
 
-// frontbuffer and backbuffer.
-// see: gdef.h
-unsigned long g_frontbuffer_pa=0;
-unsigned long g_backbuffer_pa=0;
 
 
 
@@ -774,7 +770,7 @@ static int __videoInit(void)
     g_frontbuffer_va = (unsigned long) __frontbuffer_va;
 
 // Backbuffer
-    g_backbuffer_va  = (unsigned long) BACKBUFFER_VA;
+     g_backbuffer_va  = (unsigned long) BACKBUFFER_VA;
 
 // Device screen sizes. 
 // (herdadas do boot loader.)

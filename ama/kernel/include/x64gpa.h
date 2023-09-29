@@ -186,14 +186,15 @@ A conservative approach is to avoid everything above 0x00080000.
 // 0x0008F000 - Pagetable para mapear os primeiros 4MB de memoria fisica.
 // ring0. 1:1
 
+// ------------------------------------------
 // Pagetables. (static)
 // #test
 // We are not using this addresses anymore.
-// Now We're get these from a small heap that starts at 0x1000.
-//#define PAGETABLE_RES7       0x00080000
+// Now We're getting these from a small heap that starts at 0x1000.
+//#define PAGETABLE_RES7         0x00080000
 //#define PAGETABLE_RES6         0x00081000
-//#define PAGETABLE_RES5         0x00082000  //lapic. see: apic.c
-//#define PAGETABLE_AHCI1        0x00083000   
+//#define PAGETABLE_RES5         0x00082000
+//#define PAGETABLE_AHCI1        0x00083000
 //#define PAGETABLE_EXTRAHEAP3   0x00084000
 //#define PAGETABLE_EXTRAHEAP2   0x00085000
 //#define PAGETABLE_EXTRAHEAP1   0x00086000
@@ -213,7 +214,7 @@ A conservative approach is to avoid everything above 0x00080000.
 //
 
 // #bugbug
-// Em 0x00090000 costumava ter uma pilha.
+// Em 0x00090000 costumava ter uma pilha?
 // Se o boot ou o kernel usou essa área para pilha,
 // então poderemos ter perdido algum valor 
 // colocado aí pelo BIOS.
@@ -315,7 +316,7 @@ A conservative approach is to avoid everything above 0x00080000.
 // == 768 KB ==================================================
 //
 
-// 16-bit devices, expansion ROMs  
+// 16-bit devices, expansion ROMs
 #define BIOS_STUFF  0x000C0000
 
 
@@ -323,7 +324,7 @@ A conservative approach is to avoid everything above 0x00080000.
 // == 960 KB ==================================================
 //
 
-// BIOS ROM  
+// BIOS ROM
 #define BIOS_STUFF2  0x000F0000
 #define BIOS_ROM  BIOS_STUFF2
 
@@ -335,8 +336,10 @@ A conservative approach is to avoid everything above 0x00080000.
 
 // 1MB físico.
 // #importante: 
-// Foram mapeados 2MB para a imagem do kernel e
-// para o heap e a stack.
+// Foram mapeados 2MB para 
+//  + a 'imagem do kernel' e para 
+//  + o 'heap' e 
+//  + a 'stack'.
 
 // 1
 #define KERNEL_BASE_PA  0x00100000
@@ -348,42 +351,56 @@ A conservative approach is to avoid everything above 0x00080000.
 // == 2 MB ==================================================
 //
 
-      // ??
-      // O que tem aqui?
-      // podemos reservar para extender a imagem do kernel,
-      // ou para algum módulo?
+// 2
+// 0x00200000
+// #warning
+// Reserved to extend the area for the kernel image.
+
 
 //
 // == 4 MB ==================================================
 //
 
-      // ??
-      // O que tem aqui?
-      // podemos reservar para extender a imagem do kernel,
-      // ou para algum módulo?
+// 4
+// 0x00400000
+// #warning
+// Reserved to extend the area for the kernel image.
+
+
+// 6
+// 0x00600000
+// #warning
+// Reserved to extend the area for the kernel image.
+
+
 
 //
 // == 8 MB ==================================================
 //
 
-// Segue 8MB de Backbuffer.
-// Esse backbuffer será usado principalmente para
-// sistemas 'Small'.
-
 // 8
-#define BACKBUFFER_PA  0x00800000
-#define SMALLSYSTEM_BACKBUFFER   BACKBUFFER_PA
-#define MEDIUMSYSTEM_BACKBUFFER  BACKBUFFER_PA
-#define LARGESYSTEM_BACKBUFFER   BACKBUFFER_PA
+// 0x00800000
+// #warning
+// Reserved to extend the area for the kernel image.
+
 
 // 10
 // 0xA00000
+// #warning
+// Reserved to extend the area for the kernel image.
+
 
 // 12
 // 0xC00000
+// #warning
+// Reserved to extend the area for the kernel image.
+
 
 // 14
 // 0xE00000
+// #warning
+// Reserved to extend the area for the kernel image.
+
 
 //
 // == 16 MB =========================================================
@@ -454,22 +471,54 @@ A conservative approach is to avoid everything above 0x00080000.
 #define MEDIUMSYSTEM_USERBASE    USER_BASE_PA
 #define LARGESYSTEM_USERBASE     USER_BASE_PA
 
-// #important: 
-// Segue-se bastaste espaço livre.
-// 
+// #important: Segue-se bastaste espaço livre.
 // ...
 
+// 34
+
+// 36
+
+// 38
+
+// 40
+
+// 42
+
+// 44
+
+// 46
+
+// 48
+
+// 50
+
+// 52
+
+// 54
+
+// 56
+
+// 58
+
+// 60
+
+// 62
 
 //
 // == 64 MB =========================================================
 //
 
 // 0x04000000
-// Um sistema maior que 64MB já é considerado Medium.
-// Portando não pode mais ter definições de Small.
-
 // #important: Segue-se bastaste espaço livre.
 // ...
+#define BACKBUFFER_PA  0x00800000
+
+// #test
+// Let's reserve a big space here for the backbuffer.
+// Maybe we can have more than one backbuffer in this area,
+// or even a place for some surfaces.
+
+
 
 
 //
