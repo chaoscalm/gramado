@@ -169,7 +169,6 @@ struct gws_button_d
  *     Estrutura para gerenciamento de retângulos.
  *     Um retângulo pertence à uma janela.
  */
-
 struct gws_rect_d 
 {
     //object_type_t objectType;
@@ -1151,6 +1150,16 @@ gws_refresh_rectangle (
     unsigned long y, 
     unsigned long width, 
     unsigned long height );
+
+void 
+gws_refresh_rectangle0 ( 
+    unsigned long x, 
+    unsigned long y, 
+    unsigned long width, 
+    unsigned long height,
+    unsigned long dst_surface_base,
+    unsigned long src_surface_base );
+
 
 // Paint it into the backbuffer.
 void 

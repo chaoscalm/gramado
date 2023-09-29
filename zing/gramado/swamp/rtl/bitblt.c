@@ -8,29 +8,22 @@
 // see: 
 // rect.c for methods with rectangles.
 int 
-bitblt0(
+bitblt(
     struct gws_rect_d *dst_rect,
     struct gws_rect_d *src_rect,
     unsigned long rop,
     int op )
 {
-
+    if ( (void*) dst_rect == NULL ){
+        return -1;
+    }
     if ( (void*) src_rect == NULL ){
         return -1;
     }
 
-// Simple transfer to lfb
-    if (op == BITBLT_OP_COPY_TO_LFB)
+// Copy from src to dst.
+    if (op == BITBLT_OP_COPY)
     {
-        src_rect->dirty = TRUE;
-        gwssrv_refresh_this_rect(src_rect);
-        return TRUE;
-    }
-
-// Copy from src to dst
-    if (op == BITBLT_OP_COPY_TO_DST)
-    {
-        //#todo
         return TRUE;
     }
 
@@ -39,30 +32,78 @@ bitblt0(
     return FALSE;
 }
 
-// see: 
-// rect.c for methods with rectangles.
 int 
-bitblt(
+backbuffer_bitblt(
     struct gws_rect_d *src_rect,
-    unsigned long rop,
-    int op )
+    unsigned long new_rop,
+    int op,
+    int show )
 {
-
-    if ( (void*) src_rect == NULL ){
+    struct gws_rect_d *r;
+    r = src_rect;
+    if ((void*) r == NULL )
         return -1;
-    }
 
-// Simple transfer to lfb
-    if (op == BITBLT_OP_COPY_TO_LFB)
+    r->rop = new_rop;
+
+
+// 0
+    if (op == BITBLT_OP_ERASE)
     {
-        src_rect->dirty = TRUE;
-        gwssrv_refresh_this_rect(src_rect);
-        return TRUE;
+        r->bg_color = COLOR_BLACK;
+        backbuffer_draw_rectangle( 
+           r->left,
+           r->top,
+           r->width,
+           r->height,
+           r->bg_color,
+           r->rop );
     }
- 
 
-    return FALSE;
+// 1
+    if (op == BITBLT_OP_COPY)
+    {
+        backbuffer_draw_rectangle( 
+           r->left,
+           r->top,
+           r->width,
+           r->height,
+           r->bg_color,
+           r->rop );
+    }
+
+    if (show)
+        flush_rectangle(r);
+
+    return 0;
 }
 
 
-    
+int 
+frontbuffer_bitblt(
+    struct gws_rect_d *src_rect,
+    unsigned long new_rop,
+    int op )
+{
+    struct gws_rect_d *r;
+    r = src_rect;
+    if ((void*) r == NULL )
+        return -1;
+
+    r->rop = new_rop;
+
+    if (op == BITBLT_OP_COPY)
+    {
+        frontbuffer_draw_rectangle( 
+           r->left,
+           r->top,
+           r->width,
+           r->height,
+           r->bg_color,
+           r->rop );
+    }
+
+    return 0;
+}
+
+

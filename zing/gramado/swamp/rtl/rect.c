@@ -712,8 +712,7 @@ __kgws_adapter_refresh_rectangle (
     gramado_system_call ( 10, (unsigned long) buffer, 0, 0 );
 }
 
-// gws_refresh_rectangle:
-// From backbuffer to frontbuffer.
+
 void 
 gws_refresh_rectangle ( 
     unsigned long x, 
@@ -721,7 +720,41 @@ gws_refresh_rectangle (
     unsigned long width, 
     unsigned long height )
 {
-// Output port/adapter.
+    unsigned long dst_surface_base = ____FRONTBUFFER_VA;
+    unsigned long src_surface_base = ____BACKBUFFER_VA;
+
+// Given two surfaces, 
+// let's copy a rectangle from one surface to another.
+// #bugbug
+// At this moment we have zero information about
+// the surfaces. What are the limits?
+// Probably the called function will respect
+// the limits of the screen, not a givem DC.
+
+    gws_refresh_rectangle0(
+        x, y, width, height,
+        dst_surface_base, 
+        src_surface_base );
+}
+
+// gws_refresh_rectangle0:
+// From backbuffer to frontbuffer.
+void 
+gws_refresh_rectangle0 ( 
+    unsigned long x, 
+    unsigned long y, 
+    unsigned long width, 
+    unsigned long height,
+    unsigned long dst_surface_base,
+    unsigned long src_surface_base )
+{
+// Given two surfaces, 
+// let's copy a rectangle from one surface to another.
+// #bugbug
+// What are the limits of the surfaces.
+// Here we're using the context of the device screen.
+// When we call the kernel worker it will also respect
+// the limits of the screen.
 
 //
 // flag
@@ -738,8 +771,8 @@ gws_refresh_rectangle (
 // Maybe we can include the 'source pointer' into the
 // function's parameters.
 
-    void       *dest = (void *)      ____FRONTBUFFER_VA;
-    const void *src  = (const void*) ____BACKBUFFER_VA;
+    void       *dest = (void *)      dst_surface_base;
+    const void *src  = (const void*) src_surface_base;
 
     //loop?
     register unsigned int i=0;
