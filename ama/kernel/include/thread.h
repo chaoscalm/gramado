@@ -17,6 +17,11 @@
 #define INIT_TID    SYSTEM_THRESHOLD_TID
 //...
 
+// #test
+// Special TID for kernel messages.
+// Actually this thread doesn't exist.
+#define KERNEL_MESSAGE_TID  99
+
 // -----------------------------------------
 // The user's thread counter starts here.
 #define USER_THRESHOLD_TID    100

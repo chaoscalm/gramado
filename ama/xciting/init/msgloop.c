@@ -37,11 +37,12 @@ static void do_reboot(int src_tid);
 
 // local
 static int 
-__Procedure ( 
+processEvent ( 
     void *window, 
     int msg, 
     unsigned long long1, 
-    unsigned long long2 );
+    unsigned long long2,
+    int caller_tid );
 
 // ===========================
 
@@ -93,8 +94,15 @@ static void do_hello(int src_tid)
 
 static void do_reboot(int src_tid)
 {
-    if (src_tid<0)
+
+// Invalid tid
+    if (src_tid < 0)
         return;
+
+// Not the kernel.
+    if (src_tid != 99)
+        return;
+
     printf("init.bin: [55888] reboot request from %d\n", 
         src_tid );
     rtl_reboot();
@@ -103,17 +111,25 @@ static void do_reboot(int src_tid)
 // local
 // #todo: change this name.
 static int 
-__Procedure ( 
+processEvent ( 
     void *window, 
     int msg, 
     unsigned long long1, 
-    unsigned long long2 )
+    unsigned long long2,
+    int caller_tid )
 {
 // Processing requests.
 
+// Invalid message code.
     if (msg<0){
         return -1;
     }
+
+// Invalid caller.
+// #todo: 
+// End if the kernel is sending us a system message?
+    //if (caller_tid)
+        //return -1;
 
     switch (msg){
 
@@ -130,18 +146,38 @@ __Procedure (
             // when calling the launcher rtl_clone_and_execute("?").
             // #todo: We need a good local buffer for the string.
             case 4001:  //app1
-                printf("init.bin: 4001\n");
+                // This is a special tid used by the kernel.
+                // This thread doesn't exist.
+                if (caller_tid != 99){
+                    break;
+                }
+                printf("init.bin: 4001, from {%d}\n",caller_tid);
                 memset(__filename_local_buffer,0,64);
                 sprintf(__filename_local_buffer,"terminal.bin");
                 rtl_clone_and_execute(__filename_local_buffer);
                 break;
             case 4002:  //app2
+                // This is a special tid used by the kernel.
+                // This thread doesn't exist.
+                if (caller_tid != 99){
+                    break;
+                }
                 printf("init.bin: 4002\n");
                 break;
             case 4003:  //app3
-                printf("init.bin: 4003\n");
+                // This is a special tid used by the kernel.
+                // This thread doesn't exist.
+                if (caller_tid != 99){
+                    break;
+                }
+                //printf("init.bin: 4003\n");
                 break;
             case 4004:  //app4
+                // This is a special tid used by the kernel.
+                // This thread doesn't exist.
+                if (caller_tid != 99){
+                    break;
+                }
                 //printf("init.bin: 4004\n");
                 break;
             // ...
@@ -150,12 +186,19 @@ __Procedure (
         };
         break;
 
-    // 'Hello' received. Let's respond.
+// 'Hello' received. Let's respond.
     case 44888:
-        do_hello(Caller.tid);
+        do_hello(caller_tid);
         break;
+
+// Reboot receive.
+// #warning
+// Who can send us this message?
     case 55888:
-        do_reboot(Caller.tid);
+        // Not the kernel
+        if (caller_tid != 99)
+            break;
+        do_reboot(caller_tid);
         break;
 
     // #todo
@@ -163,7 +206,13 @@ __Procedure (
         //rtl_yield();
         //break;
 
+// #warning
+// Who can send us this message?
+
     case __MSG_CLOSE:
+        // Not the kernel
+        if (caller_tid != 99)
+            break;
         printf("#debug: Sorry, can't close init.bin\n");
         break;
 
@@ -223,11 +272,12 @@ static int __idlethread_loop(void)
             // Get caller's tid.
             Caller.tid = (int) ( RTLEventBuffer[8] & 0xFFFF );
             // Dispatch.
-            __Procedure ( 
+            processEvent ( 
                 (void*) RTLEventBuffer[0], 
                 RTLEventBuffer[1],  // msg 
                 RTLEventBuffer[2], 
-                RTLEventBuffer[3] );
+                RTLEventBuffer[3],
+                Caller.tid );
             //#test
             //rtl_yield();
             Caller.tid = -1;

@@ -47,7 +47,12 @@ __ProcessExtendedKeyboardKeyStroke(
 
 static void __launch_app_via_initprocess(int index)
 {
-    tid_t src_tid = 0;  //#todo
+
+// #test
+// We're using KERNEL_MESSAGE_TID to represent the kernel.
+// see: thread.h
+
+    tid_t src_tid = KERNEL_MESSAGE_TID;  // #test
     tid_t dst_tid = (tid_t) INIT_TID;
 
     if ( index < 4001 || index > 4009 )
