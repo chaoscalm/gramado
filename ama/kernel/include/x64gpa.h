@@ -511,7 +511,7 @@ A conservative approach is to avoid everything above 0x00080000.
 // 0x04000000
 // #important: Segue-se bastaste espaço livre.
 // ...
-#define BACKBUFFER_PA  0x00800000
+#define BACKBUFFER_PA  0x04000000
 
 // #test
 // Let's reserve a big space here for the backbuffer.
@@ -538,14 +538,14 @@ A conservative approach is to avoid everything above 0x00080000.
     (__256MB_MARK_PA - 0x800000)
 
 
-// #warning
-// We have some space here. 64MB
-
 // When the system has 256MB installed
 // the detection routine can detect only 255,
 // because it is not checking the lask MB.
 
 
+// #warning
+// We have some space here.
+// Range of free space (256~511)
 
 
 //

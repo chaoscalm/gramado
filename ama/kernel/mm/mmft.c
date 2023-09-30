@@ -164,16 +164,16 @@ initialize_frame_table:
 
     // Underflow.
     if (FT.end_pa < FT.start_pa){
-        x_panic("I_initialize_frame_table: FT.end_pa < FT.start_pa");
+        x_panic("I_initialize_frame_table: FT.end_pa < FT.start_pa\n");
     }
     // No table
     if (FT.end_pa == FT.start_pa){
-        x_panic("I_initialize_frame_table: No table");
+        x_panic("I_initialize_frame_table: No table\n");
     }
 
     // Too small.
     if (FT.end_pa > FRAMETABLE_END_PA){
-        x_panic("I_initialize_frame_table: FT.end_pa > FRAMETABLE_END_PA");
+        x_panic("I_initialize_frame_table: FT.end_pa > FRAMETABLE_END_PA\n");
     }
 
 
