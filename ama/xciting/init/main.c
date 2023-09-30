@@ -56,6 +56,9 @@ static int __stdin_loop(void);
 static void initPrompt(void);
 static int __CompareString(void);
 
+static int processCmdLine(void);
+static int processPrintableChar(int ch);
+
 static void do_help(void);
 static void do_launch_de(void);
 static void do_launch_de2(void);
@@ -515,6 +518,30 @@ static int __coolmenu_loop(void)
     };
 }
 
+
+static int processCmdLine(void)
+{
+    return (int) __CompareString();
+}
+
+static int processPrintableChar(int ch)
+{
+    if (ch<0)
+        return -1;
+
+    if (ch >= 0x20 && ch <= 0x7F)
+    {
+        // Feed the command line in prompt[], I guess.
+        input(ch);
+
+        // Sending data to the terminal.
+        printf("%c",ch);
+        fflush(stdout);
+    }
+
+    return 0;
+}
+
 static int __stdin_loop(void)
 {
 // Get input from sdtin.
@@ -540,14 +567,14 @@ static int __stdin_loop(void)
             break;
         }
         C = (int) fgetc(stdin);
-        if (C == __VK_RETURN){
-            __CompareString();
-        }
-        if ( C >= 0x20 && C <= 0x7F )
+        
+        if (C > 0)
         {
-            printf("%c",C);
-            fflush(stdout);
-            input(C);  // Coloca no prompt.
+            if (C == __VK_RETURN){
+                processCmdLine();
+            } else if ( C >= 0x20 && C <= 0x7F ){
+                processPrintableChar(C);
+            }
         }
     };
 

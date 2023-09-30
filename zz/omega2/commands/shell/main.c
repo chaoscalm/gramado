@@ -365,36 +365,18 @@ static unsigned long shellProcessCmdline(void)
 
 static unsigned long shellProcessPrintableChar(int c)
 {
-
     if (c<0)
         return 0;
 
-// Feed the command line in prompt[], I guess.
-    input(c);
+    if (c >= 0x20 && c <= 0x7F)
+    {
+        // Feed the command line in prompt[], I guess.
+        input(c);
 
-//
-// Sending data to the terminal.
-//
-
-// #debug
-// O terminal vai imprimir errado.
-// ok funcionou.
-    //printf("%c", (C+1) ); 
-      
-    printf("%c",c);
-    fflush(stdout);
-
-// + precisamos nos certificar que eh o shell
-// que esta enviando chars para o terminal
-// e nao o kernel
-// + precisamos nos certivicar que o shell esta lendo de um arquivo.
-// isso eh uma tentativa
-    //if (C == 'q')
-    //{
-        //printf("%c",'9');
-        //fflush(stdout);
-        //exit(0);   //#test
-    //}
+        // Sending data to the terminal.
+        printf("%c",c);
+        fflush(stdout);
+    }
 
     return 0;
 }
