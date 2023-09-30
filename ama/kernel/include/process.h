@@ -208,6 +208,13 @@ struct process_d
 // if it is protected. ex: It can't be killed by another process.
     int _protected;
 
+// Counting th e read/write operations.
+// Operatinons using fd.
+// #warning
+// The goal here is counting how many timer the operation was called.
+    unsigned int read_counter;
+    unsigned int write_counter;
+
 // Open files.
 // #todo:
 // Check this.

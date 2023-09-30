@@ -350,7 +350,7 @@ post_message_to_ws (
 }
 
 int 
-gramado_post( 
+cali_post( 
     tid_t sender_tid,
     tid_t receiver_tid,
     struct msg_d *message )
@@ -473,7 +473,7 @@ void *sys_get_message(unsigned long ubuf)
     return (void *) 1;  //#bugbug
 
 fail0:
-// No message.
+// No message
 // round
     if ((void*) t == NULL){
         return NULL;

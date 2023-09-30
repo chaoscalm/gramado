@@ -522,6 +522,9 @@ sys_read (
     char *ubuf,       //#todo: use 'void *'
     size_t count )    //#todo: use 'size_t'.
 {
+// #todo
+// Get the processor pointer
+// and increment the read operation counter for this process.
 
 // File pointer.
     file *fp;
@@ -529,6 +532,29 @@ sys_read (
     ssize_t nbytes=0;
     struct socket_d *s;
     int ubuf_len=0;
+
+//-----------------------------
+    struct process_d *p;
+    pid_t current_process = (pid_t) get_current_process();
+// Process
+// #todo: There is a helper for that small routine.
+    if (current_process < 0 || current_process >= PROCESS_COUNT_MAX){
+        debug_print("sys_read: current_process\n");
+        goto fail;
+    }
+    p = (void *) processList[current_process];
+    if ((void *) p == NULL){
+        debug_print("sys_read: p\n");
+        goto fail;
+    }
+    if ( p->used != TRUE || p->magic != 1234 ){
+        debug_print("sys_read: p validation\n");
+        goto fail;
+    }
+// #warning
+// The goal here is counting how many timer the operation was called.
+    p->read_counter++;
+//-----------------------------
 
 // #bugbug
 // O argumento é 'unsigned int'.
@@ -577,6 +603,7 @@ sys_read (
 
 // File
 // Get the object pointer.
+// #warning: For the current process.
     fp = (file *) get_file_from_fd(fd);
     if ((void *) fp == NULL)
     {
@@ -720,6 +747,7 @@ sys_read (
                     //do_thread_ready( fp->tid_waiting );  // acorda escritores.
                     fp->tid_waiting = -1;
                     //debug_print("sys_read:done\n");
+
                     return (ssize_t) nbytes;    // bytes escritos.
                 }
             }
@@ -938,6 +966,10 @@ fail:
 
 ssize_t sys_write (int fd, char *ubuf, size_t count)
 {
+// #todo
+// Get the processor pointer
+// and increment the write operation counter for this process.
+
 
 // File pointer.
     file *fp;
@@ -949,6 +981,30 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
     size_t ncopy=0;
 
     //debug_print("sys_write: :)\n");
+
+//-----------------------------
+    struct process_d *p;
+    pid_t current_process = (pid_t) get_current_process();
+// Process
+// #todo: There is a helper for that small routine.
+    if (current_process < 0 || current_process >= PROCESS_COUNT_MAX){
+        debug_print("sys_write: current_process\n");
+        goto fail;
+    }
+    p = (void *) processList[current_process];
+    if ((void *) p == NULL){
+        debug_print("sys_write: p\n");
+        goto fail;
+    }
+    if ( p->used != TRUE || p->magic != 1234 ){
+        debug_print("sys_write: p validation\n");
+        goto fail;
+    }
+// #warning
+// The goal here is counting how many timer the operation was called.
+    p->write_counter++;
+//-----------------------------
+
 
 // fd
     if ( fd < 0 || fd >= OPEN_MAX ){
@@ -998,7 +1054,7 @@ ssize_t sys_write (int fd, char *ubuf, size_t count)
 // File
 // Get the object pointer from the list
 // in the process structure.
-
+// #warning: For the current process.
     fp = (file *) get_file_from_fd(fd);
     if ((void *) fp == NULL)
     {

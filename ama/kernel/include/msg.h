@@ -79,7 +79,7 @@ post_message_to_ws(
     unsigned long long2 );
 
 int 
-gramado_post( 
+cali_post( 
     tid_t sender_tid,
     tid_t receiver_tid,
     struct msg_d *message );

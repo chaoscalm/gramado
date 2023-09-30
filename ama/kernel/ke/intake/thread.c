@@ -955,7 +955,7 @@ struct thread_d *create_thread (
 
     Thread = (void *) kmalloc(sizeof(struct thread_d));
     if ((void *) Thread == NULL){
-        panic ("create_thread: [FAIL] Thread\n");
+        panic("create_thread: Thread\n");
     }
     memset( Thread, 0, sizeof(struct thread_d) );
 
@@ -979,6 +979,10 @@ struct thread_d *create_thread (
     Thread->pdpt0_PA = (unsigned long ) Process->pdpt0_PA; 
     Thread->pd0_VA   = (unsigned long ) Process->pd0_VA; 
     Thread->pd0_PA   = (unsigned long ) Process->pd0_PA; 
+
+// Page fault information.
+    Thread->PF.in_pf = FALSE;  // Not in a pf routine.
+    Thread->PF.pf_counter = 0;
 
 //
 // Security

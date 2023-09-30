@@ -127,6 +127,10 @@ struct thread_d *create_init_thread(void)
         panic("create_init_thread: t->pml4_PA\n");
     }
 
+// Page fault information.
+    t->PF.in_pf = FALSE;  // Not in a pf routine.
+    t->PF.pf_counter = 0;
+
     // Clean the 'wait reason'.
     //for ( r=0; r<8; ++r ){ t->wait_reason[r] = (int) 0; };
 

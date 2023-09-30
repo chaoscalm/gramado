@@ -199,6 +199,16 @@ struct thread_transition_counter_d
     unsigned long to_user;
 };
 
+
+// Page fault information
+struct pf_info_d
+{
+// This thread is in a PF interrupt routine.
+    int in_pf;
+// Let's count the number of pf.
+    unsigned int pf_counter;
+};
+
 // --------------------------------
 
 #define MSG_QUEUE_MAX  64
@@ -384,6 +394,9 @@ struct thread_d
     unsigned long pd0_VA;
     unsigned long pd0_PA;
 
+
+// Page Fault information.
+    struct pf_info_d  PF;
 
 // cpl
 // The initial privilege level.

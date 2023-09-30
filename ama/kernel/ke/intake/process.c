@@ -537,7 +537,7 @@ copy_process_struct(
     {
         // Copy
         Process2->Objects[i] = Process1->Objects[i];
-        
+
         // Updating the referency counter.
         // ??limits
         __f = (void*) Process2->Objects[i];
@@ -554,6 +554,10 @@ copy_process_struct(
     Process2->Objects[0] = (unsigned long) stdin;
     Process2->Objects[1] = (unsigned long) stdout;
     Process2->Objects[2] = (unsigned long) stderr;
+
+    //Counters
+    Process2->read_counter = 0;
+    Process2->write_counter = 0;
 
 // ========================
 // Create connectors.
@@ -948,24 +952,31 @@ void ps_initialize_process_common_elements(struct process_d *p)
     if (kstdio_standard_streams_initialized != TRUE ){
         panic ("ps_initialize_process_common_elements: [ERROR] Standard stream is not initialized\n");
     }
-
-    for ( i=0; i<NUMBER_OF_FILES; ++i ){ p->Objects[i] = (unsigned long) 0; }
-
-    if ( (void *) stdin == NULL ){
-        panic ("ps_initialize_process_common_elements: [TEST] stdin");
+// Check standard streams.
+    if ((void *) stdin == NULL){
+        panic("ps_initialize_process_common_elements: stdin\n");
+    }
+    if ((void *) stdout == NULL){
+        panic("ps_initialize_process_common_elements: stdout\n");
+    }
+    if ((void *) stderr == NULL){
+        panic("ps_initialize_process_common_elements: stderr\n");
     }
 
-    if ( (void *) stdout == NULL ){
-        panic ("ps_initialize_process_common_elements: [TEST] stdout");
-    }
+// ---------------
+// Objects[]
 
-    if ( (void *) stderr == NULL ){
-        panic ("ps_initialize_process_common_elements: [TEST] stderr");
-    }
+    for (i=0; i<NUMBER_OF_FILES; ++i){
+        p->Objects[i] = (unsigned long) 0;
+    };
 
     p->Objects[0] = (unsigned long) stdin;
     p->Objects[1] = (unsigned long) stdout;
     p->Objects[2] = (unsigned long) stderr;
+
+    // Counters
+    p->read_counter = 0;
+    p->write_counter = 0;
 
 // ==============
 
@@ -1071,11 +1082,10 @@ struct process_d *create_process (
 
 // Process
     Process = (void *) kmalloc( sizeof(struct process_d) );
-    if ( (void *) Process == NULL ){
-        panic ("create_process: Process\n");
+    if ((void *) Process == NULL){
+        panic("create_process: Process\n");
     }
     memset( Process, 0, sizeof(struct process_d) );
-
 
     Process->personality = (int) Personality;
 
