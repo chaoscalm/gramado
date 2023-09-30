@@ -23,13 +23,14 @@
 #define BREAK_MASK  0x80
 
 // ------------------------------
+static void do_user(void);
+
 static int __CompareStrings(void);
 
 static void __enter_embedded_shell(int kernel_in_debug_mode);
 static void __exit_embedded_shell(void);
 
 static void __launch_app_via_initprocess(int index);
-
 
 static int 
 __ProcessExtendedKeyboardKeyStroke(
@@ -59,8 +60,16 @@ static void __launch_app_via_initprocess(int index)
     {
         return;
     }
-// Post
-// #todo: sender.
+
+// #warning
+// We're sending a message to the init tid,
+// but the message is about launching a client-side 
+// gui application. So, we need a window server up and running.
+
+    if (WindowServerInfo.initialized != TRUE){
+        return;
+    }
+
     post_message_to_tid(
         (tid_t) src_tid,        // sender tid
         (tid_t) dst_tid,        // receiver tid
@@ -69,6 +78,28 @@ static void __launch_app_via_initprocess(int index)
         0 );
 }
 
+// Process 'user' command.
+static void do_user(void)
+{
+    if ((void*) CurrentUser == NULL)
+        return;
+    if (CurrentUser->magic != 1234)
+        return;
+    if (CurrentUser->initialized != TRUE){
+        return;
+    }
+
+// Print the username.
+    printf("Username: {%s}\n",CurrentUser->__username);
+
+// is it really the current user?
+    if ( CurrentUser->userId == current_user )
+    {
+        // Is it the super user?
+        if ( is_superuser() == TRUE )
+            printf("It's super\n");
+    }
+}
 
 // Local
 // Compare the strings that were
@@ -91,7 +122,6 @@ static int __CompareStrings(void)
             smp_info.number_of_processors );
         goto exit_cmp;
     }
-
 
 // test mbr
 // see: storage.c
@@ -167,11 +197,13 @@ static int __CompareStrings(void)
 // Muidas estruturas aindapossuem valores que estão condizentes
 // com a resolução antiga e precisa ser atualizados.
 
+/*
     if ( kstrncmp(prompt,"vga1",4) == 0 )
     {
         printf ("vga1: This is a work in progress ...\n");
         goto exit_cmp;
     }
+*/
 
 // mm1: Show paged memory list.
 // IN: max index.
@@ -235,8 +267,6 @@ static int __CompareStrings(void)
         goto exit_cmp;
     }
 
-
-
 // device: Device list.
 // Show tty devices, pci devices and devices with regular file.
 // See: devmgr.c
@@ -270,6 +300,8 @@ static int __CompareStrings(void)
 // user:
     if ( kstrncmp( prompt, "user", 4 ) == 0 )
     {
+        do_user();
+        /*
         if ((void*) CurrentUser == NULL)
             goto exit_cmp;
         if (CurrentUser->magic != 1234)
@@ -283,6 +315,7 @@ static int __CompareStrings(void)
             if ( is_superuser() == TRUE )
                 printf("It's super\n");
         }
+        */
         goto exit_cmp;
     }
 
