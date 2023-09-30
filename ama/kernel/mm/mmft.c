@@ -78,7 +78,7 @@ int I_initialize_frame_table(void)
 
     // 1024 KB?
     if ( memorysizeTotal >= (1024*1024) ){
-        FT.end_pa = (unsigned long) __1GB_MARK_PA;
+        FT.end_pa = (unsigned long) FRAMETABLE_END_PA;
         debug_print("I_initialize_frame_table: We have 1GB or more\n");
         goto initialize_frame_table;
     }
@@ -89,7 +89,7 @@ int I_initialize_frame_table(void)
 
     // 512 KB?
     if ( memorysizeTotal >= (512*1024) ){
-        FT.end_pa = (unsigned long) __512MB_MARK_PA;
+        FT.end_pa = (unsigned long) FRAMETABLE_END_PA;
         debug_print ("I_initialize_frame_table: We have 512MB or more\n");
         goto initialize_frame_table;
     } 
@@ -100,7 +100,7 @@ int I_initialize_frame_table(void)
 
     // 256 KB?
     if ( memorysizeTotal >= (256*1024) ){
-        FT.end_pa = (unsigned long) __256MB_MARK_PA;
+        FT.end_pa = (unsigned long) FRAMETABLE_END_PA;
         debug_print ("I_initialize_frame_table: We have 256MB or more\n");
         goto initialize_frame_table;
     } 
@@ -115,26 +115,42 @@ int I_initialize_frame_table(void)
 // total disponível.
 // Porque ele não testa o último mega.
 // The available ram is less than 256.
-    if ( memorysizeTotal < (256*1024) ){
-        debug_print ("I_initialize_frame_table: [ALERT] memorysizeTotal is less than 256MB\n");
+    if ( memorysizeTotal < (256*1024) )
+    {
+        debug_print("I_initialize_frame_table: [ALERT] Less than 256MB\n");
     }
 
+
+// #bugbug
+// The x_panic is not working at this time. :)
+
 // ---------------------------
-// Danger!
+// #fatal
 // The available RAM is almost 256MB
 // Its because we a 256MB card,
 // But the boot loader did not check the last mb.
 // #bugbug: x_panic is not available yet.
 
-    if ( memorysizeTotal < (250*1024) ){
-        debug_print("I_initialize_frame_table: [PANIC] The system has less than 250MB of available RAM\n");
-        x_panic    ("I_initialize_frame_table: less than 250MB\n");
+    if ( memorysizeTotal < (250*1024) )
+    {
+        debug_print("I_initialize_frame_table: Less than 250MB\n");
+        x_panic    ("I_initialize_frame_table: Less than 250MB\n");
+    }
+
+// memorysizeTotal is a value in kb, iguess.
+// Change this name to memorysizeTotal_in_kb?
+
+    if ( (FRAMETABLE_END_PA/1024) >= memorysizeTotal )
+    {
+        debug_print("I_initialize_frame_table: Invalid FRAMETABLE_END_PA\n");
+        x_panic    ("I_initialize_frame_table:  Invalid FRAMETABLE_END_PA\n");
     }
 
 // Minimum
 // Não é menor que 250MB.
 // 250*1024*1024 = 268435456 = 0x10000000.
-    FT.end_pa = (unsigned long) __256MB_MARK_PA;
+    // Take the difference
+    FT.end_pa = (unsigned long) FRAMETABLE_END_PA;
 
 //============================================================
 // Initializing all the other elements of the frame table.
@@ -145,18 +161,21 @@ initialize_frame_table:
 // 250*1024*1024 = 268435456 = 0x10000000.
 
     debug_print ("I_initialize_frame_table: Checking range limits\n");
+
     // Underflow.
     if (FT.end_pa < FT.start_pa){
         x_panic("I_initialize_frame_table: FT.end_pa < FT.start_pa");
     }
-    // Too small.
-    if (FT.end_pa < __256MB_MARK_PA){
-        x_panic("I_initialize_frame_table: FT.end_pa < __256MB_MARK_PA");
+    // No table
+    if (FT.end_pa == FT.start_pa){
+        x_panic("I_initialize_frame_table: No table");
     }
-    // We don't have a maximum limit for now.
-    //if (FT.end_pa > __3GB_MARK_PA){
-    //    x_panic("I_initialize_frame_table: FT.end_pa > __3GB_MARK_PA");
-    //}
+
+    // Too small.
+    if (FT.end_pa > FRAMETABLE_END_PA){
+        x_panic("I_initialize_frame_table: FT.end_pa > FRAMETABLE_END_PA");
+    }
+
 
 // Total size in KB.
     mm_used_frame_table = 

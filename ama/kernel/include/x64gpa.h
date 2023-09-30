@@ -520,22 +520,38 @@ A conservative approach is to avoid everything above 0x00080000.
 
 
 
-
 //
-// == 128 MB =========================================================
+// 128MB and 256MB marks -----------------------------------------------
 //
 
-// 0x08000000
-// Used by the frame table. (FT)
-// Frame table | 0x08000000 ~ 0x10000000 |
-// See: x64mm.h
-// | 128MB ~ 1GB | 
 
 #define __128MB_MARK_PA  (0x08000000)
-#define FRAMETABLE_START_PA  __128MB_MARK_PA
-
 #define __256MB_MARK_PA  (0x10000000)
-//#define FRAMETABLE_END_PA  __256MB_MARK_PA
+
+
+// ::Start
+#define FRAMETABLE_START_PA  \
+    __128MB_MARK_PA
+// ::End
+// 256MB mark less 8MB.
+#define FRAMETABLE_END_PA  \
+    (__256MB_MARK_PA - 0x800000)
+
+
+// #warning
+// We have some space here. 64MB
+
+// When the system has 256MB installed
+// the detection routine can detect only 255,
+// because it is not checking the lask MB.
+
+
+
+
+//
+// == 512 MB =========================================================
+//
+
 
 #define __512MB_MARK_PA  (0x20000000)
 

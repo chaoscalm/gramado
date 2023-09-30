@@ -1976,34 +1976,33 @@ static void mmInitializeKernelPageTables(void)
 // Install some pagetables into the 
 // kernel pae directory 0.
 
-// Entry 0   | va=0          | Ring 0 area.
+// va=0          | Ring 0 area.
     __initialize_ring0area();
 
-// Entry 1   | va=0x00200000 | Ring 3 area.
+// va=0x00200000 | Ring 3 area.
     __initialize_ring3area();
 
-// Entry 384 | va=0x30000000 | kernel image region.
+// va=0x30000000 | kernel image region.
     __initialize_kernelimage_region();
 
-// Entry 385 | va=0x30200000 | Frontbuffer.
+// va=0x30200000 | Frontbuffer.
     __initialize_frontbuffer();
 
-// Entry 386 | va=0x30400000 | Backbuffer.
+// va=0x30400000 | Backbuffer.
     __initialize_backbuffer();
 
-// Entry 387 | va=0x30600000 | Paged pool.
+// va=0x30600000 | Paged pool.
     __initialize_pagedpool();
 
-// Entry 388 | va=0x30800000 | Heap pool.
+// va=0x30800000 | Heap pool.
     __initialize_heappool();
 
-// Entry 389 | va=0x30A00000 | Extra heap 1.
+
+// va=0x30A00000 | Extra heap 1.
     __initialize_extraheap1();
-
-// Entry 390 | va=0x30C00000 | Extra heap 2.
+// va=0x30C00000 | Extra heap 2.
     __initialize_extraheap2();
-
-// Entry 391 | va=0x30E00000 | Extra heap 3.
+// va=0x30E00000 | Extra heap 3.
     __initialize_extraheap3();
 
     // ...
@@ -2212,9 +2211,12 @@ int mmInitializePaging(void)
     debug_print ("mmInitializePaging: [DEBUG] memorysizeTotal is not zero\n");
     //while(1){}
 
-// local worker: 
+
+// ------
 // Initialize frame table.
 // It depends on the size of the physical memory.
+// see: mmft.c
+
     I_initialize_frame_table();
 
 // ------
