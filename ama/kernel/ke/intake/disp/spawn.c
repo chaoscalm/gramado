@@ -117,7 +117,10 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
         keDie();
     }
 
+//
 // Initializing
+//
+
 // Not saved
     target_thread->saved = FALSE;
     target_thread->exit_in_progress = FALSE;
@@ -203,14 +206,15 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
     set_current_process(cur_pid);
 
 // Set current thread
-// (global) (tid)
-//(tid)
-    current_thread = (int) target_thread->tid;
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
+
+    set_current_thread(target_thread->tid);
+    if ( current_thread < 0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    {
         panic("__spawn_thread_by_tid_imp: current_thread\n");
     }
 
-    IncrementDispatcherCount (SELECT_INITIALIZED_COUNT);
+    IncrementDispatcherCount(SELECT_INITIALIZED_COUNT);
 
 // local
 // Set cr3 and flush TLB.
@@ -241,8 +245,6 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
 // para efetuarmos o 'EOI' propriamente.
 
     int eoi_is_needed = __spawn_is_eoi_needed();
-
-    // #test #debug
     if (eoi_is_needed != TRUE){
         panic("__spawn_thread_by_tid_imp: eoi_is_needed != TRUE\n");
     }
@@ -433,8 +435,10 @@ spawn_enter_kernelmode(
 // Interface to spawn a thread.
 void psSpawnThreadByTID(tid_t tid)
 {
-    debug_print ("psSpawnThread:\n");
-    if ( tid < 0 || tid >= THREAD_COUNT_MAX ){
+    debug_print("psSpawnThreadByTID:\n");
+
+    if ( tid < 0 || tid >= THREAD_COUNT_MAX )
+    {
         printf("psSpawnThread: TID=%d\n", tid );
         keDie();
     }

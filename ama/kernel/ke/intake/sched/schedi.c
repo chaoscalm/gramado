@@ -914,19 +914,6 @@ sched_thread (
 }
 */
 
-// #deprecated
-void set_input_responder_tid(int tid)
-{
-    panic("set_input_responder_tid: #deprecated\n");
-}
-
-// #deprecated
-int check_for_input_responder(void)
-{
-    panic("check_for_input_responder: #deprecated\n");
-    return (int) -1;
-}
-
 /*
  * check_for_standby:
  * Check for a thread in standby.
@@ -940,38 +927,27 @@ int check_for_input_responder(void)
 
 void check_for_standby(void)
 {
+    struct thread_d *t;
+    tid_t target_tid = -1;
     register int i=0;
     register int Max = THREAD_COUNT_MAX;
-    int newId=0;
-    struct thread_d *New;
-
-//#ifdef SERIAL_DEBUG_VERBOSE
-    //debug_print (" check_for_standby ");
-    //debug_print (" Check ");
-//#endif
 
     do {
 
-        // #todo: 
-        // As filas ainda não funcionam.
-        // Vamos usar a lista global.
-        //New = (void *) queue->standbyList[i];
-        
-        New = (void *) threadList[i];
-        
-        if ( (void *) New != NULL )
+        t = (void *) threadList[i];
+
+        if ((void *) t != NULL)
         {
-            if ( New->used  == TRUE && 
-                 New->magic == 1234 && 
-                 New->state == STANDBY ) 
+            if ( t->used == TRUE && 
+                 t->magic == 1234 && 
+                 t->state == STANDBY ) 
             {
-                current_thread = (int) New->tid;
+                // Set the target thread and spawn it.
+                target_tid = (tid_t) t->tid;
                 goto do_spawn;
             }
         }
-
         i++;
-
     // Todas as threads da lista global.
     } while (i < Max); 
 
@@ -984,24 +960,27 @@ void check_for_standby(void)
 // See: spawn.c
 do_spawn:
 // tid validation?
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX ){
+    if ( target_tid < 0 || 
+         target_tid >= THREAD_COUNT_MAX ){
         goto fail;
     }
 // Can't spawn the INIT_TID.
 // It was the first launched thread.
-    if (current_thread == INIT_TID){
+    if (target_tid == INIT_TID){
         panic("check_for_standby: Can't spawn INIT_TID\n");
     }
-// Spawn
-    psSpawnThreadByTID(current_thread);
+
+// Set the current thread and spawn it.
+    set_current_thread(target_tid);
+    psSpawnThreadByTID(target_tid);
+
 // Not reached.
 fail:
     panic("check_for_standby: ERROR\n");
 }
 
-
 //
-// End.
+// End
 //
 
 

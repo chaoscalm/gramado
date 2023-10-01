@@ -30,14 +30,6 @@ struct scheduler_info_d
 
 extern struct scheduler_info_d  SchedulerInfo;
 
-
-// ==========================================
-// Input responder
-// See: schedi.c
-int flagUseThisInputResponder;
-int input_responder_tid;
-int check_for_input_responder(void);
-void set_input_responder_tid(int tid);
 // ==========================================
 
 //

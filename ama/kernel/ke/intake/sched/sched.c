@@ -459,39 +459,31 @@ void scheduler_unlock (void){
  * scheduler_get_status:
  *     Pega o status do scheduler, se ele está travado ou não.
  */
- 
 unsigned long scheduler_get_status (void)
 {
     return (unsigned long) g_scheduler_status;
 }
 
 /*
- ********************************
  * init_scheduler:
  *    Inicaliza o scheduler.
  *    @todo: Mudar para schedulerInit()
  *    #burbug: faz o mesmo que scheduler_start.
  */
-
-	// #todo: 
-	// Implementar inicialização de variaveis do scheduler.
-	// O nome poderia ser schedulerInit().
-	// Formato de classes.Init é um método. 
-
+// #todo: 
+// Implementar inicialização de variaveis do scheduler.
+// O nome poderia ser schedulerInit().
+// Formato de classes.Init é um método. 
 // Called by init_microkernel in ps/mk.c
 
-int init_scheduler (unsigned long sched_flags)
+int init_scheduler(unsigned long sched_flags)
 {
     register int i=0;
 
-    debug_print ("init_scheduler: [TODO]\n");
+    debug_print("init_scheduler: [TODO]\n");
     // ...
 
     scheduler_lock();
-
-// Input responder.
-    flagUseThisInputResponder = FALSE;
-    input_responder_tid = -1;
 
 // -------------------------------
 // Scheduler policies
@@ -542,7 +534,6 @@ void cut_round(struct thread_d *last_thread)
 
     Current->next = (struct thread_d *) last_thread;
     last_thread->next = NULL; 
-    //return;
 }
 
 //
