@@ -1,5 +1,5 @@
 
-// sci.c
+// sci.c - (Transfiguration)
 // (System Call Interface).
 // System Service Dispatcher.
 //
@@ -1947,15 +1947,21 @@ void *sci1 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
-// A15 - The vomit.
+// A15 - The vomit. (Transfiguration)
+// The 'narrow road'.
 // Getting requests from ring3 applications via systemcalls.
 // The kernel do not process the interrupt,
 // let's redirect it to the kernel module.
+// Calling the metropolitan region of the
+// fairy tale land.
+// #todo
+// Who are the processes that can call this interrupt?
 
     debug_print ("sci1: [TODO]\n");
 
+    struct process_d *p;
     struct thread_d  *t;
-    
+
 // #test
 // ---------------------------------
     if ( current_thread<0 || 
@@ -2007,7 +2013,29 @@ void *sci1 (
     if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
         panic("sci1: current_process\n");
     }
+    p = (struct process_d *) processList[current_process];
+    if ((void*) p == NULL){
+        debug_print("sci0: p\n");
+        panic("sci1: p\n");
+    }
+    if ( p->used != TRUE || p->magic != 1234 ){
+        debug_print("sci1: p validation\n");
+        panic("sci1: p validation\n");
+    }
 
+// The display server was not initialized yet.
+    if (WindowServerInfo.initialized != TRUE){
+        return 4321;
+    }
+
+// #test
+// The 'narrow road'.
+// Only the display server can access this service.
+    if (current_thread != WindowServerInfo.tid)
+    {
+        // OUT: Access denied.
+        return 4321;
+    }
 
 //++
 //-------------------------------------

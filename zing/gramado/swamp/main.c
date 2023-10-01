@@ -3533,6 +3533,9 @@ static int ServerInitialization(int dm)
     }
     display_server->registration_status = TRUE;
 
+
+// ====================================================
+
 // Setup callback.
 // Register this ring3 address as a callback.
 // The kernel is gonna run this code frequently.
@@ -3727,6 +3730,55 @@ static int ServerInitialization(int dm)
     if (dm == TRUE){
         rtl_clone_and_execute("gdm.bin");
     }
+
+//
+// =======================================
+//
+
+// ++
+//-------------------
+
+//
+// Initializing kernel module.
+//
+    if ((void*) display_server == NULL)
+    {
+        printf ("gramland: display_server\n");
+        while(1){};
+    }
+    if (display_server->registration_status != TRUE)
+    {
+        printf ("gramland: registration_status\n");
+        while(1){};
+    }
+
+    unsigned long mod_status=0;
+
+// Phase 1
+    mod_status = 
+        sc81( 
+        2001,                // Service number 
+        ____FRONTBUFFER_VA,  // Frontbuffer va 
+        ____BACKBUFFER_VA,   // Backbuffer va
+        1234 );              // Signature
+    printf ("status = {%d}\n", mod_status);
+
+// Phase 2
+    mod_status = 
+        sc81( 
+        2002,             // Service number 
+        __device_width,   // W
+        __device_height,  // H
+        __device_bpp );   // Bits per pixel
+    printf ("status = {%d}\n", mod_status);
+
+    // #debug
+    //printf ("gramland: #breakpoint\n");
+    //while(1){
+    //};
+
+//-------------------
+// --
 
 //
 // =======================================

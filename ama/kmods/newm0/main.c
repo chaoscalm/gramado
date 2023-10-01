@@ -6,7 +6,7 @@
 #include "newm0.h"
 
 struct module_initialization_d  ModuleInitialization;
-
+struct display_info_d  DisplayInfo;
 
 // kernel sysboltable address.
 // unsigned long imported_functions[32];
@@ -83,7 +83,7 @@ int module_strlen(const char *s)
     return (int) i;
 }
 
-void *memset ( void *ptr, int value, int size )
+void *memset( void *ptr, int value, int size )
 {
     register int i=0;
 
@@ -91,9 +91,7 @@ void *memset ( void *ptr, int value, int size )
     {
         //#bugbug.
         unsigned char *temp = ptr;
-
-        for ( i=0; i < size; i++ )
-        {
+        for (i=0; i<size; i++){
             *temp++ = (unsigned char) value;
         };
     }
@@ -103,7 +101,7 @@ void *memset ( void *ptr, int value, int size )
 
 // strcpy:  
 //     Copy a string
-char *strcpy ( char *to, const char *from )
+char *strcpy( char *to, const char *from )
 {
     register int i=0;
 
@@ -556,8 +554,10 @@ module_main (
 
         // Initializing the module.
         case 1000:
+            // Initialize the server functions.
             Status = (int) newm0_initialize();
-            if (Status == TRUE){
+            if (Status == TRUE)
+            {
                 printf("Initialization OK\n");
                 return 1234;
             }
@@ -573,9 +573,59 @@ module_main (
             return (unsigned long) 0;
             break;
 
-        // #todo
-        case 2000:
-            goto fail;
+
+        // Initialize display information
+        // Called only by the display server.
+        case 2001:
+            if (ModuleInitialization.initialized != TRUE){
+                newm0_initialize();
+            }
+            if (ModuleInitialization.initialized == TRUE){
+                //printf("Parameters: %d | %d | %d | %d\n",
+                   // param1, param2, param3, param4 );
+            }
+            // Signature.
+            if (param4 != 1234)
+                return 4321;
+            // Initializazing the phase 1.
+            // Initialize displey info structure.
+            DisplayInfo.frontbuffer_address = 
+                (unsigned long) param2;  // frontbuffer va.
+            DisplayInfo.backbuffer_address = 
+                (unsigned long) param3;  // backbuffer va.
+            DisplayInfo.phase1 = TRUE;
+            DisplayInfo.initialized = FALSE;
+            printf ("frontbuffer={%x} | backbuffer={%x}\n",
+                DisplayInfo.frontbuffer_address,
+                DisplayInfo.backbuffer_address );
+            return 1234;
+            break;
+
+        // Initialize displey information
+        // Called only by the display server.
+        case 2002:
+            if (ModuleInitialization.initialized == TRUE){
+                //printf("Parameters: %d | %d | %d | %d\n",
+                    //param1, param2, param3, param4 );
+            }
+            // We need to initialize the phase 1 first.
+            if (DisplayInfo.phase1 != TRUE)
+            {
+                DisplayInfo.phase2 = FALSE;
+                DisplayInfo.initialized = FALSE;
+                return 4321;
+            }
+            // Initialize display info structure.
+            DisplayInfo.width  = (unsigned long) param2;  // w
+            DisplayInfo.height = (unsigned long) param3;  // h
+            DisplayInfo.bpp    = (unsigned long) param4;  // bits per pixel
+            DisplayInfo.phase2 = TRUE;
+            DisplayInfo.initialized = TRUE;
+            printf ("w={%d} | h={%d} | bpp={%d}\n",
+                DisplayInfo.width,
+                DisplayInfo.height,
+                DisplayInfo.bpp );
+            return 1234;
             break;
 
         // Testing the parameter list.

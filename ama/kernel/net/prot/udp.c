@@ -201,6 +201,8 @@ void network_test_udp(void)
     if (networkGetStatus() != TRUE)
        return;
 
+// IN:
+// ...
     network_send_udp( 
         dhcp_info.your_ipv4,        //__udp_gramado_default_ipv4,  // scr ip
         __udp_target_gateway_ipv4,  //__udp_target_default_ipv4,   // dst ip

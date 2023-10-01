@@ -951,6 +951,8 @@ static void compareStrings(int fd)
                    0,    // l3
                    0 );  // l4
         printf("RETURN: >>> {%d}\n",mod_ret);
+        if (mod_ret == 4321)
+            printf("terminal.bin: Access denied!\n");
 
         // ---------------------------------------
         // Reason 1001: Test printf function.
@@ -961,6 +963,8 @@ static void compareStrings(int fd)
                    0,    // l3
                    0 );  // l4
         printf("RETURN: >>> {%d}\n",mod_ret);
+        if (mod_ret == 4321)
+            printf("terminal.bin: Access denied!\n");
 
         goto exit_cmp;
     }

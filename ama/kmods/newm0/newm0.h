@@ -19,6 +19,30 @@ struct module_initialization_d
 extern struct module_initialization_d  ModuleInitialization;
 
 
+struct display_info_d
+{
+    int initialized;
+
+    // Initialization phase 1.
+    int phase1;
+    unsigned long frontbuffer_address;
+    unsigned long backbuffer_address;
+
+    // Initialization phase 2.
+    int phase2;
+    unsigned long width;
+    unsigned long height;
+    unsigned long bpp;   // bits per pixel.
+
+    // ...
+};
+extern struct display_info_d DisplayInfo;
+
+
+
+
+
+
 
 #endif  
 
