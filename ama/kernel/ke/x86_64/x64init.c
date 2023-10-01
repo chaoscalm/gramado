@@ -428,7 +428,7 @@ void I_x64ExecuteInitialProcess (void)
 
     // #debug
     PROGRESS("::(3)\n");   
-    debug_print ("I_x64ExecuteInitialProcess:\n");
+    debug_print("I_x64ExecuteInitialProcess:\n");
     // For real machine.
     //printf      ("I_x64ExecuteInitialProcess: [TODO]\n");
     
@@ -450,11 +450,9 @@ void I_x64ExecuteInitialProcess (void)
     //    panic       ("I_x64ExecuteInitialProcess: InitialProcessInitialized\n");
     //}
 
-
 // Setup c0/  (Again)
 // Change the foreground console.
     console_set_current_virtual_console(CONSOLE0);
-
 
 // Setup command line for the init process.
     __setup_stdin_cmdline();
@@ -480,25 +478,22 @@ void I_x64ExecuteInitialProcess (void)
         panic("I_x64ExecuteInitialProcess: saved\n");
     }
 
-// Set the current thread.
+// Set the current and the foreground threads.
     set_current_thread(t->tid);
-
-// Set the first foreground thread.
-// #todo: We need a function for this job.
-    foreground_thread = (tid_t) t->tid;
+    set_foreground_thread(t->tid);
 
 // State
 // The thread needs to be in Standby state.
     if (t->state != STANDBY){
-        printf ("I_x64ExecuteInitialProcess: state tid={%d}\n", t->tid );
+        printf("I_x64ExecuteInitialProcess: state tid={%d}\n", t->tid );
         die();
     }
 
 // :: MOVEMENT 2 ( Standby --> Running )
 
     if (t->state == STANDBY){
-        debug_print("I_x64ExecuteInitialProcess: Now RUNNING!\n");
         t->state = RUNNING;
+        debug_print("I_x64ExecuteInitialProcess: Now RUNNING!\n");
     }
 
 //
@@ -602,7 +597,7 @@ void I_x64ExecuteInitialProcess (void)
     if (elfStatus < 0)
     {
         debug_print("I_x64ExecuteInitialProcess: .ELF signature\n");
-        panic      ("I_x64ExecuteInitialProcess: .ELF signature");
+        panic      ("I_x64ExecuteInitialProcess: .ELF signature\n");
     }
 
 /*
@@ -694,18 +689,18 @@ void I_x64ExecuteInitialProcess (void)
 // gva.h
 
 // cpl
-    if (t->cpl != RING3 ){
+    if (t->cpl != RING3){
         panic ("I_x64ExecuteInitialProcess: cpl\n");
     }
 
 // iopl
 // weak protection
-    if (t->rflags_initial_iopl != 3 ){
+    if (t->rflags_initial_iopl != 3){
         panic ("I_x64ExecuteInitialProcess: rflags_initial_iopl\n");
     }
 
-    PROGRESS("::(3)(2) Go to ring3! \n");
-    
+    PROGRESS(":: Go to ring3!\n");
+
     //printf("go!\n");
     //while(1){}
 
@@ -737,7 +732,7 @@ void I_x64ExecuteInitialProcess (void)
         " iretq           \n" :: "D"(entry), "S"(rsp3) );
 
 // Paranoia
-    PROGRESS("::(3)(?) I_x64ExecuteInitialProcess: Unexpeted error\n");
+    PROGRESS("::(3) I_x64ExecuteInitialProcess: Unexpeted error\n");
     panic("I_x64ExecuteInitialProcess: Unexpeted error\n");
 }
 

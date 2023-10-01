@@ -89,7 +89,7 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
     if (SchedulerInfo.initialized != TRUE){
         panic("__scheduler_rr: Scheduler not initialized\n");
     }
-    if (SchedulerInfo.policy != SCHED_RR){
+    if (SchedulerInfo.policy != SCHED_POLICY_RR){
         panic("__scheduler_rr: Scheduler policy\n");
     }
 
@@ -382,18 +382,16 @@ static tid_t __scheduler_rr(unsigned long sched_flags)
 
 tid_t scheduler(void)
 {
+    struct thread_d *Idle;
     tid_t first_tid = (-1);
-
     //#todo: Create a method for this.
     int Policy = SchedulerInfo.policy;
-
     //#todo: Create a method for this.
     unsigned long sched_flags = (unsigned long) SchedulerInfo.flags;
 
-
 // System state
-    if ( system_state != SYSTEM_RUNNING ){
-        panic ("__scheduler_rr: system_state\n");
+    if (system_state != SYSTEM_RUNNING){
+        panic("scheduler: system_state\n");
     }
     system_state = SYSTEM_SCHEDULING;
 
@@ -402,11 +400,11 @@ tid_t scheduler(void)
         panic("scheduler: SchedulerInfo.initialized\n");
     }
 
-    if ( UPProcessorBlock.threads_counter == 0 ){
+    if (UPProcessorBlock.threads_counter == 0){
         panic("scheduler: UPProcessorBlock.threads_counter == 0\n");
     }
 
-    if (Policy != SCHED_RR){
+    if (Policy != SCHED_POLICY_RR){
         panic("scheduler: Invalid Policy\n");
     }
 
@@ -415,15 +413,18 @@ tid_t scheduler(void)
 // pois eh configuravel.
 // IN: sched_flags
 
-    if (Policy == SCHED_RR){
+    if (Policy == SCHED_POLICY_RR){
         first_tid = (tid_t) __scheduler_rr(0);
-    }
+    } else if (Policy == SCHED_POLICY_QUEUES){
+        panic("scheduler: Policy not supported\n");
+    }else{
+        panic("scheduler: Policy not supported\n");
+    };
+    // ...
 
 // ===================
-    struct thread_d *Idle;
-
     Idle = (struct thread_d *) UPProcessorBlock.IdleThread;
-    if ( (void *) Idle == NULL ){
+    if ((void *) Idle == NULL){
         panic("scheduler: Idle\n");
     }
     if (Idle->magic != 1234){
@@ -493,15 +494,9 @@ int init_scheduler (unsigned long sched_flags)
     input_responder_tid = -1;
 
 // -------------------------------
-
-//
 // Scheduler policies
-//
-
-// See:
-// sched.h
-
-    SchedulerInfo.policy = SCHED_RR;
+// See: sched.h
+    SchedulerInfo.policy = SCHED_POLICY_RR;
     SchedulerInfo.rr_round_counter = 0;
     SchedulerInfo.flags = (unsigned long) sched_flags;
     SchedulerInfo.initialized = TRUE;
@@ -516,12 +511,11 @@ void cut_round(struct thread_d *last_thread)
     struct thread_d *Current;
 
 // The current thread.
-
-    if ( current_thread < 0 || current_thread >= THREAD_COUNT_MAX )
+    if ( current_thread < 0 || 
+         current_thread >= THREAD_COUNT_MAX )
     {
         return;
     }
-
     Current = (struct thread_d *) threadList[current_thread];
     if ((void *) Current == NULL){
         return;
@@ -532,76 +526,28 @@ void cut_round(struct thread_d *last_thread)
     }
 
 // ==========================
+// Last thread.
 
-//
-// last thread
-//
-
-    if ( (void *) last_thread == NULL )
-    {
+    if ((void *) last_thread == NULL){
         return;
     }
-    
     if ( last_thread->used != TRUE || last_thread->magic != 1234 )
     {
         return;
     }
 
 // ==========================
-
-//
 // Cut round
-// 
-
-    // The last thread of this round
+// Set the last thread for this round.
 
     Current->next = (struct thread_d *) last_thread;
-
     last_thread->next = NULL; 
-
-    return;
+    //return;
 }
 
-
-
-
-
 //
-// End.
+// End
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

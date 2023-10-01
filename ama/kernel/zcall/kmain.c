@@ -195,7 +195,7 @@ static void preinit_Globals(int arch_type)
 // Early initialization.
 // See: 
 // sched.h, sched.c.
-    SchedulerInfo.policy = SCHED_RR;
+    SchedulerInfo.policy = SCHED_POLICY_RR;
     SchedulerInfo.flags  = (unsigned long) 0;
 
 // Initializing the global spinlock.

@@ -449,21 +449,20 @@ int get_current_thread (void)
     return (int) current_thread;
 }
 
-void set_current_thread (int tid)
+void set_current_thread(tid_t tid)
 {
     struct thread_d *t;
 
     if (tid < 0 || tid >= THREAD_COUNT_MAX){
         return;
     }
-
     if (tid == current_thread){
         return;
     }
 
 // structure
     t = (void *) threadList[tid]; 
-    if ( (void*) t == NULL ){
+    if ((void*) t == NULL){
         return;
     }
     if (t->used != TRUE){
@@ -476,6 +475,34 @@ void set_current_thread (int tid)
 // Change global variable.
     current_thread = (tid_t) tid;
 }
+
+void set_foreground_thread(tid_t tid)
+{
+    struct thread_d *t;
+
+    if (tid < 0 || tid >= THREAD_COUNT_MAX){
+        return;
+    }
+    if (tid == foreground_thread){
+        return;
+    }
+
+// structure
+    t = (void *) threadList[tid]; 
+    if ((void*) t == NULL){
+        return;
+    }
+    if (t->used != TRUE){
+        return;
+    }
+    if (t->magic != 1234){
+        return;
+    }
+
+// Change global variable.
+    foreground_thread = (tid_t) tid;
+}
+
 
 /*
  * wait_for_a_reason:

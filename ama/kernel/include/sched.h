@@ -16,8 +16,8 @@
  * Scheduling policies
  */
 
-#define SCHED_RR    0
-//#define SCHED_??    1
+#define SCHED_POLICY_RR    0
+#define SCHED_POLICY_QUEUES  1
 // ...
 
 struct scheduler_info_d
@@ -47,14 +47,13 @@ void set_input_responder_tid(int tid);
 int init_scheduler (unsigned long sched_flags);
 
 tid_t scheduler(void);
+tid_t psScheduler(void);
 
-void scheduler_lock (void);
-void scheduler_unlock (void);
-unsigned long scheduler_get_status (void);
+void scheduler_lock(void);
+void scheduler_unlock(void);
+unsigned long scheduler_get_status(void);
 
 void cut_round(struct thread_d *last_thread);
-
-tid_t psScheduler(void);
 
 void do_credits(struct thread_d *thread);
 void do_credits_by_tid(tid_t tid);
@@ -76,7 +75,8 @@ void drop_quantum(struct thread_d *thread);
 int do_waitpid (pid_t pid, int *status, int options);
 
 int get_current_thread (void);
-void set_current_thread (int tid);
+void set_current_thread(tid_t tid);
+void set_foreground_thread(tid_t tid);
 
 void wait_for_a_reason ( int tid, int reason );
 int wakeup_thread_reason ( int tid, int reason );
@@ -88,7 +88,7 @@ void sleep_until (tid_t tid, unsigned long ms);
 
 void sys_broken_vessels(tid_t tid);
 
-void check_for_standby (void);
+void check_for_standby(void);
 
 #endif    
 
