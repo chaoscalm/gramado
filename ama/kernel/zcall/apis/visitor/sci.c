@@ -289,10 +289,8 @@ void *sci0 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
-// E25 - The queen.
+// D8 - Far Far Away.
 // Getting requests from ring3 applications via systemcalls.
-// #test
-// It's ok when init.bin calls this systemcall.
 
     struct process_d  *p;
 
@@ -1951,8 +1949,8 @@ void *sci1 (
 {
 // A15 - The vomit.
 // Getting requests from ring3 applications via systemcalls.
-// #test
-// It's ok when gramland calls this systemcall.
+// The kernel do not process the interrupt,
+// let's redirect it to the kernel module.
 
     debug_print ("sci1: [TODO]\n");
 
@@ -2010,7 +2008,7 @@ void *sci1 (
         panic("sci1: current_process\n");
     }
 
-/*
+
 //++
 //-------------------------------------
 // #test
@@ -2018,6 +2016,7 @@ void *sci1 (
 // Maybe this interrupt can be used 
 // to call the services provided by the first module, mod0.bin.
 // see: mod.c and mod.h.
+
     unsigned long return_value=0;
 
     if ((void*) kernel_mod0 == NULL)
@@ -2027,50 +2026,33 @@ void *sci1 (
     if (kernel_mod0->initialized != TRUE)
         return NULL;
 
+
+// Validation
+    if ((void*) kernel_mod0->entry_point == NULL){
+        goto fail;
+    }
+
 // #test
 // Calling the virtual function, and
 // getting the return value.
-    if ( (void*) kernel_mod0->entry_point != NULL )
-    {
-        return_value = 
-            (unsigned long) kernel_mod0->entry_point(
-                number,
-                arg2,
-                arg3,
-                arg4 );
-        //printf ("RETURN: %d\n",return_value);
-        return (void*) return_value;
-    }
+
+    return_value = 
+        (unsigned long) kernel_mod0->entry_point(
+            number,  // Reason
+            arg2,    // l2
+            arg3,    // l3
+            arg4 );  // l3
+
+// Done
+    return (void*) return_value;
+
 //-------------------------------------
 //--
-*/
 
-
-    switch (number){
-
-    case 1:
-        return NULL;
-        break;
-
-    // 110 - Reboot
-    case SYS_REBOOT:
-        keReboot();
-        break;
-
-    // ...
-
-    default:
-        __default_syscall_counter++;
-        return NULL;
-        break;
-    };
-
-// #todo
-// Maybe kill the caller.
-
-    panic("sci1: [FIXME] default syscall\n");
+fail:
     return NULL;
 }
+
 
 // Handler for the interrupt 0x82.
 void *sci2 ( 
@@ -2079,10 +2061,8 @@ void *sci2 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
-// D8 - The k.
+// D25 - The Swamp.
 // Getting requests from ring3 applications via systemcalls.
-// #test
-// It's ok when the network server calls this systemcall.
 
     struct process_d  *p;
     struct thread_d  *t;

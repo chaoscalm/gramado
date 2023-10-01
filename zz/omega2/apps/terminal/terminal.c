@@ -938,6 +938,35 @@ static void compareStrings(int fd)
         return;
     }
 
+// Test kernel module
+    unsigned long mod_ret=0;
+    if ( strncmp(prompt,"mod0",4) == 0 )
+    {
+        // ---------------------------------------
+        // Reason 1000: Initialize the module.
+        mod_ret = 
+            sc81 ( 
+                1000,    // Reason 1000: Initialize the module. 
+                   0,    // l2 
+                   0,    // l3
+                   0 );  // l4
+        printf("RETURN: >>> {%d}\n",mod_ret);
+
+        // ---------------------------------------
+        // Reason 1001: Test printf function.
+        mod_ret = 
+            sc81 ( 
+                1001,    // Reason 1001: Test printf function. 
+                   0,    // l2 
+                   0,    // l3
+                   0 );  // l4
+        printf("RETURN: >>> {%d}\n",mod_ret);
+
+        goto exit_cmp;
+    }
+
+
+
 // Enable network
     if ( strncmp(prompt,"net-on",6) == 0 ){
         sc82 ( 22001, 
