@@ -21,22 +21,29 @@
 // == prototypes ====
 //
 
-/* zero/visitor/sci.c */
+// visitor/sci.c
 void *sci0 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 
     unsigned long arg4 );
 
-/* zero/visitor/sci.c */
+// visitor/sci.c
 void *sci1 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 
     unsigned long arg4 );
 
-/* zero/visitor/sci.c */
+// visitor/sci.c
 void *sci2 ( 
+    unsigned long number, 
+    unsigned long arg2, 
+    unsigned long arg3, 
+    unsigned long arg4 );
+
+// visitor/sci.c
+void *sci3 ( 
     unsigned long number, 
     unsigned long arg2, 
     unsigned long arg3, 

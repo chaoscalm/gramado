@@ -520,9 +520,10 @@ setup_vectors:
 
 ; System interrupts
 ; see: sw1.asm
-; 128 - 0x80
-; 129 - 0x81
-; 130 - 0x82
+; 128 - 0x80 - Wisdom
+; 129 - 0x81 - Power
+; 130 - 0x82 - Love
+; 131 - 0x83 - Rest
 
 ; 0x80
     mov rax,  qword _int128
@@ -535,6 +536,10 @@ setup_vectors:
 ; 0x82
     mov rax,  qword _int130
     mov rbx,  qword 130
+    call _setup_system_interrupt  
+; 0x83
+    mov rax, qword _int131
+    mov rbx, qword 131
     call _setup_system_interrupt  
 ; ...
 

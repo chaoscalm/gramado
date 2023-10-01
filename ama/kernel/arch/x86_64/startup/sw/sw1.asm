@@ -31,6 +31,7 @@ extern _sci0_cpl
 ; Capture context
 global _int128
 _int128:
+; Wisdom
 
 ; #todo: Maybe we can save the stack frame.
 
@@ -125,26 +126,18 @@ _int128:
 
 
 
-
-
-
 ;;-----
 ; _int129
-; 
 ;     System Call number 0x81
-;
 ;     ONLY CALLED FROM USERMODE!
-;
 ;     + It is never called from kernel mode.
 ;     + It chamges the segment registers before calling the system service.
 ;     + We are using the caller cr3.
-;
 ;     It has four parameters:
 ;     rax - Argument 1
 ;     rbx - Argument 2
 ;     rcx - Argument 3
 ;     rdx - Argument 4
-;
 ;     #todo: 
 ;     Maybe we can receive more values using more registers.
 ;
@@ -155,6 +148,7 @@ extern _sci1_cpl
 ; Capture context
 global _int129
 _int129:
+; Power
 
 ; #todo: 
 ; Maybe we can save the stack frame.
@@ -251,24 +245,18 @@ _int129:
 
 
 
-
 ;;-----
-; _int128
-; 
+; _int130
 ;     System Call number 0x82
-;
 ;     ONLY CALLED FROM USERMODE!
-;
 ;     + It is never called from kernel mode.
 ;     + It chamges the segment registers before calling the system service.
 ;     + We are using the caller cr3.
-;
 ;     It has four parameters:
 ;     rax - Argument 1
 ;     rbx - Argument 2
 ;     rcx - Argument 3
 ;     rdx - Argument 4
-;
 ;     #todo: 
 ;     Maybe we can receive more values using more registers.
 ;;-----
@@ -278,6 +266,7 @@ extern _sci2_cpl
 ; Capture context
 global _int130
 _int130:
+; Love
 
 ; #todo: Maybe we can save the stack frame.
 
@@ -369,6 +358,122 @@ _int130:
 .int130_cs: dq 0
 .int130_rip: dq 0
 ;--    
+
+
+;;-----
+; _int131
+;     System Call number 0x82
+;     ONLY CALLED FROM USERMODE!
+;     + It is never called from kernel mode.
+;     + It chamges the segment registers before calling the system service.
+;     + We are using the caller cr3.
+;     It has four parameters:
+;     rax - Argument 1
+;     rbx - Argument 2
+;     rcx - Argument 3
+;     rdx - Argument 4
+;     #todo: 
+;     Maybe we can receive more values using more registers.
+;;-----
+
+extern _mi83h
+extern _sci3_cpl
+; Capture context
+global _int131
+_int131:
+; Rest
+
+; #todo: Maybe we can save the stack frame.
+
+    pop qword [.int131_rip]
+    pop qword [.int131_cs]
+
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    
+    ;push ds
+    ;push es
+    push fs
+    push gs
+    push rsp
+    pushfq
+
+; Parameters:
+; RDI, RSI, RDX, RCX, R8, and R9 are used 
+; for integer and memory address arguments
+
+    mov rdi, rax  ; arg1: service number
+    mov rsi, rbx  ; arg2:
+    push rdx      ; Saving arg4
+    mov rdx, rcx  ; arg3:
+    pop rcx       ; arg4: 
+
+
+; cpl
+; Get the first 2 bits of cs.
+; see: x64mi.c sci.c
+; #importante: temos que pegar cs na pilha e nao no registrador.
+; talvez durante a systemcall o processador mude o cs para o valor 
+; do seletor indicado na entrada da idt.
+    xor rax, rax
+    mov rax, qword [.int131_cs]
+    and rax, 3
+    mov qword [_sci3_cpl], rax
+
+    fxsave [__sw_local_fpu_buffer]
+
+    call _mi83h
+
+; ----------------------
+    fxrstor [__sw_local_fpu_buffer]
+    mov qword [.int131Ret], rax 
+
+    popfq
+    pop rsp
+    pop gs
+    pop fs
+    ;pop es
+    ;pop ds
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+
+    mov rax, qword [.int131Ret] 
+
+    push qword [.int131_cs]      ; cs
+    push qword [.int131_rip]     ; rip
+    iretq
+.int131Ret: dq 0
+.int131_cs: dq 0
+.int131_rip: dq 0
+;--    
+
 
 
 ; int 198

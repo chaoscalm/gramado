@@ -48,13 +48,7 @@ void *gramado_system_call (
     unsigned long d )
 {
 // Adapter. System dependent.
-    unsigned long __Ret=0;
-
-    asm volatile ( " int %1 \n"
-                 : "=a"(__Ret)
-                 : "i"(0x80), "a"(a), "b"(b), "c"(c), "d"(d) );
-
-    return (void *) __Ret; 
+    return (void *) sc80(a,b,c,d);
 }
 
 // System call.
@@ -65,6 +59,7 @@ void *sc80 (
     unsigned long c, 
     unsigned long d )
 {
+// Wisdom
 // Adapter. System dependent.
     unsigned long __Ret=0;
 
@@ -83,6 +78,7 @@ void *sc81 (
     unsigned long c, 
     unsigned long d )
 {
+// Power
 // Adapter. System dependent.
     unsigned long __Ret=0;
 
@@ -101,6 +97,7 @@ void *sc82 (
     unsigned long c, 
     unsigned long d )
 {
+// Love
 // Adapter. System dependent.
     unsigned long __Ret=0;
 
@@ -110,6 +107,26 @@ void *sc82 (
 
     return (void *) __Ret; 
 }
+
+// System call.
+// Interrupt 0x83.
+void *sc83 ( 
+    unsigned long a, 
+    unsigned long b, 
+    unsigned long c, 
+    unsigned long d )
+{
+// Rest
+// Adapter. System dependent.
+    unsigned long __Ret=0;
+
+    asm volatile ( " int %1 \n"
+                 : "=a"(__Ret)
+                 : "i"(0x83), "a"(a), "b"(b), "c"(c), "d"(d) );
+
+    return (void *) __Ret; 
+}
+
 
 // =============================================================
 

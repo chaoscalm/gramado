@@ -17,6 +17,7 @@ static unsigned long __default_syscall_counter=0;
 unsigned long sci0_cpl=0;
 unsigned long sci1_cpl=0;
 unsigned long sci2_cpl=0;
+unsigned long sci3_cpl=0;
 
 //
 // == private functions: prototypes =============
@@ -289,6 +290,7 @@ void *sci0 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Wisdom
 // D8 - Far Far Away.
 // Getting requests from ring3 applications via systemcalls.
 
@@ -1947,6 +1949,7 @@ void *sci1 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Power
 // A15 - The vomit. (Transfiguration)
 // The 'narrow road'.
 // Getting requests from ring3 applications via systemcalls.
@@ -2089,6 +2092,7 @@ void *sci2 (
     unsigned long arg3, 
     unsigned long arg4 )
 {
+// Love
 // D25 - The Swamp.
 // Getting requests from ring3 applications via systemcalls.
 
@@ -2703,6 +2707,150 @@ void *sci2 (
     panic("sci2: [FIXME] default syscall\n");
     return NULL;
 }
+
+// Handler for the interrupt 0x83.
+void *sci3 ( 
+    unsigned long number, 
+    unsigned long arg2, 
+    unsigned long arg3, 
+    unsigned long arg4 )
+{
+// Rest
+// A15 - The vomit. (Transfiguration)
+// The 'narrow road'.
+// Getting requests from ring3 applications via systemcalls.
+// The kernel do not process the interrupt,
+// let's redirect it to the kernel module.
+// Calling the metropolitan region of the
+// fairy tale land.
+// #todo
+// Who are the processes that can call this interrupt?
+
+    debug_print ("sci1: [TODO]\n");
+
+    struct process_d *p;
+    struct thread_d  *t;
+
+// #test
+// ---------------------------------
+    if ( current_thread<0 || 
+         current_thread >= THREAD_COUNT_MAX )
+    { 
+        return NULL; }
+    t = (struct thread_d *) threadList[current_thread];
+    if ( (void*) t == NULL )
+        return NULL;
+    if (t->magic != 1234)
+        return NULL;
+    // Increment stime.
+    // see: x64cont.c
+    t->transition_counter.to_supervisor++;
+    // Antecipando, ja que fica dificil
+    // fazer isso na saida por enquanto.
+    t->transition_counter.to_user++;
+// ---------------------------------
+
+
+    pid_t current_process = (pid_t) get_current_process();
+    int layer = LAYER_UNDEFINED;
+
+//cpl
+    unsigned long *cpl_buffer = (unsigned long *) &sci3_cpl;
+    int cpl=-1;
+    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
+    cpl = (int) (tmp_cpl & 3);
+
+    if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
+    {
+        panic("sci1: cpl");
+    }
+
+    if(cpl == 0){
+        panic("sci1: cpl 0\n");
+    }
+    if(cpl == 1){
+        panic("sci1: cpl 1\n");
+    }
+    if(cpl == 2){
+        panic("sci1: cpl 2\n");
+    }
+    if(cpl == 3){
+        // ok
+    }
+
+// permission
+    if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
+        panic("sci1: current_process\n");
+    }
+    p = (struct process_d *) processList[current_process];
+    if ((void*) p == NULL){
+        debug_print("sci0: p\n");
+        panic("sci1: p\n");
+    }
+    if ( p->used != TRUE || p->magic != 1234 ){
+        debug_print("sci1: p validation\n");
+        panic("sci1: p validation\n");
+    }
+
+// The display server was not initialized yet.
+    if (WindowServerInfo.initialized != TRUE){
+        return 4321;
+    }
+
+// #test
+// The 'narrow road'.
+// Only the display server can access this service.
+    if (current_thread != WindowServerInfo.tid)
+    {
+        // OUT: Access denied.
+        return 4321;
+    }
+
+//++
+//-------------------------------------
+// #test
+// #todo: This is a work in progress.
+// Maybe this interrupt can be used 
+// to call the services provided by the first module, mod0.bin.
+// see: mod.c and mod.h.
+
+    unsigned long return_value=0;
+
+    if ((void*) kernel_mod0 == NULL)
+        return NULL;
+    if (kernel_mod0->magic != 1234)
+        return NULL;
+    if (kernel_mod0->initialized != TRUE)
+        return NULL;
+
+
+// Validation
+    if ((void*) kernel_mod0->entry_point == NULL){
+        goto fail;
+    }
+
+// #test
+// Calling the virtual function, and
+// getting the return value.
+
+    return_value = 
+        (unsigned long) kernel_mod0->entry_point(
+            number,  // Reason
+            arg2,    // l2
+            arg3,    // l3
+            arg4 );  // l3
+
+// Done
+    return (void*) return_value;
+
+//-------------------------------------
+//--
+
+fail:
+    return NULL;
+}
+
+
 
 //
 // End

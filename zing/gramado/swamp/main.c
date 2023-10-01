@@ -3756,7 +3756,7 @@ static int ServerInitialization(int dm)
 
 // Phase 1
     mod_status = 
-        sc81( 
+        sc83(  //sc81( 
         2001,                // Service number 
         ____FRONTBUFFER_VA,  // Frontbuffer va 
         ____BACKBUFFER_VA,   // Backbuffer va
@@ -3765,7 +3765,7 @@ static int ServerInitialization(int dm)
 
 // Phase 2
     mod_status = 
-        sc81( 
+        sc83(  //sc81( 
         2002,             // Service number 
         __device_width,   // W
         __device_height,  // H

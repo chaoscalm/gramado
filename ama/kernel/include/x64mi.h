@@ -26,6 +26,12 @@ void *mi82h (
     unsigned long arg3, 
     unsigned long arg4 );
 
+void *mi83h ( 
+    unsigned long number, 
+    unsigned long arg2, 
+    unsigned long arg3, 
+    unsigned long arg4 );
+
 #endif   
 
 

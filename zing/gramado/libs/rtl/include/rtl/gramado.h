@@ -88,6 +88,12 @@ void *sc82 (
     unsigned long c, 
     unsigned long d );
 
+void *sc83 ( 
+    unsigned long a,  //Service number. 
+    unsigned long b, 
+    unsigned long c, 
+    unsigned long d );
+
 // =====================================================
 
 
