@@ -9,56 +9,8 @@
 // see: kernel.h
 struct kernel_module_d  *kernel_mod0;
 
-
 unsigned long kmList[KMODULE_MAX];
 
-
-/*
-static void 
-caller1(
-    unsigned long function_address, 
-    unsigned long data0 );
-*/
-
-// ----------------------------------------
-
-/*
-static void 
-caller1(
-    unsigned long function_address, 
-    unsigned long data0 )
-{
-// #todo
-// + Maybe return 'unsigned long'.
-// + Maybe share data via shared memory
-//   using a big buffer for that.
-// + Maybe share the pointer of the buffer of a file.
-// ...
-// (in order: rdi, rsi, rdx, rcx, r8, r9).
-
-    //#debug
-    //asm (" movq $65, %rdi ");
-
-// 64bit
-    unsigned long first_parameter = data0;
-    unsigned long return_value=0;
-    asm volatile ("movq    %1, %%rax  ;"
-         "movq %%rax, %0     ;"
-         "movq %%rax, %%rdi  ;"  // RDI: First parameter.  (data0).
-         "movq %%rax, %%rsi  ;"  // RSI: Second parameter. (data0).
-         :"=r"(return_value)  //output 
-         :"r"(first_parameter) //input (O operando eh um registrador de prop. geral).
-         :"%rax"   //clobbered register. (rax sera modificado).
-    );    
-    asm volatile ("call *%0" : : "r"(function_address));
-
-// #test
-// #todo
-// What is the return value.
-    printf ("RETURN: {%d}\n",return_value);
-    refresh_screen();
-}
-*/
 
 // mod0: Call the entrypoint of the module.
 // mod0.bin entry point.
@@ -85,32 +37,32 @@ void test_mod0(void)
 // getting the return value.
     if ( (void*) kernel_mod0->entry_point != NULL )
     {
-        // test1
+
+        /*
+        // #test
+        // Testing the parameters. (OK)
+        return_value = 
+            (unsigned long) kernel_mod0->entry_point(
+                                8888,  //reason
+                                2020,
+                                3030,
+                                4040 );
+        printf ("RETURN: %d\n",return_value);
+        */
+
+        // --------------------
+        // Reason 1000: Initializing the module.
         return_value = 
             (unsigned long) kernel_mod0->entry_point(1000,1234,0,0);
         printf ("RETURN: %d\n",return_value);
+        
 
-        // test2
+        // --------------------
+        // Reason 1001: Testin printf function.
         return_value = 
-            (unsigned long) kernel_mod0->entry_point(1001,1234,0,0);
+            (unsigned long) kernel_mod0->entry_point(1001,1234,0,0);       
         printf ("RETURN: %d\n",return_value);
     }
-
-//done:
-    return;
-//------------------------
-/*
-                //while(1){
-                // No return value.
-                // 1 parameter.
-                // reason=1000. (Initialize)
-                caller1((unsigned long) XP_MOD0, 1000 );
-                // reason=1001. (test)
-                caller1((unsigned long) XP_MOD0, 1001 );
-                // Invalid reason
-                caller1((unsigned long) XP_MOD0,  999 );
-                //};
-*/
 }
 
 void xp_putchar_in_fgconsole(unsigned long _char)

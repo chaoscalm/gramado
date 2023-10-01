@@ -446,6 +446,7 @@ static void newm0_print_string (char *s)
     };
 }
 
+// OUT: TRUE or FALSE.
 static int newm0_initialize(void)
 {
 
@@ -493,19 +494,19 @@ static int newm0_initialize(void)
     {
         ModuleInitialization.initialized = TRUE;
         newm0_print_string("newm0_initialize: Initialized\n");
-        return 0;
+        return TRUE;
     }
 
 fail:
     ModuleInitialization.initialized = FALSE;
-    return -1;
+    return FALSE;
 }
 
 
 static int newm0_1001(void)
 {
     if (ModuleInitialization.initialized != TRUE){
-        return -1;
+        goto fail;
     }
     newm0_print_string("newm0_1001: reason 1001\n");
 
@@ -519,8 +520,9 @@ static int newm0_1001(void)
     //caller1( kfunctions[PUTCHAR_FGCONSOLE], 'x');
 
 // #testing printf
-    int value=1234;
-    printf("mod0.bin: {%d} Testing printf :)\n",value);
+    long value = 1234;
+    printf("mod0.bin: Testing printf | value={%d} :)\n",
+        value);
 
 // #testing reboot.
 // ok, it's working.
@@ -528,46 +530,68 @@ static int newm0_1001(void)
     //do_reboot();
 
 // Done
-    return 0;
+    return TRUE;
+fail:
+    return FALSE;
 }
 
 // ---------------------------
 // main:
 unsigned long 
 module_main (
-    unsigned long arg1,  // reason
-    unsigned long arg2,  // long1
-    unsigned long arg3,  // long2
-    unsigned long arg4 ) // long3
+    unsigned long param1,  // reason
+    unsigned long param2,  // long1
+    unsigned long param3,  // long2
+    unsigned long param4 ) // long3
 {
-    unsigned long reason = (unsigned long) arg1;
-    unsigned long sig = (unsigned long) arg2;
+    unsigned long reason = (unsigned long) (param1 & 0xFFFF);
     int Status = -1;
 
-// Reason
-    if (reason<0){
+// Invalid reason.
+    if (reason < 0){
         goto fail;
     }
-// Signature
-    if (sig != 1234)
-        goto fail;
 
     switch (reason){
+
+        // Initializing the module.
         case 1000:
             Status = (int) newm0_initialize();
+            if (Status == TRUE){
+                printf("Initialization OK\n");
+                return 1234;
+            }
             return (unsigned long) 0;
             break;
+
+        // Testing printf function.
         case 1001:
             Status = (int) newm0_1001();
+            if (Status == TRUE){
+                return 1234;
+            }
             return (unsigned long) 0;
             break;
 
-        // #test
+        // #todo
         case 2000:
-            //printf("mod0.bin: Testing reboot via ports\n");
-            //do_reboot();
+            goto fail;
             break;
 
+        // Testing the parameter list.
+        case 8888:
+            if (ModuleInitialization.initialized != TRUE){
+                newm0_initialize();
+            }
+            if (ModuleInitialization.initialized == TRUE){
+                printf("Parameters: %d | %d | %d | %d\n",
+                    param1, param2, param3, param4 );
+                return (unsigned long) 1234;
+            }
+            return 0;
+            break;
+
+        // Invalid reason.
         default:
             goto fail;
             break;

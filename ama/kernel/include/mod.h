@@ -46,7 +46,7 @@ struct kernel_module_d
 // Using the kernel's address espace.
 // IN: 4 parameters.
 // OUT: unsigned long.
-   unsigned long (*entry_point)(unsigned long, unsigned long, unsigned long, unsigned long);
+   unsigned long (*entry_point)( unsigned long, unsigned long, unsigned long, unsigned long );
 
 // Navigation
     struct kernel_module_d  *next;
