@@ -1,7 +1,6 @@
 /*
  * File: ide.h
- * Descrição:
- *     Header para rotinas de hardware para drivers de ide. hdd.
+ * Header for ide.c.
  * History:
  *     2015
  */
@@ -57,7 +56,7 @@ struct ide_ports_d
     unsigned short base_port;
     char *name;
     //...
-    // Dá pra colocar aqui mais informações sobre 
+    // Dï¿½ pra colocar aqui mais informaï¿½ï¿½es sobre 
     // o dispositivo conectado a porta.
     // podemos usar ponteiros para estruturas.
 };
@@ -119,7 +118,7 @@ struct ide_disk_d
 // pode ser 0 ou 1, master ou slave ou outroscanais.
     struct ide_channel_d *channel; 
 
-// #todo: estrutura para partições.
+// #todo: estrutura para partiï¿½ï¿½es.
 // Podemos ter muitos elementos aqui.
 };
 
@@ -130,12 +129,12 @@ typedef struct ide_disk_d  ide_disk_t;
  * ide_d:
  * #IMPORTANTE
  * Estrutura para configurar a interface IDE. 
- * Essa será a estrutura raiz para gerenciamento do controlador de IDE.
+ * Essa serï¿½ a estrutura raiz para gerenciamento do controlador de IDE.
  */
 
 struct ide_d
 {
-    // devemos colocar aqui um ponteiro para estrutura de informações 
+    // devemos colocar aqui um ponteiro para estrutura de informaï¿½ï¿½es 
     // sobre o dispositivo controlador de ide.	
 
     int current_port;
@@ -150,54 +149,12 @@ typedef struct ide_d ide_t;
 //see: ide.c
 extern struct ide_d  IDE;
 
-
-struct hdd_d
-{
-	//...
-	int dummy;
-	//unsigned long hdd_handler_address;
-};
-
-typedef struct hdd_d  hdd_t;
  
 
 //
 // Prototypes =================================
 //
 
-//
-// lba support.
-//
-
-// White lba on ide device.
-void write_lba( unsigned long address, unsigned long lba );
-// Read lba on ide device.
-void read_lba ( unsigned long address, unsigned long lba );
-
-// Read or write a sector using PIO mode.
-int 
-pio_rw_sector ( 
-    unsigned long buffer, 
-    unsigned long lba, 
-    int rw, 
-    int port,
-    int slave ); 
-
-void 
-my_read_hd_sector ( 
-    unsigned long ax, 
-    unsigned long bx, 
-    unsigned long cx, 
-    unsigned long dx ); 
-
-void 
-my_write_hd_sector ( 
-    unsigned long ax, 
-    unsigned long bx, 
-    unsigned long cx, 
-    unsigned long dx ); 
-
-int init_hdd(void);
 
 #endif    
 
