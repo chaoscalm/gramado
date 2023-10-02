@@ -78,7 +78,6 @@ clean-core:
 	-rm ama/kernel/KERNEL.BIN
 
 	-rm kmods/newm0/MOD0.BIN
-	-rm kmods/newm1/MOD1.BIN
 
 PHONY := clean-base
 clean-base:

@@ -20,6 +20,19 @@ static int InitialProcessInitialized = FALSE;
 #define INIT_BIN_PATH   "/BIN"
 //...
 
+// -------------------
+// Image name for the kernel module. MOD0.BIN
+// see:
+// kmods/newm0/ 
+const char *mod_image_name = "MOD0    BIN";   // Original
+//const char *mod_image_name = "MOD1    BIN";   // #test 
+// ...
+
+// -------------------
+// Image name for the init process. INIT.BIN
+const char *init_image_name = "INIT    BIN";
+
+
 // =========================================
 
 
@@ -32,9 +45,11 @@ static int __setup_stdin_cmdline(void);
 static int I_initKernelComponents(void);
 
 static int I_x64CreateKernelProcess(void);
+static int __load_mod_image(void);
 static int I_x64CreateInitialProcess(void);
-static int I_x64CreateTID0(void);
 static int __load_initbin_image(void);
+
+static int I_x64CreateTID0(void);
 
 // =========================================
 
@@ -97,15 +112,7 @@ static int __setup_stdin_cmdline(void)
 
 
 
-//local
-static int __load_initbin_image(void)
-{
-    int Status = -1;
-
-    char *ImageName = "INIT    BIN";
-    char *PathName = "/INIT.BIN";
-    char *PathName2 = "/GRAMADO/INIT.BIN";
-
+// Local worker.
 // The virtual address for the base of the image.
 // ps: We are using the kernel page directories now,
 // this way but we're gonna clone the kernel pages
@@ -119,72 +126,61 @@ static int __load_initbin_image(void)
 // Talvez seja porque a gerência de memória
 // reservou esse espaço de 2mb para o primeiro processo em ring3
 // na hora de mapear as regiões principais da memória ram.
+static int __load_initbin_image(void)
+{
 
+// The virtual address for the init process image.
     unsigned long ImageAddress = 
         (unsigned long) CONTROLTHREAD_BASE;
 
-//
-// Load image GWS.BIN
-//
 
-// Session manager
-// This is the first user mode process running
-// after the kernel base.
-// #importante
-// Carregado do diretório raiz
-// loading image.
 // #bugbug
-// Loading from root dir. 512 entries limit.
-// #todo
-// O propósito é termos a possibilidade de selecionar qual será
-// a imagem desse processo incial
-// e configurarmos isso no modulo init/ do kernel base.
-
+// We have a limit for the image size.
     unsigned long BUGBUG_IMAGE_SIZE_LIMIT = (512 * 4096);
 
-/*
- *    It loads a file into the memory.
- * IN:
- *     fat_address  = FAT address.
- *     dir_addresss = Directory address.
- *     dir_entries  = Number of entries in the given directory.
- *     file_name    = File name.
- *     buffer = Where to load the file. The pre-allocated buffer.
- *     buffer_size_in_bytes = Maximum buffer size.
- * OUT: 
- *    1=fail 
- *    0=ok.
- */
+    int Status = -1;
+
+// Check the validation of the name.
+    if ((void*) init_image_name == NULL){
+        panic("__load_initbin_image: init_image_name\n");
+    }
+
+
+// ---------------------
+// It loads a file into the memory.
+// IN:
+//     fat_address  = FAT address.
+//     dir_addresss = Directory address.
+//     dir_entries  = Number of entries in the given directory.
+//     file_name    = File name.
+//     buffer = Where to load the file. The pre-allocated buffer.
+//     buffer_size_in_bytes = Maximum buffer size.
+// -----------------
+// OUT: 
+//    1 = fail 
+//    0 = ok
+
 
     Status = 
         (unsigned long) fsLoadFile( 
                             VOLUME1_FAT_ADDRESS, 
                             VOLUME1_ROOTDIR_ADDRESS, 
                             FAT16_ROOT_ENTRIES,    //#bugbug: number of entries.
-                            ImageName, 
+                            init_image_name, 
                             (unsigned long) ImageAddress,  // buffer
                             BUGBUG_IMAGE_SIZE_LIMIT );     // buffer limits
 
-/*
-    // #bugbug
-    // Essa rotina ainda não leva direito emconsideração
-    // o limite do tamanho do arquivo.
-    // Estamos passando o tamanho do buffer definido,
-    // mas a rotina ignora.
-    
-    Status = (int) fs_load_path ( 
-                       (const char*) PathName, 
-                       (unsigned long) ImageAddress,
-                       (unsigned long) BUGBUG_IMAGE_SIZE_LIMIT ); 
-*/
+    if (Status != 0){
+        printf("__load_initbin_image: on fsLoadFile()\n");
+        return -1;
+    }
 
 // OUT: 
-//    1=fail 
-//    0=ok.
+//    1 = fail 
+//    0 = ok
 
-    return (int) Status;
+    return 0;
 }
-
 
 // Load INIT.BIN.
 // Create a process for the first ring3 process.
@@ -736,62 +732,91 @@ void I_x64ExecuteInitialProcess (void)
     panic("I_x64ExecuteInitialProcess: Unexpeted error\n");
 }
 
-// Create the kernel process.
-// It will create a process for two images:
 
-static int I_x64CreateKernelProcess(void)
+// Local worker
+static int __load_mod_image(void)
 {
-    // This is a ring0 process.
-    // This process has two images,
-    // KERNEL.BIN loaded by the boot loader and
-    // MOD0.BIN loaded by the kernel base.
-
-// see:
-// newm0/ and newm1/
-
-    char *ImageName = "MOD0    BIN";   // Original (.c)
-    //char *ImageName = "MOD1    BIN";  // #test (.cpp)
-    // ...
-
-    // This is the virtual address for the base of the image.
-    // We are using the kernel pagetables for that.
-    // #define EXTRAHEAP1_VA   0x0000000030A00000
-    // MOD0_IMAGE_VA
-    // See: x64gva.h
-
+// The virtual address for the module image.
+// #warning
+// This is a static address. Why not?
+// Hack me!
     unsigned long ImageAddress =
         (unsigned long) 0x30A00000;
-
-    unsigned long fileret=1;
-    int Status=FALSE;
+// #bugbug
+// We have a limit for the image size.
     unsigned long BUGBUG_IMAGE_SIZE_LIMIT = (512 * 4096);
 
-    //debug_print ("I_x64CreateKernelProcess:\n");
+    unsigned long fileret=1;
 
-    unsigned long BasePriority = PRIORITY_MAX;
-    unsigned long Priority     = PRIORITY_MAX;
 
-    register int i=0;
+// Check the validation of the name.
+    if ((void*) mod_image_name == NULL){
+        panic("__load_mod_image: init_image_name\n");
+    }
 
-//
-// Module 0 image.
-//
 
-// WS_IMAGE_VA
+// ---------------------
+// It loads a file into the memory.
+// IN:
+//     fat_address  = FAT address.
+//     dir_addresss = Directory address.
+//     dir_entries  = Number of entries in the given directory.
+//     file_name    = File name.
+//     buffer = Where to load the file. The pre-allocated buffer.
+//     buffer_size_in_bytes = Maximum buffer size.
+// -----------------
+// OUT: 
+//    1 = fail 
+//    0 = ok
+
 
     fileret = 
         (unsigned long) fsLoadFile( 
                             VOLUME1_FAT_ADDRESS, 
                             VOLUME1_ROOTDIR_ADDRESS, 
                             FAT16_ROOT_ENTRIES,    //#bugbug: number of entries.
-                            ImageName, 
+                            mod_image_name, 
                             (unsigned long) ImageAddress,
                             BUGBUG_IMAGE_SIZE_LIMIT ); 
 
     if (fileret != 0){
-        printf ("I_x64CreateInitialProcess: MOD0.BIN\n");
-        return FALSE;
+        printf("__load_mod_image: on fsLoadFile()\n");
+        return -1;
     }
+
+// OUT: 
+//    1 = fail 
+//    0 = ok
+    return 0;
+}
+
+// Create the kernel process.
+// It will create a process for two images:
+// This is a ring0 process.
+// This process has two images,
+// KERNEL.BIN loaded by the boot loader and
+// MOD0.BIN loaded by the kernel base.
+// This is the virtual address for the base of the image.
+// We are using the kernel pagetables for that.
+// #define EXTRAHEAP1_VA   0x0000000030A00000
+// MOD0_IMAGE_VA
+// See: x64gva.h
+
+static int I_x64CreateKernelProcess(void)
+{
+
+    int Status=FALSE;
+    unsigned long BasePriority = PRIORITY_MAX;
+    unsigned long Priority     = PRIORITY_MAX;
+    register int i=0;
+
+    //debug_print ("I_x64CreateKernelProcess:\n");
+
+//
+// Load module image.
+//
+
+    __load_mod_image();
 
 //
 // Kernel process

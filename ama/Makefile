@@ -148,11 +148,6 @@ build-gramado-os:
 # Copy the ring0 module image.
 	sudo cp kmods/newm0/MOD0.BIN  $(BASE)/
 
-# ::Build the ring0 module image.
-	$(Q)$(MAKE) -C kmods/newm1/
-# Copy the ring0 module image.
-	sudo cp kmods/newm1/MOD1.BIN  $(BASE)/
-
 
 #----------------------------------
 # () xciting/
@@ -320,7 +315,6 @@ clean-all: clean
 # (3) kmods/
 # Clear the ring0 module images
 	-rm -rf kmods/newm0/MOD0.BIN
-	-rm -rf kmods/newm1/MOD1.BIN
 
 # ==================
 # (4) xciting/
