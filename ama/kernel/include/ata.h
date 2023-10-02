@@ -2,8 +2,8 @@
 // ata.h
 // Created by Nelson Cole.
 
-#ifndef __ATA_ATA_H
-#define __ATA_ATA_H    1
+#ifndef __ATA_H
+#define __ATA_H    1
 
 #define IDE_ATA    0
 #define IDE_ATAPI  1
@@ -36,15 +36,13 @@
 #define FORCEPIO 1234
 
 // #bugbug 
+// Invalid addresses
 // Precisamos encontrar endereços válidos.
 #define DMA_PHYS_ADDR0  0xa0000
 #define DMA_PHYS_ADDR1  0xb0000
 #define DMA_PHYS_ADDR2  0xb0000
 #define DMA_PHYS_ADDR3  0xb0000 
 
-// #bugbug: 
-// Usar definição do Gramado.
-#define PCI_CLASSE_MASS  1
 
 // Controladores de unidades ATA.
 #define ATA_IDE_CONTROLLER   0x1
@@ -279,7 +277,6 @@ struct ata_port_info_d
 };
 
 
-
 struct ata_controller_d
 {
 // ATA Mass storage controler structure.
@@ -290,7 +287,6 @@ struct ata_controller_d
     uint8_t controller_type;
 };
 extern struct ata_controller_d AtaController;
-
 
 /*
  * ata:
@@ -337,7 +333,6 @@ extern struct ata_port_d  ata_port[4];  // 32 ports.
 
 struct ata_device_d
 {
-
     //#test
     int used;
     int magic;
@@ -519,11 +514,10 @@ unsigned char ata_wait_no_drq (int p);
 unsigned char ata_wait_busy (int p);
 unsigned char ata_wait_not_busy (int p);
 
+void ata_wait(int val);
+void ata_delay(void);
 
-void ata_wait (int val);
-void ata_delay (void);
-
-inline void atapi_pio_read ( int p, void *buffer, uint32_t bytes );
+inline void atapi_pio_read( int p, void *buffer, uint32_t bytes );
 
 void ata_set_boottime_ide_port_index(unsigned int port_index);
 int ata_get_boottime_ide_port_index(void);
@@ -552,7 +546,6 @@ diskWritePCIConfigAddr (
     int offset, 
     int data );
 
-
 // Read and write via pio mode.
 int 
 pio_rw_sector ( 
@@ -575,11 +568,11 @@ ataWriteSector (
     unsigned long reserved1,
     unsigned long reserved2 );
 
-int init_hdd (void);
+int init_hdd(void);
 
-void ide_dma_start (int p);
-void ide_dma_stop (int p);
-int ide_dma_read_status (int p);
+void ide_dma_start(int p);
+void ide_dma_stop(int p);
+int ide_dma_read_status(int p);
 
 void 
 ide_dma_data ( 
@@ -593,12 +586,12 @@ init_ata (
     int msg, 
     unsigned long long1 );
 
-uint32_t diskPCIScanDevice (int class);
+uint32_t diskPCIScanDevice(int class);
 
 int atapciSetupMassStorageController(struct pci_device_d *D);
 
-unsigned char ata_wait_irq (int p);
-int disk_ata_wait_irq (int p);
+unsigned char ata_wait_irq(int p);
+int disk_ata_wait_irq(int p);
 
 // Show info:
 void ata_show_ide_info(void);

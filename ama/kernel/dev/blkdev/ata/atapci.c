@@ -3,6 +3,7 @@
 
 #include <kernel.h>
 
+//#define PCI_CLASS_MASS  1
 
 /*
  * PCIDeviceATA:
@@ -24,7 +25,6 @@ struct pci_device_d *PCIDeviceATA;
  * diskReadPCIConfigAddr:
  *     READ 
  */
-
 uint32_t 
 diskReadPCIConfigAddr ( 
     int bus, 
@@ -32,16 +32,14 @@ diskReadPCIConfigAddr (
     int fun, 
     int offset )
 {
-    out32 ( PCI_PORT_ADDR, __PCI_CONFIG_ADDR( bus, dev, fun, offset ) );
-    return (uint32_t) in32 (PCI_PORT_DATA);
+    out32( PCI_PORT_ADDR, __PCI_CONFIG_ADDR( bus, dev, fun, offset ) );
+    return (uint32_t) in32(PCI_PORT_DATA);
 }
-
 
 /* 
  * diskWritePCIConfigAddr:
  *     WRITE 
  */
-
 void 
 diskWritePCIConfigAddr ( 
     int bus, 
@@ -50,10 +48,9 @@ diskWritePCIConfigAddr (
     int offset, 
     int data )
 {
-    out32 ( PCI_PORT_ADDR, __PCI_CONFIG_ADDR( bus, dev, fun, offset ) );
-    out32 ( PCI_PORT_DATA, data );
+    out32( PCI_PORT_ADDR, __PCI_CONFIG_ADDR( bus, dev, fun, offset ) );
+    out32( PCI_PORT_DATA, data );
 }
-
 
 /*
  * diskPCIScanDevice:
@@ -92,7 +89,7 @@ uint32_t diskPCIScanDevice(int class)
                     PCI_PORT_ADDR, 
                     __PCI_CONFIG_ADDR( bus, dev, fun, 0x8) );
 
-                data = in32 (PCI_PORT_DATA);
+                data = in32(PCI_PORT_DATA);
 
                 if ( ( data >> 24 & 0xff ) == class )
                 {
@@ -107,17 +104,12 @@ uint32_t diskPCIScanDevice(int class)
     };
 
 // Fail
-    printf ("diskPCIScanDevice: PCI device NOT detected\n");
-
-//#bugbug
-//isso e' lento
-    //refresh_screen();
+    printf("diskPCIScanDevice: PCI device NOT detected\n");
 
 // #bugbug 
 // Usando -1 para unsigned int. 
     return (uint32_t) (-1);
 }
-
 
 /*
  * atapciSetupMassStorageController:
@@ -142,8 +134,8 @@ int atapciSetupMassStorageController(struct pci_device_d *D)
     AtaController.controller_type = (uint8_t) ATA_UNKNOWN_CONTROLLER;
 
 // Check parameters.
-    if ( (void *) D == NULL ){
-        printf ("atapciConfigurationSpace: D struct\n");
+    if ((void *) D == NULL){
+        printf("atapciConfigurationSpace: D\n");
         goto fail;
     }
     if ( D->used != TRUE || D->magic != 1234 ){
@@ -197,7 +189,8 @@ int atapciSetupMassStorageController(struct pci_device_d *D)
 
 // ====
     // 1:1 = IDE controller.
-    if ( D->classCode == PCI_CLASSCODE_MASS && D->subclass == PCI_SUBCLASS_IDE ){
+    if ( D->classCode == PCI_CLASSCODE_MASS && 
+         D->subclass == PCI_SUBCLASS_IDE ){
 
         // #type: (IDE).
         AtaController.controller_type = (uint8_t) ATA_IDE_CONTROLLER; 
@@ -254,7 +247,8 @@ int atapciSetupMassStorageController(struct pci_device_d *D)
 
 // ====
     // 1:4 = RAID controller
-    }else if ( D->classCode == PCI_CLASSCODE_MASS && D->subclass == PCI_SUBCLASS_RAID ){
+    }else if ( D->classCode == PCI_CLASSCODE_MASS && 
+               D->subclass == PCI_SUBCLASS_RAID ){
 
         // #type: (ATA RAID).
         AtaController.controller_type = (uint8_t) ATA_RAID_CONTROLLER;
@@ -271,7 +265,8 @@ int atapciSetupMassStorageController(struct pci_device_d *D)
 
 // ====
     // 1:6 = SATA controller.
-    }else if ( D->classCode == PCI_CLASSCODE_MASS && D->subclass == PCI_SUBCLASS_SATA ){
+    }else if ( D->classCode == PCI_CLASSCODE_MASS && 
+               D->subclass == PCI_SUBCLASS_SATA ){
 
         // #type (ACHI)
         AtaController.controller_type = (uint8_t) ATA_AHCI_CONTROLLER;
@@ -368,9 +363,9 @@ int atapciSetupMassStorageController(struct pci_device_d *D)
 //
 // == DMA ====================
 //
-    data = diskReadPCIConfigAddr ( D->bus, D->dev, D->func, 0x48 );
+    data = diskReadPCIConfigAddr( D->bus, D->dev, D->func, 0x48 );
 //#debug
-    //printf ("[ Synchronous DMA Control Register %x ]\n", data );
+    //printf("[ Synchronous DMA Control Register %x ]\n", data );
 
 //done:
     //ata_port.used = TRUE;
