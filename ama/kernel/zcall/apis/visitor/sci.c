@@ -12,12 +12,6 @@
 
 static unsigned long __default_syscall_counter=0;
 
-//globals
-//see:sw.asm
-unsigned long sci0_cpl=0;
-unsigned long sci1_cpl=0;
-unsigned long sci2_cpl=0;
-unsigned long sci3_cpl=0;
 
 //
 // == private functions: prototypes =============
@@ -291,13 +285,14 @@ void *sci0 (
     unsigned long arg4 )
 {
 // Wisdom
-// D8 - Far Far Away.
 // Getting requests from ring3 applications via systemcalls.
 
-    struct process_d  *p;
+    struct process_d *p;
+    struct thread_d *t;
+    int layer = LAYER_UNDEFINED;
 
-    struct thread_d  *t;
-    
+    pid_t current_process = (pid_t) get_current_pid();
+
 // #test
 // ---------------------------------
     if ( current_thread<0 || 
@@ -325,42 +320,6 @@ void *sci0 (
     unsigned long *a2 = (unsigned long*) arg2;
     unsigned long *a3 = (unsigned long*) arg3;
     unsigned long *a4 = (unsigned long*) arg4;
-
-    // Not in use!
-    //char *aa2 = (char *) arg2;
-    //char *aa3 = (char *) arg3;
-    //char *aa4 = (char *) arg4;
-
-    pid_t current_process = (pid_t) get_current_pid();
-    int layer = LAYER_UNDEFINED;
-
-//cpl
-    unsigned long *cpl_buffer = (unsigned long *) &sci0_cpl;
-    int cpl=-1;
-    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
-    cpl = (int) (tmp_cpl & 3);
-
-    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
-    {
-        panic("sci0: cpl");
-    }
-
-    if (cpl == 0){
-        printf("number=%d\n",number);
-        printf("pid=%d\n",current_process);
-        //if(current_process != 0){
-            panic("sci0: cpl 0\n");
-        //}
-    }
-    if (cpl == 1){
-        panic("sci0: cpl 1\n");
-    }
-    if (cpl == 2){
-        panic("sci0: cpl 2\n");
-    }
-    if (cpl == 3){
-        // ok
-    }
 
     // #debug
     //debug_print("sc0:\n");
@@ -737,7 +696,7 @@ void *sci0 (
 
     // #todo: See at the beginning of this routine.
     if (number == SYS_EXIT){
-        panic("sci.c: SYS_EXIT\n");
+        panic("sci0: SYS_EXIT\n");
         return NULL;
     }
 
@@ -1950,20 +1909,16 @@ void *sci1 (
     unsigned long arg4 )
 {
 // Power
-// A15 - The vomit. (Transfiguration)
-// The 'narrow road'.
 // Getting requests from ring3 applications via systemcalls.
-// The kernel do not process the interrupt,
-// let's redirect it to the kernel module.
-// Calling the metropolitan region of the
-// fairy tale land.
-// #todo
-// Who are the processes that can call this interrupt?
-
-    debug_print ("sci1: [TODO]\n");
 
     struct process_d *p;
-    struct thread_d  *t;
+    struct thread_d *t;
+    int layer = LAYER_UNDEFINED;
+
+    debug_print("sci1: [TODO]\n");
+
+    pid_t current_process = (pid_t) get_current_process();
+
 
 // #test
 // ---------------------------------
@@ -1983,34 +1938,6 @@ void *sci1 (
     // fazer isso na saida por enquanto.
     t->transition_counter.to_user++;
 // ---------------------------------
-
-
-    pid_t current_process = (pid_t) get_current_process();
-    int layer = LAYER_UNDEFINED;
-
-//cpl
-    unsigned long *cpl_buffer = (unsigned long *) &sci1_cpl;
-    int cpl=-1;
-    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
-    cpl = (int) (tmp_cpl & 3);
-
-    if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
-    {
-        panic("sci1: cpl");
-    }
-
-    if(cpl == 0){
-        panic("sci1: cpl 0\n");
-    }
-    if(cpl == 1){
-        panic("sci1: cpl 1\n");
-    }
-    if(cpl == 2){
-        panic("sci1: cpl 2\n");
-    }
-    if(cpl == 3){
-        // ok
-    }
 
 // permission
     if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
@@ -2093,12 +2020,14 @@ void *sci2 (
     unsigned long arg4 )
 {
 // Love
-// D25 - The Swamp.
 // Getting requests from ring3 applications via systemcalls.
 
-    struct process_d  *p;
-    struct thread_d  *t;
-    
+    struct process_d *p;
+    struct thread_d *t;
+    int layer = LAYER_UNDEFINED;
+
+    pid_t current_process = (pid_t) get_current_process();
+
 // #test
 // ---------------------------------
     if ( current_thread<0 || 
@@ -2117,39 +2046,6 @@ void *sci2 (
     // fazer isso na saida por enquanto.
     t->transition_counter.to_user++;
 // ---------------------------------
-
-    // Array de longs.
-    // Not in use!
-    //unsigned long *a2 = (unsigned long*) arg2;
-    //unsigned long *a3 = (unsigned long*) arg3;
-    //unsigned long *a4 = (unsigned long*) arg4;
-
-    pid_t current_process = (pid_t) get_current_process();
-    int layer = LAYER_UNDEFINED;
-
-//cpl
-    unsigned long *cpl_buffer = (unsigned long *) &sci2_cpl;
-    int cpl=-1;
-    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
-    cpl = (int) (tmp_cpl & 3);
-
-    if ( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
-    {
-        panic("sci2: cpl");
-    }
-
-    if (cpl == 0){
-        panic("sci2: cpl 0\n");
-    }
-    if (cpl == 1){
-        panic("sci2: cpl 1\n");
-    }
-    if (cpl == 2){
-        panic("sci2: cpl 2\n");
-    }
-    if (cpl == 3){
-        // ok
-    }
 
     // debug_print("sci2: [TODO]\n");
 
@@ -2716,20 +2612,15 @@ void *sci3 (
     unsigned long arg4 )
 {
 // Rest
-// A15 - The vomit. (Transfiguration)
-// The 'narrow road'.
 // Getting requests from ring3 applications via systemcalls.
-// The kernel do not process the interrupt,
-// let's redirect it to the kernel module.
-// Calling the metropolitan region of the
-// fairy tale land.
-// #todo
-// Who are the processes that can call this interrupt?
-
-    debug_print ("sci1: [TODO]\n");
 
     struct process_d *p;
-    struct thread_d  *t;
+    struct thread_d *t;
+    int layer = LAYER_UNDEFINED;
+
+    debug_print("sci1: [TODO]\n");
+
+    pid_t current_process = (pid_t) get_current_process();
 
 // #test
 // ---------------------------------
@@ -2750,46 +2641,18 @@ void *sci3 (
     t->transition_counter.to_user++;
 // ---------------------------------
 
-
-    pid_t current_process = (pid_t) get_current_process();
-    int layer = LAYER_UNDEFINED;
-
-//cpl
-    unsigned long *cpl_buffer = (unsigned long *) &sci3_cpl;
-    int cpl=-1;
-    unsigned long tmp_cpl = (unsigned long) cpl_buffer[0];
-    cpl = (int) (tmp_cpl & 3);
-
-    if( cpl != 0 && cpl != 1 && cpl != 2 && cpl != 3 )
-    {
-        panic("sci1: cpl");
-    }
-
-    if(cpl == 0){
-        panic("sci1: cpl 0\n");
-    }
-    if(cpl == 1){
-        panic("sci1: cpl 1\n");
-    }
-    if(cpl == 2){
-        panic("sci1: cpl 2\n");
-    }
-    if(cpl == 3){
-        // ok
-    }
-
 // permission
     if (current_process<0 || current_process >= PROCESS_COUNT_MAX){
-        panic("sci1: current_process\n");
+        panic("sci3: current_process\n");
     }
     p = (struct process_d *) processList[current_process];
     if ((void*) p == NULL){
-        debug_print("sci0: p\n");
-        panic("sci1: p\n");
+        debug_print("sci3: p\n");
+        panic("sci3: p\n");
     }
     if ( p->used != TRUE || p->magic != 1234 ){
-        debug_print("sci1: p validation\n");
-        panic("sci1: p validation\n");
+        debug_print("sci3: p validation\n");
+        panic("sci3: p validation\n");
     }
 
 // The display server was not initialized yet.
