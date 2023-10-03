@@ -3,6 +3,8 @@
 
 #include "gwsint.h"
 
+
+// "... and the house of God will overflow ..."
 unsigned long clientList[CLIENT_COUNT_MAX];
 
 struct gws_client_d  *serverClient;

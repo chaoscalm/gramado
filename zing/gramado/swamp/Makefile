@@ -77,13 +77,13 @@ CFLAGS += -fno-pie
 CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
-#todo
-#path longo. vamos mudar  as libs de lugar para gramado/libs.
+
 LIBC        = ../libs/rtl/include/
 LIBCOBJ     = ../libs/rtl/obj
 
 LIBDISP     = ../libs/libdisp/include/
 LIBDISPOBJ  = ../libs/libdisp/obj
+
 LIBGR       = ../libs/libgr/include/
 LIBGROBJ    = ../libs/libgr/obj
 
@@ -103,7 +103,7 @@ myObjects += libgr.o
 myObjects += ar_root.o
 myObjects += ar_rtl.o
 myObjects += ar_os.o
-myObjects += ar_comp.o    
+myObjects += ar_comp.o
 myObjects += ar_ui.o    
 
 .PHONY: all all-c gws-link finalize clean
@@ -111,18 +111,18 @@ myObjects += ar_ui.o
 all: main.o all-c gws-link finalize clean
 	@echo "Ok?"
 main.o:
-	$(CC) -c  main.c      $(CFLAGS) $(CINCLUDES) -o main.o
+	$(CC) -c main.c      $(CFLAGS) $(CINCLUDES) -o main.o
 all-c:
-	$(CC)  -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
-	$(CC)  -c button.c    $(CFLAGS) $(CINCLUDES) -o button.o
-	$(CC) -c  callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
-	$(CC) -c  client.c    $(CFLAGS) $(CINCLUDES) -o client.o
-	$(CC)  -c demos.c     $(CFLAGS) $(CINCLUDES) -o demos.o
-	$(CC) -c  globals.c   $(CFLAGS) $(CINCLUDES) -o globals.o
-	$(CC)  -c grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
-	$(CC)  -c gws.c       $(CFLAGS) $(CINCLUDES) -o gws.o
-	$(CC)  -c sprite.c    $(CFLAGS) $(CINCLUDES) -o sprite.o
-	$(CC)  -c shutdown.c  $(CFLAGS) $(CINCLUDES) -o shutdown.o
+	$(CC) -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
+	$(CC) -c button.c    $(CFLAGS) $(CINCLUDES) -o button.o
+	$(CC) -c callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
+	$(CC) -c client.c    $(CFLAGS) $(CINCLUDES) -o client.o
+	$(CC) -c demos.c     $(CFLAGS) $(CINCLUDES) -o demos.o
+	$(CC) -c globals.c   $(CFLAGS) $(CINCLUDES) -o globals.o
+	$(CC) -c grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
+	$(CC) -c gws.c       $(CFLAGS) $(CINCLUDES) -o gws.o
+	$(CC) -c sprite.c    $(CFLAGS) $(CINCLUDES) -o sprite.o
+	$(CC) -c shutdown.c  $(CFLAGS) $(CINCLUDES) -o shutdown.o
 	$(LD) -r -o ar_root.o \
 bmp.o button.o callback.o client.o demos.o \
 globals.o grinput.o gws.o sprite.o shutdown.o    
