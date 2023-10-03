@@ -344,6 +344,38 @@ void network_test_NIC(void)
     //printf("testNIC: done\n");
 }
 
+void 
+network_send_raw_packet (
+    struct intel_nic_info_d *dev, 
+    size_t frame_len, 
+    const char *frame_address ) 
+{
+    struct intel_nic_info_d *nic_intel;
+    nic_intel = dev;
+
+// dev
+    if ((void*) nic_intel == NULL)
+       return;
+    if (nic_intel->magic != 1234)
+        return;
+// frame_len
+    if (frame_len<0)
+        return;
+    if (frame_len > NETWORK_DEFAULT_BUFFER_SIZE)
+        return;
+// frame_address
+    if ((void*) frame_address == NULL)
+        return;
+//
+// Send
+//
+
+// #bugbug
+// For now we only support the structure for intel devices.
+    e1000_send( nic_intel, frame_len, frame_address );
+}
+
+
 // IN:
 // + frame base address
 // + frame total size

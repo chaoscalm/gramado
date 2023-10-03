@@ -8,6 +8,11 @@
 #define ONLINE  TRUE
 #define OFFLINE FALSE
 
+// 8192
+#define NETWORK_DEFAULT_BUFFER_SIZE  \
+    E1000_DEFAULT_BUFFER_SIZE
+
+
 // >> The register at offset 0x00 is the "IOADDR" window. 
 // >> The register at offset 0x04 is the "IODATA" window. 
 
@@ -135,6 +140,12 @@ net_checksum(
     const unsigned char *end);
 
 void network_test_NIC(void);
+
+void 
+network_send_raw_packet (
+    struct intel_nic_info_d *dev, 
+    size_t frame_len, 
+    const char *frame_address );
 
 
 // Handle package.
