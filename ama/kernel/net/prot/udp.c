@@ -583,7 +583,12 @@ network_send_udp (
     //network_on_receiving(frame,FRAME_SIZE);
     //refresh_screen();
     //while(1){}
-    
+
+// #test
+    //kfree(eh);
+    //kfree(udp);
+    //kfree(udp);
+
     printf("Done\n");
     return 0;
 fail:

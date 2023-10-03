@@ -348,6 +348,12 @@ network_send_arp(
           ARP_HEADER_LENGHT );
 // Sending a frame!
     e1000_send( currentNIC, ARP_TOTAL_SIZE, frame );
+
+
+// #test
+    //kfree(eh);
+    //kfree(h);
+
     //printf ("Done\n");
     return;
 fail:

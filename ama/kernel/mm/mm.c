@@ -409,8 +409,8 @@ fail:
 
 unsigned long heapAllocateMemory(unsigned long size)
 {
+// This is a worker for kmalloc() and __kmalloc_impl() in kstdlib.c
 // Allocate memory inside the kernel heap.
-// This is a worker for kmalloc/__kmalloc_impl in kstdlib.c
 
     struct mmblock_d *Current;
 
@@ -607,22 +607,25 @@ fail:
 // ela continua do ponteiro onde parou.
 void heapFreeMemory(void *ptr)
 {
-// This is a worker for kfree in kstdlib.c
+// This is a worker for kfree() in kstdlib.c
+// It sets the ->magic flag to 4321, turning the
+// mmblock_d structure reusable.
 // #todo: We can clean up the user area.
 
     struct mmblock_d *block_header;
 
-// validation
-    if ( (void *) ptr == NULL ){
+// Validation
+    if ((void *) ptr == NULL){
         debug_print ("heapFreeMemory: ptr\n");
         return;
     }
 
-// validation
+// Validation
+// Out of range.
     if ( ptr < (void *) KERNEL_HEAP_START || 
          ptr >= (void *) KERNEL_HEAP_END )
     {
-        debug_print ("heapFreeMemory: ptr limits\n");
+        debug_print("heapFreeMemory: ptr limits\n");
         return;
     }
 
@@ -631,19 +634,20 @@ void heapFreeMemory(void *ptr)
 // O ponteiro passado é o endereço da área de cliente.
 
     unsigned long UserAreaStart = (unsigned long) ptr; 
-    unsigned long BlockSize = sizeof( struct mmblock_d );
+    unsigned long headerSize = sizeof(struct mmblock_d);
 
-    //block_header = 
-    //    (void *) ( UserAreaStart - MMBLOCK_HEADER_SIZE ); //#deprecated
-    block_header = 
-        (void *) ( UserAreaStart - BlockSize );
 
-    if ( (void *) block_header == NULL ){
-        debug_print ("heapFreeMemory: block_header\n");
+// The base of the header.
+    block_header = (void *) (UserAreaStart - headerSize);
+
+// Invalid block header.
+    if ((void *) block_header == NULL){
+        debug_print("heapFreeMemory: block_header\n");
         return;
     }
+// Invalid block header.
     if ( block_header->Used != TRUE || block_header->Magic != 1234 ){
-        debug_print ("heapFreeMemory: block_header validation\n");
+        debug_print("heapFreeMemory: block_header validation\n");
         return;
     }
 
