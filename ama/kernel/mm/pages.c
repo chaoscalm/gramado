@@ -10,31 +10,6 @@ unsigned long gKernelPML4Address=0;
 
 
 
-// O pool tem dois blocos de 2mb cada.
-// O alocador vai alocar blocos de 500 KB.
-// se falhar retornará 0, permitindo que quem chamou o alocar
-// possa chamar outro alocados de páginas.
-// Quem usara esse alocador é a rotina de clonagem de processos
-// dara 1MB para cada um dos 4 primeiros clones. Sortudos.
-// Isso é provisorio ... so ate melhorarmos o alocador.
-// slab allocator.
-  
-struct newpagedpool_d
-{
-    int initialized;
-
-    unsigned long a1_va;
-    unsigned long a2_va;
-    unsigned long b1_va;
-    unsigned long b2_va;
-
-// Status
-// TRUE = FREE | FALSE = NOT FREE
-    int Free[4];
-};
-struct newpagedpool_d  NewPagedPool;
-
-
 // ==================================================
 // This is not global variable.
 // We will use this only on this initialization here.
@@ -93,7 +68,8 @@ static void __initialize_frontbuffer(void);
 static void __initialize_backbuffer(void);
 
 static void __initialize_pagedpool(void);
-static void __initialize_pagedpool2(void);
+
+
 
 static void __initialize_heappool(void);
 static void __initialize_extraheap1(void);
@@ -1601,132 +1577,6 @@ static void __initialize_pagedpool(void)
         (unsigned long) ( PAGE_USER | PAGE_WRITE | PAGE_PRESENT ) );  // flags=7
 }
 
-// #todo:
-// Explain it better.
-// This code manages the extraheaps 2 and 3,
-// creating buffers that are gonna be used by a slab allocator
-// called slab_1MB_allocator().
-static void __initialize_pagedpool2(void)
-{
-    NewPagedPool.initialized = FALSE;
-
-// We need these two addresses.
-// The virtual addresses for 
-// extraheap 2 and extraheap3.
-
-    if ( g_extraheap2_va == 0 || 
-         g_extraheap3_va == 0 )
-    {
-        panic("__initialize_pagedpool2: address\n");
-    }
-
-//-------------------
-// Two reagions of 1MB each in the extraheap2.
-// a1
-    NewPagedPool.a1_va = 
-        (unsigned long) g_extraheap2_va;
-    NewPagedPool.Free[0] = TRUE;
-// a2
-    NewPagedPool.a2_va = 
-        (unsigned long) (g_extraheap2_va + (1024*1024) );
-    NewPagedPool.Free[1] = TRUE;
-
-//-------------------
-// Two reagions of 1MB each in the extraheap3.
-// b1
-    NewPagedPool.b1_va = 
-        (unsigned long) g_extraheap3_va;
-    NewPagedPool.Free[2] = TRUE;
-// b2
-    NewPagedPool.b2_va = 
-        (unsigned long) (g_extraheap3_va + (1024*1024) );
-    NewPagedPool.Free[3] = TRUE;
-//----
-
-// Now the slab allocator can use these addresses.
-    NewPagedPool.initialized = TRUE;
-}
-
-// global
-// Used by alloc_memory_for_image_and_stack() in process.c
-void *slab_1MB_allocator(void)
-{
-
-// não inicializado
-    if (NewPagedPool.initialized != TRUE)
-        return NULL;
-
-
-/*
-// Se devemos ou não incremetar o contador de uso.
-    int IncrementUsageCounter=TRUE; //P->allocated_memory
-    struct process_d *process;
-    process = (void*) get_current_process_pointer();
-    if( (void*) process == NULL )
-        IncrementUsageCounter=FALSE;
-    if(process->magic!=1234)
-        IncrementUsageCounter=FALSE;
-*/
-
-// #test
-// At this moment we're gonna know what is the
-// process that is calling the allocator.
-// Lets see if its a valid process.
-    struct process_d *process;
-    process = (void*) get_current_process_pointer();
-    if ((void*) process == NULL)
-        panic ("slab_1MB_allocator: process\n");
-    if (process->magic != 1234)
-        panic ("slab_1MB_allocator: process validation\n");
-
-//
-// Procure um livre entre os 4 de 1MB cada.
-//
-
-// --------
-// a1 - Get address a1 if it is available.
-    if (NewPagedPool.Free[0] == TRUE)
-    {
-        NewPagedPool.Free[0] = FALSE;  // NOT FREE
-        if ((void*) process != NULL)
-            process->allocated_memory += (1*1024*1024);
-        return (void *) NewPagedPool.a1_va; 
-    }
-
-// --------
-// a2 - Get address a2 if it is available.
-    if (NewPagedPool.Free[1] == TRUE)
-    {
-        NewPagedPool.Free[1] = FALSE;  // NOT FREE
-        if ((void*) process != NULL)
-            process->allocated_memory += (1*1024*1024);
-        return (void *) NewPagedPool.a2_va; 
-    }
-
-// --------
-// b1 - Get address b1 if it is available.
-    if (NewPagedPool.Free[2] == TRUE)
-    {
-        NewPagedPool.Free[2] = FALSE;  // NOT FREE
-        if ((void*) process != NULL)
-            process->allocated_memory += (1*1024*1024);
-        return (void *) NewPagedPool.b1_va; 
-    }
-
-// --------
-// b2 - Get address b2 if it is available.
-    if (NewPagedPool.Free[3] == TRUE)
-    {
-        NewPagedPool.Free[3] = FALSE;  // NOT FREE
-        if ((void*) process != NULL)
-            process->allocated_memory += (1*1024*1024);
-        return (void *) NewPagedPool.b2_va; 
-    }
-
-// fail
-    return NULL;
-}
-
 
 // mm_map_2mb_region
 // OUT: 0=OK -1=FAIL.
@@ -1790,7 +1640,6 @@ fail:
 }
 
 
-
 // local worker
 // Heaps support.
 // Pool de heaps.
@@ -1828,13 +1677,13 @@ static void __initialize_heappool(void)
 // The heaps in the pool.
 // see: process.h and x64gpa.h
 
-    // Counting the heaps we get from the pool.
+// Counting the heaps we get from the pool.
     g_heap_count = 0;
-    // Maximum number of heaps in the pool
-    // 64.
+// Maximum number of heaps in the pool.
+// 64.
     g_heap_count_max = G_DEFAULT_PROCESSHEAP_COUNTMAX;
-    // The heap size.
-    // 32KB.
+// The heap size.
+// 32KB.
     g_heap_size = G_DEFAULT_PROCESSHEAP_SIZE;
 
 // IN:
@@ -1862,13 +1711,13 @@ static void __initialize_heappool(void)
 static void __initialize_extraheap1(void)
 {
     unsigned long *pt_extraheap1 = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_EXTRAHEAP1;
+        (unsigned long *) get_table_pointer_va();
 // pa
     unsigned long extraheap1_pa = 
         (unsigned long) SMALL_extraheap1_pa;
 // va
-    g_extraheap1_va = 
-        (unsigned long) EXTRAHEAP1_VA; //0x30A00000;
+// 0x30A00000
+    g_extraheap1_va = (unsigned long) EXTRAHEAP1_VA;
 // pd index
     int pdindex = (int) X64_GET_PDE_INDEX(EXTRAHEAP1_VA);
 // size
@@ -1898,12 +1747,13 @@ static void __initialize_extraheap1(void)
 static void __initialize_extraheap2(void)
 {
     unsigned long *pt_extraheap2 = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_EXTRAHEAP2;
+        (unsigned long *) get_table_pointer_va();
 // pa
     unsigned long extraheap2_pa = 
         (unsigned long) SMALL_extraheap2_pa;
 // va
-    g_extraheap2_va = (unsigned long) EXTRAHEAP2_VA; //0x30C00000;
+// 0x30C00000
+    g_extraheap2_va = (unsigned long) EXTRAHEAP2_VA;
 // pd index
     int pdindex = (int) X64_GET_PDE_INDEX(EXTRAHEAP2_VA);
 // size
@@ -1927,18 +1777,18 @@ static void __initialize_extraheap2(void)
     g_extraheap2_initialized = TRUE;
 }
 
-
 // 2mb, ring3, start = 0x30E00000.
 // used by the slab allocator.
 static void __initialize_extraheap3(void)
 {
     unsigned long *pt_extraheap3 = 
-        (unsigned long *) get_table_pointer_va();  //PAGETABLE_EXTRAHEAP3;
+        (unsigned long *) get_table_pointer_va();
 // pa
     unsigned long extraheap3_pa = 
         (unsigned long) SMALL_extraheap3_pa;
 // va
-    g_extraheap3_va = (unsigned long) EXTRAHEAP3_VA; //0x30E00000;
+// 0x30E00000
+    g_extraheap3_va = (unsigned long) EXTRAHEAP3_VA;
 // pd index
     int pdindex = (int) X64_GET_PDE_INDEX(EXTRAHEAP3_VA);
 // size
@@ -1976,42 +1826,50 @@ static void mmInitializeKernelPageTables(void)
 // Install some pagetables into the 
 // kernel pae directory 0.
 
+// --------------------------
 // va=0          | Ring 0 area.
     __initialize_ring0area();
 
+// --------------------------
 // va=0x00200000 | Ring 3 area.
     __initialize_ring3area();
 
+// --------------------------
 // va=0x30000000 | kernel image region.
     __initialize_kernelimage_region();
 
+// --------------------------
 // va=0x30200000 | Frontbuffer.
     __initialize_frontbuffer();
 
+// --------------------------
 // va=0x30400000 | Backbuffer.
     __initialize_backbuffer();
 
+// --------------------------
 // va=0x30600000 | Paged pool.
     __initialize_pagedpool();
 
+// --------------------------
 // va=0x30800000 | Heap pool.
     __initialize_heappool();
 
-
+// -----------------------------------
+// Extraheap 1: Used by the kernel module.
 // va=0x30A00000 | Extra heap 1.
     __initialize_extraheap1();
+
+// -----------------------------------
+// Extraheap 2 and 3: Used by the slab allocator.
 // va=0x30C00000 | Extra heap 2.
     __initialize_extraheap2();
 // va=0x30E00000 | Extra heap 3.
     __initialize_extraheap3();
-
-    // ...
-
 // New paged pool
 // Criado com dois blocos consecutivos de 2mb cada,
 // previamente alocados.
-
-    __initialize_pagedpool2();
+// see: slab.c
+    slab_initialize();
 
 //...
 

@@ -860,8 +860,10 @@ void *allocPages(int size);
 void *mmAllocPage(void);
 void *mmAllocPages(int size);
 
-void initializeFramesAlloc (void);
+void initializeFramesAlloc(void);
 
+// see: slab.c
+void slab_initialize(void);
 void *slab_1MB_allocator(void);
 
 int 

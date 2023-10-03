@@ -75,6 +75,7 @@ mm.o \
 mminfo.o \
 mmpool.o \
 pages.o \
+slab.o \
 mmrt.o \
 mmft.o    
 
@@ -88,6 +89,7 @@ all:
 	$(CC) -c mminfo.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mminfo.o
 	$(CC) -c mmpool.c   $(KERNEL_INCLUDE) $(CFLAGS) -o mmpool.o
 	$(CC) -c pages.c    $(KERNEL_INCLUDE) $(CFLAGS) -o pages.o
+	$(CC) -c slab.c     $(KERNEL_INCLUDE) $(CFLAGS) -o slab.o
 	$(CC) -c mmrt.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmrt.o
 	$(CC) -c mmft.c     $(KERNEL_INCLUDE) $(CFLAGS) -o mmft.o
 

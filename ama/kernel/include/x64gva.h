@@ -179,17 +179,26 @@
 // Extra heaps 1,2 and 3. ---------------------------
 //
 
-
 // 768MB + 10MB mark (VA)
-#define EXTRAHEAP1_VA   0x0000000030A00000  // MOD0.BIN
+// Ring 0 kernel module. (MOD0.BIN)
+// see: __initialize_extraheap1() in pages.c.
+#define EXTRAHEAP1_VA   0x0000000030A00000
+
 // 768MB + 12MB mark (VA)
-#define EXTRAHEAP2_VA   0x0000000030C00000  // ?
+// First part of a slab allocator.
+// see: __initialize_extraheap2() in pages.c.
+#define EXTRAHEAP2_VA   0x0000000030C00000
+
 // 768MB + 14MB mark (VA)
-#define EXTRAHEAP3_VA   0x0000000030E00000  // ?
+// Second part of a slab allocator.
+// see: __initialize_extraheap3() in pages.c.
+#define EXTRAHEAP3_VA   0x0000000030E00000
+
+//-------------
 
 // Alias
 // The firt ring0 module. mod0.bin
-#define MOD0_IMAGE_VA       EXTRAHEAP1_VA
+#define MOD0_IMAGE_VA  EXTRAHEAP1_VA
 #define MOD0_ENTRYPOINT_VA  0x0000000030A01000
 
 // -----------------------------------
