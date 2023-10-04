@@ -49,13 +49,16 @@ network_handle_udp(
 {
 // Transport layer.
 
-// The buffer
-    struct udp_d *udp;
-    udp = (struct udp_d *) buffer;
     register int i=0;
 
     //printf ("UDP: Received\n");
 
+    struct udp_d *udp;
+// #warning
+// It's ok to use pointer here.
+// We're not allocating memory, we're using 
+// a pre-allocated buffer.
+    udp = (struct udp_d *) buffer;
     if ((void*) udp == NULL){
         printf("network_handle_udp: udp\n");
         return;
@@ -273,14 +276,12 @@ network_send_udp (
     char *data_buffer,
     size_t data_lenght )
 {
+// Buffers:
+// ethernet, ipv4, udp, data.
+
     register int i=0;
     int j=0;
 
-// Buffers:
-// ethernet, ipv4, udp, data.
-    struct ether_header  *eh;
-    struct ip_d  *ipv4;
-    struct udp_d  *udp;
     char *data = (char *) data_buffer;  // UDP payload.
 
 //==============================================
@@ -310,11 +311,15 @@ network_send_udp (
 //==============================================
 // # ethernet header #
 
+    struct ether_header  Leh;
+    /*
+    struct ether_header  *eh;
     eh = (void *) kmalloc( sizeof(struct ether_header ) );
     if ((void *) eh == NULL){
         printf("network_send_udp: eh fail\n");
         goto fail;
     }
+    */
 
 // Coloca na estrutura do ethernet header os seguintes valores: 
 // > endereço mac da origem.
@@ -323,30 +328,34 @@ network_send_udp (
 // O endereço mac do destino foi passado via argumento.
 
     for (i=0; i<6; i++){
-        eh->mac_src[i] = (uint8_t) currentNIC->mac_address[i];  // source 
-        eh->mac_dst[i] = (uint8_t) target_mac[i];               // dest
+        Leh.mac_src[i] = (uint8_t) currentNIC->mac_address[i];  // source 
+        Leh.mac_dst[i] = (uint8_t) target_mac[i];               // dest
     };
-    eh->type = (uint16_t) ToNetByteOrder16 (ETH_TYPE_IP);
+    Leh.type = (uint16_t) ToNetByteOrder16 (ETH_TYPE_IP);
 
 //==============================================
 // # ipv4 header #
 
+    struct ip_d  Lipv4;
+    /*
+    struct ip_d  *ipv4;
     ipv4 = (void *) kmalloc( sizeof(struct ip_d) );
     if ((void *) ipv4 == NULL){
         printf("network_send_udp: ipv4 fail\n");
         goto fail;
     }
+    */
 
 // IPv4 common header
 // See: ip.h
 
 //>>>>
-    ipv4->v_hl = 0x45;    // 8 bit
+    Lipv4.v_hl = 0x45;    // 8 bit
 
 // Type of service (8bits)
 // - Differentiated Services Code Point (6bits)
 // - Explicit Congestion Notification (2bits)
-    ipv4->ip_tos = 0x00;  // 8 bit (0=Normal)
+    Lipv4.ip_tos = 0x00;  // 8 bit (0=Normal)
 
 // IPV4 Length
 // ip + (ip payload)
@@ -362,7 +371,7 @@ network_send_udp (
     uint16_t __ipheaderlen = IP_HEADER_LENGHT;
     uint16_t __ippayloadlen = (uint16_t) (UDP_HEADER_LENGHT +  xxxdata);
     uint16_t __iplen = (uint16_t) (__ipheaderlen + __ippayloadlen); 
-    ipv4->ip_len = (uint16_t) ToNetByteOrder16(__iplen);
+    Lipv4.ip_len = (uint16_t) ToNetByteOrder16(__iplen);
 
 // Identification
 // ... identifying the group of fragments of a single IP datagram. 
@@ -370,18 +379,18 @@ network_send_udp (
     //uint16_t ipv4count = 1; 
     //ipv4->ip_id = 0x0100;
     //ipv4->ip_id = (uint16_t) ToNetByteOrder16(ipv4count);
-    ipv4->ip_id = 0;  
+    Lipv4.ip_id = 0;  
 
 // Flags (3bits) (Do we have fragments?)
 // Fragment offset (13bits) (fragment position)
 // Don't fragment for now.
-    ipv4->ip_off = ToNetByteOrder16(0x4000); 
+    Lipv4.ip_off = ToNetByteOrder16(0x4000); 
 
-    ipv4->ip_ttl = 255;  //64; //0x40;  //8bit
+    Lipv4.ip_ttl = 255;  //64; //0x40;  //8bit
 
 // Protocol (8bit)
 // 0x11 = UDP. (17)
-    ipv4->ip_p = 0x11;
+    Lipv4.ip_p = 0x11;
 
 /*
 // src ip
@@ -402,8 +411,11 @@ network_send_udp (
     //printf ("ip %x\n", ipv4->ip_dst.s_addr);
 */
 
-    unsigned char *spa = (unsigned char *) &ipv4->ip_src.s_addr;
-    unsigned char *tpa = (unsigned char *) &ipv4->ip_dst.s_addr;
+    //unsigned char *spa = (unsigned char *) &ipv4->ip_src.s_addr;
+    //unsigned char *tpa = (unsigned char *) &ipv4->ip_dst.s_addr;
+    unsigned char *spa = (unsigned char *) &Lipv4.ip_src.s_addr;
+    unsigned char *tpa = (unsigned char *) &Lipv4.ip_dst.s_addr;
+
     register int it=0;
     for (it=0; it<4; it++)
     {
@@ -415,17 +427,17 @@ network_send_udp (
 // Checksum
 //
 
-    ipv4->ip_sum = 0;
-    ipv4->ip_sum =
+    Lipv4.ip_sum = 0;
+    Lipv4.ip_sum =
          (uint16_t)  net_checksum(
               0, 
               0,
-              (const unsigned char *) ipv4, 
-              (const unsigned char *) ipv4 + sizeof(struct ip_d));
-    ipv4->ip_sum =
-         (uint16_t) ToNetByteOrder16(ipv4->ip_sum);
+              (const unsigned char *) &Lipv4, 
+              (const unsigned char *) &Lipv4 + sizeof(struct ip_d));
+    Lipv4.ip_sum =
+         (uint16_t) ToNetByteOrder16(Lipv4.ip_sum);
 
-    printf("ip_sum={%x} \n",ipv4->ip_sum);
+    printf("ip_sum={%x} \n",Lipv4.ip_sum);
 
     //printf ("size %d\n", sizeof (struct ip_d) );
     //refresh_screen();
@@ -433,16 +445,19 @@ network_send_udp (
 
 //==============================================
 // # udp header #
-
+    struct udp_d  Ludp;
+    /*
+    struct udp_d  *udp;
     udp = (void *) kmalloc( sizeof(struct udp_d) );
     if ((void *) udp == NULL){
         printf("network_send_udp: udp fail\n");
         goto fail;
     }
+    */
 
 // Ports
-    udp->uh_sport = (uint16_t) ToNetByteOrder16(source_port);
-    udp->uh_dport = (uint16_t) ToNetByteOrder16(target_port);
+    Ludp.uh_sport = (uint16_t) ToNetByteOrder16(source_port);
+    Ludp.uh_dport = (uint16_t) ToNetByteOrder16(target_port);
 
 // UDP Length
 // (UPD header + payload).
@@ -451,7 +466,7 @@ network_send_udp (
     uint16_t __udpheaderlen = UDP_HEADER_LENGHT;
     uint16_t __udppayloadlen = (uint16_t) (data_lenght & 0xFFFF);
     uint16_t __udplen = (uint16_t) (__udpheaderlen + __udppayloadlen); 
-    udp->uh_ulen = (uint16_t) ToNetByteOrder16(__udplen);
+    Ludp.uh_ulen = (uint16_t) ToNetByteOrder16(__udplen);
 
 // Checksum
 // #remember:
@@ -459,7 +474,7 @@ network_send_udp (
 // the checksum is computed using a "pseudo header" 
 // that contains some of the same information from the real IPv4 header.
 // # UDP lets us set the checksum to 0 to ignore it?
-    udp->uh_sum = 0;  //#todo
+    Ludp.uh_sum = 0;  //#todo
 
     //printf ("size %d\n", sizeof (struct  udp_d) );
     //refresh_screen();
@@ -476,7 +491,7 @@ network_send_udp (
 
 // ??
 // Quem?
-// Estamos pegando o offset que nos levar� ao endere�o do buffer.
+// Estamos pegando o offset que nos levara ao endereço do buffer.
 // Usaremos esse offset logo abaixo.
 // Pegamos esse offset na estrutura do controlador nic intel.
 // Copiando o pacote no buffer.
@@ -496,9 +511,9 @@ network_send_udp (
 // Preparando ponteiros para manipularmos as 
 // estruturas usadas no pacote.
 
-    unsigned char *src_ethernet = (unsigned char *) eh; 
-    unsigned char *src_ipv4     = (unsigned char *) ipv4; 
-    unsigned char *src_udp      = (unsigned char *) udp; 
+    unsigned char *src_ethernet = (unsigned char *) &Leh;    //eh; 
+    unsigned char *src_ipv4     = (unsigned char *) &Lipv4;  //ipv4; 
+    unsigned char *src_udp      = (unsigned char *) &Ludp;   //udp; 
 
 //
 // Copy

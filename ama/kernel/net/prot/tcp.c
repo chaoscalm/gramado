@@ -18,9 +18,13 @@ network_handle_tcp(
     printf("network_handle_tcp: #todo\n");
 
     struct tcp_d *tcp;
-    tcp = (struct tcp_d *) buffer;
     register int i=0;
 
+// #warning
+// It's ok to use pointer here.
+// We're not allocating memory, we're using 
+// a pre-allocated buffer.
+    tcp = (struct tcp_d *) buffer;
     if ((void*) tcp == NULL){
         printf("network_handle_tcp: tcp\n");
         return;

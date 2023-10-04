@@ -1,5 +1,4 @@
 
-
 // arp.c
 
 #include <kernel.h>
@@ -35,16 +34,22 @@ network_handle_arp(
 
 // The buffer.
     struct ether_arp *ar;
-    ar = (struct ether_arp *) buffer;
-
     char message[512];
-    memset(message,0,sizeof(message));
-    sprintf(message,"Hello from Gramado to Linux\n");
 
+// #warning
+// It's ok to use pointer here.
+// We're not allocating memory, we're using 
+// a pre-allocated buffer.
+    ar = (struct ether_arp *) buffer;
     if ((void*) ar == NULL){
         printf("network_handle_arp: ar\n");
         goto fail;
     }
+
+// Message
+    memset(message,0,sizeof(message));
+    sprintf(message,"Hello from Gramado to Linux\n");
+
 
 // The minimum size.
 // Only the udp header.
@@ -176,8 +181,6 @@ network_send_arp(
 {
 // Send ARP.
 
-    struct ether_header *eh;
-    struct ether_arp *h;
     register int i=0;
 
     // #debug
@@ -185,8 +188,8 @@ network_send_arp(
     //refresh_screen();
 
 // The structure for the Intel NIC device.
-    if ( (void*) currentNIC == NULL ){
-        printf ("network_send_arp: currentNIC fail\n");
+    if ((void*) currentNIC == NULL){
+        printf("network_send_arp: currentNIC fail\n");
         goto fail;
     }
 
@@ -200,28 +203,37 @@ network_send_arp(
 
 //==============================================
 // # ethernet header #
+    struct ether_header  Leh;
+    /*
+    struct ether_header *eh;
     eh = (void *) kmalloc( sizeof(struct ether_header) );
     if ( (void *) eh == NULL){
         printf ("network_send_arp: eh struct fail\n");
         goto fail;
     }
+    */
+
 // MAC
 // Save the source and the destination mac into the ethernet header.
 // The destination mac came via argument.
     for ( i=0; i<ETH_ALEN; i++){
-        eh->mac_src[i] = (uint8_t) currentNIC->mac_address[i];
-        eh->mac_dst[i] = (uint8_t) target_mac[i];
+        Leh.mac_src[i] = (uint8_t) currentNIC->mac_address[i];
+        Leh.mac_dst[i] = (uint8_t) target_mac[i];
     };
 // TYPE
-    eh->type = (uint16_t) ToNetByteOrder16(ETH_TYPE_ARP);
+    Leh.type = (uint16_t) ToNetByteOrder16(ETH_TYPE_ARP);
 
 //==============================================
 // # arp header #
+    struct ether_arp  Larp;
+    /*
+    struct ether_arp *h;
     h = (void *) kmalloc ( sizeof(struct  ether_arp) );
-    if ( (void *) h == NULL ){
+    if ((void *) h == NULL){
         printf ("network_send_arp: struct h fail");
         goto fail;
     }
+    */
 
 //
 // Header
@@ -229,21 +241,21 @@ network_send_arp(
 //
 
 // Hardware type (HTYPE)   (00 01) = Ethernet.
-    h->type = (uint16_t) 0x0100;
+    Larp.type = (uint16_t) 0x0100;
 // Protocol type (PTYPE)   (08 00) = ipv4.
 // In the case of Ethernet, a 0x0806 EtherType value 
 // is used to identify ARP frames.
-    h->proto = (uint16_t) 0x0008;
+    Larp.proto = (uint16_t) 0x0008;
 // Hardware address length (MAC)
-    h->hlen = (uint8_t) ETH_ALEN;
+    Larp.hlen = (uint8_t) ETH_ALEN;
 // Protocol address length (IP)
-    h->plen = (uint8_t) 4;
+    Larp.plen = (uint8_t) 4;
 // Operation (OPER)
 // We only have two valid operation codes.
     if (op != ARP_OPC_REQUEST && op != ARP_OPC_REPLY){
         panic("network_send_arp: Invalid operation code\n");
     }
-    h->op = (uint16_t) ToNetByteOrder16(op);
+    Larp.op = (uint16_t) ToNetByteOrder16(op);
 
 //
 // Addresses
@@ -252,14 +264,14 @@ network_send_arp(
 // MAC addresses
 // Hardware address
     for ( i=0; i<ETH_ALEN; i++ ){
-        h->arp_sha[i] = (uint8_t) currentNIC->mac_address[i];  //my MAC
-        h->arp_tha[i] = (uint8_t) target_mac[i]; 
+        Larp.arp_sha[i] = (uint8_t) currentNIC->mac_address[i];  //my MAC
+        Larp.arp_tha[i] = (uint8_t) target_mac[i]; 
     };
 // IP addresses
 // Protocol address
     for ( i=0; i<4; i++ ){
-        h->arp_spa[i] = (uint8_t) source_ip[i]; 
-        h->arp_tpa[i] = (uint8_t) target_ip[i]; 
+        Larp.arp_spa[i] = (uint8_t) source_ip[i]; 
+        Larp.arp_tpa[i] = (uint8_t) target_ip[i]; 
     };
 
 //==================================
@@ -317,15 +329,14 @@ network_send_arp(
         (unsigned char *) currentNIC->tx_buffers_virt[buffer_index];
 
 // Get the addresses for the headers.
-    unsigned char *src_ethernet = (unsigned char *) eh;
-    unsigned char *src_arp      = (unsigned char *) h;
-
+    unsigned char *src_ethernet = (unsigned char *) &Leh;   //eh;
+    unsigned char *src_arp      = (unsigned char *) &Larp;  //h;
 
 //
 // Copy
 //
 
-    if ( (void*) frame == NULL )
+    if ((void*) frame == NULL)
         panic("network_send_arp: frame\n");
 
 // Copy the ethernet header into the buffer.

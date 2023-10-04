@@ -50,6 +50,10 @@ network_handle_dhcp(
 
     //printf ("DHCP: Received\n");
 
+// #warning
+// It's ok to use pointer here.
+// We're not allocating memory, we're using 
+// a pre-allocated buffer.
     dhcp = (struct dhcp_d *) buffer;
     if ((void*) dhcp == NULL){
         return;
@@ -426,7 +430,7 @@ int network_initialize_dhcp(void)
 // Called by the syscall 22003 in sci.c
 // The terminal.bin command is "n3".
 
-    struct dhcp_d *dhcp;
+    //struct dhcp_d *dhcp;
 
     dhcp_info.initialized = FALSE;
 
@@ -440,11 +444,14 @@ int network_initialize_dhcp(void)
 
 // ---------
 // Create a structure for dhcp header.
-    dhcp = (struct dhcp_d *) kmalloc(sizeof(struct dhcp_d));
-    if ((void*) dhcp == NULL){
-        printf("network_initialize_dhcp: dhcp\n");
-        goto fail;
-    }
+    //dhcp = (struct dhcp_d *) kmalloc(sizeof(struct dhcp_d));
+    //if ((void*) dhcp == NULL){
+    //    printf("network_initialize_dhcp: dhcp\n");
+    //    goto fail;
+    //}
+
+
+    struct dhcp_d  Ldhcp;
 
 //
 // Send 'D'ORA, Discover.
@@ -454,7 +461,7 @@ int network_initialize_dhcp(void)
     // printf("network_initialize_dhcp: Sending Discover\n");
 
     network_dhcp_send( 
-        dhcp,                // dhcp header 
+        (struct dhcp_d *) &Ldhcp,                // dhcp header 
         __dhcp_source_ipv4,  // 0.0.0.0 
         __dhcp_target_ipv4,  // Broadcast
         DORA_D,              // message code 

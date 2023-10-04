@@ -19,13 +19,17 @@ network_handle_ipv4(
 
 // The buffer.
     struct ip_d *ip;
-    ip = (struct ip_d *) buffer;
 
 // The protocol for the payload.
     uint8_t Protocol=0;
 
     //printf ("IP: received\n");
 
+// #warning
+// It's ok to use pointer here.
+// We're not allocating memory, we're using 
+// a pre-allocated buffer.
+    ip = (struct ip_d *) buffer;
     if ((void*) ip == NULL){
         printf("network_handle_ipv4: ip\n");
         goto fail;
