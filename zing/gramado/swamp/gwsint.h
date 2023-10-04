@@ -56,7 +56,7 @@ extern int current_mode;
 #include "rtl/bitblt.h"
 #include "ui/vdesktop.h"
 #include "ui/painter.h"
-#include "bmp.h"
+#include "ui/bmp.h"
 
 // h:0.0
 #include "os/screen.h"   // X-like

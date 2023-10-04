@@ -7,6 +7,18 @@
 
 #include "gwsint.h"
 
+// Signature. "MB".
+#define BMP_TYPE  0x4D42
+#define GWS_BMP_TYPE  BMP_TYPE
+
+// Offsets in gws_bmp_infoheader_d structure.
+#define GWS_BMP_OFFSET_WIDTH      18
+#define GWS_BMP_OFFSET_HEIGHT     22
+#define GWS_BMP_OFFSET_BITPLANES  26
+#define GWS_BMP_OFFSET_BITCOUNT   28
+//...
+
+
 //
 // Color support
 //

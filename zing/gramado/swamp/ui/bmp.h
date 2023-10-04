@@ -5,8 +5,6 @@
 #ifndef __GRAMLAND_BMP_H
 #define __GRAMLAND_BMP_H    1
 
-// Signature. "MB".
-#define BMP_TYPE  0x4D42
 
 //#define BMP_DEFAULT_ZOOM_FACTOR  8
 #define BMP_DEFAULT_ZOOM_FACTOR  1
@@ -23,19 +21,6 @@ extern int bmp_change_color_flag;
 extern unsigned int bmp_selected_color;
 extern unsigned int bmp_substitute_color; 
 
-
-//
-// ## BMP support ##
-//
-
-#define GWS_BMP_TYPE  BMP_TYPE
-
-// Offsets
-#define GWS_BMP_OFFSET_WIDTH      18
-#define GWS_BMP_OFFSET_HEIGHT     22
-#define GWS_BMP_OFFSET_BITPLANES  26
-#define GWS_BMP_OFFSET_BITCOUNT   28
-//...
 
 // See: https://en.wikipedia.org/wiki/BMP_file_format
 struct gws_bmp_header_d                     
@@ -63,16 +48,7 @@ struct gws_bmp_infoheader_d
     unsigned int  bmpClrImportant;   // 50 - Number of important colors
 };
 
-//
-// Pointer
-//
-
-char *gwssrv_bmp_cursor_pointer;
-char *gwssrv_bmp_mouse_pointer;
-// ...
-
 // -------------------------------------------
-
 
 /*
  * bmpDisplayBMP0:

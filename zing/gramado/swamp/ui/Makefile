@@ -97,6 +97,7 @@ CINCLUDES += -I ../
     
 # Objects
 myObjects = wm.o \
+bmp.o \
 menu.o \
 font.o \
 painter.o \
@@ -113,7 +114,9 @@ main.o:
 #	$(CC)  -c grinput.c  $(CFLAGS) $(CINCLUDES) -o grinput.o
 	$(CC)  -c wm.c    $(CFLAGS) $(CINCLUDES) -o wm.o
 all-c:
-#	$(CC)  -c  rtl/char.c   $(CFLAGS) $(CINCLUDES) -o char.o
+
+	$(CC) -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
+
 	$(CC)  -c menu.c     $(CFLAGS) $(CINCLUDES) -o menu.o
 	$(CC)  -c font.c     $(CFLAGS) $(CINCLUDES) -o font.o
 	$(CC)  -c painter.c  $(CFLAGS) $(CINCLUDES) -o painter.o

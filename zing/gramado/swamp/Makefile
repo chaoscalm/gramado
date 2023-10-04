@@ -113,7 +113,7 @@ all: main.o all-c gws-link finalize clean
 main.o:
 	$(CC) -c main.c      $(CFLAGS) $(CINCLUDES) -o main.o
 all-c:
-	$(CC) -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
+
 	$(CC) -c callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
 	$(CC) -c client.c    $(CFLAGS) $(CINCLUDES) -o client.o
 	$(CC) -c demos.c     $(CFLAGS) $(CINCLUDES) -o demos.o
@@ -123,7 +123,7 @@ all-c:
 	$(CC) -c shutdown.c  $(CFLAGS) $(CINCLUDES) -o shutdown.o
 #	$(CC) -c zres/grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
 	$(LD) -r -o ar_root.o \
-bmp.o callback.o client.o demos.o \
+callback.o client.o demos.o \
 globals.o gws.o sprite.o shutdown.o    
 
 	make -C rtl/
