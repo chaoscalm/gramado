@@ -114,18 +114,17 @@ main.o:
 	$(CC) -c main.c      $(CFLAGS) $(CINCLUDES) -o main.o
 all-c:
 	$(CC) -c bmp.c       $(CFLAGS) $(CINCLUDES) -o bmp.o
-	$(CC) -c button.c    $(CFLAGS) $(CINCLUDES) -o button.o
 	$(CC) -c callback.c  $(CFLAGS) $(CINCLUDES) -o callback.o
 	$(CC) -c client.c    $(CFLAGS) $(CINCLUDES) -o client.o
 	$(CC) -c demos.c     $(CFLAGS) $(CINCLUDES) -o demos.o
 	$(CC) -c globals.c   $(CFLAGS) $(CINCLUDES) -o globals.o
-	$(CC) -c grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
 	$(CC) -c gws.c       $(CFLAGS) $(CINCLUDES) -o gws.o
 	$(CC) -c sprite.c    $(CFLAGS) $(CINCLUDES) -o sprite.o
 	$(CC) -c shutdown.c  $(CFLAGS) $(CINCLUDES) -o shutdown.o
+#	$(CC) -c zres/grinput.c   $(CFLAGS) $(CINCLUDES) -o grinput.o
 	$(LD) -r -o ar_root.o \
-bmp.o button.o callback.o client.o demos.o \
-globals.o grinput.o gws.o sprite.o shutdown.o    
+bmp.o callback.o client.o demos.o \
+globals.o gws.o sprite.o shutdown.o    
 
 	make -C rtl/
 	make -C comp/

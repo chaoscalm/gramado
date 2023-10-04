@@ -1057,20 +1057,6 @@ is_within (
 //refaz zorder.
 void reset_zorder(void);
 
-
-// #todo
-// Precisamos usar o esquema de cores.
-void *gws_draw_button ( 
-    unsigned char *string,
-    int style,
-    int state,
-    int type, 
-    unsigned long x, 
-    unsigned long y, 
-    unsigned long width, 
-    unsigned long height, 
-    unsigned long color );
-
 //
 // Rectangle support
 //

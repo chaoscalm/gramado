@@ -42,13 +42,12 @@ extern int current_mode;
 #include "rtl/dtext.h"
 #include "rtl/line.h"
 
+
 #include "ui/wt.h"
 #include "ui/menu.h"
-#include "grinput.h"   //#test
+//#include "zres/grinput.h"   //#test
 #include "ui/metrics.h"
-
 #include "ui/window.h"
-
 #include "ui/areas/ffa.h"    // Far Far Away
 #include "ui/areas/wa.h"     // Working Area
 #include "ui/areas/swamp.h"  // Swamp
@@ -97,7 +96,6 @@ extern int current_mode;
 // 'dc->something'
 // It needs to be the last one.
 #include "os/dc.h"
-
 
 #include "dispatch.h"
 
@@ -206,8 +204,6 @@ unsigned long gwssrv_get_system_metrics (int index);
 
 void gwssrv_enter_critical_section (void);
 void gwssrv_exit_critical_section (void);
-
-
 
 char *gwssrv_get_version(void);
 
