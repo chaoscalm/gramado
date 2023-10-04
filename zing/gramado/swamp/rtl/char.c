@@ -125,12 +125,15 @@ DrawBorder(
     };
 }
 
-int gwssrv_init_char(void)
+int char_initialize(void)
 {
-//char
-    gcharWidth  = 8;   //gde_get_system_metrics (7);
-    gcharHeight = 8;   //gde_get_system_metrics (8);
+// Called by gwsInitGUI() in gws.c.
+
+// Char width and height.
+    gcharWidth = 8;   //gde_get_system_metrics(7);
+    gcharHeight = 8;  //gde_get_system_metrics(8);
     //...
+
     return 0;
 }
 

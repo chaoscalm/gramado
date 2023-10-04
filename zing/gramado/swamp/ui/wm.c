@@ -6698,28 +6698,6 @@ void gwsWindowUnlock (struct gws_window_d *window)
     window->locked = (int) WINDOW_UNLOCKED;  //0.
 }
 
-
-int gwssrv_init_windows(void)
-{
-    register int i=0;
-
-    //window.h
-    windows_count     = 0;
-    keyboard_owner = NULL;
-    active_window = NULL;
-    top_window    = NULL;
-    //...
-    show_fps_window = FALSE;
-
-// Window list
-    for (i=0; i<WINDOW_COUNT_MAX; ++i){ windowList[i] = 0; };
-// z order list
-    for (i=0; i<ZORDER_MAX; ++i){ zList[i] = 0; };
-    // ...
-
-    return 0;
-}
-
 //
 // == ajusting the window to fit in the screen. =======================
 //

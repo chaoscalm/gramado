@@ -26,7 +26,7 @@ extern unsigned long g9x16fontAddress;         // 9x16,80×25,VGA
 // == prototypes =============================
 //
 
-int gwssrv_init_font(void);
+int font_initialize(void);
 
 #endif   
 

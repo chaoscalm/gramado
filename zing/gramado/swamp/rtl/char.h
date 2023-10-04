@@ -65,7 +65,7 @@ grBackbufferDrawChar (
     unsigned int fgcolor,
     unsigned int bgcolor );
 
-int gwssrv_init_char(void);
+int char_initialize(void);
 
 #endif
 

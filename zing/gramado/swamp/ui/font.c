@@ -3017,8 +3017,10 @@ fail:
     return NULL;
 }
 
-int gwssrv_init_font(void)
+int font_initialize(void)
 {
+// Called by gwsInitGUI() in gws.c.
+
 // Font size
     gfontSize = 8;
 
@@ -3030,7 +3032,7 @@ int gwssrv_init_font(void)
 // We need to invert the data.
     font_lt8x8 = (char *) __initialize_lt8x8_font();
     if ( (void*) font_lt8x8 == NULL ){
-        printf("gwssrv_init_font: Initialization fail\n");
+        printf("font_initialize: Initialization fail\n");
         goto fail;
     }
 

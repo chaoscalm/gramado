@@ -207,14 +207,10 @@ void gwssrv_exit_critical_section (void);
 
 char *gwssrv_get_version(void);
 
-// init
-int gwsInitGUI(void);
-
 unsigned long gws_get_device_width(void);
 unsigned long gws_get_device_height(void);
 
 void gws_show_backbuffer(void);
-int gwssrv_init_globals(void);
 void gwssrv_quit(void);
 void gwssrv_broadcast_close(void);
 

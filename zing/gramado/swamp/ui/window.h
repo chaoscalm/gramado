@@ -12,6 +12,18 @@
 typedef int  __wid_t;
 typedef int  wid_t;
 
+
+extern struct gws_window_d *active_window;  // active
+
+// Owner
+extern struct gws_window_d *keyboard_owner;
+extern struct gws_window_d *mouse_owner;  // captured
+
+extern struct gws_window_d *first_window;
+extern struct gws_window_d *last_window;
+extern struct gws_window_d *top_window;     // z-order
+
+
 // ===============================================================
 
 // Icons
@@ -1385,9 +1397,10 @@ gwssrv_change_window_position (
 void gwsWindowLock(struct gws_window_d *window);
 void gwsWindowUnlock(struct gws_window_d *window);
 int gwsDefineInitialRootWindow(struct gws_window_d *window);
-int gwssrv_init_windows(void);
 
 void wm_reboot(void);
+
+int window_initialize(void);
 
 #endif    
 

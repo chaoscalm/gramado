@@ -2400,6 +2400,51 @@ struct gws_rect_d *rect_from_window(struct gws_window_d *window)
     return (struct gws_rect_d *) rc_window;
 }
 
+int window_initialize(void)
+{
+// Called by gwsInitGUI() in gws.c.
+
+    register int i=0;
+
+//window.h
+
+    windows_count     = 0;
+
+// Basic windows.
+// At this moment we didn't create any window yet.
+
+// Active window
+    active_window = NULL;
+// Input
+    keyboard_owner = NULL;
+    mouse_owner = NULL;
+// Stack
+    first_window = NULL;
+    last_window = NULL;
+    top_window    = NULL;
+
+    //...
+    show_fps_window = FALSE;
+
+// Window list
+    for (i=0; i<WINDOW_COUNT_MAX; ++i){
+        windowList[i] = 0;
+    };
+
+// z order list
+// #bugbug
+// z-order is gonna be a linked list.
+    for (i=0; i<ZORDER_MAX; ++i){
+        zList[i] = 0;
+    };
+
+    // ...
+
+    return 0;
+}
+
+
+
 //
 // End
 //
