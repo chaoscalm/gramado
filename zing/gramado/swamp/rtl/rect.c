@@ -1359,21 +1359,15 @@ rectBackbufferDrawRectangle0 (
     }
 
 //===============================================================
-
 // Draw:
-// Using the routine inside the ws.
+// Draw the rectangle 
+// using the routine here in the display server.
 
-    // ws routine is not working.
-    //if(DrawRectangleUsingKGWS == FALSE)
-        //debug_print("rectBackbufferDrawRectangle:\n");
-
-    //debug_print("rectBackbufferDrawRectangle0: Using R3 #bugbug\n");
 
 /*
 // Clip
     if ( rect.width > device_w )
         rect.width = (unsigned long) device_w;
-
     if ( rect.height > device_h )
         rect.height = (unsigned long) device_h;
 */
@@ -1399,7 +1393,7 @@ rectBackbufferDrawRectangle0 (
 // ===============================
 // Draw lines on backbuffer.
 // It's using the ws routine.
-    unsigned long number_of_lines=0;
+    register unsigned long number_of_lines=0;
     number_of_lines = (unsigned long) rect.height;
 
 // #todo
@@ -1407,13 +1401,20 @@ rectBackbufferDrawRectangle0 (
 // backbuffer_draw_horizontal_line(...)
     while (number_of_lines--)
     {
-        if (rect.top >= rect.bottom){ break; }
-        if (rect.top >= device_h)   { break; }
-
+        // last line?
+        if (rect.top >= rect.bottom){
+            break;
+        }
+        // End of the device screen?
+        if (rect.top >= device_h){
+            break;
+        }
+        // Draw horizontal line
+        // see: line.c
         grBackbufferDrawHorizontalLine ( 
             rect.left, rect.top, rect.right, 
             (unsigned int) rect.bg_color );
-
+        // Next line
         rect.top++;
     };
 
@@ -1434,26 +1435,28 @@ rectBackbufferDrawRectangle (
     unsigned long rop_flags )
 {
 
-// TRUE = use kgws.
-// FALSE = do not use kgws. #bugbug
+// TRUE:
+//  + Use the kernel to draw the rectangles.
+// FALSE:
+//  + Do NOT use the kernel to draw the rectangles.
+//  #bugbug: 
+//  (The routine here in ring3 is not stable)
+// see: config.h
 
-    // ok: It's working
+    int UseKernelPainter = TRUE;
+    if (USE_KERNEL_TO_DRAW_RECTANGLES == 1){
+        UseKernelPainter = TRUE;
+    }else if (USE_KERNEL_TO_DRAW_RECTANGLES != 1){
+        UseKernelPainter = FALSE;
+    }
+
+// Draw the rectangle, using the kernel or not.
     rectBackbufferDrawRectangle0(
         x, y, width, height,
         color,
         fill,
         rop_flags,
-        TRUE );   // TRUE = use kgws. (kernel service)
-    
-
-    /*
-    // ok: It's working
-    rectBackbufferDrawRectangle0(
-        x, y, width, height, color,
-        fill,
-        rop_flags,
-        FALSE );   // FALSE = do not use kgws. (kernel service)
-    */
+        UseKernelPainter );
 }
 
 // #todo

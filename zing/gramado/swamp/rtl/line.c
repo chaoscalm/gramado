@@ -12,10 +12,10 @@ plotLineRect4 (
     int x2, int y2, 
     int color )
 {
-    plotLine3d ( x1,y1,0, x2,y1,0, color );
-    plotLine3d ( x2,y1,0, x2,y2,0, color );
-    plotLine3d ( x2,y2,0, x1,y2,0, color );
-    plotLine3d ( x1,y2,0, x1,y1,0, color );
+    plotLine3d( x1,y1,0, x2,y1,0, color );
+    plotLine3d( x2,y1,0, x2,y2,0, color );
+    plotLine3d( x2,y2,0, x1,y2,0, color );
+    plotLine3d( x1,y2,0, x1,y1,0, color );
 }
 
 // #bugbug: Use unsigned int for 'color'.
@@ -25,10 +25,10 @@ plotLineRectZ (
     int x2, int y2, int z2, 
     int color )
 {
-    plotLine3d ( x1,y1,z1, x2,y1,z2, color );
-    plotLine3d ( x2,y1,z1, x2,y2,z2, color );
-    plotLine3d ( x2,y2,z1, x1,y2,z2, color );
-    plotLine3d ( x1,y2,z1, x1,y1,z2, color );
+    plotLine3d( x1,y1,z1, x2,y1,z2, color );
+    plotLine3d( x2,y1,z1, x2,y2,z2, color );
+    plotLine3d( x2,y2,z1, x1,y2,z2, color );
+    plotLine3d( x1,y2,z1, x1,y1,z2, color );
 }
 
 //#bugbug: use unsigned int for 'color'.
@@ -100,7 +100,7 @@ void test_draw_line(void)
 {
     register int i=0;
 
-    for ( i=0; i<400; i++ ){
+    for (i=0; i<400; i++){
         A_naive_line_drawing_algorithm ( 
             8, 750,              // x1,x2
             8, (50 + (i*4)) ,    // y1,y2
@@ -161,9 +161,8 @@ void test_draw_line2(void)
  * grBackbufferDrawHorizontalLine:
  *     Draw a horizontal line on backbuffer. 
  */
-
 // It's using the ring3 routine.
-
+// See libdisp.c for 'put pixel'.
 void 
 grBackbufferDrawHorizontalLine ( 
     unsigned long x1,
@@ -182,21 +181,30 @@ grBackbufferDrawHorizontalLine (
     //unsigned long deviceHeight = gws_get_device_height();
     int w = (int) (deviceWidth & 0xFFFFFFFF);
 
-    if(__x1<0)
-        return;
+// #todo
+// Check w limits.
 
-    if(__x2<0)
-        return;
 
-    if(__y<0)
+// Limits
+// #bugbug
+// Checking agains 'unsigned int'.
+
+    if (__x1 < 0){
         return;
+    }
+    if (__x2 < 0){
+        return;
+    }
+    if (__y < 0){
+        return;
+    }
 
     //if (__x2 > 800){
     //    debug_print("grBackbufferDrawHorizontalLine: __x2 > 800\n");
     //    return;
     //}
 
-    if(__x2 >= w){
+    if (__x2 >= w){
         __x2 = w-1;
     }
 
@@ -205,9 +213,10 @@ grBackbufferDrawHorizontalLine (
         return;
     }
 
+// Draw the line.
 // It's using the ring3 routine.
 // IN: color, x, y, rop
-// see: libgd.c
+// see: libdisp.c
 
     while (__x1 < __x2)
     {
@@ -220,7 +229,6 @@ grBackbufferDrawHorizontalLine (
         __x1++;  
     };
 }
-
 
 /*
  * backbuffer_draw_horizontal_line:
@@ -242,7 +250,7 @@ backbuffer_draw_horizontal_line (
     }
 // IN: color, x, y, rop flags.
     while (x1 < x2){
-        backbuffer_putpixel ( color, x1, y, rop_flags ); 
+        backbuffer_putpixel( color, x1, y, rop_flags ); 
         x1++;
     };
 }
@@ -262,7 +270,7 @@ frontbuffer_draw_horizontal_line (
     }
 // IN: color, x, y, rop flags.
     while (x1 < x2){
-        frontbuffer_putpixel ( color, x1, y, rop_flags );
+        frontbuffer_putpixel( color, x1, y, rop_flags );
         x1++;
     };
 }

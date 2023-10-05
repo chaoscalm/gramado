@@ -140,25 +140,44 @@ libdisp_backbuffer_putpixel (
 {
 // #todo: Return the number of changed pixels.
 
-// Clipping
-    if(x<0){ return 0; }
-    if(y<0){ return 0; }
+    int ret_value=0;
+// The base address for the target backbuffer.
+    unsigned long target_buffer = 
+        libgd_BACKBUFFER_VA;
 
+// Clipping
+// #bugbug:
+// And the other limits?
+    if (x<0){
+        return 0;
+    }
+    if (y<0){
+        return 0;
+    }
 
     //if (x > 200 && x < 600)
     //    rop = 1;
 
+    //if (target_buffer == 0)
+        //return 0;
 
-// #bugbug: We don't have rop in this routine.
+
 // IN: color, x, y, rop, target buffer.
-    return (int) fb_BackBufferPutpixel( 
-                     color, x, y, rop, libgd_BACKBUFFER_VA );
+    ret_value = 
+        (int) fb_BackBufferPutpixel( 
+                  color, 
+                  x, 
+                  y, 
+                  rop, 
+                  target_buffer );
 
 // #test: This routine has rop support.
 // #bugbug: These two routines are using different types
 // in the parameters.
     //return (int) putpixel0( 
-    //                 color, x, y, rop, libgd_BACKBUFFER_VA );
+    //                 color, x, y, rop, target_buffer );
+
+    return (int) ret_value;
 }
 
 // ## putpixel: 
