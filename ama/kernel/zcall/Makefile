@@ -94,13 +94,17 @@ all:
 
 	$(CC) -c overall/cali.c   $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
 
+# APIs
+	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
+	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
+
+# gateway
+	$(CC) -c gateway/visitor/sci.c  \
+$(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
+
 # kmain
 	$(CC) -c kmain.c   $(KERNEL_INCLUDE) $(CFLAGS) -o kmain.o
 
-# APIs
-	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
-	$(CC) -c apis/visitor/sci.c  $(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
-	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
 
 # ----------------------------------------------
 # link
