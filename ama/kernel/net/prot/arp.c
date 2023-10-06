@@ -34,7 +34,6 @@ network_handle_arp(
 
 // The buffer.
     struct ether_arp *ar;
-    char message[512];
 
 // #warning
 // It's ok to use pointer here.
@@ -46,18 +45,11 @@ network_handle_arp(
         goto fail;
     }
 
-// Message
-    memset(message,0,sizeof(message));
-    sprintf(message,"Hello from Gramado to Linux\n");
-
-
 // The minimum size.
-// Only the udp header.
     //if (size < ARP_HEADER_LENGHT){
     //    printf("network_handle_arp: size\n");
     //    goto fail;
     //}
-
 
 /*
 // Show data.
@@ -77,17 +69,21 @@ network_handle_arp(
 // Operation
     uint16_t op = (uint16_t) FromNetByteOrder16(ar->op);
 
-
+// ------------
 // REQUEST
 // Sending a reply.
 // sha is the [mac] of the machine that sent us a request.
 // spa is the [ip    ] of the machine that sent us a request.
-    if (op==ARP_OPC_REQUEST){
+    if (op == ARP_OPC_REQUEST){
         //printf("ARP: REQUEST\n");
         network_send_arp_reply( ar->arp_sha, ar->arp_spa );
-// REPLY
-    } else if (op==ARP_OPC_REPLY){
+        return;
 
+// ------------
+// REPLY
+    } else if (op == ARP_OPC_REPLY){
+
+        // #debug
         printf("ARP: REPLY from %d.%d.%d.%d\n",
             ar->arp_spa[0], 
             ar->arp_spa[1], 
@@ -98,8 +94,8 @@ network_handle_arp(
         // #todo:
         // We got to use the ipv4 given by the dhcp dialog.
         if ( ar->arp_spa[0] == 192 && 
-             ar->arp_spa[1] == 168  && 
-             ar->arp_spa[2] == 1  &&
+             ar->arp_spa[1] == 168 && 
+             ar->arp_spa[2] == 1 &&
              ar->arp_spa[3] == 1 )
         {
             // Show MAC
@@ -112,11 +108,12 @@ network_handle_arp(
                 //ar->arp_sha[5] );
 
             // Save into the default network info.
-            if ( (void*) CurrentNetwork != NULL )
+            if ((void*) CurrentNetwork != NULL)
             {
-                if ( CurrentNetwork->initialized == TRUE )
+                if (CurrentNetwork->initialized == TRUE)
                 {
-                    printf ("Saving gateway info\n");
+                    // #debug
+                    printf("Saving gateway info\n");
                     network_fill_ipv4( 
                         CurrentNetwork->gateway_ipv4,
                         ar->arp_spa );
@@ -162,6 +159,10 @@ network_handle_arp(
             network_save_mac(ar->arp_sha);
         }
         */
+    
+        return;
+    } else {
+        //Invalid operation
     };
 
     return;

@@ -385,12 +385,13 @@ network_on_receiving (
     const unsigned char *frame, 
     ssize_t frame_size )
 {
+// Quote: "And the house of God will overflow".
 // + Handle ethernet header.
 // + Call the handler for the given protocol.
 
     struct ether_header *eth = (struct ether_header *) frame;
     uint16_t Type=0;
-    int Show=FALSE;
+    //int Show=FALSE;
 
 // Drop it!
 // Set this flag using the command "net-on" on terminal.bin.
@@ -472,20 +473,19 @@ network_on_receiving (
     //     break; 
     // IPV4
     case ETHERTYPE_IPv4:
-        Show=TRUE;
+        //Show=TRUE;
         network_handle_ipv4( 
             (frame + ETHERNET_HEADER_LENGHT), 
             (frame_size - ETHERNET_HEADER_LENGHT) );
         break;
     // ARP
     case ETHERTYPE_ARP:
-        Show=TRUE;
+        //Show=TRUE;
         network_handle_arp( 
             (frame + ETHERNET_HEADER_LENGHT), 
             (frame_size - ETHERNET_HEADER_LENGHT) );
         break;
     // ...
-    //case ETHERTYPE_IPv6:
     default:
         // printf ("Default type\n");
         goto fail;

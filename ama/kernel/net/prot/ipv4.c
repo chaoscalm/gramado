@@ -19,7 +19,6 @@ network_handle_ipv4(
 
 // The buffer.
     struct ip_d *ip;
-
 // The protocol for the payload.
     uint8_t Protocol=0;
 
@@ -68,11 +67,21 @@ network_handle_ipv4(
 // 20~65535
     //printf("Total lenght: {%d}\n",ip->ip_len);
 
-    if (ip->ip_len < 20 || ip->ip_len > 65535)
+// #bugbug
+// What is the style of this information?
+// little endian?
+    uint16_t ip_lenght = 
+        (uint16_t) FromNetByteOrder16(ip->ip_len);
+
+    if ( ip_lenght < 20 || 
+         ip_lenght > 65535 )
     {
         //#debug
-        //printf("#debug: len={%d}\n",ip->ip_len);
-        //refresh_screen();
+        printf("IP: size={%d}\n",size);
+        printf("IP: ip_lenght={%d}\n",ip_lenght);
+        
+        // #todo:
+        // Maybe simply drop it for now.
         panic("IP: Bad total lenght #debug\n");
     }
 
