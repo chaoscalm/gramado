@@ -229,6 +229,14 @@ void cali_shutdown(int how);
 void cali_die(void);
 void cali_spawn_thread_by_tid(tid_t tid);
 
+
+//--------------------
+unsigned long cali_get_system_metrics(int index);
+int cali_start_thread(struct thread_d *thread);
+int cali_get_current_runlevel(void);
+unsigned long cali_get_memory_size_mb(void);
+void *cali_alloc_shared_ring3_pages(pid_t pid, int number_of_bytes);
+void cali_set_cursor( unsigned long x, unsigned long y );
 #endif   
 
 

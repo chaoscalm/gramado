@@ -347,8 +347,6 @@ Hallelujah, my King - (Transfiguration)
 #include "syscalls.h"
 // zero. (Used during the kernel initialization)
 #include "zero.h"
-// newos. (Called by the interrups 0x80 and 0x82).
-#include "newos.h"
 
 // Maskable interrupts
 #include "x64mi.h"

@@ -17,9 +17,8 @@ static unsigned long __default_syscall_counter=0;
 // == private functions: prototypes =============
 //
 
-
+static void __servicePutChar(int c, int console_number);
 static void __service897(void);
-static void __servicePutChar(int c);
 static void __invalidate_surface_rectangle(void);
 
 static void __setup_surface_rectangle(
@@ -32,119 +31,32 @@ static void __setup_surface_rectangle(
 
 /*
  * __servicePutChar:
- * Movendo para terminal/output.c 
- * Coloca um char usando o 'terminal mode' de stdio selecionado em _outbyte.
- * stdio_terminalmode_flag = nao transparente.
  */
-static void __servicePutChar(int c)
-{
 // Put char into the fg console.
 // Local worker.
-
-    if (fg_console < 0){
+static void __servicePutChar(int c, int console_number)
+{
+    if (c<0)
+        return;
+// 0~3
+    if (console_number < 0){
         return;
     }
-    console_putchar ( (int) c, fg_console );
-}
-
-// #todo: Return 'int'.
-void newos_reboot(unsigned long reboot_flags)
-{
-    sys_reboot(reboot_flags);
-}
-
-unsigned long newos_get_system_metrics(int index)
-{
-    if (index<0){
-        return 0;
+    if (console_number > 3){
+        return;
     }
-    return (unsigned long) doGetSystemMetrics ( (int) index );
+    console_putchar( (int) c, console_number );
 }
 
-pid_t newos_getpid(void)
-{
-    return (pid_t) sys_getpid();
-}
-
-// REAL (coloca a thread em standby para executar pela primeira vez.)
-// MOVEMENT 1 (Initialized --> Standby).
-int newos_start_thread(struct thread_d *thread)
-{
-
-// Validation
-    if ((void*) thread == NULL)
-        return (-1);
-    if (thread->used != TRUE)
-        return (-1);
-    if (thread->magic != 1234)
-        return (-1);
-
-    SelectForExecution( (struct thread_d *) thread );
-    return 0;
-}
-
-int newos_get_current_runlevel(void)
-{
-    return (int) current_runlevel;
-}
-
-unsigned long newos_get_memory_size_mb(void)
-{
-    unsigned long __mm_size_mb = 
-        (unsigned long) (memorysizeTotal/0x400);
-
-    return (unsigned long) __mm_size_mb;
-}
-
-// Usado pelo malloc em ring3.
-void *newos_alloc_shared_ring3_pages(pid_t pid, int number_of_bytes)
-{
-    int number_of_pages=0;
-
-// #todo
-// pid premission
-
-// #todo
-// Check max limit
-
-    if ( number_of_bytes < 0 )
-        number_of_bytes = 4096;
-
-    if ( number_of_bytes <= 4096 ){
-        return (void *) allocPages(1);
-    }
-
-// Alinhando para cima.
-    number_of_pages = (int) ((number_of_bytes/4096) + 1);
-
-    return (void *) allocPages(number_of_pages);
-}
-
-
-// 34 - Setup cursor for the current virtual console.
-// See: core/system.c
-// IN: x,y
-// #todo: Essa rotina dever pertencer ao user/
-void newos_set_cursor( unsigned long x, unsigned long y )
-{
-
-// #todo
-// Maybe check some limits.
-
-    set_up_cursor ( 
-        (unsigned long) x, 
-        (unsigned long) y );
-}
-
-
-
-
+// 897
+// Set up and draw the main surface for a thread.
+// #test
 static void __service897(void)
 {
     struct thread_d *myThread; 
     struct rect_d r;
     unsigned int _Color=0;
-
+    int Draw = TRUE;
 
 // Current thread
 // This routine only can be called by the 
@@ -167,6 +79,19 @@ static void __service897(void)
     r.used = TRUE;
     r.magic = 1234;
 
+
+//  Thread
+    myThread = (struct thread_d *) threadList[current_thread];
+    if ((void*) myThread == NULL)
+        return;
+    if (myThread->used != TRUE)
+        return;
+    if (myThread->magic != 1234)
+        return;
+
+// Setup surface rectangle. 
+    myThread->surface_rect = (struct rect_d *) &r;
+
 // Paint
 // Invalidate means that the rectangle need to be flushed
 // into the framebuffer.
@@ -174,24 +99,13 @@ static void __service897(void)
 // the framebuffer.
 // When we draw a window it needs to be invalidated.
 
-    backbuffer_draw_rectangle( 
-        r.left, r.top, r.width, r.height, 
-        _Color, 
-        0 );      // #todo: rop flags.
-
-    r.dirty = TRUE;
-
-// Setup surface rectangle.
-
-//  Thread
-    myThread = (struct thread_d *) threadList[current_thread];
-// Valid thread
-    if ( (void*) myThread != NULL )
+    if (Draw == TRUE)
     {
-        if ( myThread->used == TRUE && myThread->magic == 1234 ){
-            myThread->surface_rect = (struct rect_d *) &r;
-            return;
-        }
+        backbuffer_draw_rectangle( 
+            r.left, r.top, r.width, r.height, 
+            _Color, 
+           0 );      // #todo: rop flags.
+        r.dirty = TRUE;
     }
 }
 
@@ -244,6 +158,7 @@ static void __setup_surface_rectangle(
     r->dirty = FALSE;
 }
 
+// 893 - Invalidate the thread's surface rectangle.
 static void __invalidate_surface_rectangle(void)
 {
     struct thread_d *t;
@@ -595,7 +510,7 @@ void *sci0 (
 // Setup cursor position for the current virtual console.
     if (number == SYS_VIDEO_SETCURSOR)
     { 
-        newos_set_cursor((unsigned long) arg2, (unsigned long) arg3);
+        cali_set_cursor((unsigned long) arg2, (unsigned long) arg3);
         return NULL;
     }
 
@@ -664,16 +579,10 @@ void *sci0 (
 
 // ...
 
-// Business Logic:
-// 65
-// Put a char in the current virtual console.
-// see: console.c
+// 65 - Put a char in the current virtual console.
 // IN: ch, console id.
-    if (number == SYS_KGWS_PUTCHAR)
-    {
-        //if (arg3<0)
-            //return NULL;
-        console_putchar ( (int) arg2, (int) arg3 ); 
+    if (number == SYS_KGWS_PUTCHAR){
+        __servicePutChar( (int) arg2, (int) arg3 );
         return NULL;
     }
 
@@ -823,9 +732,12 @@ void *sci0 (
 
 // Business Logic:
 // 94
-    if (number == SYS_STARTTHREAD){
+    if (number == SYS_STARTTHREAD)
+    {
         debug_print("sci0: SYS_STARTTHREAD\n");
-        return (void *) newos_start_thread((struct thread_d *) arg2);
+        // #bugbug
+        // Why the user has a ponter to the ring0 thread structure?
+        return (void *) cali_start_thread((struct thread_d *) arg2);
     }
 
 // ------------------
@@ -1351,10 +1263,9 @@ void *sci0 (
         return NULL;
     }
     
-
 // Returns the current runlevel.
     if (number == 288){
-        return (void *) newos_get_current_runlevel();
+        return (void *) cali_get_current_runlevel();
     }
 
 // Serial debug print string.
@@ -1363,8 +1274,8 @@ void *sci0 (
         return (void *) sys_serial_debug_printk( (char *) arg2 );
     }
 
-    if ( number == 292 ){
-        return (void *) newos_get_memory_size_mb();
+    if (number == 292){
+        return (void *) cali_get_memory_size_mb();
     }
 
 // #bugbug: cuidado.
@@ -1372,7 +1283,7 @@ void *sci0 (
 // See: info.c
 // IN: index to select the info.
     if ( number == 293 ){
-        return (void *) info_get_boot_info ( (int) arg2 );
+        return (void *) info_get_boot_info((int) arg2);
     }
 
 // Inicializar ou reinicializar componentes do sistema
@@ -1381,17 +1292,16 @@ void *sci0 (
 // ou qualquer outro.
 // see: 
     if (number == 350){
-        printf("350:\n"); 
+        printf("sci0: 350\n"); 
         return (void *) sys_initialize_component((int) arg2);
     }
-
 
 // 377 
 // Get info to fill the utsname structure.
 // See: sys.c
     if (number == 377)
     {
-        debug_print("__extra_services: [377]\n");
+        debug_print("sci0: [377]\n");
         if ( (void*) arg2 == NULL )
             return NULL;
         sys_uname ( (struct utsname *) arg2 );
@@ -1403,7 +1313,7 @@ void *sci0 (
 // Clear the screen.
     if (number==390)
     {
-        debug_print("__extra_services: [390] :)\n");
+        debug_print("sci0: [390]\n");
         //displayInitializeBackground(,COLOR_BLUE,TRUE);
         return NULL;
     }
@@ -1412,7 +1322,7 @@ void *sci0 (
 // Falha se tentamos pintar a tela toda.
     if (number==391)
     {
-        //debug_print("__extra_services: [391]\n");
+        //debug_print("sci0: [391]\n");
         backbuffer_draw_rectangle ( 
             (unsigned long) message_address[0],    //x 
             (unsigned long) message_address[1],    //y
@@ -1428,7 +1338,7 @@ void *sci0 (
 // OUT: pid
     if (number == SYS_GET_WS_PID)
     {
-        debug_print("__extra_services: SYS_GET_WS_PID\n");
+        debug_print("sci0: SYS_GET_WS_PID\n");
         __zh = (struct zing_hook_d *) arg2;
         if ( (void *) __zh != NULL )
         {
@@ -1453,7 +1363,7 @@ void *sci0 (
     int display_server_ok=FALSE;
     if (number == SYS_SET_WS_PID)
     {
-        debug_print("__extra_services: SYS_SET_WS_PID\n");
+        debug_print("sci0: SYS_SET_WS_PID\n");
         
         // IN: zing hook, caller pid.
         // see: network.c
@@ -1471,13 +1381,13 @@ void *sci0 (
 // #deprecated
 // 514 - get wm PID for a given zing hook
     if ( number == SYS_GET_WM_PID ){
-        panic("__extra_services: SYS_GET_WM_PID\n");
+        panic("sci0: SYS_GET_WM_PID\n");
         return NULL;
     }
 // #deprecated
 // 515 - set wm PID for a given zing hook
     if (number == SYS_SET_WM_PID){
-        panic("__extra_services: SYS_SET_WM_PID\n");
+        panic("sci0: SYS_SET_WM_PID\n");
         return NULL;
     }
 
@@ -1664,9 +1574,9 @@ void *sci0 (
     }
 
 // 891 - Allocate shared ring3 pages.
-    if ( number == 891 ){
-        debug_print("__extra_services: 891, Allocate shared ring3 pages\n");
-        return (void *) newos_alloc_shared_ring3_pages( (pid_t) current_process, (int) arg2 );
+    if (number == 891){
+        debug_print("sci0: 891, Allocate shared ring3 pages\n");
+        return (void *) cali_alloc_shared_ring3_pages( (pid_t) current_process, (int) arg2 );
     }
 
 // 892 - Setup the thread's surface rectangle.
@@ -1680,43 +1590,35 @@ void *sci0 (
         return NULL;
     }
 
-
-
 // 893 - Invalidate the thread's surface rectangle.
-    if (number == 893)
-    {
+    if (number == 893){
         __invalidate_surface_rectangle();
         return NULL;
     }
+
 // 896 - Invalidate the whole screen
-    if ( number == 896 )
-    {
+    if (number == 896){
         invalidate_screen();
-        //screen_is_dirty = TRUE;
         return NULL;
     }
-// 897 - Create a rectangle.
-    if (number == 897)
-    {
+
+// Set up and draw the main surface for a thread.
+    if (number == 897){
         __service897();
         return NULL;
     }
-// 898 - Enable prompt
-    if ( number == 898 )
-    {
-        printf ("Prompt ON: Type something\n");
-        printf("\n");
-        ShellFlag = TRUE;
+
+// 898 - Start the kernel console.
+    if (number == 898){
+        enter_kernel_console();
         return NULL;
     }
-// 899 - Desable prompt
-    if ( number == 899 )
-    {
-        printf ("Prompt OFF: Bye\n");
-        printf("\n");
-        ShellFlag = FALSE;
+// 899 - Exit the kernel console.
+    if (number == 899){
+        exit_kernel_console();
         return NULL;
     }
+
 // is the socket full?
 // See: sys.c
 // IN: fd

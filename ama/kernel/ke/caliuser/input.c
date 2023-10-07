@@ -455,11 +455,9 @@ done:
 static void __enter_embedded_shell(int kernel_in_debug_mode)
 {
     int console_index = fg_console;
-
     // ShellFlag = FALSE;
 
 // Set up console
-
     jobcontrol_switch_console(0);
 // Message
     if (kernel_in_debug_mode){
@@ -483,12 +481,14 @@ static void __exit_embedded_shell(void)
     ShellFlag = FALSE;
 }
 
+void enter_kernel_console(void)
+{
+    __enter_embedded_shell(FALSE);
+}
 
 void exit_kernel_console(void)
 {
     __exit_embedded_shell();
-// suficiente para o modo debug.
-    ShellFlag = FALSE;
 }
 
 

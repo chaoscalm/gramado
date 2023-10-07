@@ -437,6 +437,8 @@ bitblt(
 // == wm =====================
 //
 
+// See: input.c
+void enter_kernel_console(void);
 void exit_kernel_console(void);
 
 // ==========
