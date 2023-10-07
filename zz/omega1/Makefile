@@ -1,5 +1,4 @@
 
-
 all:
 	make -C libs/
 clean:
