@@ -301,8 +301,6 @@ void *sci0 (
     if (number == 0)
         return NULL;
 
-
-// Business Logic:
 // 1 (i/o) Essa rotina pode ser usada por 
 // um driver em user mode.
 // #todo: This operation needs permition.
@@ -313,7 +311,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 2 (i/o) Essa rotina pode ser usada por 
 // um driver em user mode.
 // #todo: This operation needs permition.
@@ -324,7 +321,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 3 
 // Carregar um arquivo do disco para a memória.
 // See: fs/fs.c
@@ -339,7 +335,6 @@ void *sci0 (
                             (mode_t) arg4 ); 
     }
 
-// Business Logic:
 // 4 
 // Save file.
 // See: fs/fs.c
@@ -355,7 +350,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 5
 // See: sys.c 
     if (number == SYS_VSYNC)
@@ -364,7 +358,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 6 - Put pixel. 
 // Coloca um pixel no backbuffer.
 // Isso pode ser usado por um servidor. 
@@ -382,7 +375,6 @@ void *sci0 (
 
 // 7
 
-// Business Logic:
 // 8 
 // #todo: #bugbug: 
 // Aqui precisamos de mais parâmetros.
@@ -397,7 +389,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 9 - Draw a rectangle into the backbuffer.
 // SYS_BUFFER_DRAWRECT
 // see: rect.c
@@ -414,7 +405,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 10 - Refresh rectangle.
 // Region?
     if (number == 10)
@@ -428,8 +418,6 @@ void *sci0 (
         return NULL;
     }
 
-
-// Business Logic:
 // 11:
 // Flush the backbuffer into the lfb.
     if (number == SYS_REFRESHSCREEN)
@@ -441,7 +429,6 @@ void *sci0 (
 // Reserved.
 // Netword: 12,13,14,15
 
-// Business Logic: 
 // 16 - open() implementation.
 // In ring3, see: fcntl.c
 // In ring0, see: fs.c
@@ -458,7 +445,6 @@ void *sci0 (
                                 (mode_t)       arg4 ); 
     }
 
-// Business Logic:
 // 17 - close() implementation.
 // See: sys.c
 // IN: fd
@@ -470,7 +456,6 @@ void *sci0 (
         return (void *) sys_close( (int) arg2 );
     }
 
-// Business Logic:
 // 18 - read() implementation.
 // IN: ?
 // See: sys.c
@@ -482,7 +467,6 @@ void *sci0 (
                             (int)          arg4 ); 
     }
 
-// Business Logic:
 // 19 - write() implementation
 // IN: ?
 // See: sys.c
@@ -494,9 +478,7 @@ void *sci0 (
                             (int)          arg4 );  
     }
 
-
 // == + ==================================================
-
 
 // Reserved:
 // 20~23 - Buffers support 
@@ -505,7 +487,6 @@ void *sci0 (
 // 30,31,32 - Putpixel?
 // 33 - free number.
 
-// Business Logic:
 // 34
 // Setup cursor position for the current virtual console.
     if (number == SYS_VIDEO_SETCURSOR)
@@ -515,30 +496,25 @@ void *sci0 (
     }
 
 // 35 - free number
-
 // 36 - #deprecated
 // 37 - #deprecated
 
-// Business Logic:
 // 38 - get host name
     if (number == SYS_GETHOSTNAME){
         return (void *) __gethostname((char *) arg2);
     }
 
-// Business Logic:
 // 39 - set host name 
 // #todo: This operation needs permition?
     if (number == SYS_SETHOSTNAME){
         return (void *) __sethostname((const char *) arg2);
     }
 
-// Business Logic:
 // 40 - get user name 
     if (number == SYS_GETUSERNAME){
         return (void *) __getusername((char *) arg2);
     }
 
-// Business Logic:
 // 41 - Set user name 
 // #todo: This operation needs permition?
     if (number == SYS_SETUSERNAME){
@@ -547,7 +523,6 @@ void *sci0 (
 
 // 42 - #deprecated
 
-// Business Logic:
 // 43 - Create an empty file.
 // Called by libgws.
 // See: fs.c
@@ -555,7 +530,6 @@ void *sci0 (
         return (void *) sys_create_empty_file( (char *) arg2 );
     }
 
-// Business Logic:
 // 44 - Create an empty directory.
 // Called by libgws.
 // See: fs.c
@@ -611,7 +585,6 @@ void *sci0 (
 
 // 71 - fork?
 
-// Business Logic:
 // 72
 // See: sys.c
 // Cria uma thread que fica no estado INITIALIZED.
@@ -627,7 +600,6 @@ void *sci0 (
                             (char *) a4 );    // name
     }
 
-// Business Logic:
 // 73
 // See: sys.c
 // Cria um processo e coloca a thread primária pra rodar.
@@ -675,7 +647,6 @@ void *sci0 (
         return NULL;
     }
 
-// Business Logic:
 // 81: Get parent process id.
 // See: sys.c
     if (number == SYS_GETPPID){ 
@@ -710,13 +681,12 @@ void *sci0 (
 
 // 84 - livre.
 
-// Business Logic:
 // 85
     if (number == SYS_GETPID){
         return (void *) get_current_pid();
    }
 
-// 86,87 - livre.
+// 86, 87 - livre.
 
 // Testa se o processo é válido
 // se for valido retorna 1234
@@ -730,7 +700,6 @@ void *sci0 (
 // ------------------
 // 90~99 Reservado para thread support
 
-// Business Logic:
 // 94
     if (number == SYS_STARTTHREAD)
     {
@@ -744,10 +713,9 @@ void *sci0 (
 
 // 100~109: free
 
-// Business Logic:
 // 110
 // IN: flags.
-// see: ke/sys.c
+// see: sys.c
     int reb_ret=-1;
     if (number == SYS_REBOOT){
         debug_print("sci0: SYS_REBOOT\n");
@@ -755,9 +723,8 @@ void *sci0 (
         return (void *) (reb_ret & 0xFFFFFFFF);
     }
 
-// Business Logic:
 // 111
-// See: tlib.c
+// See: msg.c
 // Get the next system message.
 // IN: buffer for message elements.
     if (number == 111){
@@ -765,8 +732,7 @@ void *sci0 (
         return (void *) sys_get_message( (unsigned long) &message_address[0] );
     }
 
-// Business Logic:
-// tlib.c
+// msg.c
 // Post message to tid.
 // Asynchronous.
 // IN: tid, message buffer address.
@@ -817,7 +783,6 @@ void *sci0 (
 
 // 125
 
-// Business Logic:
 // 126
 // Permitindo que drivers e servidores em usermode acessem as portas.
 // #todo: This operation needs permition?
@@ -832,7 +797,6 @@ void *sci0 (
                             (unsigned short) (arg3 & 0xFFFF) );
     }
 
-// Business Logic:
 // 127
 // Permitindo que drivers e servidores em usermode acessem as portas.
 // #todo: This operation needs permition?
@@ -1089,13 +1053,11 @@ void *sci0 (
         return (void *) get_systime_info((int) arg2);
     }
 
-// Business Logic:
 // 224
     if (number == SYS_GETTIME){
         return (void *) get_time();
     }
 
-// Business Logic:
 // 225
     if (number == SYS_GETDATE){
         return (void *) get_date();
@@ -1156,7 +1118,7 @@ void *sci0 (
 // =====================================
 // (250 ~ 255) - Info support.
 
-// Business Logic: Get system metrics.
+// Get system metrics.
 // 250
 // IN: index
     if (number == SYS_GETSYSTEMMETRICS)
@@ -2013,14 +1975,14 @@ void *sci2 (
         return NULL;
     }
 
-// 5 - Business Logic: fcntl() implementation.
+// 5 - fcntl() implementation.
 // See: ?
     if (number == 5){
         debug_print("sci2: [5] fcntl\n");
         return (void*) sys_fcntl( (int) arg2, (int) arg3, (unsigned long) arg4 );
     }
 
-// 18 - Business Logic: read() implementation.
+// 18 - read() implementation.
 // See: fs.c
     if (number == 18){
         //debug_print("sci2: [18] read\n");
@@ -2030,7 +1992,7 @@ void *sci2 (
                             (int)          arg4 );
     }
 
-// 19 - Business Logic: write() implementation.
+// 19 - write() implementation.
 // See: fs.c
     if (number == 19){
         //debug_print("sci2: [19] write\n");
@@ -2043,7 +2005,6 @@ void *sci2 (
     // ...
 
 // 265 - yield
-// Business Logic: 
 //  + Yield 
 //  + Set a flag that this thread will be preempted.
 // See: sched/schedi.c
@@ -2055,7 +2016,6 @@ void *sci2 (
     }
 
 // 266 - sleep
-// Business Logic: 
 // Sleep until.
 // #todo: Explaint it better here.
 // #bugbug
@@ -2082,7 +2042,6 @@ void *sci2 (
 
 // ---------------------------
 // 900 - copy process
-// Business Logic: 
 // Clona e executa o filho dado o nome do filho.
 // O filho inicia sua execução do início da imagem.
 // #bugbug: Isso às vezes falha na máquina real.
@@ -2166,7 +2125,7 @@ void *sci2 (
         return (void*) NULL;
     }
 
-// 8000 - Business Logic: ioctl() implementation.
+// 8000 - ioctl() implementation.
 // See: fs.c
 // IN: fd, request, arg
     if (number == 8000)
@@ -2179,8 +2138,7 @@ void *sci2 (
                             (unsigned long) arg4 );
     }
 
-
-// 8001 - Business Logic: fcntl() implementation. 
+// 8001 - fcntl() implementation. 
 // (second time) see: number 5.
 // See: sys.c
     if (number == 8001){
@@ -2192,7 +2150,6 @@ void *sci2 (
     }
 
 // 8003
-// Business Logic: 
 // Clear the fg console background with a given color.
 // Do not change the colors.
     unsigned int bg_color = COLOR_BLACK;
@@ -2210,7 +2167,6 @@ void *sci2 (
     }
 
 // 8004
-// Business Logic: 
 // Change the foreground color of the current console.
     if (number == 8004)
     {
@@ -2228,7 +2184,6 @@ void *sci2 (
     }
 
 // 10000 - sys_set_file_sync
-// Business Logic: 
 // Configurando sincronização de leitura e escrita em arquivo.
 // principalmente socket.
 // A estrutura de arquivo contém uma estrutura de sincronização de leitura e escrita.
@@ -2243,7 +2198,6 @@ void *sci2 (
     }
 
 // 10001 - sys_get_file_sync
-// Business Logic: 
 // Pegando informação sobre sincronização de leitura e escrita de arquivos.
 // principalmente para socket.
 // A estrutura de arquivo contém uma estrutura de sincronização de leitura e escrita.
@@ -2263,22 +2217,22 @@ void *sci2 (
 
 // ============
 // See: sys.c
-// Business Logic: Set action.
+// Set action.
     if (number == 10002){
         sys_set_global_sync( (int) arg2, (int) arg3, (int) arg4 );
         return NULL;
     }
-    // Business Logic: Get action.
+// Get action.
     if (number == 10003){
         return (void*) sys_get_global_sync( (int) arg2, (int) arg3 );
     }
-    // Business Logic: Create sync.
-    // OUT: sync id.
+// Create sync.
+// OUT: sync id.
     if (number == 10004){
         return (void*) sys_create_new_sync();
     }
-    // Business Logic: Get sync id.
-    // Provisorio para teste
+// Get sync id.
+// Provisorio para teste
     if(number == 10005){
         return (void*) get_saved_sync();
     }
@@ -2289,7 +2243,6 @@ void *sci2 (
 //
 
 // ===============
-// Business Logic: 
 // Set file sync action
 // IN: fd, request, data
 // see: fs.c
@@ -2306,7 +2259,6 @@ void *sci2 (
 // ===============
 
 // 10008
-// Business Logic:
 // Save FAT cache into the disk.
 // FAT cache.
 // This is the FAT cache for the system disk.
@@ -2323,7 +2275,7 @@ void *sci2 (
         return NULL;
     }
 
-// 10010 - Business Logic: Get the tid of the current thread.
+// 10010 - Get the tid of the current thread.
     if (number == 10010){
         //debug_print("sci2: [10010] GetCurrentTID\n");
         return (void*) GetCurrentTID();
@@ -2331,7 +2283,6 @@ void *sci2 (
 
 // -----------------------------
 // 10011
-// Business Logic: 
 // Set the foreground thread given it's tid.
 // #todo: We need a method for that.
 // IN: arg2=tid.
@@ -2363,11 +2314,11 @@ void *sci2 (
         return NULL;
     }
 
-    // Business Logic: Get Init PID
+// Get Init PID
     if (number == 10020){ 
         return (void*) GRAMADO_PID_INIT;
     }
-    // Business Logic: Get Init TID
+// Get Init TID
     if (number == 10021){
         return (void*) INIT_TID;
     }
@@ -2411,7 +2362,6 @@ void *sci2 (
     }
 
 // 22011
-// Business Logic:
 // PS2 full initialization.
     if (number == 22011)
     {
@@ -2448,9 +2398,7 @@ void *sci2 (
         return NULL;
     }
 
-
 // 44000
-// Business Logic:
 // #important: We're avoiding the callback support.
 // Callback support.
 // see: ts.c
