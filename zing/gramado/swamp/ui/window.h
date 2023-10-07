@@ -1288,7 +1288,7 @@ void *doCreateWindow (
     unsigned long width, 
     unsigned long height, 
     struct gws_window_d *pWindow, 
-    int desktopid, 
+    int desktop_id, 
     unsigned int frame_color, 
     unsigned int client_color,
     unsigned long rop_flags );
@@ -1312,7 +1312,7 @@ void *CreateWindow (
     unsigned long width, 
     unsigned long height, 
     struct gws_window_d *pWindow, 
-    int desktopid, 
+    int desktop_id, 
     unsigned int frame_color, 
     unsigned int client_color ); 
 

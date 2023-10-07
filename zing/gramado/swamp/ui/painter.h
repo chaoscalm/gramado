@@ -18,7 +18,7 @@ void
 __draw_button_borders(
     struct gws_window_d *w,
     unsigned int color1,
-    unsigned int color2,
+    unsigned int color2_dark,
     unsigned int color2_light,
     unsigned int outer_color );
 

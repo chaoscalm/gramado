@@ -288,7 +288,7 @@ void *doCreateWindow (
     unsigned long width, 
     unsigned long height, 
     struct gws_window_d *pWindow, 
-    int desktopid, 
+    int desktop_id, 
     unsigned int frame_color, 
     unsigned int client_color,
     unsigned long rop_flags ) 
@@ -1642,10 +1642,6 @@ fail:
 // Essa será a função que atenderá a chamada a
 // esse é o serviço de criação da janela.
 // talvez ampliaremos o número de argumentos
-// #todo
-// Precisamos de uma estrutura de janela que fique aqui
-// no servidor.
-// Não podemos usar a estrutura de janela da api.
 // #todo: change name to 'const char *'
 // Called by serviceCreateWindow() in main.c.
 // #test
@@ -1665,7 +1661,7 @@ void *CreateWindow (
     unsigned long width, 
     unsigned long height, 
     struct gws_window_d *pWindow, 
-    int desktopid, 
+    int desktop_id, 
     unsigned int frame_color, 
     unsigned int client_color ) 
 {
@@ -1684,7 +1680,10 @@ void *CreateWindow (
     if (type == WT_OVERLAPPED){
         FrameColor = (unsigned int) get_color(csiWindowBackground);
         ClientAreaColor = (unsigned int) get_color(csiWindow);
-    }else{
+    } else if (type == WT_BUTTON) {
+        FrameColor = (unsigned int) get_color(csiButton);
+        ClientAreaColor = (unsigned int) get_color(csiWindow);
+    } else {
         FrameColor = (unsigned int) frame_color;
         ClientAreaColor = (unsigned int) client_color;
     };
@@ -1827,7 +1826,7 @@ void *CreateWindow (
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
-                         desktopid, 
+                         desktop_id, 
                          FrameColor, 
                          ClientAreaColor, 
                          (unsigned long) __rop_flags ); 
@@ -1876,7 +1875,7 @@ void *CreateWindow (
                          (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
-                         desktopid, 
+                         desktop_id, 
                          FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags ); 
 
@@ -1934,7 +1933,7 @@ void *CreateWindow (
                          (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
-                         desktopid, 
+                         desktop_id, 
                          FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );
 
@@ -1966,7 +1965,7 @@ void *CreateWindow (
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
-                         desktopid, 
+                         desktop_id, 
                          FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );  
 
@@ -1996,7 +1995,7 @@ void *CreateWindow (
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
-                         desktopid, 
+                         desktop_id, 
                          FrameColor, ClientAreaColor, 
                          (unsigned long) __rop_flags );  
 

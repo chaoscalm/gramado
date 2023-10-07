@@ -99,9 +99,9 @@ static void __draw_button_mark_by_wid( int wid, int button_number )
 // Called by doCreateWindow
 // >>> No checks
 // IN: window, color, color, color, color.
-// color1: left,top
-// color2: right, bottom
-// color2_light
+// color1: (left, top)
+// color2-dark: (right, bottom)
+// color2-light
 // outer_color
 // #check
 // This routine is calling the kernel to paint the rectangle.
@@ -109,7 +109,7 @@ void
 __draw_button_borders(
     struct gws_window_d *w,
     unsigned int color1,
-    unsigned int color2,
+    unsigned int color2_dark,
     unsigned int color2_light,
     unsigned int outer_color )
 {
@@ -163,7 +163,7 @@ __draw_button_borders(
         color1, TRUE,0 );
 
 // -------------------------------
-// :: Right
+// :: Left
 // left, left+1, left+2
     rectBackbufferDrawRectangle ( 
         w->absolute_x, 
@@ -193,7 +193,7 @@ __draw_button_borders(
 // outer_color, color2, color2_light.
 
 // -------------------------------
-// :: Left
+// :: Right
 // right-3, right-2, right-1
     rectBackbufferDrawRectangle ( 
         ((w->absolute_x) + (w->width) -1), 
@@ -206,7 +206,7 @@ __draw_button_borders(
         w->absolute_y+1, 
         BorderSize, 
         w->height-2, 
-        color2, TRUE, 0 );
+        color2_dark, TRUE, 0 );
     rectBackbufferDrawRectangle ( 
         ((w->absolute_x) + (w->width) -3), 
         w->absolute_y+1+1, 
@@ -228,7 +228,7 @@ __draw_button_borders(
         ((w->absolute_y) + (w->height) -2),  
         w->width-2, 
         BorderSize, 
-        color2, TRUE, 0 );
+        color2_dark, TRUE, 0 );
     rectBackbufferDrawRectangle ( 
         w->absolute_x+1+1, 
         ((w->absolute_y) + (w->height) -3),  
@@ -830,11 +830,11 @@ redraw_window (
         // #todo: veja como foi feito na hora da criaçao do botao.
         __draw_button_borders(
             (struct gws_window_d *) window,
-            (unsigned int) border1,        //buttonBorderColor1,
-            (unsigned int) border2,        //buttonBorderColor2,
-            (unsigned int) xCOLOR_GRAY5,   //buttonBorderColor2_light,
-            (unsigned int) COLOR_BLACK );  //buttonBorder_outercolor );
-             
+            (unsigned int) border1,        // color1: (left and top)
+            (unsigned int) border2,        // color2-dark: (right and bottom)
+            (unsigned int) xCOLOR_GRAY5,   // color2-light
+            (unsigned int) COLOR_BLACK );  // outter color
+
         // Button label
         //gwssrv_debug_print ("redraw_window: [FIXME] Button label\n"); 
 
