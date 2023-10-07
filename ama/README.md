@@ -65,19 +65,16 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 
 > * posix libc - (rtl)
 > * Client-sie library for GUI applications - (libgws)
-> * see: zz/omega1/libs/ for all the libraries, toolkits and apis.
+
+> * zz/omega1/libs/   - All the libraries, toolkits and apis.
+> * zz/omega1/assets/ - Icons for the User Interface.
 
 ## userland user programs.
 
-> * see: zz/omega2/apps/ for Client-side GUI application.
-> * see: zz/omega2/commands/ for posix commands.
 > * see: zz/omega2/drivers/ for ring3 drivers.
 > * see: zz/omega2/servers/ for ring3 servers.
-
-## userland system data.
-
-> * zz/omega3/assets - Icons for the User Interface.
-> * zz/omega3/base   - All binaries go here to build the final virtual disk.
+> * see: zz/omega3/commands/ for posix commands.
+> * see: zz/omega4/apps/ for Client-side GUI application.
 
 ## Fred's compilation on Linux.
 

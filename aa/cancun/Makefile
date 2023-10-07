@@ -1,14 +1,14 @@
 # Compiling some commands to run on Linux.
 
 all:
-	gcc ../../zz/omega2/commands/cat/main.c -o cat
-	gcc ../../zz/omega2/commands/c4/c4.c -o c4
-	gcc ../../zz/omega2/commands/cmp/main.c -o cmp
-	gcc ../../zz/omega2/commands/jackpot/main.c -o jackpot
-	gcc ../../zz/omega2/commands/showfun/main.c -o showfun
-	gcc ../../zz/omega2/commands/unknown/main.c -o unknown
-	gcc ../../zz/omega2/commands/sum/main.c -o sum
-	
+	gcc ../../zz/omega3/commands/cat/main.c -o cat
+	gcc ../../zz/omega3/commands/c4/c4.c -o c4
+	gcc ../../zz/omega3/commands/cmp/main.c -o cmp
+	gcc ../../zz/omega3/commands/jackpot/main.c -o jackpot
+	gcc ../../zz/omega3/commands/showfun/main.c -o showfun
+	gcc ../../zz/omega3/commands/unknown/main.c -o unknown
+	gcc ../../zz/omega3/commands/sum/main.c -o sum
+
 clean:
 	-rm cat
 	-rm c4

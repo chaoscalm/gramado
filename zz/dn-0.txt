@@ -1,10 +1,14 @@
 
 --------------
 omega1/
-	libs, toolkits and APIs.
+	Libs, toolkits and APIs.
 --------------
 omega2/
-	commands, apps, drivers and server.
+	Drivers and server.
 --------------
 omega3/
-	data
+	Commands.
+--------------
+omega4/
+	Client-side GUI applications.
+

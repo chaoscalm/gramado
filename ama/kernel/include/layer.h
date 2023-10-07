@@ -28,32 +28,23 @@
 
 // ---------------------
 
-// Priority levels in omega2.
-// Where this process lives in the stack of applications?
-//L1:
-// + apps         (GUI interactive)
-//L2:
-// + commands     (CLI interactive)
-//L3:
-// + drivers      (Not interactive)
-//L4:
-// + servers      (Not interactive)
-// Omega2 application layers. 
-// It affects the priority levels.
-#define LAYER_ZZ_OMEGA2_L1    1000  // apps
-#define LAYER_ZZ_OMEGA2_L2    2000  // commands
-#define LAYER_ZZ_OMEGA2_L3    3000  // drivers
-#define LAYER_ZZ_OMEGA2_L4    4000  // servers
 
-#define LAYER_ZZ_L1  LAYER_ZZ_OMEGA2_L1
-#define LAYER_ZZ_L2  LAYER_ZZ_OMEGA2_L2
-#define LAYER_ZZ_L3  LAYER_ZZ_OMEGA2_L3
-#define LAYER_ZZ_L4  LAYER_ZZ_OMEGA2_L4
+#define __LAYER_ZZ_OMEGA2_DRIVERS   1000  // drivers
+#define __LAYER_ZZ_OMEGA2_SERVERS   2000  // servers
+#define __LAYER_ZZ_OMEGA3_COMMANDS  3000  // commands
+#define __LAYER_ZZ_OMEGA4_APPS      4000  // apps
 
-#define LAYER_APP      LAYER_ZZ_OMEGA2_L1
-#define LAYER_COMMAND  LAYER_ZZ_OMEGA2_L2
-#define LAYER_DRIVER   LAYER_ZZ_OMEGA2_L3
-#define LAYER_SERVER   LAYER_ZZ_OMEGA2_L4
+// Aliases
+#define LAYER_ZZ_L1  __LAYER_ZZ_OMEGA2_DRIVERS
+#define LAYER_ZZ_L2  __LAYER_ZZ_OMEGA2_SERVERS
+#define LAYER_ZZ_L3  __LAYER_ZZ_OMEGA3_COMMANDS
+#define LAYER_ZZ_L4  __LAYER_ZZ_OMEGA4_APPS
+
+// Aliases
+#define LAYER_DRIVER   LAYER_ZZ_L1
+#define LAYER_SERVER   LAYER_ZZ_L2
+#define LAYER_COMMAND  LAYER_ZZ_L3
+#define LAYER_APP      LAYER_ZZ_L4
 
 #endif  
 
