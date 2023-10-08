@@ -116,8 +116,8 @@ extern _context_fpu_buffer
 
 ;================================
 extern _irq0_TIMER
-
 ; Capture context
+align 4  
 global _irq0
 _irq0:
 ; Maskable interrupt
@@ -216,15 +216,13 @@ hw_reboot:
 ;========================================
 ; _irq1:
 ;     IRQ 1 - Keyboard.
-;
 ; See:
 ; 2io/dev/tty/chardev/hid/i8042/keyboard.c
 ;
-
 extern _xxxxIRQ1_DEBUG_MESSAGE
 extern _irq1_KEYBOARD
-
 ; Capture context
+align 4  
 global _irq1  
 _irq1:
 ; Maskable interrupt
@@ -326,11 +324,10 @@ _irq1:
 ; IRQ 3 - serial port controller for serial port 2 
 ; (shared with serial port 4, if present)
 ; See: serial.c
-
 ;extern _serial2_handler
 ;extern _serial4_handler
-
 ; Capture context
+align 4  
 global _irq3
 _irq3:
 ; Maskable interrupt
@@ -403,11 +400,10 @@ _irq3:
 ; IRQ 4 - serial port controller for serial port 1 
 ;(shared with serial port 3, if present)
 ; See: serial.c
-
 ;extern _serial1_handler
 ;extern _serial3_handler
-
 ; Capture context
+align 4  
 global _irq4
 _irq4:
 ; Maskable interrupt
@@ -494,14 +490,13 @@ _irq4:
 ; if a printer is not present. It can also be potentially 
 ; be shared with a secondary sound card with careful 
 ; management of the port.
-
 ;; The correct way to handle an IRQ 7 is to first check the master PIC 
 ;; chip's ISR to see if the IRQ is a spurious IRQ or a real IRQ. 
 ;; If it is a real IRQ then it is treated the same as any other real 
 ;; IRQ. If it is a spurious IRQ then you ignore it 
 ;; (and do not send the EOI). 
-
 ; Capture context
+align 4  
 global _irq7
 _irq7:
 ; Maskable interrupt
@@ -595,8 +590,8 @@ ExitParallelPort_WithoutEOI:
 ;     System CMOS, Realtime clock.
 ;     IRQ 8 - real-time clock (RTC)
 ;
-
 ; Capture context
+align 4  
 global _irq8
 _irq8:
 ; Maskable interrupt
@@ -668,6 +663,7 @@ _irq8:
 ; IRQ 9
 ;extern _xxxe1000handler
 ; Capture context
+align 4  
 global _irq9
 _irq9:
 ; Maskable interrupt
@@ -751,8 +747,8 @@ _irq9:
 ; IRQ 10  The Interrupt is left open for the use 
 ; of peripherals (open interrupt/available, SCSI or NIC)
 ; nvidia
-
 ; Capture context
+align 4  
 global _irq10
 _irq10:
 ; Maskable interrupt
@@ -836,6 +832,7 @@ extern _irq_E1000
 ;===============================================
 ;  interrupção 41. irq 9
 ; Capture context
+align 4  
 global _nic_handler
 _nic_handler:
 ; Maskable interrupt
@@ -925,8 +922,8 @@ _nic_handler:
 ; IRQ 11 - The Interrupt is left open for 
 ; the use of peripherals (open interrupt/available, SCSI or NIC)
 ; audio.
-
 ; Capture context
+align 4  
 global _irq11
 _irq11:
 ; Maskable interrupt
@@ -1003,10 +1000,9 @@ _irq11:
 ;=======================================
 ; IRQ 12 - mouse on PS/2 connector
 ; See: /i8042/mouse.c
-
 extern _irq12_MOUSE
-
 ; Capture context
+align 4  
 global _irq12
 _irq12:
 ; Maskable interrupt
@@ -1091,9 +1087,8 @@ _irq12:
 ; IRQ 13 
 ; CPU co-processor  or  integrated floating point unit  
 ; or  inter-processor interrupt (use depends on OS)
-;
-
 ; Capture context
+align 4  
 global _irq13
 _irq13:
 ; Maskable interrupt
@@ -1177,10 +1172,9 @@ _irq13:
 ;     IRQ 14 - primary ATA channel 
 ;     ( ATA interface usually serves hard disk drives and CD drives ) 
 ;     O timer precisa ser desbilitado. ??
-
 extern _irq14_PRIMARY_IDE
-
 ; Capture context
+align 4  
 global _irq14
 _irq14:
 ; Maskable interrupt
@@ -1263,7 +1257,6 @@ _irq14:
 ;     Tratador de interrupções para unidade slave.
 ;     IRQ 15 - secondary ATA channel
 ;     O timer precisa ser desbilitado. ??
-
 ;; The correct way to handle an IRQ 15 is similar, but a little trickier 
 ;; due to the interaction between the slave PIC and the master PIC. 
 ;; First check the slave PIC chip's ISR to see if the IRQ is a spurious 
@@ -1272,10 +1265,9 @@ _irq14:
 ;; EOI to the slave PIC; however you will still need to send the EOI 
 ;; to the master PIC because the master PIC itself won't know that it 
 ;; was a spurious IRQ from the slave. 
-
 extern _irq15_SECONDARY_IDE
-
 ; Capture context
+align 4  
 global _irq15
 _irq15:
 ; Maskable interrupt
@@ -1612,6 +1604,7 @@ _fault_N31:
 ; pois vamos retornar após alguns tipos de fault,
 ; como é o caso de PF.
 extern _x64_nmi
+align 4  
 all_faults:
 
 ; Save context.

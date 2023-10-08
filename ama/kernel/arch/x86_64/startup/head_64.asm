@@ -2,7 +2,7 @@
 ; head_64.asm
 ; Kernel entry point.
 
-%include "header/header1.inc"
+%include "header/header1.asm"
 
 ; segment .head_x86_64
 __HEAD
@@ -89,7 +89,7 @@ _kernel_begin:
 ; ----------------------
 
 align 4
-    %include "header/header2.inc"
+    %include "header/header2.asm"
 align 4
 
 ; START
@@ -2769,13 +2769,13 @@ align 8
 
 ;---------------------
 ; Inicialização.
-; Funções de apoio à inicialização do Kernel 32bit.
-    %include "header/header3.asm"  ; unit 0
-    %include "header/header4.asm"  ; unit 4
+; Funções de apoio à inicialização do Kernel.
+    %include "header/header3.asm"
+    %include "header/header4.asm"
 ;---------------------
 ; Interrupções de hardware (irqs) e faults.
-    %include "hw/hw1.asm"  ; unit 1
-    %include "hw/hw2.asm"  ; unit 3
+    %include "hw/hw1.asm"
+    %include "hw/hw2.asm"
 ;---------------------
 ; visitor
 ; Interrupções de software.

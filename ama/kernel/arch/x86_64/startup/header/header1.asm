@@ -1,5 +1,5 @@
 
-; head0.inc
+; header1.asm
 ; For global assembly routines
 ; Is it valid only for nasm?
 

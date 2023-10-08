@@ -5,7 +5,6 @@
 ; Imports
 ;
 
-
 ;
 ; Callback support.
 ;
@@ -133,7 +132,7 @@ __doRing3Callback:
 ; Timer interrupt.
 ; See: _irq0 in unit1hw.asm.
 ; See: ts.c, pit.c, sci.c.
-
+align 4  
 irq0_release:
 
 ; ring3 callback

@@ -29,6 +29,7 @@ align 16
 extern _mi80h
 extern _sci0_cpl
 ; Capture context
+align 4  
 global _int128
 _int128:
 ; Wisdom
@@ -146,6 +147,7 @@ _int128:
 extern _mi81h
 extern _sci1_cpl
 ; Capture context
+align 4  
 global _int129
 _int129:
 ; Power
@@ -264,6 +266,7 @@ _int129:
 extern _mi82h
 extern _sci2_cpl
 ; Capture context
+align 4  
 global _int130
 _int130:
 ; Love
@@ -379,6 +382,7 @@ _int130:
 extern _mi83h
 extern _sci3_cpl
 ; Capture context
+align 4  
 global _int131
 _int131:
 ; Rest
@@ -510,7 +514,7 @@ _int131:
 ; We drop the minimum iopl level to ring 0,
 ; so, this way only a process with cpl 0
 ; is able to use instructions like in, out, cli, sti.
-
+align 4  
 global _int199
 _int199:
     jmp miC7H
