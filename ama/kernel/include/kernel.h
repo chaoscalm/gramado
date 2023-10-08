@@ -122,15 +122,15 @@ Hallelujah, my King - (Transfiguration)
 
 // Memory management.
 #include "mmsize.h"
-#include "x64gpa.h"
-#include "x64gva.h"
+#include "x64/x64gpa.h"
+#include "x64/x64gva.h"
 #include "gentry.h"
 #include "mm.h"
 #include "memmap.h" 
 #include "intelmm.h"
 #include "mmblock.h"
 #include "mmusage.h"
-#include "x64mm.h"
+#include "x64/x64mm.h"
 #include "mmft.h"
 #include "mmglobal.h"  // Deve ficar mais acima.
 #include "heap.h"      // Heap pointer support.
@@ -144,16 +144,16 @@ Hallelujah, my King - (Transfiguration)
 // hal
 #include "ports64.h"
 #include "cpu.h"
-#include "tss.h"
-#include "x64gdt.h"
-#include "x64.h"
+#include "x64/tss.h"
+#include "x64/x64gdt.h"
+#include "x64/x64.h"
 #include "detect.h"
 // hal pci
 #include "pci.h"  // PCI bus.
 // hv
 #include "hv.h"
 // hal cpu
-#include "cpuid.h"
+#include "x64/cpuid.h"
 #include "up.h"
 #include "mp.h"
 // hal pic/apic
@@ -304,7 +304,7 @@ Hallelujah, my King - (Transfiguration)
 #include "prio.h"     // Priority
 #include "quantum.h"  // Quantum
 #include "image.h"
-#include "x64cont.h"
+#include "x64/x64cont.h"
 #include "ts.h"
 #include "tasks.h"
 #include "queue.h"
@@ -349,7 +349,7 @@ Hallelujah, my King - (Transfiguration)
 #include "zero.h"
 
 // Maskable interrupts
-#include "x64mi.h"
+#include "x64/x64mi.h"
 
 #include "product.h"
 

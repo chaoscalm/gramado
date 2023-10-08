@@ -343,11 +343,15 @@ struct thread_d
 // Names
 //
 
+// #todo
+// We ned to work on that thing
+// creating a canonical name for path.
+
     //char *name;  //@todo: Usar isso.
     unsigned long name_address;
     unsigned long name_pointer; 
     char short_name[4];
-    char *cmd;
+    char *cmd;  // path?
     
     // #test
     // estamos usando esse aqui.
@@ -722,7 +726,7 @@ struct thread_d
 // Context
 //
 
-// see: x64context.h
+// see: x64cont.h
     struct x64_context_d  context;
 // The context is already saved or not?
     int saved;
