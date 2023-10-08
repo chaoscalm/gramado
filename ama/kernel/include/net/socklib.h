@@ -211,34 +211,39 @@ typedef	_BSD_SSIZE_T_	ssize_t;
  * Flags we can use with send/ and recv. 
  * Added those for 1003.1g not all are supported yet 
  */
-// #bugbug:
-// Isso se coonfunde com as 'message codes' 
-// Usadas pelo Gramado.
-#define MSG_OOB        1
-#define MSG_PEEK       2
-#define MSG_DONTROUTE  4
-#define MSG_TRYHARD    4       /* Synonym for MSG_DONTROUTE for DECnet */
-#define MSG_CTRUNC     8
-#define MSG_PROBE      0x10  /* Do not send. Only probe path f.e. for MTU */
-#define MSG_TRUNC      0x20
-#define MSG_DONTWAIT   0x40  /* Nonblocking io		 */
-#define MSG_EOR        0x80  /* End of record */
-#define MSG_WAITALL    0x100  /* Wait for a full request */
-#define MSG_FIN        0x200
-#define MSG_SYN        0x400
-#define MSG_CONFIRM    0x800  /* Confirm path validity */
-#define MSG_RST		0x1000
-#define MSG_ERRQUEUE	0x2000	/* Fetch message from error queue */
-#define MSG_NOSIGNAL	0x4000	/* Do not generate SIGPIPE */
-#define MSG_MORE	0x8000	/* Sender will send more */
 
-#define MSG_EOF  MSG_FIN
+// #bugbug:
+// Isso se confunde com as 'message codes' in msgcode.h 
+// Usadas pelo Gramado.
+// Mudando o prefixo de MSG_ para SOCKET_MSG_
+
+
+#define SOCKET_MSG_OOB        1
+#define SOCKET_MSG_PEEK       2
+#define SOCKET_MSG_DONTROUTE  4
+#define SOCKET_MSG_TRYHARD    4       //Synonym for MSG_DONTROUTE for DECnet 
+#define SOCKET_MSG_CTRUNC     8
+#define SOCKET_MSG_PROBE      0x10  //Do not send. Only probe path f.e. for MTU 
+#define SOCKET_MSG_TRUNC      0x20
+#define SOCKET_MSG_DONTWAIT   0x40  //Nonblocking io		 
+#define SOCKET_MSG_EOR        0x80  //End of record 
+#define SOCKET_MSG_WAITALL    0x100  //Wait for a full request 
+#define SOCKET_MSG_FIN        0x200
+#define SOCKET_MSG_SYN        0x400
+#define SOCKET_MSG_CONFIRM    0x800  //Confirm path validity 
+#define SOCKET_MSG_RST		0x1000
+#define SOCKET_MSG_ERRQUEUE	0x2000  //Fetch message from error queue 
+#define SOCKET_MSG_NOSIGNAL	0x4000  //Do not generate SIGPIPE 
+#define SOCKET_MSG_MORE	0x8000   //Sender will send more 
+
+#define SOCKET_MSG_EOF  SOCKET_MSG_FIN
 
 #if defined(CONFIG_COMPAT)
-#define MSG_CMSG_COMPAT	0x80000000	/* This message needs 32 bit fixups */
+#define SOCKET_MSG_CMSG_COMPAT  0x80000000  // This message needs 32 bit fixups
 #else
-#define MSG_CMSG_COMPAT	0		/* We never have 32 bit fixups */
+#define SOCKET_MSG_CMSG_COMPAT  0  //We never have 32 bit fixups
 #endif
+
 
 
 //bsd

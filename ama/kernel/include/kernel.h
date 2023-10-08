@@ -202,7 +202,10 @@ Hallelujah, my King - (Transfiguration)
 #include "fonts.h"
 #include "ascii.h"
 #include "bg.h"
+
+#include "msgcode.h"
 #include "ws2.h"
+
 #include "gre.h"
 // caliuser
 #include "ws.h"

@@ -24,12 +24,10 @@
 
 
 // Minimum and maximum values a 'signed char' can hold.  
-// 0x80 0x7f
-#define SCHAR_MIN  (-128)
-#define SCHAR_MAX  127
+#define SCHAR_MIN  0x80  // (-128)
+#define SCHAR_MAX  0x7f  // 127
 // Maximum value an 'unsigned char' can hold.  (Minimum is 0.)  
-// 0xff
-#define UCHAR_MAX  255
+#define UCHAR_MAX  0xff  // 255
 
 //
 // SHORT
@@ -37,22 +35,33 @@
 
 // Minimum and maximum values a 'signed short int' can hold.  
 // 0x8000  0x7fff
-#define SHRT_MIN  (-32768)
-#define SHRT_MAX  32767 
+#define SHRT_MIN  0x8000  //(-32768)
+#define SHRT_MAX  0x7fff  //32767
 // Maximum value an 'unsigned short int' can hold.  (Minimum is 0.) 
 // 0xffff
-#define USHRT_MAX  65535
+#define USHRT_MAX  0xffff  //65535
 
 //
 //  INT
 //
 
-// 0x80000000
-// #define ____INT_MIN  ?
-// 0x7fffffff
-#define ____INT_MAX  2147483647
+#define SINT_MIN  0x80000000
+#define SINT_MAX  0x7fffffff
+#define UINT_MAX  0xffffffff
+
+// Alias
+// signed int
+#define ____INT_MAX  SINT_MAX
 
 
+//
+// long
+//
+
+//#warning: ?
+#define SLONG_MIN  0x8000000000000000
+#define SLONG_MAX  0x7fffffffffffffff 
+#define ULONG_MAX  0xffffffffffffffff
 
 #endif    
 
