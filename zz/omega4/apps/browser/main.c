@@ -56,6 +56,13 @@ struct child_window_d cwButton;
 struct child_window_d cwClientWindow;
 // ...
 
+const char *app_name = "Browser";
+const char *ab_name = "address-bar";
+const char *ab_label = "https://github.com/frednora";
+const char *bt_label = ">";
+const char *cw_name = "client-win";
+const char *cw_label = "Gramado OS";
+
 //
 // == Private functions: prototypes ================
 //
@@ -234,24 +241,23 @@ browserProcedure(
     return -1;
 }
 
-
+// GEt events with the display server.
 static int do_event_loop(int fd)
 {
-    if(fd<0)
-        return -1;
-
-// #test
-// pegando um evento com o ws.
-// See: libgws/
+    struct gws_event_d *e;
 
     struct gws_event_d lEvent;
     lEvent.used = FALSE;
     lEvent.magic = 0;
     lEvent.type = 0;
-    lEvent.long1 = 0;
-    lEvent.long2 = 0;
+    //lEvent.long1 = 0;
+    //lEvent.long2 = 0;
 
-    struct gws_event_d *e;
+    if (fd<0)
+        return -1;
+
+    if (__main_window<0)
+        return -1;
 
 // loop
 // Call the local window procedure 
@@ -373,7 +379,7 @@ int main( int argc, char *argv[] )
                   WT_OVERLAPPED, 
                   WINDOW_STATUS_ACTIVE,  // status
                   VIEW_NULL,             // view
-                  "BROWSER",
+                  app_name,
                   viewwindowx, viewwindowy, w_width, w_height,
                   0,   // No parent.
                   0x0000,  
@@ -400,7 +406,7 @@ int main( int argc, char *argv[] )
     addressbar_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_EDITBOX, 1, 1, "AddressBar",
+                  WT_EDITBOX, 1, 1, ab_name,
                   4, 
                   4, 
                   (w_width -4 -4 -24 -4), 
@@ -416,17 +422,23 @@ int main( int argc, char *argv[] )
 
 // IN: 
 // fd, window id, left, top, color, string
-    if( addressbar_window > 0 ){
+    if (addressbar_window > 0){
         __addressbar_window = addressbar_window;
         gws_draw_text (
             (int) client_fd,
             (int) addressbar_window,
-             8, 8, (unsigned long) COLOR_BLACK,
-            "https://github.com/frednora");
+             8, 8, (unsigned long) COLOR_BLACK, ab_label );
     }
 
 // ===================
 // button WT_BUTTON
+// Se janela mãe é overlapped,
+// pinta na client area.
+
+    unsigned long bt_l = (w_width -24 -4);
+    unsigned long bt_t = 4; 
+    unsigned long bt_w = 24;
+    unsigned long bt_h = 24; 
 
     button = 
         (int) gws_create_window (
@@ -434,14 +446,10 @@ int main( int argc, char *argv[] )
                   WT_BUTTON, 
                   BS_DEFAULT, 
                   1, 
-                  ">",
-                  (w_width -24 -4),  // l 
-                  4,                 // t
-                  24, 
-                  24,
-                  main_window,// janela mãe é overlapped. pinta na client area. 
+                  bt_label,
+                  bt_l, bt_t, bt_w, bt_h,   
+                  main_window, 
                   0, COLOR_GRAY, COLOR_GRAY );
-
 
 /*
 // #testing WT_ICON
@@ -453,18 +461,20 @@ int main( int argc, char *argv[] )
                   4,                 // t
                   24, 
                   24,
-                  main_window,// janela mãe é overlapped. pinta na client area. 
+                  main_window, 
                   0, COLOR_RED, COLOR_RED );
 */
 
-    if (button < 0)
+    if (button<0)
         debug_print("browser: button fail\n"); 
-
-    if(button>0)
-        __button_window=button;
+    if (button>0){
+        __button_window = button;
+    }
 
 // ===================
 // client window (White)
+// Se a janela mãe é overlapped,
+// pinta na client area.
 
     unsigned long cw_left = 4;
     unsigned long cw_top = 4 +24 +4;
@@ -474,16 +484,17 @@ int main( int argc, char *argv[] )
     client_window = 
         (int) gws_create_window (
                   client_fd,
-                  WT_SIMPLE, 1, 1, "Client",
+                  WT_SIMPLE, 1, 1, cw_name,
                   cw_left, cw_top, cw_width, cw_height,
-                  main_window,// janela mãe é overlapped. pinta na client area. 
+                  main_window,
                   0, COLOR_WHITE, COLOR_WHITE );
 
     if (client_window < 0)
         debug_print("browser: client_window fail\n"); 
 
-    if (client_window > 0){
-        // Save globally.
+// Save globally and print the text.
+    if (client_window > 0)
+    {
         __client_window = client_window;
         gws_draw_text (
             (int) client_fd,      // fd
@@ -491,7 +502,7 @@ int main( int argc, char *argv[] )
             (unsigned long) 8,    // left
             (unsigned long) 8,    // top
             (unsigned long) COLOR_BLACK,
-            "GRAMADO OS");
+            cw_label );
     }
 
 // Refresh
