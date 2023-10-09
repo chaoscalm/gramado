@@ -581,8 +581,8 @@ void pump(int fd, int wid)
     lEvent.used = FALSE;
     lEvent.magic = 0;
     lEvent.type = 0;
-    lEvent.long1 = 0;
-    lEvent.long2 = 0;
+    //lEvent.long1 = 0;
+    //lEvent.long2 = 0;
 
     struct gws_event_d *e;
 
@@ -1107,9 +1107,8 @@ int main( int argc, char *argv[] )
     return 0;
 }
 
-
 //
-// End.
+// End
 //
 
 

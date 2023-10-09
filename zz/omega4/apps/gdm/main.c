@@ -134,6 +134,7 @@ static int blink_status=FALSE;
 
 // ========
 
+static void pump(int fd);
 static void __event_loop(int fd);
 
 //prototype
@@ -429,7 +430,7 @@ gdmProcedure(
     return -1;
 }
 
-static void __event_loop(int fd)
+static void pump(int fd)
 {
     struct gws_event_d *e;
 
@@ -441,47 +442,59 @@ static void __event_loop(int fd)
     //lEvent.long2 = 0;
 
     int target_wid = main_window;
+    int status = -1;
 
     if (fd<0){
-        printf("__event_loop: fd\n");
+        printf("pump: fd\n");
         return;
     }
 
     if (target_wid<0){
-        printf("__event_loop: target_wid\n");
+        printf("pump: target_wid\n");
         return;
     }
 
-// loop
 // The server will return an event 
 // from the its client's event queue.
 // Call the local window procedure 
 // if a valid event was found.
 
-    //Display->running = TRUE;
-
-    //while( Display->running == TRUE )
-    while (1)
-    {
-        //if ( Display->running != TRUE )
-            //break;
-
-        // Get events from the display server.
-        e = 
+    // Get events from the display server.
+    e = 
         (struct gws_event_d *) gws_get_next_event(
                                    fd, 
                                    target_wid,
                                    (struct gws_event_d *) &lEvent );
 
-        // (Dispath service)
-        if ((void *) e != NULL)
-        {
-            if ( e->used == TRUE && e->magic == 1234 )
-            {
-                gdmProcedure(
-                    fd, e->window, e->type, e->long1, e->long2 );
-            }
-        }
+    if ((void *) e == NULL)
+        return;
+    if (e->used != TRUE)
+        return;
+    if (e->magic != 1234)
+        return;
+
+// Dispatch
+    status = 
+        (int) gdmProcedure(
+            fd, 
+            e->window,   // The window affected by the event. 
+            e->type,     // Message code.
+            e->long1, 
+            e->long2 );
+
+    //if (status < 0){
+    //}
+}
+
+static void __event_loop(int fd)
+{
+    if (fd<0){
+        printf("__event_loop: fd\n");
+        return;
+    }
+
+    while (1){
+        pump(fd);
     };
 }
 
