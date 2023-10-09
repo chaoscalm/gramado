@@ -134,6 +134,8 @@ static int blink_status=FALSE;
 
 // ========
 
+static void __event_loop(int fd);
+
 //prototype
 static int 
 gdmProcedure(
@@ -427,6 +429,61 @@ gdmProcedure(
     return -1;
 }
 
+static void __event_loop(int fd)
+{
+    struct gws_event_d *e;
+
+    struct gws_event_d lEvent;
+    lEvent.used = FALSE;
+    lEvent.magic = 0;
+    //lEvent.type = 0;
+    //lEvent.long1 = 0;
+    //lEvent.long2 = 0;
+
+    int target_wid = main_window;
+
+    if (fd<0){
+        printf("__event_loop: fd\n");
+        return;
+    }
+
+    if (target_wid<0){
+        printf("__event_loop: target_wid\n");
+        return;
+    }
+
+// loop
+// The server will return an event 
+// from the its client's event queue.
+// Call the local window procedure 
+// if a valid event was found.
+
+    //Display->running = TRUE;
+
+    //while( Display->running == TRUE )
+    while (1)
+    {
+        //if ( Display->running != TRUE )
+            //break;
+
+        // Get events from the display server.
+        e = 
+        (struct gws_event_d *) gws_get_next_event(
+                                   fd, 
+                                   target_wid,
+                                   (struct gws_event_d *) &lEvent );
+
+        // (Dispath service)
+        if ((void *) e != NULL)
+        {
+            if ( e->used == TRUE && e->magic == 1234 )
+            {
+                gdmProcedure(
+                    fd, e->window, e->type, e->long1, e->long2 );
+            }
+        }
+    };
+}
 
 int main( int argc, char *argv[] )
 {
@@ -801,132 +858,10 @@ int main( int argc, char *argv[] )
 // Event loop
 //
 
-    struct gws_event_d lEvent;
-    lEvent.used = FALSE;
-    lEvent.magic = 0;
-    lEvent.type = 0;
-    lEvent.long1 = 0;
-    lEvent.long2 = 0;
+    __event_loop(client_fd);
 
-    struct gws_event_d *e;
-
-// loop
-// The server will return an event 
-// from the its client's event queue.
-// Call the local window procedure 
-// if a valid event was found.
-
-    //Display->running = TRUE;
-
-    //while( Display->running == TRUE )
-    while (1)
-    {
-        //if ( Display->running != TRUE )
-            //break;
-
-        // (Input port)
-        e = 
-        (struct gws_event_d *) gws_get_next_event(
-                                   client_fd, 
-                                   main_window,
-                                   (struct gws_event_d *) &lEvent );
-
-        // (Dispath service)
-        if ((void *) e != NULL){
-            if ( e->used == TRUE && e->magic == 1234 ){
-                gdmProcedure(
-                    client_fd, e->window, e->type, e->long1, e->long2 );
-            }
-        }
-    };
-
-/*
-// Hang
-    while (1){
-    };
-*/
-
-/*
-    int C=0;
-    //char data[2];
-    //int nread=0;
-
-    //fputc('A',stdin);
-    //fputs("This is a string in stdin",stdin);
-
-    rewind(stdin);
-
-    while (1){
-        C=fgetc(stdin);
-        if(C>0){
-            gdmProcedure( 
-                client_fd,     // socket
-                NULL,          // opaque window object
-                MSG_KEYDOWN,   // message code
-                C,             // long1 (ascii)
-                C );           // long2 (ascii)
-        }
-    };
-*/
-
-//==============================================
-
-//
-// loop
-//
-
-/*
-//=================================
-// Set foreground thread.
-// Get events scanning a queue in the foreground queue.
-    rtl_focus_on_this_thread();
-    
-    while (1){
-        if ( rtl_get_event() == TRUE )
-        {  
-            gdmProcedure( 
-                client_fd,
-                (void*) RTLEventBuffer[0], 
-                RTLEventBuffer[1], 
-                RTLEventBuffer[2], 
-                RTLEventBuffer[3] );
-        }
-    };
-
-//=================================
-*/
-
-// #importante
-// Se não usarmos o loop acima, então podemos pegar
-// as mensagens do sistema....
-// O ws pode mandar mensagens de sistema para o wm registrado.
-
-/*
-    struct gws_event_d *Event;
-     
-    for(;;){
-        
-        Event = (struct gws_event_d *) gws_next_event();
-        
-        if (Event.type == 0){
-           gws_debug_print("editor: event 0\n");
-        
-        }else if (Event.type == 1){
-           gws_debug_print("editor: event 1\n");
-        
-        }else if (Event.type == 2){
-           gws_debug_print("editor: event 2\n");
-        
-        }else{
-           gws_debug_print("editor: Not valid event!\n");
-        };
-    };
-*/
-
-// exit
-    //close (client_fd);
-    debug_print ("gdm: bye\n");
-    printf      ("gdm: bye\n");
+// Close socket.
+    // close(client_fd);
     return 0;
 }
 
