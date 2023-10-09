@@ -3675,8 +3675,10 @@ static int ServerInitialization(int dm)
 // ---------------
 // #test
 // Creating room for the status bar on top.
-    WindowManager.wa.top = WindowManager.wa.top + 24;
-    WindowManager.wa.height = WindowManager.wa.height - 24;
+    // #warning: This is optional.
+    // #bugbug: It breaks the consistence.
+    //WindowManager.wa.top = WindowManager.wa.top + 24;
+    //WindowManager.wa.height = WindowManager.wa.height - 24;
 
 // We already did that before. Its ok.
     WindowManager.initialized = TRUE;

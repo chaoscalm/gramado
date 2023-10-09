@@ -25,11 +25,25 @@ void yellowstatus0(char *string,int refresh)
     if (WindowManager.initialized != TRUE)
         return;
 
+/*
     // Working Area
     unsigned long Left   = 0;  //WindowManager.wa.left;
     unsigned long Top    = 0;  // WindowManager.wa.top;
     unsigned long Width  = w;  //WindowManager.wa.width;
     unsigned long Height = 24; //WindowManager.wa.height;
+*/
+/*
+    unsigned long Left   = WindowManager.wa.left;
+    unsigned long Top    = WindowManager.wa.height - 24;
+    unsigned long Width  = w;  //WindowManager.wa.width;
+    unsigned long Height = 24; //WindowManager.wa.height;
+*/
+
+    unsigned long Left   = WindowManager.wa.width >> 1;
+    unsigned long Top    = WindowManager.wa.height - 24;
+    unsigned long Width  = WindowManager.wa.width >> 1;
+    unsigned long Height = 24; //WindowManager.wa.height;
+
 
     unsigned long bar_size = Width;
     unsigned int bar_color = COLOR_WHITE;
