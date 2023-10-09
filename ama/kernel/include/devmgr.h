@@ -35,7 +35,7 @@ struct device_d
 
     //name for pci devices: "/DEV_8086_8086"  
     char name[64];
-    size_t Name_len;    
+    size_t Name_len;
     // #todo: merge.
 
 // #todo: good for pci devices?

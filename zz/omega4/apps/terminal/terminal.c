@@ -888,16 +888,16 @@ static void libc_test(int fd)
     char tmp_file_name[64];
     char index_string_buffer[64];
 
-        //close(0); 
-        //close(1); 
-        //close(2);
-        //#remember: stderr was redirected to stdout.
-        //fclose(stdin); 
-        //fclose(stdout); 
-        //fclose(stderr); 
+    //close(0); 
+    //close(1); 
+    //close(2);
+    //#remember: stderr was redirected to stdout.
+    //fclose(stdin); 
+    //fclose(stdout); 
+    //fclose(stderr); 
 
-        //creat( "newfile.txt", 0666 );  // fcntl.c
-        //mkdir( "newdir", 0666 );       // unistd.c
+    //creat( "newfile.txt", 0666 );  // fcntl.c
+    //mkdir( "newdir", 0666 );       // unistd.c
 
 // #test: Cria n files.
 // stress test:
@@ -1019,7 +1019,7 @@ static void compareStrings(int fd)
 // Testing libc components.
     if ( strncmp(prompt,"libc",4) == 0 )
     {
-        libc_test(fd);        
+        libc_test(fd);
         goto exit_cmp; 
     }
 

@@ -14,7 +14,8 @@ unsigned long deviceList[DEVICE_LIST_MAX];
 // para uma estrutura de dispositivo nic de marca especifica.
 unsigned long nicList[8]; 
 
-// Search a name into the device list.
+// devmgr_search_in_dev_list:
+//     Search a name into the device list.
 // Used by sys_open();
 // OUT:
 // fp or NULL
@@ -38,8 +39,12 @@ file *devmgr_search_in_dev_list(char *path)
         return NULL;
     }
 
+    //if (*path == 0)
+        //return NULL;
+
     for (i=0; i<DEVICE_LIST_MAX; i++)
     {
+        // Get a pointer to a device structure.
         tmp_dev = (struct device_d *) deviceList[i];
 
         // Is it a valid pointer?
@@ -48,15 +53,22 @@ file *devmgr_search_in_dev_list(char *path)
             // Is it a valid structure?
             if (tmp_dev->magic == 1234)
             {
+                // Get a pointer to the 'mount point'.
                 // Is this a valid mount point?
                 p = (void*) tmp_dev->mount_point;
                 if ((void*) p != NULL)
                 {
+                    // We already know the size of the given path.
+                    // It can't be bigger than 64.
+                    // see: devmgr.h.
                     if ( kstrncmp( p, path, PathSize ) == 0 )
                     {
                         // #debug
                         printf("Device found!\n");
-                        refresh_screen();
+                        //refresh_screen();
+                        // OUT:
+                        // Return the file pointer for 
+                        // the file structure of this device.
                         return (file *) tmp_dev->_fp;
                     }
                 }
@@ -82,12 +94,13 @@ int devmgr_init_device_list(void)
     return 0;
 }
 
-// Show device list.
+// Show the itens from the device list
+// that matches with the given object type.
 void devmgr_show_device_list(int object_type)
 {
-    file *fp;
-    struct device_d  *d;
-    register int i=0;
+    register int i=0;  // Iterator
+    struct device_d  *d;  // Device
+    file *fp;  // Object
 
     printf("\n");
     printf ("devmgr_show_device_list:\n");
@@ -115,7 +128,7 @@ void devmgr_show_device_list(int object_type)
                         //    printf ("PCI DEVICE: ");
 
                         //#todo: more ...
-                        printf ( "id=%d class=%d type=%d name={%s} mount_point={%s} \n", 
+                        printf("id=%d class=%d type=%d name={%s} mount_point={%s}\n", 
                             d->index, 
                             d->__class,  // char | block | network
                             d->__type,   // pci  | legacy
@@ -130,7 +143,7 @@ void devmgr_show_device_list(int object_type)
 // Done. 
 // Show all the strings.
     printf("Done\n");
-    refresh_screen();
+    //refresh_screen();
 }
 
 // init_device_manager:
