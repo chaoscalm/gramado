@@ -84,13 +84,10 @@ int devmgr_init_device_list(void)
 {
     register int i=0;
 
-    //debug_print ("devmgr_init_device_list: Initializing the mount table. deviceList[].\n");
     debug_print ("devmgr_init_device_list:\n");
-
     for (i=0; i<DEVICE_LIST_MAX; i++){
         deviceList[i] = 0;
     };
-    //...
     return 0;
 }
 
@@ -150,9 +147,9 @@ void devmgr_show_device_list(int object_type)
 // Called by init() in init.c.
 // Inicializa o gerenciamento de dispositivos.
 // Inicializa a lista de dispositivos.
-void init_device_manager (void)
+void init_device_manager(void)
 {
-    debug_print ("init_device_manager:\n");
+    debug_print("init_device_manager:\n");
     devmgr_init_device_list();
     // ...
 }
@@ -162,10 +159,9 @@ void init_device_manager (void)
 // Retorna um ponteiro de estrutura do tipo dispositivo.
 struct device_d *devmgr_device_object(void)
 {
-    struct device_d  *d;
     register int i=0;
+    struct device_d  *d;
     unsigned long __tmp=0;
-    //char __noname[] = "no-name";
 
 // Procura um slot vazio.
 
@@ -195,6 +191,7 @@ struct device_d *devmgr_device_object(void)
             // ...
             // Save and return.
             deviceList[i] = (unsigned long) d;
+
             return (struct device_d *) d;
         }
     };
@@ -241,6 +238,8 @@ devmgr_register_device (
 
     debug_print("devmgr_register_device:\n");
 
+// Allocation memory for the string that is gonna have
+// a pointer in the device structure. 'd->mount_point'.
     new_mount_point = (char *) kmalloc(PathSize);
     if ((void*) new_mount_point == NULL){
         panic("devmgr_register_device: new_mount_point\n");
@@ -255,13 +254,13 @@ devmgr_register_device (
         panic("devmgr_register_device: f validation\n");
     }
     if (f->isDevice != TRUE){
-        panic ("devmgr_register_device: This file is NOT a device\n");
+        panic("devmgr_register_device: This file is NOT a device\n");
     }
 
 // =======================
 // Device structure. 
 // (It is NOT the pci device struct)
-    d = (struct device_d *) devmgr_device_object();        
+    d = (struct device_d *) devmgr_device_object();
     if ((void *) d == NULL){
         panic("devmgr_register_device: d\n");
     }
@@ -277,8 +276,6 @@ devmgr_register_device (
 // Save parameters.
     d->__class = (unsigned char) dev_class;
     d->__type  = (unsigned char) dev_type;
-
-
 
 // file
 // The file pointer.
@@ -338,6 +335,7 @@ devmgr_register_device (
 // pci device
     d->pci_device = (struct pci_device_d *) pci_device;
 // tty device
+// Saving the given parameter into the device structure.
     d->tty = (struct tty_d *) tty_device;
     // ...
     return 0;
