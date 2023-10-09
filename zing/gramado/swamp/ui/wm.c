@@ -2335,7 +2335,7 @@ struct gws_window_d *do_create_titlebar(
     parent->frame.ornament_color1   = OrnamentColor1;
     parent->titlebar_ornament_color = OrnamentColor1;
 
-    doFillWindow(
+    painterFillWindowRectangle(
         tbWindow->absolute_x, 
         ( (tbWindow->absolute_y) + (tbWindow->height) - METRICS_TITLEBAR_ORNAMENT_SIZE ),  
         tbWindow->width, 

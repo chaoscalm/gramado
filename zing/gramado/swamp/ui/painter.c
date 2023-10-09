@@ -10,7 +10,7 @@ static void __draw_button_mark_by_wid( int wid, int button_number );
 
 // Paint the rectangle.
 int 
-doFillWindow( 
+painterFillWindowRectangle( 
     unsigned long x, 
     unsigned long y, 
     unsigned long width, 

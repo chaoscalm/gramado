@@ -5,7 +5,7 @@
 #define __PAINTER_H    1
 
 int 
-doFillWindow( 
+painterFillWindowRectangle( 
     unsigned long x, 
     unsigned long y, 
     unsigned long width, 

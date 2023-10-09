@@ -1409,7 +1409,7 @@ void *doCreateWindow (
         {
             if (window->focus == TRUE) { __tmp_color = xCOLOR_GRAY1; }
             if (window->focus == FALSE){ __tmp_color = xCOLOR_GRAY2; }
-            doFillWindow( 
+            painterFillWindowRectangle( 
                 (window->absolute_x +1), (window->absolute_y +1), 
                 (window->width +1 +1), (window->height +1 +1), 
                 __tmp_color, __rop_flags );
@@ -1460,7 +1460,7 @@ void *doCreateWindow (
         // Paint the background.
         // This routine is calling the kernel to paint the rectangle.
         // Absolute values.
-        doFillWindow( 
+        painterFillWindowRectangle( 
             window->absolute_x, 
             window->absolute_y, 
             window->width, 

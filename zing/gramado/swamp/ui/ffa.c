@@ -56,7 +56,7 @@ void yellowstatus0(char *string,int refresh)
 
 
 // paint the bar into the backbuffer
-    doFillWindow ( 
+    painterFillWindowRectangle ( 
         Left, Top, bar_size, Height, 
         bar_color, 0 );
 
