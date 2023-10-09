@@ -14,6 +14,9 @@
 #include <stdbool.h>
 #include <libio.h>
 
+//#test
+#include "qemu.h"
+
 #define is_qemu  rtl_is_qemu
 
 static int shutdown_verbose = FALSE;
@@ -22,11 +25,12 @@ static int shutdown_verbose = FALSE;
 // private functions: prototypes ==============
 //
 
-static void __serial_write_char(unsigned char data);
-void do_via_qemu(void);
+//static void __serial_write_char(unsigned char data);
+
 
 // ===================================
 
+/*
 // Vai escrever em uma porta ja inicializada pelo kernel.
 static void __serial_write_char (unsigned char data) 
 {
@@ -36,31 +40,7 @@ static void __serial_write_char (unsigned char data)
 
     libio_outport8 ( 0x3F8, (unsigned char) data );
 }
-
-
-void do_via_qemu(void)
-{
-    debug_print ("SHUTDOWN.BIN: [QEMU] Shutting down\n");
-
-// #todo
-// Nesse momento temos que gravar 
-// o cache da FAT no disco físico
-// antes de desligarmos.
-// Senão teremos problemas para ler os novos arquivos depois
-// que religarmos.
-
-    //#test
-    //save fat
-    if (shutdown_verbose == TRUE)
-        printf("saving fat...\n");
-    sc82( 10008, 0, 0, 0);
-
-    if (shutdown_verbose == TRUE)
-        printf("poweroff via qemu\n");
-    libio_outport16(
-        (unsigned short) 0x604, 
-        (unsigned short) 0x2000 );
-}
+*/
 
 // main:
 // #test
@@ -111,9 +91,8 @@ int main(int argc, char *argv[])
 // qemu
 // In newer versions of QEMU, you can do shutdown with:
     isQEMU = (int) is_qemu();
-    if (isQEMU == TRUE)
-    {
-        do_via_qemu();
+    if (isQEMU == TRUE){
+        do_via_qemu(shutdown_verbose);
     }
 
 // =========================
