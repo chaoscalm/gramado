@@ -550,7 +550,7 @@ int init_pci(void)
     int Status = 0;
     int Max = PCI_DEVICE_LIST_SIZE; 
 
-    debug_print("init_pci: [FIXME]\n");
+    PROGRESS("init_pci:\n");
 
     g_driver_pci_initialized = (int) FALSE; 
 
@@ -641,7 +641,7 @@ pciHandleDevice (
     char *newname;
 
     // #debug
-    debug_print("pciHandleDevice:\n");
+    //debug_print("pciHandleDevice:\n");
     //printf ("bus=%d dev=%d fun=%d \n", bus, dev, fun);
 
     unsigned short Vendor = (unsigned short) pciCheckVendor(bus,dev);
@@ -788,7 +788,7 @@ pciHandleDevice (
         // e1000: 82540EM-A
         if ( (D->Vendor == 0x8086) && (D->Device == 0x100E ) )
         {
-            debug_print ("pciHandleDevice: [0x8086:0x100E] e1000 found\n");
+            //debug_print ("pciHandleDevice: [0x8086:0x100E] e1000 found\n");
             // Locked: Alguma rotina em ring3 desbloqueia depois.
             e1000_interrupt_flag = FALSE;
 
@@ -838,7 +838,7 @@ pciHandleDevice (
         __device_class = DEVICE_CLASS_CHAR;
         if ( (D->Vendor == 0x8086) && (D->Device == 0x7000 ) )
         {
-            debug_print ("0x8086:0x7000 found\n");
+            //debug_print ("0x8086:0x7000 found\n");
         }
     }
 

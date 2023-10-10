@@ -500,7 +500,7 @@ void initializeFramesAlloc(void)
     struct page_d  *p;
     int __slot = 0;
 
-    debug_print("initializeFramesAlloc:\n");
+    //debug_print("initializeFramesAlloc:\n");
 
 // Inicializando a lista de pages.
 // 512 pages

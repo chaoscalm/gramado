@@ -370,7 +370,7 @@ tty_read (
     struct process_d *p;
     file *f;
 
-    debug_print ("tty_read: [FIXME]\n");
+    //debug_print ("tty_read: [FIXME]\n");
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -453,7 +453,7 @@ tty_write (
     struct process_d *p;
     file *f;
 
-    debug_print ("tty_write: [FIXME]\n");
+    //debug_print ("tty_write: [FIXME]\n");
 
     pid_t current_process = (pid_t) get_current_process();
 
@@ -638,7 +638,7 @@ struct tty_d *tty_create(short type, short subtype)
     char __tmpname[64];
     register int i=0;
 
-    debug_print ("tty_create: [FIXME] \n");
+    //debug_print ("tty_create: [FIXME] \n");
 
 // Create structure.
     __tty = (struct tty_d *) kmalloc( sizeof(struct tty_d) );

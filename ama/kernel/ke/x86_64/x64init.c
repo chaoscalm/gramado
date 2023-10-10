@@ -423,8 +423,9 @@ void I_x64ExecuteInitialProcess (void)
     register int i=0;
 
     // #debug
-    PROGRESS("::(3)\n");   
-    debug_print("I_x64ExecuteInitialProcess:\n");
+    PROGRESS("I_x64ExecuteInitialProcess:\n");
+    //PROGRESS("::(3)\n");   
+    //debug_print("I_x64ExecuteInitialProcess:\n");
     // For real machine.
     //printf      ("I_x64ExecuteInitialProcess: [TODO]\n");
     
@@ -695,7 +696,7 @@ void I_x64ExecuteInitialProcess (void)
         panic ("I_x64ExecuteInitialProcess: rflags_initial_iopl\n");
     }
 
-    PROGRESS(":: Go to ring3!\n");
+    //PROGRESS(":: Go to ring3!\n");
 
     //printf("go!\n");
     //while(1){}
@@ -1094,7 +1095,7 @@ static int I_initKernelComponents(void)
     int Status = FALSE;
     unsigned char ProcessorType=0;
 
-    PROGRESS("I_initKernelComponents:\n");
+    //PROGRESS("I_initKernelComponents:\n");
 
 // #debug
     //debug_print ("I_init:\n");
@@ -1111,13 +1112,13 @@ static int I_initKernelComponents(void)
 // ===============================
 // Globals
     init_globals();
-    PROGRESS("init_globals ok\n"); 
+    //PROGRESS("init_globals ok\n"); 
 
 // ===============================
 // Initialize device manager.
 // see: dev/devmgr.c
     init_device_manager();
-    PROGRESS("init_device_manager ok\n"); 
+    //PROGRESS("init_device_manager ok\n"); 
 
 
 // ===============================
@@ -1127,7 +1128,7 @@ static int I_initKernelComponents(void)
 // A estrutura 'storage' vai ser o nível mais baixo.
 // É nela que as outras partes devem se basear.
 
-    PROGRESS("storage, disk, volume, fs\n"); 
+    //PROGRESS("storage, disk, volume, fs\n"); 
 // Storage
 // Create the main storage structure.
     int st_status=FALSE;
@@ -1153,7 +1154,7 @@ static int I_initKernelComponents(void)
         printf("I_initKernelComponents: halInitialize fail\n");
         return FALSE;
     }
-    PROGRESS("halInitialize ok\n"); 
+    //PROGRESS("halInitialize ok\n"); 
 
 // ==========================
 // microkernel components:
@@ -1163,7 +1164,7 @@ static int I_initKernelComponents(void)
         printf ("I_initKernelComponents: psInitializeMKComponents fail\n");
         return FALSE;
     }
-    PROGRESS("psInitializeMKComponents ok\n"); 
+    //PROGRESS("psInitializeMKComponents ok\n"); 
 
 // =========================================
 // Executive components
@@ -1173,7 +1174,7 @@ static int I_initKernelComponents(void)
         printf ("I_initKernelComponents: zeroInitializeSystemComponents fail\n"); 
         return FALSE;
     }
-    PROGRESS("zeroInitializeSystemComponents ok\n"); 
+    //PROGRESS("zeroInitializeSystemComponents ok\n"); 
 
 // Set the number of sectors in the boot disk.
 // It depends on the disk and ata initialization.
@@ -1183,7 +1184,7 @@ static int I_initKernelComponents(void)
         printf ("I_initKernelComponents: storage_set_total_lba_for_boot_disk fail\n"); 
         return FALSE;
     }
-    PROGRESS("storage_set_total_lba_for_boot_disk ok\n"); 
+    //PROGRESS("storage_set_total_lba_for_boot_disk ok\n"); 
 
 
 // It depends on the total lba value for boot disk.
@@ -1202,7 +1203,7 @@ static int I_initKernelComponents(void)
 // + Initialize fpu and smp support.
 // + Detect the hypervisor.
 
-    PROGRESS("processor, fpu, smp, hv\n"); 
+    //PROGRESS("processor, fpu, smp, hv\n"); 
 
 // --------
 // 'processor' structuture initialization.
@@ -1301,9 +1302,9 @@ fail0:
 
 //================================
 // ::(2)(?)
-int I_x64main (void)
+int I_x64_initialize(void)
 {
-// Called by zero_initialize_x64().
+// Called by keInitialize().
 
     int Status = FALSE;
 
@@ -1329,7 +1330,7 @@ int I_x64main (void)
 // Mudamos isso para o momento em que inicializamos os consoles.
  
     // #debug
-    debug_print ("I_x64main:\n");
+    //debug_print ("I_x64main:\n");
 
 // #debug
 // For real machine.
@@ -1338,15 +1339,15 @@ int I_x64main (void)
 
 // System State
     if (system_state != SYSTEM_BOOTING){
-        debug_print ("[x64] I_x64main: system_state\n");
-        //x_panic     ("[x64] I_x64main: system_state\n");
+        debug_print ("I_x64_initialize: system_state\n");
+        //x_panic   ("I_x64_initialize: system_state\n");
         return FALSE;
     }
 
 // System Arch
     if (current_arch != CURRENT_ARCH_X86_64){
-        debug_print ("[x64] I_x64main: current_arch fail\n");
-        //x_panic     ("[x64] I_x64main: current_arch fail\n");
+        debug_print ("I_x64_initialize: current_arch fail\n");
+        //x_panic   ("I_x64_initialize: current_arch fail\n");
         return FALSE;
     }
 
@@ -1356,7 +1357,7 @@ int I_x64main (void)
 // ================================
 // sse support.
     //PROGRESS("::(2)(?)\n"); 
-    //debug_print ("[x64] I_x64main: [TODO] SSE support\n");
+    //debug_print ("I_x64_initialize: [TODO] SSE support\n");
     // x86_sse_init();
 
 // Status Flag and Edition flag.
@@ -1377,7 +1378,7 @@ int I_x64main (void)
 
     //PROGRESS("::(2)(?)\n"); 
     if (Initialization.current_phase != 0){
-        debug_print ("I_x64main: Initialization phase is NOT 0.\n");
+        debug_print ("I_x64_initialize: Initialization phase is NOT 0.\n");
         return FALSE;
     }
 
@@ -1393,7 +1394,7 @@ int I_x64main (void)
 // ...
     Status = (int) I_initKernelComponents(); 
     if ( Status != TRUE ){
-        printf ("I_x64main: I_init2 fail\n");
+        printf ("I_x64_initialize: I_init2 fail\n");
         return FALSE;
     }
 
@@ -1422,7 +1423,7 @@ int I_x64main (void)
 // #bugbug
 // see: x64.c
 
-    PROGRESS(":: GDT\n"); 
+    //PROGRESS(":: GDT\n"); 
     x64_init_gdt();
 
 // ================================
@@ -1459,7 +1460,7 @@ fail:
     // Nothing
     //debug_print("I_x64main: Fail\n"); 
 fail0:
-    debug_print ("I_x64main: fail\n");
+    debug_print ("I_x64_initialize: fail\n");
     refresh_screen(); 
     return FALSE;
 }

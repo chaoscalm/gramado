@@ -225,26 +225,21 @@ fail:
 // OUT: 0=OK.
 static int __init_stack(void)
 {
-
-    KernelStack.initialized = FALSE;
-
 // Globals
-
+    KernelStack.initialized = FALSE;
     kernel_stack_end   = (unsigned long) KERNEL_STACK_END; 
     kernel_stack_start = (unsigned long) KERNEL_STACK_START; 
-
     KernelStack.end   = (unsigned long) kernel_stack_end;
     KernelStack.start = (unsigned long) kernel_stack_start;
 
 // End
-    if ( kernel_stack_end == 0 ){
-        debug_print ("__init_stack: [FAIL] kernel_stack_end\n");
+    if (kernel_stack_end == 0){
+        debug_print("__init_stack: [FAIL] kernel_stack_end\n");
         goto fail;
     }
-
 // Start
-    if ( kernel_stack_start == 0 ){
-        debug_print ("__init_stack: [FAIL] kernel_stack_start\n");
+    if (kernel_stack_start == 0){
+        debug_print("__init_stack: [FAIL] kernel_stack_start\n");
         goto fail;
     }
 
@@ -281,13 +276,24 @@ void memory_destroy_heap (struct heap_d *heap)
 
 // mmInit:
 // Inicializa o memory manager.
-// Called by __init_runtime() in runtime.c
 // Init Memory Manager for x64:
 // Heap, Stack, Pages, mmblocks, memory sizes, memory zones ...
-
 // OUT: TRUE or FALSE.
+// -------------------------------
+// Initialize mm phase 0.
+// + Initialize video support.
+// + Inittialize heap support.
+// + Inittialize stack support. 
+// + Initialize memory sizes.
+// -------------------------------
+// Initialize mm phase 1.
+// + Initialize framepoll support.
+// + Initializing the paging infrastructure.
+//   Mapping all the static system areas.
+
 int mmInitialize(int phase)
 {
+// Called by I_kmain() in kmain.c.
 // + Initialize the memory support.
 //   The kernel heap and the kernel stack.
 // + The implementation of the main kernel allocator.
@@ -297,7 +303,7 @@ int mmInitialize(int phase)
     int Status=0;
     register int i=0;
 
-    debug_print("mmInitialize: [TODO] [FIXME]\n");
+    //debug_print("mmInitialize: [TODO] [FIXME]\n");
 
     if (phase == 0){
 
@@ -356,6 +362,7 @@ int mmInitialize(int phase)
     } else if (phase == 1) {
 
         // Inicializando o framepool (paged pool).
+        // see mmpool.c
         initializeFramesAlloc();
 
         // Continua...
@@ -693,7 +700,7 @@ unsigned long get_process_heap_pointer (pid_t pid)
     if ( p->HeapPointer < p->HeapStart || 
          p->HeapPointer >= heapLimit )
     {
-        printf ("get_process_heap_pointer: heapLimit\n");
+        printf("get_process_heap_pointer: heapLimit\n");
         goto fail;
     }
 

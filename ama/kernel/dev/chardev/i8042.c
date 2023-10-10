@@ -15,7 +15,7 @@ static unsigned long i8042_keyboard_interrupt_handler=0;
 static unsigned long i8042_mouse_interrupt_handler=0;
 */
 
-static void __ps2_wait (unsigned char type);
+static void __ps2_wait(unsigned char type);
 
 //-------------------------------------
 
@@ -25,7 +25,7 @@ void I8042Controller_do_drain(void)
     unsigned char status=0;
     unsigned char byte=0;
 
-    debug_print("I8042Controller_do_drain:\n");
+    //debug_print("I8042Controller_do_drain:\n");
     while (1){
         status = (unsigned char) in8(0x64);
         // Empty?

@@ -492,7 +492,7 @@ int x64_initialize_smp(void)
 // The SMP support.
 //
 
-    PROGRESS("x64_initialize_smp:\n");
+    //PROGRESS("x64_initialize_smp:\n");
 
     // #debug
     //printf("\n");

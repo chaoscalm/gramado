@@ -1,9 +1,7 @@
 
-
-//
+// mmsize.c
 
 #include <kernel.h>
-
 
 //
 // Memory size support.
@@ -147,7 +145,6 @@ int mmsize_initialize(void)
         MemorySizeInfo.initialized = FALSE;
         return FALSE;
     }
-
 
 // -------------------------
     MemorySizeInfo.initialized = TRUE;

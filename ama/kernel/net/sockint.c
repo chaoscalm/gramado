@@ -553,7 +553,7 @@ socket_gramado (
     int __slot = -1;
     struct process_d *Process;
 
-    debug_print ("socket_gramado:\n");
+    //debug_print ("socket_gramado:\n");
 
     if ((void*) sock == NULL){
         debug_print ("socket_gramado: sock\n");
@@ -741,7 +741,7 @@ socket_unix (
     int __slot = -1;
     struct process_d *Process;
 
-    debug_print ("socket_unix:\n");
+    //debug_print ("socket_unix:\n");
 
     if ((void*) sock == NULL){
         debug_print ("socket_unix: sock\n");

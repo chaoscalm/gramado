@@ -44,7 +44,7 @@ int I_initialize_frame_table(void)
 // Essa rotina depende da sondagem do 
 // tamanho da memoria fisica.
 
-    PROGRESS("I_initialize_frame_table:\n");
+    //PROGRESS("I_initialize_frame_table:\n");
 
 // ----------------
 // #dependencies
@@ -160,7 +160,7 @@ initialize_frame_table:
 // Slow. Use a define for this value.
 // 250*1024*1024 = 268435456 = 0x10000000.
 
-    debug_print ("I_initialize_frame_table: Checking range limits\n");
+    //debug_print ("I_initialize_frame_table: Checking range limits\n");
 
     // Underflow.
     if (FT.end_pa < FT.start_pa){

@@ -2,7 +2,6 @@
 
 #include <kernel.h>  
 
-
 static int ata_irq_invoked = FALSE;
 
 //
@@ -64,7 +63,7 @@ static void disk_reset_ata_irq_invoked (void)
 __VOID_IRQ 
 irq14_PRIMARY_IDE (void)
 {
-    debug_print("irq14_PRIMARY_IDE:\n");
+    //debug_print("irq14_PRIMARY_IDE:\n");
     DeviceInterface_PrimaryIDE();
 }
 
@@ -73,7 +72,7 @@ irq14_PRIMARY_IDE (void)
 __VOID_IRQ 
 irq15_SECONDARY_IDE (void)
 {
-    debug_print("irq15_SECONDARY_IDE:\n");
+    //debug_print("irq15_SECONDARY_IDE:\n");
     DeviceInterface_SecondaryIDE();
 }
 

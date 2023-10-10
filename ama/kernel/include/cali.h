@@ -207,7 +207,7 @@ void I_kmain(int arch_type);
 
 // x86_64 Initialization. (Main routine)
 // see: x64init.c
-int I_x64main(void);
+int I_x64_initialize(void);
 
 // ::(3)
 // see: x64init.c

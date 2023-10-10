@@ -627,8 +627,8 @@ static int __e1000_reset_controller(struct intel_nic_info_d *d)
     //uint32_t value=0;
 
     // #debug
-    debug_print ("__e1000_reset_controller:\n");
-    printf      ("__e1000_reset_controller:\n");
+    //debug_print ("__e1000_reset_controller:\n");
+    //printf      ("__e1000_reset_controller:\n");
 
 // structure
     if ((void*) d == NULL){
@@ -671,7 +671,7 @@ unsigned long nic_idt_entry_new_address=0; //global
 
 static void __e1000_setup_irq(int irq_line)
 {
-    debug_print ("__e1000_setup_irq: [FIXME]\n");
+    //debug_print ("__e1000_setup_irq: [FIXME]\n");
 
 // irq line.
     uint8_t irq = (uint8_t) (irq_line & 0xFF);
@@ -773,7 +773,7 @@ e1000_init_nic (
     uint32_t Val=0;
 
     // #debug
-    debug_print("e1000_init_nic:\n");
+    PROGRESS("e1000_init_nic:\n");
     printf     ("e1000_init_nic:\n");
     //printf("b=%d d=%d f=%d \n", D->bus, D->dev, D->func );
     //printf("82540EM Gigabit Ethernet Controller found\n");

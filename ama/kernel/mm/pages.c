@@ -353,7 +353,7 @@ unsigned long table_pointer_heap_base =
 
 unsigned long get_table_pointer_va(void)
 {
-    debug_print ("get_table_pointer_va:\n");
+    //debug_print ("get_table_pointer_va:\n");
 
 // Incrementa 4KB.
     table_pointer_heap_base = 
@@ -610,7 +610,7 @@ static void __mmSetupMemoryUsage(void)
 // Local worker.
 // Called by mmInitializePaging().
 
-    debug_print("__mmSetupMemoryUsage: Setup memory usage\n");
+    //debug_print("__mmSetupMemoryUsage: Setup memory usage\n");
 
 // used memory:
     memorysizeUsed = 
@@ -1888,7 +1888,7 @@ int mmInitializePaging(void)
     register unsigned int i=0;
 
     //if( serial_debug == TRUE )
-        debug_print("mmInitializePaging:\n");
+        //debug_print("mmInitializePaging:\n");
 
 // local worker:
 // RAM usage management.
@@ -2066,7 +2066,7 @@ int mmInitializePaging(void)
         debug_print ("mmInitializePaging: [FIXME] We need the memorysizeTotal\n");
         //while(1){}
     }
-    debug_print ("mmInitializePaging: [DEBUG] memorysizeTotal is not zero\n");
+    //debug_print ("mmInitializePaging: [DEBUG] memorysizeTotal is not zero\n");
     //while(1){}
 
 
@@ -2084,7 +2084,7 @@ int mmInitializePaging(void)
 
 // ==============================================
 
-    debug_print("mmInitializePaging: [DANGER] Load cr3\n");
+    //debug_print("mmInitializePaging: [DANGER] Load cr3\n");
 
 // pae
     //printf ("SetUpPaging: __enable_pae\n");
@@ -2185,7 +2185,7 @@ int mmInitializePaging(void)
     //}
 
 //done:
-    debug_print("mmInitializePaging: done\n");
+    //debug_print("mmInitializePaging: done\n");
 // OK
     return 0;
 fail:

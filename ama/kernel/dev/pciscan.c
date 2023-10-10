@@ -28,7 +28,7 @@ int pci_setup_devices (void)
     unsigned char k=0;
     register int funcCount=0;
 
-    debug_print ("pci_setup_devices: [TODO]\n");
+    //debug_print ("pci_setup_devices: [TODO]\n");
 
     // Bus
     for ( i=0; i < PCI_MAX_BUSES; i++ )

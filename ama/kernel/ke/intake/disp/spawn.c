@@ -66,7 +66,7 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
     struct thread_d *target_thread;
     tid_t next_tid = (tid_t) (tid & 0xFFFF);
 
-    debug_print("__spawn_thread_by_tid_imp:\n");
+    //PROGRESS("__spawn_thread_by_tid_imp:\n");
 
     // #debug
     //printf ("spawn_thread: SPAWN !\n");
@@ -218,7 +218,7 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
 
 // local
 // Set cr3 and flush TLB.
-    debug_print ("__spawn_thread_by_tid_imp: Load pml4\n");
+    //debug_print ("__spawn_thread_by_tid_imp: Load pml4\n");
     __spawn_load_pml4_table(target_thread->pml4_PA);
 
 // #bugbug
@@ -233,7 +233,7 @@ static void __spawn_thread_by_tid_imp(tid_t tid)
 // iretq
 //
 
-    debug_print("__spawn_thread_by_tid_imp: iretq\n");
+    //debug_print("__spawn_thread_by_tid_imp: iretq\n");
 
 // #todo
 // Configurar a stackframe para saltar para
@@ -435,16 +435,17 @@ spawn_enter_kernelmode(
 // Interface to spawn a thread.
 void psSpawnThreadByTID(tid_t tid)
 {
-    debug_print("psSpawnThreadByTID:\n");
+    PROGRESS("psSpawnThreadByTID:\n");
 
     if ( tid < 0 || tid >= THREAD_COUNT_MAX )
     {
-        printf("psSpawnThread: TID=%d\n", tid );
+        printf("psSpawnThreadByTID: TID=%d\n", tid );
         keDie();
     }
     __spawn_thread_by_tid_imp(tid);
+
 // Not reached
-    panic("psSpawnThread:\n");
+    panic("psSpawnThreadByTID:\n");
 }
 
 /*

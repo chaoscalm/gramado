@@ -261,13 +261,13 @@ static void preinit_OutputSupport(void)
 // not the full support for printf functions.
 
     //PROGRESS("::(2)(1)(4)\n");
-    PROGRESS("preinit_OutputSupport:\n");
+    //PROGRESS("preinit_OutputSupport:\n");
 
 // O refresh ainda não funciona, 
 // precisamos calcular se a quantidade mapeada é suficiente.
     refresh_screen_enabled = FALSE;
 
-    PROGRESS("preinit_OutputSupport: zero_initialize_virtual_consoles\n");
+    //PROGRESS("preinit_OutputSupport: zero_initialize_virtual_consoles\n");
     zero_initialize_virtual_consoles();
 
     //debug_print("preinit_OutputSupport: preinit_OutputSupport\n");
@@ -646,24 +646,23 @@ void I_kmain(int arch_type)
     PROGRESS(":: Booting ...\n");
     system_state = SYSTEM_BOOTING;
 
-
 // boot info
     if (xBootBlock.initialized != TRUE){
-        panic ("I_kmain: xBootBlock.initialized\n");
+        panic("I_kmain: xBootBlock.initialized\n");
     }
 
 //
 // mm subsystem
 //
 
-    PROGRESS(":: Initialize mm subsystem\n");
+    //PROGRESS(":: Initialize mm subsystem\n");
 
 // Initialize mm phase 0.
 // + Initialize video support.
 // + Inittialize heap support.
 // + Inittialize stack support. 
 // + Initialize memory sizes.
-    PROGRESS(":: Initialize mm phase 0\n");
+    PROGRESS(":: Initialize mm, phase 0\n");
     Status = (int) mmInitialize(0);
     if (Status != TRUE)
     {
@@ -679,7 +678,7 @@ void I_kmain(int arch_type)
 // + Initialize framepoll support.
 // + Initializing the paging infrastructure.
 //   Mapping all the static system areas.
-    PROGRESS(":: Initialize mm phase 1\n");
+    PROGRESS(":: Initialize mm, phase 1\n");
     Status = (int) mmInitialize(1);
     if (Status != TRUE)
     {
@@ -697,7 +696,7 @@ void I_kmain(int arch_type)
 // ke subsystem
 //
 
-    PROGRESS(":: Initialize ke subsystem\n");
+    //PROGRESS(":: Initialize ke subsystem\n");
 
 // Initialize ke phase 0.
 // + kernel font.
@@ -706,7 +705,7 @@ void I_kmain(int arch_type)
 // + show banner and resolution info.
 // + Check gramado mode and grab data from linker.
 // + Initialize bootloader display device.
-    PROGRESS(":: Initialize ke phase 0\n");
+    PROGRESS(":: Initialize ke, phase 0\n");
     Status = (int) keInitialize(0);
     if (Status != TRUE)
     {
@@ -715,12 +714,28 @@ void I_kmain(int arch_type)
         goto fail;
     }
 
+/*
+//++
+//----------
+//#test
+    char *eisa_p;
+    int EISA_bus=0;
+    eisa_p = 0x000FFFD9;
+	if (kstrncmp(eisa_p, "EISA", 4) == 0)
+		EISA_bus = 1;
+    printf("EISA_bus %d\n",EISA_bus);
+    while(1){}
+//----------
+//--
+*/
+
+
 // Initialize ke phase 1.
 // + Calling I_x64main to 
 //   initialize a lot of stuff from the 
 //   current architecture.
 // + PS2 early initialization.
-    PROGRESS(":: Initialize ke phase 1\n");
+    PROGRESS(":: Initialize ke, phase 1\n");
     Status = (int) keInitialize(1);
     if (Status != TRUE)
     {
@@ -732,7 +747,7 @@ void I_kmain(int arch_type)
 // Initialize ke phase 2.
 // + Initialize background.
 // + Load BMP icons.
-    PROGRESS(":: Initialize ke phase 2\n");
+    PROGRESS(":: Initialize ke, phase 2\n");
     Status = (int) keInitialize(2);
     if (Status != TRUE)
     {
@@ -751,7 +766,6 @@ void I_kmain(int arch_type)
 
     PROGRESS(":: Create lecacy PTYs\n");
     tty_initialize_legacy_pty();
-
 
 //
 // The root user
@@ -849,7 +863,7 @@ StartSystemEnd:
 
     if (Status == TRUE)
     {
-        PROGRESS(":: Execute init thread\n");
+        PROGRESS(":: Execute inittial process\n");
         //#debug
         //while(1){}
         ke_x64ExecuteInitialProcess();

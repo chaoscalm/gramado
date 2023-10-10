@@ -27,24 +27,24 @@ void zero_initialize_video(void)
     //while(1){asm("hlt");};
 
     Video_initialize();
-    PROGRESS("zero_initialize_video: Initialized\n");
+    //PROGRESS("zero_initialize_video: Initialized\n");
 }
 
 // see:
-// dev/chardev/display/bg.c
+// gre/bg.c
 void zero_initialize_background(void)
 {
     displayInitializeBackground(COLOR_KERNEL_BACKGROUND,TRUE);
-    PROGRESS("zero_initialize_background: ok\n");
+    //PROGRESS("zero_initialize_background: ok\n");
 }
 
 // Setup Default kernel font.
 // ROM BIOS 8x8 font.
-// see: font.c
+// see: gre/font.c
 void zero_initialize_default_kernel_font(void)
 {
     gwsInitializeDefaultKernelFont();
-    PROGRESS("zero_initialize_default_kernel_font: ok\n");
+    //PROGRESS("zero_initialize_default_kernel_font: ok\n");
 }
 
 
@@ -77,8 +77,8 @@ void zero_show_banner(void)
     build_string[size+1]=0;
     
 // Crear screen and print version string.
+    PROGRESS("zero_show_banner:\n");
     console_banner( product_string, build_string, 0 );
 }
-
 
 

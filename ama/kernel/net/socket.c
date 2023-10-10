@@ -92,7 +92,7 @@ int sys_socket( int family, int type, int protocol )
     }
     */
 
-    debug_print ("sys_socket:\n");
+    //debug_print("sys_socket:\n");
     do_credits_by_tid(current_thread);
 
 // Filters

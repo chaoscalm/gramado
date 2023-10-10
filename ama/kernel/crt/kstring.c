@@ -59,7 +59,7 @@ int strcmp(char *s1, char *s2)
     return ((int) (s1[i] - s2[i]));
 }
 
-// strncmp:
+// kstrncmp:
 //    Compare n bytes of two strings. 
 int kstrncmp( char *s1, char *s2, int len )
 {

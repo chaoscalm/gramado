@@ -400,7 +400,7 @@ static int __ide_identify_device(uint8_t nport)
     char name_buffer[32];
     struct disk_d  *disk;
 
-    debug_print("__ide_identify_device: \n");
+    //debug_print("__ide_identify_device: \n");
 
 // #todo
 // What is the limit?
@@ -449,7 +449,8 @@ static int __ide_identify_device(uint8_t nport)
 
 // cmd
     ata_wait(400);
-    debug_print("__ide_identify_device: ATA_CMD_IDENTIFY_DEVICE\n");
+    ata_wait(400);
+    //debug_print("__ide_identify_device: ATA_CMD_IDENTIFY_DEVICE\n");
     ata_cmd_write (nport,ATA_CMD_IDENTIFY_DEVICE); 
     ata_wait(400);
 
@@ -460,7 +461,7 @@ static int __ide_identify_device(uint8_t nport)
 // Melhor seria fazermos polling
 // Sem unidade no canal.
 
-    debug_print("__ide_identify_device: ata_status_read(nport)\n");
+    //debug_print("__ide_identify_device: ata_status_read(nport)\n");
 
     if (ata_status_read(nport) == 0){
         debug_print("__ide_identify_device: ata_status_read(nport)\n");
@@ -1464,7 +1465,7 @@ static int __ata_initialize(int ataflag)
     // Iterator.
     int iPortNumber=0;
 
-    debug_print("__ata_initialize: todo\n");
+    PROGRESS("__ata_initialize:\n");
 
 // Setup interrupt breaker.
     //debug_print("ata_initialize: Turn on interrupt breaker\n");
@@ -1781,7 +1782,7 @@ done:
 // Setup interrupt breaker.
 // Só liberamos se a inicialização fncionou.
     if ( Status == 0 ){
-        debug_print("__ata_initialize: Turn off interrupt breaker\n");
+        //debug_print("__ata_initialize: Turn off interrupt breaker\n");
         __breaker_ata1_initialized = TRUE; 
         __breaker_ata2_initialized = TRUE; 
     }
@@ -1819,7 +1820,7 @@ init_ata (
 
     int Status = 1;  // Error.
 
-    debug_print ("init_ata:\n");
+    PROGRESS("init_ata:\n");
 
     switch (msg)
     {
@@ -1827,7 +1828,7 @@ init_ata (
         // Initialize driver.
         // ata.c
         case 1:
-            debug_print("init_ata: Initialize ata support\n");
+            //debug_print("init_ata: Initialize ata support\n");
             if (long1 == FORCEPIO){
                 debug_print("ATA in PIO mode\n\n");
             }

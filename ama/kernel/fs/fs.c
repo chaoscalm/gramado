@@ -4,7 +4,6 @@
 
 #include <kernel.h>
 
-
 // Canonical:
 // The list of the main directories in the system.
 // These are the first directories searched when
@@ -2554,7 +2553,7 @@ int fsInit (void)
     register int i=0;
     int slot = -1;
 
-    debug_print ("fsInit: [TODO]\n");
+    PROGRESS("fsInit:\n");
 
 // Buffers
 // Buffers for loading the directories while walking on a pathname
@@ -2795,7 +2794,7 @@ void fs_init_structures (void)
 {
     int Type=0;
 
-    debug_print ("fs_init_structures: [TODO]\n");
+    //debug_print ("fs_init_structures: [TODO]\n");
 
 //
 // root
@@ -2806,7 +2805,7 @@ void fs_init_structures (void)
 // Initialize the 'root' filesystem structure.
 // "/"
 
-    debug_print ("fs_init_structures: root\n");
+    //debug_print ("fs_init_structures: root\n");
 
     root = (void *) kmalloc( sizeof(struct filesystem_d) );
     if ( (void *) root == NULL ){
@@ -2845,7 +2844,7 @@ void fs_init_structures (void)
 // #bugbug: 
 // Em qual disco e volume pegamos o tipo de sistema de arquivos?
 
-    debug_print ("fs_init_structures: Type\n");
+    //debug_print ("fs_init_structures: Type\n");
 
 // #bugbug
 // Why do we have this information?
@@ -3007,7 +3006,7 @@ void fsInitializeWorkingDiretoryString (void)
     struct volume_d  *v;
     char volume_string[8];   
 
-    debug_print ("fsInitializeWorkingDiretoryString:\n");
+    //debug_print ("fsInitializeWorkingDiretoryString:\n");
 
 // See: 
 // fs.h
@@ -3204,7 +3203,7 @@ int fsList(const char *dir_name)
     int Absolute = FALSE;
     register int i=0;
 
-    debug_print ("fsList:\n");
+    //debug_print ("fsList:\n");
 
 // Directory name
 
@@ -3371,7 +3370,7 @@ void fsUpdateWorkingDiretoryString ( char *string )
     register int i=0; 
     int string_size = 0;
 
-    debug_print ("fsUpdateWorkingDiretoryString:\n"); 
+    //debug_print ("fsUpdateWorkingDiretoryString:\n"); 
 
     tmp = string;
     string_size = sizeof(string);
@@ -3816,7 +3815,7 @@ int fs_print_process_cwd(pid_t pid)
 {
     struct process_d *p;
 
-    debug_print ("fs_print_process_cwd:\n");
+    //debug_print ("fs_print_process_cwd:\n");
     printf      ("fs_print_process_cwd:\n");
 
 // pid

@@ -720,8 +720,8 @@ int bldisp_initialize(void)
 // Structure initialization.
     bl_display_device->initialized = TRUE;
 
-    PROGRESS("bldisp_initialize: Setup display device\n");
-    printf  ("bldisp_initialize: Setup display device\n");
+    //PROGRESS("bldisp_initialize: Setup display device\n");
+    //printf  ("bldisp_initialize: Setup display device\n");
 
     return 0;
 }

@@ -52,7 +52,7 @@ static void __initialize_ws_info(pid_t pid)
     struct thread_d *t;
     pid_t current_process = -1;
 
-    debug_print ("__initialize_ws_info:\n");
+    //debug_print ("__initialize_ws_info:\n");
 
 // Maybe we can just emit an error message and return.
     if (WindowServerInfo.initialized == TRUE){
@@ -638,7 +638,7 @@ network_pop_packet (
     int head=0;
     void *src_buffer;
 
-    debug_print("network_pop_packet:\n");
+    //debug_print("network_pop_packet:\n");
 
 // check args
     if ( (void*) u_buffer == NULL ){
@@ -778,7 +778,7 @@ int networkInit (void)
     register int i=0;
     void *tmp_buffer_address;
 
-    debug_print ("networkInit: [TODO] [FIXME]\n");
+    PROGRESS("networkInit:\n");
 
 // The network is disabled.
     networkSetStatus(FALSE);
@@ -872,7 +872,7 @@ int networkInit (void)
 // =====================================
 // Host info struct. 
 // See: host.h
-    debug_print ("networkInit: HostInfo \n");
+    //debug_print ("networkInit: HostInfo \n");
 
     HostInfo = 
         (struct host_info_d *) kmalloc( sizeof( struct host_info_d ) ); 
@@ -915,7 +915,7 @@ int networkInit (void)
 // Localhost (127.0.0.1):80 
 // Configurando soquete atual.
 
-    debug_print ("networkInit: LocalHostHTTPSocket\n");
+    //debug_print ("networkInit: LocalHostHTTPSocket\n");
 
     LocalHostHTTPSocket = (struct socket_d *) create_socket_object();  
     if ( (void *) LocalHostHTTPSocket == NULL ){

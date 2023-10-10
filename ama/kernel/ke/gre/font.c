@@ -64,7 +64,7 @@ void fontSetCurrentAddress(unsigned long address)
 
 // gwsInstallFont:
 // Carregando e instalando uma fonte dado o nome.
-int gwsInstallFont (char *file_name)
+int gwsInstallFont(char *file_name)
 {
 // Load a font from the disk.
 // # Not in use.
@@ -77,14 +77,14 @@ int gwsInstallFont (char *file_name)
     unsigned long tmp_size = (8*4096);
     void *font_buffer = (void *) allocPages(8);
 
-    if ( (void *) file_name == NULL ){
-        panic ("gwsInstallFont: file_name\n");
+    if ((void *) file_name == NULL){
+        panic("gwsInstallFont: file_name\n");
     }
     if ( *file_name == 0 ){
-        panic ("gwsInstallFont: *file_name\n");
+        panic("gwsInstallFont: *file_name\n");
     }
-    if ( (void *) font_buffer == NULL ){
-        panic ("gwsInstallFont: font_buffer\n");
+    if ((void *) font_buffer == NULL){
+        panic("gwsInstallFont: font_buffer\n");
     }
 
 // Load file from root dir.

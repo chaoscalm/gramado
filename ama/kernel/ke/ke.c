@@ -371,7 +371,7 @@ void schedulerUpdateScreen(void)
                  TmpThread->state == READY )
             {
                 // #test 
-                debug_print("  ---- Compositor ----  \n");
+                //debug_print("  ---- Compositor ----  \n");
                 
                 if ( (void *) TmpThread->surface_rect != NULL )
                 {
@@ -761,7 +761,7 @@ int psInitializeMKComponents(void)
 
     Initialization.microkernel_checkpoint = TRUE;
 
-    debug_print("psInitializeMKComponents:\n");
+    //PROGRESS("psInitializeMKComponents:\n");
 
 
 // Init scheduler.
@@ -819,11 +819,30 @@ int psInitializeMKComponents(void)
     return TRUE;
 }
 
-
-
+// --------------------------------
+// Initialize ke phase 0.
+// + kernel font.
+// + background.
+// + refresh support.
+// + show banner and resolution info.
+// + Check gramado mode and grab data from linker.
+// + Initialize bootloader display device.
+// --------------------------------
+// Initialize ke phase 1.
+// + Calling I_x64main to 
+//   initialize a lot of stuff from the 
+//   current architecture.
+// + PS2 early initialization.
+// --------------------------------
+// Initialize ke phase 2.
+// + Initialize background.
+// + Load BMP icons.
+//
 // OUT: TRUE or FALSE.
 int keInitialize(int phase)
 {
+// Called by I_kmain() in kmain.c.
+
     int Status=FALSE;
 
     if (phase == 0){
@@ -848,7 +867,7 @@ int keInitialize(int phase)
         // Import data from linker.
         __import_data_from_linker();
 
-        // Initialize bootloader display device.
+        // Initialize the structure for the bootloader display device.
         bldisp_initialize();
 
         goto InitializeEnd;
@@ -858,7 +877,7 @@ int keInitialize(int phase)
         //PROGRESS("keInitialize: phase 1\n");
         // Initialize the current architecture.
         // See: ke/x86_64/x64init.c
-        Status = (int) I_x64main();
+        Status = (int) I_x64_initialize();
         if (Status != TRUE){
             goto fail;
         }
@@ -885,7 +904,7 @@ int keInitialize(int phase)
         // #bugbug This is a test yet.
         // It fails in the real machine.
 
-        PROGRESS(":: Early PS2 initialization\n"); 
+        //PROGRESS(":: Early PS2 initialization\n"); 
         PS2_early_initialization();
         //PS2_initialization();
 
@@ -908,7 +927,7 @@ int keInitialize(int phase)
         // Initialize ws callback support.
         // see: callback.c
 
-        PROGRESS(":: kgws, ws, ws callback\n"); 
+        //PROGRESS(":: kgws, ws, ws callback\n"); 
         // Graphics infrastruture.
         KGWS_initialize();
         // Desktop stuff.
@@ -934,7 +953,7 @@ int keInitialize(int phase)
         // Network support.
         // See: network.c
         networkInit();
-        PROGRESS("networkInit ok\n"); 
+        //PROGRESS("networkInit ok\n"); 
 
         goto InitializeEnd;
     }
