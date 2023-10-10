@@ -34,8 +34,8 @@
 #include <heap.h>
 #include <sys/socket.h>
 #include <rtl/gramado.h>
+
 // libgws
-#include "include/connect.h"
 #include "include/gws.h"
 
 // Library version support.

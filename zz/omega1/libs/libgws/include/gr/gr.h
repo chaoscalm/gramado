@@ -4,17 +4,14 @@
  *     This header should be included by including "gws.h".
  */
 
-
 #ifndef __LIBGWS_GR_H
 #define __LIBGWS_GR_H   1
-
 
 #define grMIN2(a, b)  (((a) < (b)) ? (a) : (b))
 #define grMAX2(a, b)  (((a) > (b)) ? (a) : (b))
 
 #define grMIN3(x,y,z)    (x < y  ? (x < z ? x : z) : (y < z ? y : z))
 #define grMAX3(x,y,z)    ( (x>y) ? ((x>z)?x:z)     : ((y>z)?y:z) )
-
 
 // float
 struct gr_vecF3D_d
@@ -146,7 +143,6 @@ struct gr_camera_d
 
 int gr_initialize(void);
 
-
 unsigned int 
 interpolate_color(
     unsigned int color1, 
@@ -155,14 +151,11 @@ interpolate_color(
 
 unsigned int invert_color(unsigned int color);
 
-
 void 
 gr_MultiplyMatrixVector(
     struct gr_vecF3D_d *i, 
     struct gr_vecF3D_d *o, 
     struct gr_mat4x4_d *m );
-
-
 
 // Plot a point using float.
 int 
@@ -182,7 +175,6 @@ gws_plot0Int2D (
     unsigned int color,
     unsigned long rop );
 
-
 // Plot a 3d point using int.
 int 
 gws_plot0Int3D (
@@ -192,7 +184,6 @@ gws_plot0Int3D (
     int z,
     unsigned int color,
     unsigned long rop );
-
 
 void 
 gr_plotLine3d (
@@ -210,7 +201,6 @@ plotLine3d2 (
     int flag,
     unsigned long rop );
 
-
 void 
 plotCircleZ ( 
     int fd,
@@ -220,7 +210,6 @@ plotCircleZ (
     unsigned int color, 
     int z,
     unsigned long rop );
-
 
 // Plot a rectangle.
 int 

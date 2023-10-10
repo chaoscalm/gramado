@@ -2,8 +2,8 @@
 // File: gws_pack.h
 // This header should be included by including "gws.h".
 
-#ifndef __LIBGWS_GWS_PACK_H
-#define __LIBGWS_GWS_PACK_H  1
+#ifndef __LIBGWS_GWSPACK_H
+#define __LIBGWS_GWSPACK_H  1
 
 // Socket packets.
 // Usados na troca de mensagens via socket.

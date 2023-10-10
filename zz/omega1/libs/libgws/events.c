@@ -13,7 +13,6 @@
 //#include <arpa/inet.h>
 
 // libgws
-#include "include/connect.h"  
 #include "include/gws.h"  
 
 char __gws_events_message_buffer[512];

@@ -16,7 +16,6 @@
 //#include <arpa/inet.h>
 
 // libgws
-#include "include/connect.h"  
 #include "include/gws.h"  
 
 int __gws__desktop__id=0;
