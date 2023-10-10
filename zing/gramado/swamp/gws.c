@@ -572,7 +572,7 @@ int gwsInitGUI(void)
 // Initialize window support.
 // Initialize some basic variables and the window list.
 
-    window_initialize();    
+    window_initialize();
 
 // -----------------------------------------------
 // gui structure
@@ -593,10 +593,9 @@ int gwsInitGUI(void)
 // See:
 // wm.c
 
-    unsigned int rootwindow_color = 
-        (unsigned int) get_color(csiDesktop);
-
     struct gws_window_d  *tmpRootWindow;
+    wid_t root_wid = -1;
+    unsigned int rootwindow_color = (unsigned int) get_color(csiDesktop);
 
     tmpRootWindow = (struct gws_window_d *) wmCreateRootWindow(rootwindow_color);
     if ((void*) tmpRootWindow == NULL){
@@ -611,7 +610,7 @@ int gwsInitGUI(void)
     }
 
 // Register
-    wid_t root_wid = RegisterWindow(tmpRootWindow);
+    root_wid = RegisterWindow(tmpRootWindow);
     if (root_wid<0 || root_wid >= WINDOW_COUNT_MAX){
         debug_print("gwsInitGUI: Couldn't register tmpRootWindow\n");
         printf     ("gwsInitGUI: Couldn't register tmpRootWindow\n");
@@ -663,17 +662,14 @@ int gwsInitGUI(void)
             8, 8, COLOR_RED, "gwsInitGUI: gui ok" );
     }
 
-//#debug
+// #debug
 // Let's see the messages above.
-    //refresh_screen();
-    //exit(0);
-    // invalidate_surface_retangle();
+// Show the backbuffer into the screen.
+
     gwssrv_show_backbuffer();
-    //while(1){}
 
     return 0;
 }
-
 
 // Invalidate the whole frame.
 void invalidate(void)

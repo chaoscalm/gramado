@@ -158,6 +158,7 @@ static unsigned long last_dy = 0;
 // == Private functions: Prototypes ========
 //
 
+static void __initialize_kernel_module(void);
 static int ServerInitialization(int dm);
 
 
@@ -3381,6 +3382,64 @@ void gwssrv_quit(void)
     IsTimeToQuit = TRUE;
 }
 
+
+static void __initialize_kernel_module(void)
+{
+
+// ++
+//-------------------
+// Kernel module.
+// Let's initialize the ring0 kernel module called MOD0.BIN.
+// Are we already registered?
+// First of all, at this point the kernel needs to know about the
+// presence of the display server.
+    unsigned long mod_status=0;
+
+    if ((void*) display_server == NULL)
+    {
+        printf ("__initialize_kernel_module: display_server\n");
+        while (1){
+        };
+    }
+    if (display_server->registration_status != TRUE)
+    {
+        printf ("__initialize_kernel_module: registration_status\n");
+        while (1){
+        };
+    }
+
+// Phase 1
+    mod_status = 
+        sc83(  //sc81( 
+        2001,                // Service number 
+        ____FRONTBUFFER_VA,  // Frontbuffer va 
+        ____BACKBUFFER_VA,   // Backbuffer va
+        1234 );              // Signature
+    //printf ("status = {%d}\n", mod_status);
+    if (mod_status != 1234)
+        printf("__initialize_kernel_module: mod_status fail\n");
+
+
+// Phase 2
+    mod_status = 
+        sc83(  //sc81( 
+        2002,             // Service number 
+        __device_width,   // W
+        __device_height,  // H
+        __device_bpp );   // Bits per pixel
+    //printf ("status = {%d}\n", mod_status);
+    if (mod_status != 1234)
+        printf("__initialize_kernel_module: mod_status fail\n");
+
+//-------------------
+// --
+
+    // #debug
+    //printf ("__initialize_kernel_module: #breakpoint\n");
+    //while(1){
+    //};
+}
+
 /*
  * ServerInitialization: 
  *     + Initializes the gws infrastructure.
@@ -3733,58 +3792,12 @@ static int ServerInitialization(int dm)
         rtl_clone_and_execute("gdm.bin");
     }
 
-//
-// =======================================
-//
+// ------------------------------------
+// Let's initialize the ring0 kernel module called MOD0.BIN.
+    __initialize_kernel_module();
 
-// ++
-//-------------------
 
-//
-// Initializing kernel module.
-//
-    if ((void*) display_server == NULL)
-    {
-        printf ("gramland: display_server\n");
-        while(1){};
-    }
-    if (display_server->registration_status != TRUE)
-    {
-        printf ("gramland: registration_status\n");
-        while(1){};
-    }
-
-    unsigned long mod_status=0;
-
-// Phase 1
-    mod_status = 
-        sc83(  //sc81( 
-        2001,                // Service number 
-        ____FRONTBUFFER_VA,  // Frontbuffer va 
-        ____BACKBUFFER_VA,   // Backbuffer va
-        1234 );              // Signature
-    printf ("status = {%d}\n", mod_status);
-
-// Phase 2
-    mod_status = 
-        sc83(  //sc81( 
-        2002,             // Service number 
-        __device_width,   // W
-        __device_height,  // H
-        __device_bpp );   // Bits per pixel
-    printf ("status = {%d}\n", mod_status);
-
-    // #debug
-    //printf ("gramland: #breakpoint\n");
-    //while(1){
-    //};
-
-//-------------------
-// --
-
-//
-// =======================================
-//
+// ------------------------------------
 
 //
 // Loop

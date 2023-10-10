@@ -491,7 +491,10 @@ static int newm0_initialize(void)
     if (Found==1)
     {
         ModuleInitialization.initialized = TRUE;
-        newm0_print_string("newm0_initialize: Initialized\n");
+
+        //#debug
+        //newm0_print_string("newm0_initialize: Initialized\n");
+
         return TRUE;
     }
 
@@ -574,6 +577,7 @@ module_main (
             break;
 
 
+        // :: Step1
         // Initialize display information
         // Called only by the display server.
         case 2001:
@@ -595,12 +599,15 @@ module_main (
                 (unsigned long) param3;  // backbuffer va.
             DisplayInfo.phase1 = TRUE;
             DisplayInfo.initialized = FALSE;
-            printf ("frontbuffer={%x} | backbuffer={%x}\n",
-                DisplayInfo.frontbuffer_address,
-                DisplayInfo.backbuffer_address );
+
+            //printf ("frontbuffer={%x} | backbuffer={%x}\n",
+                //DisplayInfo.frontbuffer_address,
+                //DisplayInfo.backbuffer_address );
+
             return 1234;
             break;
 
+        // :: Step2
         // Initialize displey information
         // Called only by the display server.
         case 2002:
@@ -621,10 +628,10 @@ module_main (
             DisplayInfo.bpp    = (unsigned long) param4;  // bits per pixel
             DisplayInfo.phase2 = TRUE;
             DisplayInfo.initialized = TRUE;
-            printf ("w={%d} | h={%d} | bpp={%d}\n",
-                DisplayInfo.width,
-                DisplayInfo.height,
-                DisplayInfo.bpp );
+            //printf ("w={%d} | h={%d} | bpp={%d}\n",
+            //    DisplayInfo.width,
+            //    DisplayInfo.height,
+            //    DisplayInfo.bpp );
             return 1234;
             break;
 
