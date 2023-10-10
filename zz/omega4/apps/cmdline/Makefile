@@ -1,5 +1,4 @@
 
-#history:
 #2019 - Created by Fred Nora.
 #todo:
 #fazer um makefile pra compilar o shell
@@ -48,14 +47,11 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
-	
-
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
 
 LIBGWS    = ../../../omega1/libs/libgws/include/
 LIBGWSOBJ = ../../../omega1/libs/libgws/obj
-
 
 # Objects
 myObjects = crt0.o main.o rtl.o \
@@ -63,8 +59,6 @@ ctype.o stdio.o fcntl.o stdlib.o string.o unistd.o termios.o ioctl.o \
 socket.o \
 math.o \
 libgws.o    
-
-#gws.o connect.o events.o rw.o gr.o \
 
 .PHONY: all all-c hello-link finalize clean
 
@@ -91,13 +85,7 @@ all-c:
 #test
 	cp $(LIBCOBJ)/math.o  .
 
-#	cp $(LIBGWSOBJ)/connect.o  .
-#	cp $(LIBGWSOBJ)/events.o  .
-#	cp $(LIBGWSOBJ)/gws.o  .
-#	cp $(LIBGWSOBJ)/rw.o  .
-#	cp $(LIBGWSOBJ)/gr.o  .
-
-#test
+# libgws
 	cp $(LIBGWSOBJ)/libgws.o .
 
 hello-link:

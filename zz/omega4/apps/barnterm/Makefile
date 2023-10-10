@@ -59,8 +59,6 @@ ctype.o stdio.o fcntl.o stdlib.o string.o \
 unistd.o termios.o ioctl.o socket.o \
 libgws.o   
 
-#connect.o events.o rw.o gws.o    
-
 .PHONY: all all-c hello-link finalize clean
 
 all: main.o all-c hello-link finalize clean
@@ -86,15 +84,8 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
-	# libgws
-#	cp $(LIBGWSOBJ)/connect.o .
-#	cp $(LIBGWSOBJ)/events.o .
-#	cp $(LIBGWSOBJ)/rw.o .
-#	cp $(LIBGWSOBJ)/gws.o .
-
-#test
+# libgws
 	cp $(LIBGWSOBJ)/libgws.o .
-
 
 hello-link:
 	ld $(linkFlags) -o BARNTERM.BIN $(myObjects)    

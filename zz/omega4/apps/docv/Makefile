@@ -49,15 +49,11 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
-
-
-
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
 
 LIBGWS    = ../../../omega1/libs/libgws/include/
 LIBGWSOBJ = ../../../omega1/libs/libgws/obj
-
 
 # Objects
 myObjects = crt0.o main.o rtl.o \
@@ -66,15 +62,11 @@ globals.o lexer.o parser.o tree.o compiler.o \
 socket.o \
 libgws.o    
 
-#gws.o connect.o events.o rw.o    
-
 .PHONY: all all-c gramcc-link finalize clean
 
 all: main.o all-c gramcc-link finalize clean
 	@echo "Ok?"
-
 main.o:
-#	gcc  -c  main.c  -I $(LIBC) $(CFLAGS)  -o  main.o
 	gcc  -c  main.c  $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o main.o
 all-c:
 
@@ -94,16 +86,10 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
-#	cp $(LIBGWSOBJ)/connect.o .
-#	cp $(LIBGWSOBJ)/events.o .
-#	cp $(LIBGWSOBJ)/gws.o .
-#	cp $(LIBGWSOBJ)/rw.o .
-
-#test
+# libgws
 	cp $(LIBGWSOBJ)/libgws.o .
 
-
-# from gramc
+# ----------------------
 	gcc  -c  globals.c   -I $(LIBC) $(CFLAGS) -o globals.o
 	gcc  -c  lexer.c     -I $(LIBC) $(CFLAGS) -o lexer.o
 	gcc  -c  parser.c    -I $(LIBC) $(CFLAGS) -o parser.o

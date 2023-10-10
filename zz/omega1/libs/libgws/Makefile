@@ -26,18 +26,18 @@ CFLAGS = -m64 \
 
 LIBS = -I.  -I ../rtl/include/
 
-myObjects = connect.o \
-events.o gr.o gws.o rw.o  
+myObjects = connect.o rw.o \
+events.o gr.o gws.o    
 
 .PHONY: all all-c finalize clean
 all: all-c finalize clean
 	@echo "Ok?"
 all-c:
 	gcc -c connect.c  $(CFLAGS) $(LIBS) -o connect.o
+	gcc -c rw.c       $(CFLAGS) $(LIBS) -o rw.o
 	gcc -c events.c   $(CFLAGS) $(LIBS) -o events.o
 	gcc -c gr.c       $(CFLAGS) $(LIBS) -o gr.o
 	gcc -c gws.c      $(CFLAGS) $(LIBS) -o gws.o
-	gcc -c rw.c       $(CFLAGS) $(LIBS) -o rw.o
 
 finalize:
 	$(LD) -r -o libgws.o $(myObjects)

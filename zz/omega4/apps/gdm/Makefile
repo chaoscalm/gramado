@@ -49,20 +49,17 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
-
 LIBC      = ../../../omega1/libs/rtl/include/
 LIBCOBJ   = ../../../omega1/libs/rtl/obj
 
 LIBGWS    = ../../../omega1/libs/libgws/include/
 LIBGWSOBJ = ../../../omega1/libs/libgws/obj
 
-
 # Objects
 myObjects = crt0.o main.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o unistd.o termios.o \
 ioctl.o socket.o \
 libgws.o   
-
 
 .PHONY: all all-c hello-link finalize clean
 
@@ -86,12 +83,7 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
-#	cp $(LIBGWSOBJ)/connect.o .
-#	cp $(LIBGWSOBJ)/events.o .
-#	cp $(LIBGWSOBJ)/gws.o .
-#	cp $(LIBGWSOBJ)/rw.o .
-
-#test
+# libgws
 	cp $(LIBGWSOBJ)/libgws.o .
 
 hello-link:
