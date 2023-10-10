@@ -373,6 +373,7 @@ int main( int argc, char *argv[] )
 // style: 
 // 0x0001=maximized | 0x0002=minimized | 0x0004=fullscreen | 0x0008 statusbar
 
+/*
     main_window = 
         (int) gws_create_window ( 
                   client_fd,
@@ -384,8 +385,17 @@ int main( int argc, char *argv[] )
                   0,   // No parent.
                   0x0000,  
                   COLOR_GRAY, COLOR_GRAY );
+*/
 
-    if (main_window < 0){
+// #test
+    main_window = 
+        (int) gws_create_application_window (
+                client_fd,
+                app_name,
+                viewwindowx, viewwindowy, w_width, w_height );
+
+    if (main_window < 0)
+    {
         debug_print("browser: main_window fail\n"); 
         exit(1);
     }

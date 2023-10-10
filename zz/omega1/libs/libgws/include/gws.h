@@ -116,7 +116,7 @@ void *gws_services (
     unsigned long arg3,
     unsigned long arg4 );
 
-// Send system message to a process.                     
+// Send system message to a process.
 int
 gws_send_message_to_process ( 
     int pid, 
@@ -300,6 +300,15 @@ gws_create_window (
     unsigned long style,       //10, Ambiente.( Está no desktop, barra, cliente ...)
     unsigned int clientcolor,  //11, Cor da área de cliente
     unsigned int color );      //12, Color (bg) (para janela simples).
+
+wid_t 
+gws_create_application_window(
+    int fd,
+    char *windowname,         // Título. #todo maybe const char.
+    unsigned long x,          // Deslocamento em relação às margens do Desktop. 
+    unsigned long y,          // Deslocamento em relação às margens do Desktop.
+    unsigned long width,      // Largura da janela.
+    unsigned long height );    // Altura da janela.
 
 //
 // System stuff

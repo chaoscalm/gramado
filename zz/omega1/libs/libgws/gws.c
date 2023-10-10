@@ -3587,6 +3587,59 @@ fail:
     return (wid_t) -1;
 }
 
+
+// Wrapper
+wid_t 
+gws_create_application_window(
+    int fd,
+    char *windowname,         // Título. #todo maybe const char.
+    unsigned long x,          // Deslocamento em relação às margens do Desktop. 
+    unsigned long y,          // Deslocamento em relação às margens do Desktop.
+    unsigned long width,      // Largura da janela.
+    unsigned long height )    // Altura da janela.
+{
+// style: 
+// 0x0001=maximized | 0x0002=minimized | 0x0004=fullscreen | 0x0008 statusbar
+
+    wid_t wid = -1;
+    unsigned long type = WT_OVERLAPPED;
+    unsigned long status = WINDOW_STATUS_ACTIVE;
+    unsigned long view = VIEW_NULL;
+    wid_t parent_wid = 0;
+    unsigned long style = 0;
+    unsigned int client_color = COLOR_GRAY;
+    unsigned int frame_color = COLOR_GRAY;
+
+    if (fd<0)
+        goto fail;
+    if ((void*) windowname == NULL)
+        goto fail;
+    if (*windowname == 0)
+        goto fail;
+
+    wid = 
+        (wid_t) gws_create_window ( 
+                  fd,
+                  type,
+                  status,
+                  view,
+                  windowname,
+                  x, y, width, height,
+                  parent_wid,   // No parent
+                  style, 
+                  client_color, 
+                  frame_color );
+
+    return (wid_t) wid;
+fail:
+    return (wid_t) -1;
+}
+
+
+
+
+
+
 // Yield current thread.
 void gws_yield(void)
 {
