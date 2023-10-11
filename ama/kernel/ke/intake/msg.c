@@ -93,16 +93,27 @@ post_message_to_tid2 (
         panic ("post_message_to_tid2: m validation\n");
     }
 
-// Standard
+// -------------------------
+// Standard header
     m->opaque_window = NULL;
     m->msg   = (int) (MessageCode & 0xFFFFFFFF);
     m->long1 = (unsigned long) long1;
     m->long2 = (unsigned long) long2;
-// Extras
+
+// -------------------------
+// Extras payload
     m->long3 = (unsigned long) long3;
     m->long4 = (unsigned long) long4;
+
+// -------------------------
+// Identification field
     m->sender_tid   = (tid_t) src_tid; 
     m->receiver_tid = (tid_t) dst_tid;
+    //m->sender_pid = ?;
+    //m->receiver_pid = ?;
+
+// -------------------------
+    m->next = NULL;
 
 // Done
     t->MsgQueueTail++;
@@ -213,16 +224,27 @@ post_message_to_tid (
         panic ("post_message_to_tid: m validation\n");
     }
 
-// Standard
+// --------------------------
+// Standard header
     m->opaque_window = NULL;
     m->msg   = (int) (MessageCode & 0xFFFFFFFF);
     m->long1 = (unsigned long) long1;
     m->long2 = (unsigned long) long2;
-// Extra
+
+// --------------------------
+// Extra payload
     m->long3 = (unsigned long) jiffies;
     m->long4 = (unsigned long) jiffies;
+
+// --------------------------
+// Identification field
     m->sender_tid   = (tid_t) src_tid; 
     m->receiver_tid = (tid_t) dst_tid;
+    //m->sender_pid = ?;
+    //m->receiver_pid = ?;
+
+// --------------------------
+    m->next = NULL;
 
 // Done
     t->MsgQueueTail++;
@@ -432,36 +454,57 @@ void *sys_get_message(unsigned long ubuf)
     if (m->msg <= 0){
         goto fail0;
     }
-// Get standard entries.
+
+// ---------------------------------
+// Get standard header
     message_address[0] = (unsigned long) m->opaque_window;
     message_address[1] = (unsigned long) (m->msg & 0xFFFFFFFF);
     message_address[2] = (unsigned long) m->long1;
     message_address[3] = (unsigned long) m->long2;
-// Get extra entries.
-    message_address[4] = (unsigned long) m->long3; // jiffie
-    message_address[5] = (unsigned long) m->long4; // jiffie
+
+// ---------------------------------
+// Get the extra payload
+// The data here depends on the message code,
+    message_address[4] = (unsigned long) m->long3;
+    message_address[5] = (unsigned long) m->long4;
+
+// ---------------------------------
+// Get the identification field
     message_address[8] = (unsigned long) m->sender_tid;
     message_address[9] = (unsigned long) m->receiver_tid;
+    // We also have these elements. 
+    //m->sender_pid
+    //m->receiver_pid
 
-// Buffer size:
-// 32 slots.
+//
+// Jiffies
+//
 
-// jiffies when posted.
-    //message_address[10] = (unsigned long) m->long3; 
-
-// jiffies when gotten by the app.
+// ---------------------------------
+// Jiffies when the message was posted by the kernel.
+    message_address[10] = (unsigned long) m->long3; 
+// ---------------------------------
+// Jiffies when gotten by the app.
     message_address[11] = (unsigned long) jiffies;
 
-// clear the entry.
+// ----------------------------
+// Clear the entry.
 // Consumimos a mensagem. Ela não existe mais.
 // Mas preservamos a estrutura.
+
+    // Standard header
     m->opaque_window = NULL;
     m->msg = 0;
     m->long1 = 0;
     m->long2 = 0;
-
+    // Extra payload
     m->long3 = 0;
     m->long4 = 0;
+    // Identification field
+    m->sender_tid = 0;
+    m->receiver_tid = 0;
+    m->sender_pid = 0;
+    m->receiver_pid = 0;
 
 // Done
 // Yes, We have a message.
@@ -544,37 +587,57 @@ void *sys_get_message2(
     if (m->msg <= 0){
         goto fail0;
     }
-// Get standard entries.
+
+// -----------------------------
+// Get standard header
     message_address[0] = (unsigned long) m->opaque_window;
     message_address[1] = (unsigned long) (m->msg & 0xFFFFFFFF);
     message_address[2] = (unsigned long) m->long1;
     message_address[3] = (unsigned long) m->long2;
-// Get extra entries.
+
+// -----------------------------
+// Get extra payload
     message_address[4] = (unsigned long) m->long3;
     message_address[5] = (unsigned long) m->long4;
+
+// -----------------------------
+// Get identification field
     message_address[8] = (unsigned long) m->sender_tid;
     message_address[9] = (unsigned long) m->receiver_tid;
+    // We also have these elements. 
+    //m->sender_pid
+    //m->receiver_pid
 
-// Buffer size:
-// 32 slots.
+//
+// Jiffies
+//
 
-// jiffies when posted.
-    //message_address[10] = (unsigned long) m->long3; 
+// -----------------------------
+// Jiffies when the message was posted by the kernel.
+    message_address[10] = (unsigned long) m->long3; 
 
-// jiffies when gotten by the app.
+// -----------------------------
+// Jiffies when gotten by the app.
     message_address[11] = (unsigned long) jiffies;
 
+// -------------------------------------------------
 // Clear the entry.
 // Consumimos a mensagem. Ela não existe mais.
 // Mas preservamos a estrutura.
 
+    // Standard header
     m->opaque_window = NULL;
     m->msg = 0;
     m->long1 = 0;
     m->long2 = 0;
-
+    // Extra payload
     m->long3 = 0;
     m->long4 = 0;
+    // Identification field
+    m->sender_tid = 0;
+    m->receiver_tid = 0;
+    m->sender_pid = 0;
+    m->receiver_pid = 0;
 
 // ==================================
 

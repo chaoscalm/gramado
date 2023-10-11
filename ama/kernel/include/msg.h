@@ -8,6 +8,8 @@
 // Message structure.
 struct msg_d 
 {
+
+// -----------------------
 // validation
     int used;
     int magic;
@@ -23,20 +25,15 @@ struct msg_d
     unsigned long long3;
     unsigned long long4;
 
-// extention
-    pid_t sender_pid;
-    pid_t receiver_pid;
+// -----------------------
+// Identification field
     tid_t sender_tid;
     tid_t receiver_tid;
-    // ...
-    //unsigned long jiffie1;
-    //unsigned long jiffie2;
-// #todo
-// We need some synchronization flags.
-// Maybe its better putting this flag into the thread struct.
-// t->msg_flags;
-    //unsigned long flags;
-// navigation?
+    pid_t sender_pid;
+    pid_t receiver_pid;
+
+// -----------------------
+// Navigation
     struct msg_d *next;
 };
 
