@@ -81,7 +81,7 @@ queue.o \
 ts.o dispatch.o spawn.o x64cont.o \
 sched.o schedi.o schedq.o \
 pixel.o line.o rect.o bitblt.o bg.o font.o char.o text.o gre.o \
-input.o dispsrv.o callback.o    
+input.o dispsrv.o callback.o user.o    
 
 all:
 
@@ -143,9 +143,10 @@ all:
 	$(CC) -c gre/gre.c     $(KERNEL_INCLUDE) $(CFLAGS) -o gre.o
 
 #
-	$(CC) -c caliuser/input.c     $(KERNEL_INCLUDE) $(CFLAGS) -o input.o
-	$(CC) -c caliuser/dispsrv.c   $(KERNEL_INCLUDE) $(CFLAGS) -o dispsrv.o
-	$(CC) -c caliuser/callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
+	$(CC) -c user/input.c     $(KERNEL_INCLUDE) $(CFLAGS) -o input.o
+	$(CC) -c user/dispsrv.c   $(KERNEL_INCLUDE) $(CFLAGS) -o dispsrv.o
+	$(CC) -c user/callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
+	$(CC) -c user/user.c      $(KERNEL_INCLUDE) $(CFLAGS) -o user.o
 
 # link
 	$(LD) -r -o ar_ke.o $(OBJS)

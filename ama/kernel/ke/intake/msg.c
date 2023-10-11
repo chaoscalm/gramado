@@ -4,6 +4,12 @@
 
 #include <kernel.h>
 
+// #todo
+// #test
+// Tracking the last message.
+// This way we can change it in the case of repetitions.
+//struct msg_d *last_msg;
+
 
 int
 post_message_to_tid2 ( 

@@ -107,7 +107,6 @@ objects-y := head_64.o
 objects-y += ar_mm.o  
 objects-y += ar_crt.o  
 objects-y += ar_dev.o  
-objects-y += ar_user.o    
 objects-y += ar_ke.o  
 objects-y += ar_net.o  
 objects-y += ar_fs.o  
@@ -141,7 +140,6 @@ k2:
 k3:
 	@echo "Compiling: Compiling k3/"
 	$(MAKE) -C ke/
-	$(MAKE) -C user/
 	$(MAKE) -C zcall/
 
 #----------------
