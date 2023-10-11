@@ -5,6 +5,11 @@
  *     2020 -  Created by Fred Nora.
  */
 
+//
+// == Base ===========================================
+//
+
+
 #include "version.h"
 
 // Definitions and types.
@@ -31,6 +36,16 @@
 // The lingws protocol.
 #include "protocol.h"
 
+#include "grambase.h"
+
+
+//
+// == Gr ===========================================
+//
+
+// Client-side 3D graphics support.
+#include "gr/gr.h"
+
 
 //
 // == User ===========================================
@@ -55,12 +70,6 @@
 // Events
 #include "user/events.h"
 
-// Client-side 3D graphics support.
-#include "gr/gr.h"
-
-// ...
-
-#include "grambase.h"
 #include "gramuser.h"
 
 //
