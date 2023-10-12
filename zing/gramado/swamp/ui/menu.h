@@ -86,6 +86,7 @@ struct gws_menu_d *gwssrv_create_menu (
     unsigned int color );
 
 int redraw_main_menu(void);
+
 int main_menu_all_windows_input_status(int input_status);
 
 void enable_main_menu(void);

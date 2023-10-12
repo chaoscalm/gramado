@@ -45,6 +45,18 @@ extern struct gws_window_d *top_window;     // z-order
 #define VIEW_NORMAL    1003 //Normal (restaurada)
 //...
 
+// -------------------
+// Aliases
+#define WINDOW_STATE_NULL  VIEW_NULL
+#define WINDOW_STATE_FULL  VIEW_FULL
+//The window is maximized.
+#define WINDOW_STATE_MAXIMIZED  VIEW_MAXIMIZED
+//The window is minimized.
+#define WINDOW_STATE_MINIMIZED  VIEW_MINIMIZED
+//The window is restored.
+#define WINDOW_STATE_NORMAL     VIEW_NORMAL 
+// -------------------
+
 // Button styles (int)
 #define BSTYLE_3D  0
 #define BSTYLE_FLAT  1
@@ -476,17 +488,11 @@ struct gws_window_d
 // If the window is dirty, so the whole window rectangle
 // needs to be flushed into the framebuffer.
     int dirty;
-// FAST FLAG. Essa será a flag de ativa ou não. (decidindo isso)
-    int active;
+
+
 // Se tem o foco de entrada ou não.
 // Isso faz a janela ser pintada ou repintada 
 // contendo o indicador de foco.
-
-// #bugbug: 
-// Delete this element.
-// We dont need this. Use the pointer instead,
-// check agains the current keyboard_owner window.
-    int focus;
 
 // 1=solid | 0=transparent
 // Solid means that the color is opaque, 
@@ -527,7 +533,8 @@ struct gws_window_d
 //
 
 // Estado: (Full,Maximized,Minimized...)
-    int view; 
+    //int view; 
+    int state;
 
 // Active, inactive.
     int status;
@@ -896,13 +903,15 @@ struct gws_window_d
 // Um alerta de que exite uma mensagem para essa janela.
     int msgAlert;  //#todo: int ev_alert;
 
+
+// #deprecated;
+// We are using the term '->enabled' for that purpose.
 // Locked
 // We can't resize or move the window.
 // This is good for a maximized root overlapped window.
 // If locked we can't change a simple thing. 
 // It must affect the input events for the specified window.
-    int locked; 
-
+    //int locked; 
 
 //==================================================	
 // #todo:
@@ -1286,7 +1295,7 @@ void *doCreateWindow (
     unsigned long type, 
     unsigned long style,
     unsigned long status, 
-    unsigned long view, 
+    unsigned long state,  // view: min, max ... 
     char *title, 
     unsigned long x, 
     unsigned long y, 
@@ -1310,7 +1319,7 @@ void *CreateWindow (
     unsigned long type,
     unsigned long style, 
     unsigned long status, 
-    unsigned long view, 
+    unsigned long state,  // view: min, max ... 
     char *title, 
     unsigned long x, 
     unsigned long y, 
@@ -1325,6 +1334,9 @@ int RegisterWindow(struct gws_window_d *window);
 
 int destroy_window_by_wid(int wid);
 void DestroyAllWindows(void);
+void MinmizeAllWindows(void);
+void MaximizeAllWindows(void);
+void RestoreAllWindows(void);
 
 struct gws_window_d *get_window_from_wid(int wid);
 
@@ -1336,6 +1348,10 @@ void unset_active_window(void);
 
 void enable_window(struct gws_window_d *window);
 void disable_window(struct gws_window_d *window);
+
+void change_window_state(struct gws_window_d *window, int state);
+void maximize_window(struct gws_window_d *window);
+void minimize_window(struct gws_window_d *window);
 
 //
 // Text/String support.
@@ -1402,8 +1418,9 @@ gwssrv_change_window_position (
     unsigned long x, 
     unsigned long y );
 
-void gwsWindowLock(struct gws_window_d *window);
-void gwsWindowUnlock(struct gws_window_d *window);
+//void gwsWindowLock(struct gws_window_d *window);
+//void gwsWindowUnlock(struct gws_window_d *window);
+
 int gwsDefineInitialRootWindow(struct gws_window_d *window);
 
 void wm_reboot(void);

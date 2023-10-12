@@ -283,7 +283,7 @@ void *doCreateWindow (
     unsigned long type, 
     unsigned long style,
     unsigned long status,  // #test Status do botao e da janela.
-    unsigned long view,    // #test 
+    unsigned long state,   //view: min, max ... 
     char *title, 
     unsigned long x, 
     unsigned long y, 
@@ -584,8 +584,11 @@ void *doCreateWindow (
     window->status = (int) (status & 0xFFFFFFFF);
     // The 'window status' is used as 'button state'
     int ButtonState = (int) (status & 0xFFFFFFFF);
+
 // View
-    window->view = (int) view;
+// The window state: minimized, maximized.
+    //window->view = (int) view;
+    window->state = (int) view;
 
 // Colors
     window->bg_color = (unsigned int) FrameColor;
@@ -611,7 +614,7 @@ void *doCreateWindow (
     window->client_dc = NULL;
     window->is_solid = (int) is_solid;
     window->rop = (unsigned long) rop_flags;
-    window->focus  = FALSE;
+    //window->focus  = FALSE;
     // We already validated it when we create the object.
     //window->dirty  = FALSE;  // Validate
     //window->locked = FALSE;
@@ -653,7 +656,8 @@ void *doCreateWindow (
     //}
 // Can't lock,
 // We need permitions to do our work.
-    window->locked = FALSE;
+    //window->locked = FALSE;
+    window->enabled = TRUE;
 
 // ===================================
 // Input support:
@@ -1285,8 +1289,10 @@ void *doCreateWindow (
 
     //if(DedicatedBuffer == 1){};
 
+
 // Se o view for igual NULL talvez signifique não pintar.
-    if (window->view == VIEW_NULL)
+// The window state: minimized, maximized.
+    if (window->state == WINDOW_STATE_NULL)
     {
         //#bugbug: fail.
         //window->show = 0;
@@ -1409,8 +1415,12 @@ void *doCreateWindow (
 
         if ((unsigned long) type == WT_OVERLAPPED)
         {
-            if (window->focus == TRUE) { __tmp_color = xCOLOR_GRAY1; }
-            if (window->focus == FALSE){ __tmp_color = xCOLOR_GRAY2; }
+            if (window == keyboard_owner){
+                __tmp_color = xCOLOR_GRAY1;
+            }else if (window != keyboard_owner){
+                __tmp_color = xCOLOR_GRAY2;
+            }
+
             painterFillWindowRectangle( 
                 (window->absolute_x +1), (window->absolute_y +1), 
                 (window->width +1 +1), (window->height +1 +1), 
@@ -1500,7 +1510,7 @@ void *doCreateWindow (
         switch (ButtonState)
         {
             case BS_FOCUS:
-                window->focus = TRUE;
+                //window->focus = TRUE;
                 buttonFocus = TRUE;
                 buttonBorderColor1       = COLOR_BLUE;
                 buttonBorderColor2       = COLOR_BLUE;
@@ -1656,7 +1666,7 @@ void *CreateWindow (
     unsigned long type, 
     unsigned long style,
     unsigned long status,  // #test Status do botao, e da janela. 
-    unsigned long view,    // #test view 
+    unsigned long state,  // view: min, max ... 
     char *title,
     unsigned long x, 
     unsigned long y, 
@@ -1703,8 +1713,8 @@ void *CreateWindow (
     /*
     // #debug
     int myview = (view & 0xFFFFFFFF);
-    if (myview == VIEW_MAXIMIZED){
-        printf("VIEW_MAXIMIZED\n"); exit(0);
+    if (myview == WINDOW_STATE_MAXIMIZED){
+        printf("WINDOW_STATE_MAXIMIZED\n"); exit(0);
     }
     */
 
@@ -1824,7 +1834,7 @@ void *CreateWindow (
                          WT_SIMPLE, 
                          style, 
                          status,  //#test 
-                         view,    //#test
+                         state,  // view: min, max ...
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -1846,7 +1856,8 @@ void *CreateWindow (
 
         // Pintamos simples, mas a tipagem será overlapped.
         __w->type = WT_OVERLAPPED;
-        __w->locked = FALSE;
+        //__w->locked = FALSE;
+        __w->enabled = TRUE;
 
         wm_add_window_to_top(__w);
         set_active_window(__w);
@@ -1873,7 +1884,7 @@ void *CreateWindow (
                          WT_SIMPLE, 
                          0, 
                          status, 
-                         view, 
+                         state,  // view: min, max ... 
                          (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -1906,7 +1917,8 @@ void *CreateWindow (
 
         // Pintamos simples, mas o tipo sera editbox.
         __w->type = type;  // Editbox.
-        __w->locked = FALSE;
+        //__w->locked = FALSE;
+        __w->enabled = TRUE;
         goto draw_frame;
     }
 
@@ -1931,7 +1943,7 @@ void *CreateWindow (
                          WT_BUTTON,   // type 
                          0,           // style
                          status,      // status (Button state)
-                         view,        // view
+                         state,  // view: min, max ...
                          (char *) _name, 
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -1946,7 +1958,8 @@ void *CreateWindow (
 
         // Pintamos simples, mas a tipagem será overlapped.
         __w->type = WT_BUTTON;
-        __w->locked = FALSE;
+        //__w->locked = FALSE;
+        __w->enabled = TRUE;
         goto draw_frame;
     }
 
@@ -1963,7 +1976,7 @@ void *CreateWindow (
                          WT_SIMPLE, 
                          0, 
                          status, 
-                         view, 
+                         state,  // view: min, max ... 
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -1977,7 +1990,8 @@ void *CreateWindow (
          }
 
         __w->type = WT_SIMPLE;
-        __w->locked = FALSE;
+        //__w->locked = FALSE;
+        __w->enabled = TRUE;
         goto draw_frame;
     }
 
@@ -1993,7 +2007,7 @@ void *CreateWindow (
                          WT_SIMPLE, 
                          0, 
                          status, 
-                         view, 
+                         state,  // view: min, max ... 
                          (char *) _name,
                          x, y, width, height, 
                          (struct gws_window_d *) pWindow, 
@@ -2007,7 +2021,8 @@ void *CreateWindow (
          }
 
         __w->type = WT_ICON;
-        __w->locked = FALSE;
+        //__w->locked = FALSE;
+        __w->enabled = TRUE;
         goto draw_frame;
     }
 
@@ -2114,7 +2129,8 @@ draw_frame:
 // #bugbug: We cant create the parts of the window
 // if the window is locked.
 // So, we can't lock it at the beginning.
-    __w->locked = FALSE;
+    //__w->locked = FALSE;
+    __w->enabled = TRUE;
 // Invalidate the window rectangle.
 // Only at the end of this routine.
     __w->dirty = TRUE;
@@ -2333,6 +2349,79 @@ void DestroyAllWindows(void)
     };
 }
 
+void MinmizeAllWindows(void)
+{
+    register int i=0;
+    struct gws_window_d *tmp;
+    int wid = -1;
+
+    for (i=0; i<WINDOW_COUNT_MAX; i++)
+    {
+        tmp = (void*) windowList[i];
+        if (tmp != NULL)
+        {
+            if (tmp->used == TRUE)
+            {
+                if (tmp->magic == 1234)
+                {
+                    if (tmp->type == WT_OVERLAPPED)
+                        tmp->state = WINDOW_STATE_MINIMIZED;
+                }
+            }
+        }
+    };
+}
+
+void MaximizeAllWindows(void)
+{
+    register int i=0;
+    struct gws_window_d *tmp;
+    int wid = -1;
+
+    for (i=0; i<WINDOW_COUNT_MAX; i++)
+    {
+        tmp = (void*) windowList[i];
+        if (tmp != NULL)
+        {
+            if (tmp->used == TRUE)
+            {
+                if (tmp->magic == 1234)
+                {
+                    if (tmp->type == WT_OVERLAPPED)
+                        tmp->state = WINDOW_STATE_MAXIMIZED;
+                }
+            }
+        }
+    };
+}
+
+void RestoreAllWindows(void)
+{
+// Back to normal state
+
+    register int i=0;
+    struct gws_window_d *tmp;
+    int wid = -1;
+
+    for (i=0; i<WINDOW_COUNT_MAX; i++)
+    {
+        tmp = (void*) windowList[i];
+        if (tmp != NULL)
+        {
+            if (tmp->used == TRUE)
+            {
+                if (tmp->magic == 1234)
+                {
+                    if (tmp->type == WT_OVERLAPPED)
+                        tmp->state = WINDOW_STATE_NORMAL;
+                }
+            }
+        }
+    };
+}
+
+
+
 /*
 int this_type_has_a_title(int window_type);
 int this_type_has_a_title(int window_type)
@@ -2377,7 +2466,6 @@ void enable_window(struct gws_window_d *window)
         window->status = BS_DEFAULT;
 }
 
-
 void disable_window(struct gws_window_d *window)
 {
     if ((void*)window==NULL)
@@ -2388,6 +2476,62 @@ void disable_window(struct gws_window_d *window)
     window->enabled = FALSE;
     if (window->type == WT_BUTTON)
         window->status = BS_DISABLED;
+}
+
+// Valid states only.
+void change_window_state(struct gws_window_d *window, int state)
+{
+    if ((void*)window==NULL)
+        return;
+    if (window->magic!=1234)
+        return;
+
+// Is it a valid state?
+// #todo: We can create a worker for this routine.
+    int is_valid = FALSE;
+    switch (state){
+        case WINDOW_STATE_FULL:
+        case WINDOW_STATE_MAXIMIZED:
+        case WINDOW_STATE_MINIMIZED:
+        case WINDOW_STATE_NORMAL:
+            is_valid = TRUE;
+            break;
+        default:
+            is_valid = FALSE;
+            break;
+    };
+
+    if (is_valid == TRUE){
+        window->state = state;
+    }
+}
+
+void maximize_window(struct gws_window_d *window)
+{
+    if ((void*)window==NULL)
+        return;
+    if (window->magic!=1234)
+        return;
+    change_window_state(window,WINDOW_STATE_MAXIMIZED);
+
+// Update the desktop respecting the current zorder.
+    //wm_update_desktop2();
+
+    // ...
+}
+
+void minimize_window(struct gws_window_d *window)
+{
+    if ((void*)window==NULL)
+        return;
+    if (window->magic!=1234)
+        return;
+    change_window_state(window,WINDOW_STATE_MINIMIZED);
+
+// Update the desktop respecting the current zorder.
+    wm_update_desktop2();
+
+    // ...
 }
 
 struct gws_rect_d *clientrect_from_window(struct gws_window_d *window)

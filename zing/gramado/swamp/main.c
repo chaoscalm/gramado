@@ -1176,7 +1176,8 @@ static void initBackground(void)
     }
 
 // #test
-    __root_window->locked = TRUE;
+    //__root_window->locked = TRUE;
+    //__root_window->enabled = FALSE;
 
 // Register the window.
     WindowId = RegisterWindow(__root_window);
@@ -1952,8 +1953,8 @@ int serviceCreateWindow(int client_fd)
 // wid, msg code, data1, data2;
     r.wid  = message_address[0];
     r.code = message_address[1];
-    r.ul2  = message_address[2];  // #test Status
-    r.ul3  = message_address[3];  // #test View
+    r.ul2  = message_address[2];  // Window status
+    r.ul3  = message_address[3];  // Window state: min, max, ...
 // l,t,w,h
 // These are the outer values.
 // Including the border if it has one.
@@ -2158,8 +2159,8 @@ int serviceCreateWindow(int client_fd)
         (struct gws_window_d *) CreateWindow ( 
                                     type,      // type
                                     my_style,  // style
-                                    r.ul2, // #test status 
-                                    r.ul3, // #test view
+                                    r.ul2,  // Window status 
+                                    r.ul3,  // Window state: min, max, ...
                                     r.data,    // name
                                     x, y, w, h,  // l,t,w,h 
                                     (struct gws_window_d *) Parent,  // parent struct pointer 

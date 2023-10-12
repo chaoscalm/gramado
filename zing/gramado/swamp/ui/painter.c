@@ -262,12 +262,11 @@ __draw_window_border(
 // --------------------
 // + We dont have a border size yet.
 // Define border size.
-    if (window->active == TRUE){
+    if (window == active_window){
         window->border_size = 2;
-    }
-    if (window->active != TRUE){
+    }else if (window != active_window){
         window->border_size = 1;
-    }
+    };
 
 // ----------
 // Overlapped
@@ -335,15 +334,11 @@ __draw_window_border(
         // border size:
         // #todo: it can't be hardcoded,
         // We're gonna have themes.
-        //if (window->focus == TRUE)
-        if (window == keyboard_owner)
-        {
+        if (window == keyboard_owner){
             window->border_size=2;
             window->border_color1 = COLOR_BLACK;   //#test
             window->border_color2 = COLOR_BLACK;   //#test
-        }
-        if (window != keyboard_owner)
-        {
+        } else if (window != keyboard_owner){
             window->border_size=1;
             window->border_color1 = COLOR_GRAY;   //#test
             window->border_color2 = COLOR_GRAY;   //#test
@@ -703,8 +698,11 @@ redraw_window (
     {
         if ( (unsigned long) window->type == WT_OVERLAPPED )
         {
-            if (window->focus == 1){ __tmp_color = xCOLOR_GRAY1; }
-            if (window->focus == 0){ __tmp_color = xCOLOR_GRAY2; }
+            if (window == keyboard_owner){
+                __tmp_color = xCOLOR_GRAY1;
+            } else if (window != keyboard_owner){
+                __tmp_color = xCOLOR_GRAY2;
+            }
 
             // Shadow rectangle.
             rectBackbufferDrawRectangle ( 

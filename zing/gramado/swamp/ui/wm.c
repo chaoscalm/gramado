@@ -994,16 +994,27 @@ static void on_control_clicked(struct gws_window_d *window)
                         if (w2->type == WT_OVERLAPPED)
                         {
                             printf("Minimize\n");
+
+                            // It is minimized.
+                            if (w2->state == WINDOW_STATE_MINIMIZED)
+                                return;
+                            
+                            // #test
+                            // At this moment, the window
+                            // will not be drawed anymore.
+                            minimize_window(w2);
+
                             //window_post_message ( 
                             //    w2->id,
                             //    GWS_Minimize
                             //    0,
                             //    0 );
 
-                           if (WindowManager.initialized == TRUE){
-                                if (WindowManager.is_fullscreen == TRUE)
-                                    wm_exit_fullscreen_mode(TRUE);
-                            }
+                            // #test
+                            //if (WindowManager.initialized == TRUE){
+                            //    if (WindowManager.is_fullscreen == TRUE)
+                            //        wm_exit_fullscreen_mode(TRUE);
+                            //}
 
                             return;
                         }
@@ -1035,17 +1046,23 @@ static void on_control_clicked(struct gws_window_d *window)
                         if (w2->type == WT_OVERLAPPED)
                         {
                             printf("Maximize\n");
+
+                            // It is minimized.
+                            if (w2->state == WINDOW_STATE_MINIMIZED)
+                                return;
+
                             //window_post_message ( 
                             //    w2->id,
                             //    GWS_Maximize,
                             //    0,
                             //    0 );
                             
-                            set_active_window(w2);
-                            if (WindowManager.initialized == TRUE){
-                                if (WindowManager.is_fullscreen != TRUE)
-                                    wm_enter_fullscreen_mode();
-                            }
+                            // #test
+                            //set_active_window(w2);
+                            //if (WindowManager.initialized == TRUE){
+                            //    if (WindowManager.is_fullscreen != TRUE)
+                            //        wm_enter_fullscreen_mode();
+                            //}
                             
                             return;
                         }
@@ -1078,6 +1095,11 @@ static void on_control_clicked(struct gws_window_d *window)
                         if (w2->type == WT_OVERLAPPED)
                         {
                             printf("Close wid={%d}\n",w2->id);
+
+                            // It is minimized.
+                            if (w2->state == WINDOW_STATE_MINIMIZED)
+                                return;
+
                             window_post_message ( 
                                 w2->id, GWS_Close, 0, 0 );
                             return;
@@ -2640,11 +2662,11 @@ wmCreateWindowFrame (
         // ou criar uma rotina para mudar as caracteristicas da borda.
          
         // Se tiver o foco.
-        if (window->focus == TRUE){
+        if (window == keyboard_owner){
             BorderColor1 = (unsigned int) get_color(csiWWFBorder);
             BorderColor2 = (unsigned int) get_color(csiWWFBorder);
             BorderSize = 2;  //#todo: worker
-        }else{
+        }else if (window != keyboard_owner){
             BorderColor1 = (unsigned int) get_color(csiWindowBorder);
             BorderColor2 = (unsigned int) get_color(csiWindowBorder);
             BorderSize = 1;  //#todo: worker
@@ -3060,10 +3082,8 @@ static void wm_tile(void)
             // Horizontal
             if (WindowManager.vertical==FALSE)
             {
-                // for titlebar color support.
+                // for titlebar color support,
                 // not the active window.
-                //w->active = FALSE;
-                //w->focus = TRUE;
                 w->border_size = 1;
 
                 // resize.
@@ -3099,7 +3119,6 @@ static void wm_tile(void)
                     w->border_size = 2;
 
                     active_window = (void*) w;   // Active window
-                    w->active = TRUE;
                     keyboard_owner = (void*) w;  // Window with focus.
                     last_window    = (void*) w;  // Top
                     top_window     = (void*) w;  // Top z-order: top window.
@@ -3259,7 +3278,7 @@ void wm_update_desktop(int tile, int show)
         }
     }
 
-// Redraw root window, but do not shot it yet.
+// Redraw root window, but do not show it yet.
     redraw_window(__root_window,FALSE);
 
 // #test
@@ -3315,6 +3334,8 @@ void wm_update_desktop(int tile, int show)
     last_window = (struct gws_window_d *) w;
               l = (struct gws_window_d *) w;
 
+// ----------------
+// :: Redraw
 // Loop to redraw the linked list.
     while (1){
 
@@ -3331,8 +3352,10 @@ void wm_update_desktop(int tile, int show)
             if (w->type == WT_OVERLAPPED)
             {
                 // Redraw, but do no show it.
-                if (w->magic == 1234){
-                    redraw_window(w,FALSE);
+                if (w->magic == 1234)
+                {
+                    if (w->state != WINDOW_STATE_MINIMIZED)
+                        redraw_window(w,FALSE);
                 }
 
                 // Post message to the main window.
@@ -3416,7 +3439,7 @@ void wm_update_desktop(int tile, int show)
 
 
 // ------------------
-// If i'm gonna show the whoe screen, so
+// If i'm gonna show the whole screen, so
 // i need to validate all the windows
 // to avoid the re-refresh.
 // #todo:
@@ -3475,6 +3498,7 @@ void wm_update_active_window(void)
 void  wm_update_desktop2(void)
 {
 // Update the desktop respecting the current zorder.
+
     struct gws_window_d *w;
 
 // The state of the buttons in the quick lanch area.
@@ -3501,8 +3525,10 @@ void  wm_update_desktop2(void)
         // Redraw, but do not show it.
         if ((void*)w->magic == 1234)
         {
-            if (w->type == WT_OVERLAPPED){
-                redraw_window(w,FALSE);
+            if (w->type == WT_OVERLAPPED)
+            {
+                if (w->state != WINDOW_STATE_MINIMIZED)
+                    redraw_window(w,FALSE);
             }
         }
         // Next window from the list.
@@ -3622,9 +3648,6 @@ update_window (
     {
         // #test
         // for titlebar color support.
-        // the active window.
-        window->active = TRUE;
-        //window->focus = TRUE;
         window->border_size = 2;
         keyboard_owner = (void*) window;
         last_window    = (void*) window;
@@ -5108,7 +5131,16 @@ static int wmProcessCombinationEvent(int msg_code)
         //wm_update_desktop2();
         
         // #test
-        disable_main_menu();
+        //disable_main_menu();
+
+        //#test
+        //active_window->state = WINDOW_STATE_MINIMIZED;
+  
+        //#test: Minimize all windows
+        MinmizeAllWindows();
+        // Update desktop respecting the current list.
+        wm_update_desktop2();
+
         return 0;
     }
 
@@ -5120,7 +5152,17 @@ static int wmProcessCombinationEvent(int msg_code)
         //__switch_active_window(FALSE);  //active NOT FIRST
 
         //#test
-        enable_main_menu();
+        //enable_main_menu();
+
+        //#test
+        //active_window->state = WINDOW_STATE_NORMAL;
+
+        //#test: Restore all windows
+        // Back to normal state.
+        RestoreAllWindows();
+        // Update desktop respecting the current list.
+        wm_update_desktop2();
+
         return 0;
     }
 
@@ -6062,7 +6104,7 @@ struct gws_window_d *wmCreateRootWindow(unsigned int bg_color)
 // invalidate the surface in ring0.
     invalidate_surface_retangle();
     w->dirty = TRUE;  // Invalidate again.
-    w->locked = TRUE;
+    //w->locked = TRUE;
 
 // Register root window.
     status = gwsDefineInitialRootWindow(w);
@@ -6709,24 +6751,29 @@ gwssrv_change_window_position (
     return 0;
 }
 
-
+/*
+// #deprecated
 // Lock a window. 
 void gwsWindowLock (struct gws_window_d *window)
 {
     if ( (void *) window == NULL ){
         return;
     }
-    window->locked = (int) WINDOW_LOCKED;  //1.
+    //window->locked = (int) WINDOW_LOCKED;  //1.
 }
+*/
 
+/*
+// #deprecated
 // Unlock a window. 
 void gwsWindowUnlock (struct gws_window_d *window)
 {
     if ( (void *) window == NULL ){
         return;
     }
-    window->locked = (int) WINDOW_UNLOCKED;  //0.
+    //window->locked = (int) WINDOW_UNLOCKED;  //0.
 }
+*/
 
 //
 // == ajusting the window to fit in the screen. =======================
