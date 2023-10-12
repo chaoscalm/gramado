@@ -14,6 +14,7 @@ all:
 	make -C editor
 	make -C gdm
 	make -C setup
+	make -C taskbar
 
 clean:
 	-rm bin/*.BIN

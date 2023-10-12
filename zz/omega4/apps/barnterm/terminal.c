@@ -176,12 +176,10 @@ unsigned long __bartop=0;
 unsigned long __barwidth=0;
 unsigned long __barheight=0;
 
-
 // Program name
-static const char *program_name = "TERMINAL";
+static const char *program_name = "BARNTERM";
 // Client window title
 static const char *cw_string = "Client";
-
 
 //
 // == Private functions: Prototypes ==============

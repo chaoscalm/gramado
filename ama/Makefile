@@ -225,9 +225,11 @@ copy-extras:
 	-sudo cp ../zz/omega4/apps/bin/EDITOR.BIN   $(BASE)/
 	-sudo cp ../zz/omega4/apps/bin/GDM.BIN   $(BASE)/
 	-sudo cp ../zz/omega4/apps/bin/BROWSER.BIN  $(BASE)/
+	-sudo cp ../zz/omega4/apps/bin/TASKBAR.BIN  $(BASE)/
 
 	-sudo cp ../zz/omega4/apps/bin/DOCV.BIN     $(BASE)/PROGRAMS/
 	-sudo cp ../zz/omega4/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
+
 
 #	-sudo cp ../zz/omega4/apps/bin/GDM2.BIN  $(BASE)/
 #	-sudo cp ../zz/omega4/apps/bin/GWS.BIN   $(BASE)/
