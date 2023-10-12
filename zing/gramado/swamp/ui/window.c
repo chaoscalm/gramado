@@ -2349,7 +2349,7 @@ void DestroyAllWindows(void)
     };
 }
 
-void MinmizeAllWindows(void)
+void MinimizeAllWindows(void)
 {
     register int i=0;
     struct gws_window_d *tmp;

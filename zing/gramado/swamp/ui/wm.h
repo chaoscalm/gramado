@@ -211,6 +211,8 @@ void wm_update_desktop(int tile, int show);
 void  wm_update_desktop2(void);
 void wm_update_desktop3(struct gws_window_d *new_active_window);
 
+void restore_desktop_windows(void);
+void show_desktop(void);
 
 // Update window.
 int 

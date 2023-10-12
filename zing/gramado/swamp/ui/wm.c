@@ -3611,6 +3611,26 @@ done:
     wm_update_desktop2();
 }
 
+
+
+void restore_desktop_windows(void)
+{
+//#test: Restore all windows
+// Back to normal state.
+    RestoreAllWindows();
+// Update desktop respecting the current list.
+    wm_update_desktop2();
+}
+
+
+void show_desktop(void)
+{
+//#test: Minimize all windows
+    MinimizeAllWindows();
+// Update desktop respecting the current list.
+    wm_update_desktop2();
+}
+
 // Here we're gonna redraw the given window
 // and invalidate it.
 int 
@@ -5137,9 +5157,12 @@ static int wmProcessCombinationEvent(int msg_code)
         //active_window->state = WINDOW_STATE_MINIMIZED;
   
         //#test: Minimize all windows
-        MinmizeAllWindows();
+        //MinimizeAllWindows();
         // Update desktop respecting the current list.
-        wm_update_desktop2();
+        //wm_update_desktop2();
+        
+        // minimize all windows.
+        show_desktop();
 
         return 0;
     }
@@ -5159,9 +5182,12 @@ static int wmProcessCombinationEvent(int msg_code)
 
         //#test: Restore all windows
         // Back to normal state.
-        RestoreAllWindows();
+        //RestoreAllWindows();
         // Update desktop respecting the current list.
-        wm_update_desktop2();
+        //wm_update_desktop2();
+
+        // restore all windows
+        restore_desktop_windows();
 
         return 0;
     }

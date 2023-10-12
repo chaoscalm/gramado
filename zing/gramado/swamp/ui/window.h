@@ -1334,7 +1334,7 @@ int RegisterWindow(struct gws_window_d *window);
 
 int destroy_window_by_wid(int wid);
 void DestroyAllWindows(void);
-void MinmizeAllWindows(void);
+void MinimizeAllWindows(void);
 void MaximizeAllWindows(void);
 void RestoreAllWindows(void);
 
