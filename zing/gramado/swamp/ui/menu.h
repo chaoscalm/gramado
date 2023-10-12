@@ -86,14 +86,14 @@ struct gws_menu_d *gwssrv_create_menu (
     unsigned int color );
 
 int redraw_main_menu(void);
+int main_menu_all_windows_input_status(int input_status);
+
+void enable_main_menu(void);
+void disable_main_menu(void);
+
 int create_main_menu(void);
 
-int
-menuProcedure(
-    struct gws_window_d *window,
-    int msg,
-    unsigned long long1,
-    unsigned long long2 );
+int on_mi_clicked(unsigned long item_number);
 
 #endif    
 

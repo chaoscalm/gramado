@@ -392,6 +392,11 @@ struct gws_window_d
     int used;
     int magic;
 
+// The input status.
+// If the window is disable, it can't receive
+// input from keyboard or mouse.
+    int enabled;
+
     // In the window stack we have two major components:
     // + The frame (top frame and bottom frame).
     // + The Client area.
@@ -844,9 +849,9 @@ struct gws_window_d
     // Use chars, or use only asterisk for password, etc ...
     //int input_glyph_style;
 
-    // Esta ligado?
+// The state of the input ponter.
+// Used to blink the cursor.
     int ip_on;
-    //int ip_lock;
 
     unsigned long ip_x;
     unsigned long ip_y;
@@ -1328,6 +1333,9 @@ void set_active_window (struct gws_window_d *window);
 void set_active_by_id(int wid);
 
 void unset_active_window(void);
+
+void enable_window(struct gws_window_d *window);
+void disable_window(struct gws_window_d *window);
 
 //
 // Text/String support.

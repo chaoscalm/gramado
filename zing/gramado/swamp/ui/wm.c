@@ -661,7 +661,7 @@ wmProcessMouseEvent(
 // de botão de mouse.
 
 // Window with focus.
-    struct gws_window_d *w;
+    //struct gws_window_d *w;
     unsigned long saved_x = x;
     unsigned long saved_y = y;
     unsigned long in_x=0;
@@ -1459,12 +1459,15 @@ static void on_mouse_released(void)
         if (mouse_hover->type == WT_BUTTON)
         {
             __button_released(ButtonWID);
-            selected_item = (unsigned long) (ButtonWID & 0xFFFF);
-            menuProcedure(
-                NULL,
-                (int) 1,
-                (unsigned long) selected_item,
-                (unsigned long) BS_RELEASED );
+
+            // Disable all the windows in the menu.
+            main_menu_all_windows_input_status(FALSE);
+            // Update desktop but don't show the menu.
+            wm_update_desktop(TRUE,TRUE);
+
+            selected_item = (unsigned long)(ButtonWID & 0xFFFF);
+            // #test: see: menu.c
+            on_mi_clicked((unsigned long)selected_item);
 
             return;
         }
@@ -4737,6 +4740,11 @@ static void on_mouse_leave(struct gws_window_d *window)
     if (window->magic!=1234)
         return;
 
+// The window is disabled for events.
+    if (window->enabled != TRUE)
+        return;
+
+
 // Flag
     window->is_mouse_hover = FALSE;
 
@@ -4761,7 +4769,11 @@ static void on_mouse_hover(struct gws_window_d *window)
 
     if ((void*) window == NULL)
         return;
-    if (window->magic!=1234)
+    if (window->magic != 1234)
+        return;
+
+// The window is disabled for events.
+    if (window->enabled != TRUE)
         return;
 
 // Flag
@@ -4902,25 +4914,29 @@ __probe_window_hover(
                 // Is the pointer inside this window?
                 // Registra nova mouse_hover se estiver dentro.
                 Status = is_within( (struct gws_window_d *) w, long1, long2 );
-                if (Status==TRUE)
+                if (Status == TRUE)
                 {
                     // Deixe a antiga, e repinte ela,
                     // se estamos numa nova.
                     if (w != mouse_hover)
                     {
-                        on_mouse_leave(mouse_hover);  // repinte a antiga
-                        // The new mouse over.
-                        // #todo: Create set_mouseover(w);
-                        mouse_hover = (void*) w;      // se new
-                        // Já que estamos numa nova, 
-                        // vamos mudar o visual dela.
-                        on_mouse_hover(w);            // repinte a nova
+                        // Habilitada para input.
+                        if (w->enabled == TRUE)
+                        {
+                            on_mouse_leave(mouse_hover);  // repinte a antiga
+                            // The new mouse over.
+                            // #todo: Create set_mouseover(w);
+                            mouse_hover = (void*) w;      // se new
+                            // Já que estamos numa nova, 
+                            // vamos mudar o visual dela.
+                            on_mouse_hover(w);            // repinte a nova
                     
-                        // Update relative mouse pointer
-                        w->x_mouse_relative = 
-                           (unsigned long) (long1 - w->absolute_x);
-                        w->y_mouse_relative = 
-                           (unsigned long) (long2 - w->absolute_y);
+                            // Update relative mouse pointer
+                            w->x_mouse_relative = 
+                               (unsigned long) (long1 - w->absolute_x);
+                            w->y_mouse_relative = 
+                               (unsigned long) (long2 - w->absolute_y);
+                        }
                     }
                     return;
                 }
@@ -5023,7 +5039,7 @@ void wmProcessMenuEvent(int event_number, int button_wid)
             __button_released(StartMenu.wid);
         }
 
-        // Not created. Create!
+        // Not created. Create and show it.
         if (StartMenu.is_created != TRUE)
         {
             create_main_menu();
@@ -5033,7 +5049,11 @@ void wmProcessMenuEvent(int event_number, int button_wid)
         // Created, but not visible. Show it!
         if (StartMenu.is_visible != TRUE)
         {
+            // Enable all the windows in the menu.
+            main_menu_all_windows_input_status(TRUE);
+            // Redraw and show it.
             redraw_main_menu();
+            StartMenu.is_visible = TRUE;
             return;
         }
 
@@ -5041,8 +5061,12 @@ void wmProcessMenuEvent(int event_number, int button_wid)
         // Update desktop but don't show the menu.
         if (StartMenu.is_visible == TRUE)
         {
-            StartMenu.is_visible = FALSE;
+            // Disable all the windows in the menu.
+            main_menu_all_windows_input_status(FALSE);
+            // Update desktop but don't show the menu.
             wm_update_desktop(TRUE,TRUE);
+            // Set the flag to do not draw it in the next time.
+            StartMenu.is_visible = FALSE;
             return;
         }
     }
@@ -5082,6 +5106,9 @@ static int wmProcessCombinationEvent(int msg_code)
         //__switch_active_window(TRUE);  //active first
         // Update desktop respecting the current list.
         //wm_update_desktop2();
+        
+        // #test
+        disable_main_menu();
         return 0;
     }
 
@@ -5091,6 +5118,9 @@ static int wmProcessCombinationEvent(int msg_code)
         //printf("ws: copy\n");
         yellow_status("Copy");
         //__switch_active_window(FALSE);  //active NOT FIRST
+
+        //#test
+        enable_main_menu();
         return 0;
     }
 

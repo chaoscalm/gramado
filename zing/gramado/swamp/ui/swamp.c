@@ -92,6 +92,10 @@ void __create_start_menu(void)
         printf             ("__create_start_menu: Couldn't register sm_window\n");
         exit(1);
     }
+
+// Save
+    taskbar_startmenu_button_window = sm_window;
+
     StartMenu.initialized = TRUE;
 }
 
@@ -195,9 +199,11 @@ void __create_quick_launch_area(void)
         exit(1);
     }
 
+/*
     if (i==0){
         taskbar_startmenu_button_window = tmp_button;
     }
+*/
 
 //save
     // id de janelas.
@@ -343,6 +349,7 @@ void create_taskbar(int issuper, int show)
 
 // Quick launch area.
     __create_quick_launch_area();
+
 // Show
     if (show)
         flush_window_by_id(wid);

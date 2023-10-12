@@ -15,6 +15,8 @@ int mainmenu_buttons[MAINMENU_BUTTONS_MAX];
 
 // ----------------
 
+
+
 // TRUE = OK
 int redraw_main_menu(void)
 {
@@ -54,6 +56,57 @@ int redraw_main_menu(void)
     StartMenu.is_visible = TRUE;
     return TRUE;
 }
+
+// #honey
+int main_menu_all_windows_input_status(int input_status)
+{
+
+// Invalid menu. Cant redraw.
+    if ((void*) main_menu == NULL)
+        return FALSE;
+    if (main_menu->in_use != TRUE)
+        return FALSE;
+
+// bg window
+    if ((void*) main_menu->bg_window == NULL)
+        return -1;
+    if (main_menu->bg_window->magic != 1234)
+        return -1;
+
+
+// Enable or disable
+    if (input_status == TRUE){
+        enable_window(main_menu->bg_window);
+    }else if (input_status == FALSE){
+        disable_window(main_menu->bg_window);
+    };
+
+// Redraw items.
+    struct gws_menu_item_d *tmp;
+    tmp = (struct gws_menu_item_d *) main_menu->list;  //First
+    while (1){
+        if ((void*) tmp == NULL)
+            break;
+        // Redraw menu item.
+        if ((void*) tmp != NULL)
+        {
+            // Enable or disable
+            if (input_status == TRUE){
+                enable_window(tmp->bg_window);
+            }else if (input_status == FALSE){
+                disable_window(tmp->bg_window);
+            };
+        }
+        tmp = (struct gws_menu_item_d *) tmp->next;
+    };
+
+    //flush_window(main_menu->bg_window);
+
+// ok
+    StartMenu.is_visible = FALSE;
+    return TRUE;
+}
+
 
 // #test
 // Window server's widget.
@@ -478,35 +531,59 @@ int gwssrv_redraw_menu ( struct gws_menu_d *menu )
 }
 */
 
-int
-menuProcedure(
-    struct gws_window_d *window,
-    int msg,
-    unsigned long long1,
-    unsigned long long2 )
+void enable_main_menu(void)
+{
+    if ((void*)taskbar_startmenu_button_window == NULL)
+        return;
+    enable_window(taskbar_startmenu_button_window); 
+    //redraw_window(taskbar_startmenu_button_window,TRUE);
+
+    // Disable all the windows in the menu.
+    if (StartMenu.is_visible == TRUE){
+        main_menu_all_windows_input_status(TRUE);    
+        // Update desktop but don't show the menu.
+        wm_update_desktop(TRUE,TRUE);
+        redraw_main_menu();
+        return;
+    }else if(StartMenu.is_visible != TRUE){
+        main_menu_all_windows_input_status(FALSE);
+        // Update desktop but don't show the menu.
+        wm_update_desktop(TRUE,TRUE);
+        return;
+    }
+ 
+    //StartMenu.is_visible = FALSE;
+}
+
+void disable_main_menu(void)
+{
+    if ((void*)taskbar_startmenu_button_window == NULL)
+        return;
+    disable_window(taskbar_startmenu_button_window); 
+    //redraw_window(taskbar_startmenu_button_window,TRUE);
+
+    // Disable all the windows in the menu.
+    main_menu_all_windows_input_status(FALSE);
+    // Update desktop but don't show the menu.
+    wm_update_desktop(TRUE,TRUE);
+
+    StartMenu.is_visible = FALSE;
+}
+
+
+int on_mi_clicked(unsigned long item_number)
 {
     int Status=FALSE;
 
     char filename[16];
     size_t string_size=0;
 
-    //printf("menuProcedure:\n");
-
     memset(filename,0,16);
 
-    /*
-    // ok, it is working
-    Status = is_inside_menu(main_menu,long1,long2);
-    if(Status==FALSE)
-        yellow_status("Out ");
-    if(Status==TRUE)
-        yellow_status("In ");
-    */
 
-    if (msg<0)
-        return -1;
+// Get the ID.
+    int item = (int) (item_number & 0xFF);
 
-    int item = (int) (long1 & 0xFFFF);
     int _i0 = (int) (mainmenu_buttons[0] & 0xFFFF);
     int _i1 = (int) (mainmenu_buttons[1] & 0xFFFF);
     int _i2 = (int) (mainmenu_buttons[2] & 0xFFFF);

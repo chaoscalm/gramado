@@ -44,7 +44,7 @@ extern struct gws_window_d *active_window;
 // If the display server has a taskbar.
 // maybe we don't need that.
 extern struct gws_window_d  *taskbar_window; 
-extern struct gws_window_d  *taskbar_startmenu_button_window; 
+//extern struct gws_window_d  *taskbar_startmenu_button_window; 
 //char startmenu_string[32];
 
 // z-order ?
@@ -77,6 +77,8 @@ static struct gws_window_d *__create_window_object(void)
     memset( window, 0, sizeof(struct gws_window_d) );
     window->used = TRUE;
     window->magic = 1234;
+    // The window can receive input from kbd and mouse.
+    window->enabled = TRUE;
     window->style = 0;
 // Validate.
 // This way the compositor can't redraw it.
@@ -2361,6 +2363,32 @@ struct gws_window_d *get_window_object(int wid)
 {
 }
 */
+
+
+void enable_window(struct gws_window_d *window)
+{
+    if ((void*)window==NULL)
+        return;
+    if (window->magic!=1234)
+        return;
+
+    window->enabled = TRUE;
+    if (window->type == WT_BUTTON)
+        window->status = BS_DEFAULT;
+}
+
+
+void disable_window(struct gws_window_d *window)
+{
+    if ((void*)window==NULL)
+        return;
+    if (window->magic!=1234)
+        return;
+
+    window->enabled = FALSE;
+    if (window->type == WT_BUTTON)
+        window->status = BS_DISABLED;
+}
 
 struct gws_rect_d *clientrect_from_window(struct gws_window_d *window)
 {
