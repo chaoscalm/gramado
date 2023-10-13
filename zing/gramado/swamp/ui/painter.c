@@ -1154,7 +1154,7 @@ void invalidate_root_window(void)
 
 void invalidate_taskbar_window(void)
 {
-    invalidate_window ( (struct gws_window_d *) taskbar_window );
+    //invalidate_window ( (struct gws_window_d *) taskbar_window );
 }
 
 // (Output port)

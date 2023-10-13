@@ -43,7 +43,7 @@ extern struct gws_window_d  *__root_window;
 extern struct gws_window_d *active_window;
 // If the display server has a taskbar.
 // maybe we don't need that.
-extern struct gws_window_d  *taskbar_window; 
+//extern struct gws_window_d  *taskbar_window; 
 //extern struct gws_window_d  *taskbar_startmenu_button_window; 
 //char startmenu_string[32];
 
@@ -483,6 +483,10 @@ void *doCreateWindow (
         if ( __rop_flags == 0 )
             __rop_flags = 20;  //gray
     }
+
+    //int IsTaskbar = FALSE;
+    //if (style & WS_TASKBAR)
+        //IsTaskbar = TRUE;
 
 //---------------------------------------------------------
 
@@ -1053,6 +1057,7 @@ void *doCreateWindow (
     window->isMenu = FALSE;
     window->isButton = FALSE;
     window->isEditBox = FALSE;
+    window->isTaskBar = FALSE;
     // ...
 
 // Context menu: right click
@@ -1141,6 +1146,18 @@ void *doCreateWindow (
     // Simple window. (Sem barra de títulos).
     case WT_SIMPLE:
     case WT_TITLEBAR:
+        if (window->style & WS_TASKBAR)
+        {
+            window->isTaskBar = TRUE;
+            
+            // #important
+            // Set the taskbar created by the user.
+            taskbar2_window = window;
+            // No more access to the embedded taskbar.
+            //TaskBar.initialized = FALSE;
+            // No more access to the QuickLaunch resources.
+            //QuickLaunch.initialized = FALSE;
+        }
         window->ip_device = IP_DEVICE_NULL;
         window->frame.used = FALSE;
         Background = TRUE;
@@ -1882,7 +1899,7 @@ void *CreateWindow (
         __w = 
             (void *) doCreateWindow ( 
                          WT_SIMPLE, 
-                         0, 
+                         style, 
                          status, 
                          state,  // view: min, max ... 
                          (char *) _name, 
@@ -1941,7 +1958,7 @@ void *CreateWindow (
         __w = 
             (void *) doCreateWindow ( 
                          WT_BUTTON,   // type 
-                         0,           // style
+                         style,           // style
                          status,      // status (Button state)
                          state,  // view: min, max ...
                          (char *) _name, 
@@ -1974,7 +1991,7 @@ void *CreateWindow (
         __w = 
             (void *) doCreateWindow ( 
                          WT_SIMPLE, 
-                         0, 
+                         style, 
                          status, 
                          state,  // view: min, max ... 
                          (char *) _name,
@@ -2005,7 +2022,7 @@ void *CreateWindow (
         __w = 
             (void *) doCreateWindow ( 
                          WT_SIMPLE, 
-                         0, 
+                         style, 
                          status, 
                          state,  // view: min, max ... 
                          (char *) _name,

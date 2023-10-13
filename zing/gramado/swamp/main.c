@@ -154,12 +154,16 @@ static int running = FALSE;
 static unsigned long last_dx = 0;
 static unsigned long last_dy = 0;
 
+
+const char *dm_image_name = "gdm.bin";  // display manager.
+const char *tb_image_name = "taskbar.bin";  // taskbar.
+
 //
 // == Private functions: Prototypes ========
 //
 
 static void __initialize_kernel_module(void);
-static int ServerInitialization(int dm);
+static int ServerInitialization(int launch_tb);
 
 
 // Worker
@@ -3459,7 +3463,7 @@ static void __initialize_kernel_module(void)
 // IN:
 // dm = Launch the default Display Manager.
 // ...
-static int ServerInitialization(int dm)
+static int ServerInitialization(int launch_tb)
 {
 
 //==================
@@ -3471,7 +3475,7 @@ static int ServerInitialization(int dm)
     addrlen = sizeof(server_address);
 //==================
 
-    int flagUseClient = FALSE;  // TRUE
+    // #bugbug
     int UseCompositor = TRUE;   // #debug flags
 // Files
     int server_fd = -1; 
@@ -3715,12 +3719,15 @@ static int ServerInitialization(int dm)
         return -1;
         //exit(0);
     }
-    if( (void*) WindowManager.taskbar == NULL ){
+    /*
+    if( (void*) WindowManager.taskbar == NULL )
+    {
         gwssrv_debug_print("WindowManager.taskbar fail\n");
         printf("WindowManager.taskbar fail\n");
         return -1;
         //exit(0);
     }
+    */
 
 // The working area.
 // Container.
@@ -3730,7 +3737,9 @@ static int ServerInitialization(int dm)
     WindowManager.wa.width = 
         WindowManager.root->width;
     WindowManager.wa.height =
-        (WindowManager.root->height - WindowManager.taskbar->height);
+        (WindowManager.root->height - 28); // menos taskbar height.
+    //WindowManager.wa.height =
+        //(WindowManager.root->height - WindowManager.taskbar->height);
 
 // ---------------
 // #test
@@ -3780,23 +3789,23 @@ static int ServerInitialization(int dm)
 // Client
 //
 
-/*
-    if ( flagUseClient == TRUE )
-    {
-        //debug_print ("gwssrc: Calling client $\n");
-        //rtl_clone_and_execute("terminal.bin");
-    }
-*/
+// Launch the default taskbar application
+// #bugbug
+// Estamos lançando a taskbar,
+// porque o gdm tem muitas janelas e o servidor
+// ainda nao esta lidando bem com a inicializaçao de aplicaçoes
+// com muitas janelas filhas.
 
-// Launch the default Display Manager
-    if (dm == TRUE){
-        rtl_clone_and_execute("gdm.bin");
+    int tb_status = -1;
+    if (launch_tb == TRUE)
+    {
+        tb_status = (int) rtl_clone_and_execute(tb_image_name);
+        //#todo: Check
     }
 
 // ------------------------------------
 // Let's initialize the ring0 kernel module called MOD0.BIN.
     __initialize_kernel_module();
-
 
 // ------------------------------------
 
@@ -3986,6 +3995,7 @@ int main (int argc, char **argv)
     int f4= FALSE;
 
     int fLaunchDM=FALSE;  // Launch the default display manager.
+    int fLaunchTB=FALSE;  // Launch the default taskbar application.
     //int fLaunchTerminal=FALSE;  // Launch the default terminal.
     //...
 
@@ -4005,9 +4015,14 @@ int main (int argc, char **argv)
                 f4=TRUE;
 
             // Launches the default Display Manager.
-            if ( strncmp( argv[i], "--dm", 4 ) == 0 ){
-                fLaunchDM=TRUE;
+            //if ( strncmp( argv[i], "--dm", 4 ) == 0 ){
+            //    fLaunchDM=TRUE;
+            //}
+            // Launches the default taskbar.
+            if ( strncmp( argv[i], "--tb", 4 ) == 0 ){
+                fLaunchTB=TRUE;
             }
+
             // #todo
             // Launches the default Terminal.
             //if ( strncmp( argv[i], "--term", 4 ) == 0 ){
@@ -4063,7 +4078,7 @@ int main (int argc, char **argv)
  */
 
 //0 = Time to quit.
-    Status = (int) ServerInitialization(fLaunchDM);
+    Status = (int) ServerInitialization(fLaunchTB);
     if (Status == 0){
         ServerShutdown(____saved_server_fd);
     }

@@ -14,7 +14,7 @@ struct swamp_info_d
     int state;
 };
 
-
+/*
 // ----------------------------
 // Start menu
 struct start_menu_d
@@ -26,8 +26,9 @@ struct start_menu_d
     int is_visible;  // Pressed
 };
 extern struct start_menu_d StartMenu;
+*/
 
-
+/*
 // ----------------------------
 // Quick launch area
 // default left position.
@@ -41,13 +42,16 @@ struct quick_launch_d
 // List of buttons. (wid)
     int buttons[QL_BUTTON_MAX];
 };
-extern struct quick_launch_d QuickLaunch;
+extern struct quick_launch_d  QuickLaunch;
+*/
 
-
+/*
 // ----------------------------
 struct taskbar_d
 {
     int initialized;
+
+    int wid;
 
     unsigned long left;
     unsigned long top;
@@ -55,9 +59,12 @@ struct taskbar_d
     unsigned long width;
 
     int is_super;  // Higher
+    int is_embedded;  // Created by the server.
     // ...
+    
 };
 extern struct taskbar_d  TaskBar;
+*/
 
 
 void create_taskbar(int issuper, int show);

@@ -146,7 +146,7 @@ struct gws_windowmanager_d
 // Windows
 
     struct gws_window_d *root;
-    struct gws_window_d *taskbar;
+    //struct gws_window_d *taskbar;
     struct gws_window_d *fullscreen_window;
     // ...
 

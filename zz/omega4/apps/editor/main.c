@@ -731,14 +731,6 @@ int main( int argc, char *argv[] )
     cursor_y_max = ((w_height/8) -1);
 
 
-// Creating the main window.
-// style: 
-// 0x0001 = maximized 
-// 0x0002 = minimized 
-// 0x0004 = fullscreen
-// 0x0008 = use statusbar
-// ...
-
     main_window = 
         (int) gws_create_window (
                   client_fd,

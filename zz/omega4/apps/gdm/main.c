@@ -68,13 +68,17 @@ static const char *bar2_string = "bar 2";
 
 // buttons
 static const char *b1_string = "button 1";
-static const char *b2_string = "button 2";
+static const char *b2_string = "Start"; //"button 2";
 
 // texts
 static const char *t1_string = "text 1";
 static const char *t2_string = "text 2";
+static const char *t3_string = "Press F1 to start";
 
 static const char *bar1_text_string = "admin";
+
+
+static const char *tb_image_name = "taskbar.bin";
 
 // Screen
 unsigned long screen_width=0;
@@ -134,8 +138,11 @@ static int blink_status=FALSE;
 
 // ========
 
+
 static void pump(int fd);
 static void __event_loop(int fd);
+
+static void do_done(int fd);
 
 //prototype
 static int 
@@ -342,6 +349,22 @@ static void destroy_windows(int fd)
     gws_destroy_window(fd,main_window);
 }
 
+
+static void do_done(int fd)
+{
+
+    if (fd<0){
+        printf("do_done: fd\n");
+    }
+
+// #todo
+// Get the return. it can NOT fail.
+    rtl_clone_and_execute(tb_image_name);
+
+    destroy_windows(fd);
+    exit(0);
+}
+
 static int 
 gdmProcedure(
     int fd, 
@@ -397,15 +420,21 @@ gdmProcedure(
         return 0;
         break;
 
-    //case 1000:  // Evento de teste.
+
+    // #todo
+    // We can create the message button clicked.
+    // This msg will be send to the main window
+    // and the child window was passed via parameter.
+    case GWS_MouseClicked:
+        printf("gdm: GWS_MouseClicked\n");
+        //button2_window
+        break;
+
+    // Redraw all the child windows.
     case MSG_PAINT:
-        // If the event window is the main window, so
-        // redraw everyone.
-        if (event_window == main_window){
+        if (event_window == main_window)
+        {
             update_clients(fd);
-            //gws_redraw_window(fd, bar1_window, TRUE);
-            //gws_redraw_window(fd, button1_window, TRUE);
-            //gws_redraw_window(fd, bar2_window,     TRUE);
             return 0;
         }
         break;
@@ -414,10 +443,39 @@ gdmProcedure(
     //        printf("MSG_KEYDOWN\n");
     //    break;
 
+    // Sent by the window server.
+    case MSG_SYSKEYDOWN:
+        if (long1 == VK_F1)
+        {
+            printf ("gdm.bin: MSG_SYSKEYDOWN VK_F1\n");
+            do_done(fd);
+            return 0;
+        }
+        if (long1 == VK_F2)
+        {
+            printf ("gdm.bin: MSG_SYSKEYDOWN VK_F2\n");
+            do_done(fd);
+            return 0;
+        }
+        if (long1 == VK_F3)
+        {
+            printf ("gdm.bin: MSG_SYSKEYDOWN VK_F3\n");
+            do_done(fd);
+            return 0;
+        }
+        if (long1 == VK_F4)
+        {
+            printf ("gdm.bin: MSG_SYSKEYDOWN VK_F4\n");
+            do_done(fd);
+            return 0;
+        }
+        break;
+
     case MSG_CLOSE:
         printf ("gdm.bin: MSG_CLOSE\n");
-        destroy_windows(fd);
-        exit(0);
+        do_done(fd);
+        //destroy_windows(fd);
+        //exit(0);
         break;
 
     //...
@@ -799,6 +857,16 @@ int main( int argc, char *argv[] )
     }
     //#debug
     //gws_refresh_window(client_fd, main_window);
+
+// ---------------------
+// Tip
+     gws_draw_text (
+        (int) client_fd,      // fd
+        (int) main_window,    // window id
+        (unsigned long)  2,
+        (unsigned long)  4 +(24) +4 +(24/3) +(24), 
+        (unsigned long) COLOR_BLACK,
+        t3_string );
 
 /*
     int t=0;

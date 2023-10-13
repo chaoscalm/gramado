@@ -32,7 +32,8 @@
 #define WS_APP       0x10000
 #define WS_DIALOG    0x20000
 #define WS_TERMINAL  0x40000
-// 0x80000
+#define WS_TASKBAR   0x80000
+
 
 //----------
 // window status

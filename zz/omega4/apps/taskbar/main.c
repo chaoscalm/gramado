@@ -40,22 +40,10 @@
 // https://wiki.osdev.org/Synchronization_Primitives
 // ...
  
+#include "tbint.h"
 
-// rtl
-#include <types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <math.h>
-#include <netdb.h>
-#include <netinet/in.h>
-//#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <rtl/gramado.h>
-// libgws - The client-side library.
-#include <gws.h>
 
+#define HONEY_COLOR_TASKBAR  0x00C3C3C3 
 
 // network ports.
 #define PORTS_WS  4040
@@ -72,10 +60,22 @@
 unsigned long savedW=0;
 unsigned long savedH=0;
 
+
+
+// Creating 32 clients.
+// It represents the order in the taskbar.
+// If an entry is not used, it will not be
+// shown in the taskbar.
+struct tb_client_d clientList[CLIENT_COUNT_MAX];
+
+
 int game_status=0;
 
 // area de jogo
-int game_window=0;
+
+int main_window = -1;
+int startmenu_window = -1;
+
 int game_width=0;
 int game_height=0;
 int player_x=0;
@@ -90,6 +90,11 @@ int prize_y=0;
 
 const char *program_name = "Taskbar";
 
+const char *start_menu_button_label = "Gramado";
+
+const char *app1_name = "terminal.bin";
+const char *app2_name = "editor.bin";
+
 //
 // == Private functions: prototypes ====================
 //
@@ -103,10 +108,10 @@ static void testASCIITable(int fd,unsigned long w, unsigned long h);
 static void print_ascii_table(int fd);
 
 static int 
-cmdlineProcedure ( 
-    int fd,
-    void *window, 
-    int msg, 
+tbProcedure(
+    int fd, 
+    int event_window, 
+    int event_type, 
     unsigned long long1, 
     unsigned long long2 );
 
@@ -117,6 +122,19 @@ updateStatusBar(
     unsigned long h, 
     int first_number, 
     int second_number);
+
+
+static void __initialize_client_list(void);
+void pump(int fd, int wid);
+
+static int 
+create_start_menu(
+    int fd,
+    int parent,
+    unsigned long left,
+    unsigned long top,
+    unsigned long width,
+    unsigned long height );
 
 //==================================
 
@@ -204,10 +222,10 @@ static void doPrompt(int fd)
     printf("$ ");
     fflush(stdout);
 
-    //if (game_window<0){
+    //if (main_window<0){
     //    return;
     //}
-    //gws_refresh_window(fd,game_window);
+    //gws_refresh_window(fd,main_window);
 }
 
 static void __test_gr(int fd)
@@ -262,7 +280,7 @@ static void __test_gr(int fd)
         0 ); // rop
 
 // refresh window.
-    gws_refresh_window(fd,game_window);
+    gws_refresh_window(fd,main_window);
 }
 
 static void compareStrings(int fd)
@@ -319,7 +337,7 @@ static void compareStrings(int fd)
 
     if ( strncmp(prompt,"cls",3) == 0 )
     {
-         gws_redraw_window(fd,game_window,TRUE);
+         gws_redraw_window(fd,main_window,TRUE);
          //#define SYSTEMCALL_SETCURSOR  34
          sc80 ( 34, 2, 2, 0 );
          goto exit_cmp;
@@ -366,10 +384,10 @@ static void testASCIITable(int fd,unsigned long w, unsigned long h)
 }
 
 static int 
-cmdlineProcedure ( 
-    int fd,
-    void *window, 
-    int msg, 
+tbProcedure(
+    int fd, 
+    int event_window, 
+    int event_type, 
     unsigned long long1, 
     unsigned long long2 )
 {
@@ -378,18 +396,53 @@ cmdlineProcedure (
     if (fd<0)
         return -1;
 
-    if(msg<=0){
+    if(event_type<=0){
         return (-1);
     }
 
-    switch (msg){
+    switch (event_type){
+
+        //#todo
+        // Update the bar and the list of clients.
+        case MSG_PAINT:
+            //printf("task.bin: MSG_PAINT\n");
+            // #todo
+            // We need to update all the clients
+            // Create update_clients()
+            gws_redraw_window(fd, main_window, TRUE);
+            gws_redraw_window(fd, startmenu_window, TRUE);
+            break;
+
+        // One button was clicked
+        case GWS_MouseClicked:
+            printf("taskbar: GWS_MouseClicked\n");
+            break;
+       
+        // Add new client. Given the wid.
+        // The server created a client.
+        case 99440:
+            printf("task.bin: [99440]\n");
+            break;
+
+        // Remove client. Given the wid.
+        // The server removed a client.
+        case 99441:
+            printf("task.bin: [99441]\n");
+            break;
+        
+        // Update client info.
+        // The server send data about the client.
+        case 99443:
+            printf("task.bin: [99443]\n");
+            break;
 
         case MSG_CLOSE:
-            printf("cmdline.bin: Closing...\n");
+            printf("task.bin: Closing...\n");
             exit(0);
             break;
         
         case MSG_COMMAND:
+            /*
             printf("cmdline.bin: MSG_COMMAND %d \n",long1);
             switch(long1){
             case 4001:  //app1
@@ -402,18 +455,20 @@ cmdlineProcedure (
             printf("cmdline.bin: 4003\n");
             gws_clone_and_execute("terminal.bin");  break;
             };
+            */
             break;
 
 
         // 20 = MSG_KEYDOWN
         case MSG_KEYDOWN:
+            /*
             switch(long1){
                 // keyboard arrows
                 case 0x48: 
                     //printf ("UP   \n"); 
                     //player_y = (player_y - 8);
                     //if( player_y <= 0){ player_y = 0; }
-                    //gws_draw_char ( fd, game_window, player_x, player_y, COLOR_YELLOW, 'G' );
+                    //gws_draw_char ( fd, main_window, player_x, player_y, COLOR_YELLOW, 'G' );
                     //updateStatusBar(fd,savedW,savedH,0, 'U');
                     goto done; 
                     break;
@@ -421,7 +476,7 @@ cmdlineProcedure (
                     //printf ("LEFT \n"); 
                     //player_x = (player_x - 8);
                     //if ( player_x <= 0){ player_x = 0;}
-                    //gws_draw_char ( fd, game_window, player_x, player_y, COLOR_YELLOW, 'G' );
+                    //gws_draw_char ( fd, main_window, player_x, player_y, COLOR_YELLOW, 'G' );
                     //updateStatusBar(fd,savedW,savedH,0, 'L');
                     goto done; 
                     break;
@@ -429,7 +484,7 @@ cmdlineProcedure (
                     //printf ("RIGHT\n"); 
                     //player_x = (player_x + 8);
                     //if ( player_x >= game_width){ player_x = (game_width - 8);}
-                    //gws_draw_char ( fd, game_window, player_x, player_y, COLOR_YELLOW, 'G' );
+                    //gws_draw_char ( fd, main_window, player_x, player_y, COLOR_YELLOW, 'G' );
                     //updateStatusBar(fd,savedW,savedH,0, 'R');
                     goto done; 
                     break;
@@ -437,7 +492,7 @@ cmdlineProcedure (
                     //printf ("DOWN \n"); 
                     //player_y = (player_y + 8);
                     //if( player_y >= game_height){ player_y = (game_height-8); }
-                    //gws_draw_char ( fd, game_window, player_x, player_y, COLOR_YELLOW, 'G' );
+                    //gws_draw_char ( fd, main_window, player_x, player_y, COLOR_YELLOW, 'G' );
                     //updateStatusBar(fd,savedW,savedH,0, 'D');
                     goto done; 
                     break;
@@ -465,10 +520,24 @@ cmdlineProcedure (
                     fflush(stdout);
                     break;
             }
+            */
             break;
 
         // 22 = MSG_SYSKEYDOWN
         case MSG_SYSKEYDOWN:
+            //printf("taskbar: MSG_SYSKEYDOWN\n");
+            switch (long1){
+                case VK_F1:
+                    gws_clone_and_execute(app1_name);
+                    break;
+                case VK_F2:
+                    gws_clone_and_execute(app2_name);
+                    break;
+                default:
+                    break;
+            };
+
+            /*
             switch (long1){
 
                 // 1~4
@@ -522,6 +591,7 @@ cmdlineProcedure (
  
                 // ...
             };
+            */
             break;
     };
 
@@ -545,7 +615,7 @@ void init_cursor(int fd)
 
     gws_draw_char ( 
         fd, 
-        game_window, 
+        main_window, 
         player_x, 
         player_y, 
         COLOR_RED, 
@@ -562,7 +632,7 @@ void init_prize(int fd)
 
     gws_draw_char ( 
         fd, 
-        game_window, 
+        main_window, 
         prize_x, 
         prize_y, 
         COLOR_RED, 
@@ -649,7 +719,7 @@ static void print_ascii_table(int fd)
 
     printf("ascii: :)\n");
 
-    gws_redraw_window(fd,game_window,TRUE);
+    gws_redraw_window(fd,main_window,TRUE);
     //#define SYSTEMCALL_SETCURSOR  34
     sc80 ( 34, 2, 2, 0 );
 
@@ -657,7 +727,7 @@ static void print_ascii_table(int fd)
     {
         gws_draw_char ( 
             fd, 
-            game_window, 
+            main_window, 
             i*8,  //x 
             (8*line),  //y
             COLOR_YELLOW, i );
@@ -665,6 +735,98 @@ static void print_ascii_table(int fd)
         if (i%10)
             line++;
     };
+}
+
+static void __initialize_client_list(void)
+{
+    register int i=0;
+    for (i=0; i<CLIENT_COUNT_MAX; i++)
+    {
+        clientList[i].used = FALSE;
+        clientList[i].magic = 0;
+        clientList[i].client_id = -1;
+        
+        clientList[i].icon_info.wid = -1;
+        clientList[i].icon_info.icon_id = -1;
+        clientList[i].icon_info.state = 0;
+    };
+}
+
+void pump(int fd, int wid)
+{
+    struct gws_event_d lEvent;
+    lEvent.used = FALSE;
+    lEvent.magic = 0;
+    lEvent.type = 0;
+    //lEvent.long1 = 0;
+    //lEvent.long2 = 0;
+
+    struct gws_event_d *e;
+
+    if (fd<0)
+        return;
+    if (wid<0)
+        return;
+
+    e = 
+        (struct gws_event_d *) gws_get_next_event(
+                                   fd, 
+                                   wid,
+                                   (struct gws_event_d *) &lEvent );
+
+    if ((void *) e == NULL)
+        return;
+    if (e->magic != 1234){
+        return;
+    }
+    if (e->type <0)
+        return;
+
+
+    tbProcedure( 
+        fd, 
+        e->window, e->type, e->long1, e->long2 );
+}
+
+static int 
+create_start_menu(
+    int fd,
+    int parent,
+    unsigned long left,
+    unsigned long top,
+    unsigned long width,
+    unsigned long height )
+{
+    int tmp1 = -1;
+    unsigned long style = 0;
+
+    if (fd<0)
+        return -1;
+    if (parent<0)
+        return -1;
+
+    tmp1 = 
+        (int) gws_create_window (
+                     fd,
+                     WT_BUTTON, 
+                     BS_DEFAULT, 
+                     1, 
+                     start_menu_button_label,
+                     left, top, width, height,
+                     parent, 
+                     style, 
+                     COLOR_GRAY, 
+                     COLOR_GRAY );
+    if (tmp1<0)
+    {
+        printf("taskbar.bin: tmp1\n");
+        exit(1);
+    }
+
+    //gws_refresh_window(fd, tmp1);
+    
+    startmenu_window = tmp1;
+    return 0;
 }
 
 //==========================================
@@ -680,7 +842,6 @@ int main(int argc, char *argv[])
     int launchChild = TRUE;
     // ...
     int client_fd = -1;
-    int main_window = -1;
 
 // hello
     //gws_debug_print ("cmdline.bin: Hello world \n");
@@ -807,24 +968,40 @@ int main(int argc, char *argv[])
 //
 
 
-// ===========================
-    gws_debug_print ("cmdline.bin: 1 Creating main window \n");
-    //printf          ("cmdline.bin: Creating main window \n");
+    unsigned long tb_l = 0;
+    unsigned long tb_t = h-28;  //h-40-40;
+    unsigned long tb_w = w;
+    unsigned long tb_h = 28;
+
+    unsigned long style = WS_TASKBAR;
 
     main_window = 
         (int) gws_create_window (
                   client_fd,
                   WT_SIMPLE, 1, 1, program_name,
-                  0, h-40, w, 40,
-                  0, 0, COLOR_RED, COLOR_RED);
+                  tb_l, tb_t, tb_w, tb_h,
+                  0, 
+                  style, 
+                  HONEY_COLOR_TASKBAR, HONEY_COLOR_TASKBAR );
 
     if (main_window<0)
     {
         printf ("cmdline.bin: main_window\n");
         exit(1);
     }
-    game_window = main_window;
+
+    gws_set_active(client_fd,main_window);
+
 // ========================
+// Create th start menu button 
+// based on the taskbar dimensions.
+    create_start_menu(
+        client_fd,
+        main_window,
+        2, 
+        2, 
+        (8*10),   // 8 chars width. 
+        tb_h -4 );
 
     //printf ("CMDLINE.BIN: main_window created\n");
     //while(1){}
@@ -977,7 +1154,7 @@ int main(int argc, char *argv[])
     int south_color = COLOR_BLUE;
 
 
-    gws_debug_print("LOOP:\n");
+    //gws_debug_print("LOOP:\n");
     //printf ("LOOP:\n");
 
 
@@ -1016,7 +1193,7 @@ int main(int argc, char *argv[])
 // nem precisa ja que todas as rotinas que criam as janelas 
 // estao mostrando as janelas.
 
-    gws_refresh_window (client_fd, main_window);
+    gws_refresh_window(client_fd, main_window);
 
 
 //
@@ -1027,9 +1204,10 @@ int main(int argc, char *argv[])
 // Podemos nesse momento ler alguma configuração
 // que nos diga qual interface devemos inicializar.
 
+    /*
     if(launchChild == TRUE)
     {
-        gws_redraw_window(client_fd,game_window,0);
+        gws_redraw_window(client_fd,main_window,0);
         
         // Interface 1: File manager.
         //gws_clone_and_execute("fileman.bin");
@@ -1037,6 +1215,7 @@ int main(int argc, char *argv[])
         // Interface 1: Test app.
         //gws_clone_and_execute("editor.bin");
     }
+    */
 
 //
 // Input
@@ -1062,8 +1241,8 @@ int main(int argc, char *argv[])
     gws_async_command(
          client_fd,
          9,             // set focus
-         game_window,
-         game_window );
+         main_window,
+         main_window );
 
 //
 // Banner
@@ -1072,7 +1251,7 @@ int main(int argc, char *argv[])
 // Set cursor position.
     sc80 ( 34, 2, 2, 0 );
 
-    printf ("cmdline.bin: Gramado OS\n");
+    //printf ("cmdline.bin: Gramado OS\n");
 
 /*
 //#tests
@@ -1088,28 +1267,31 @@ int main(int argc, char *argv[])
 */
 
 
-
-
-
 // ===============================
 // Testing fpu
 
-    printf("\n");
-    printf("Testing math:\n");
-    printf("\n");
+    //printf("\n");
+    //printf("Testing math:\n");
+    //printf("\n");
 
+/*
 // -------------------
 // float. ok on qemu.
     float float_var = 1.5;
     unsigned int float_res = (unsigned int) (float_var + float_var);
     printf("float_res={%d}\n",(unsigned int)float_res);
+*/
 
+
+/*
 // -------------------
 // double. ok on qemu.
     double double_var = 2.5000;
     unsigned int double_res = (unsigned int) (double_var + double_var);
     printf("double_res={%d}\n",(unsigned int)double_res);
+*/
 
+/*
 // -------------------
 // #test
 // See: math.c in rtl/
@@ -1117,7 +1299,9 @@ int main(int argc, char *argv[])
     //printf("sqrt of 81 = {%d}\n",(unsigned int)square_root);
     unsigned long square_root = (unsigned long) sqrt(81);
     printf("sqrt of 81 = {%d}\n",(unsigned long)square_root);
+*/
 
+/*
 // -------------------
     // 9 ao cubo.
     //long r9 = (long) power0(9,3);
@@ -1126,6 +1310,7 @@ int main(int argc, char *argv[])
     //long r9 = (long) power3(9,3);
     long r9 = (long) power4(9,3);
     printf("9^3 = {%d}\n", (long) r9);
+*/
 
 // ===============================
 
@@ -1134,23 +1319,37 @@ int main(int argc, char *argv[])
     //while(1){}
 
 
+/*
 // #test
 // Getting 2mb shared memory surface.
 // ring3.
-
     void *ptr;
     ptr = (void*) rtl_shm_get_2mb_surface();
     if( (void*) ptr != NULL )
         printf("surface address: %x\n",ptr);
-
+*/
 
 // ===============================
-
-
-
 // Show prompt.
-    doPrompt(client_fd);
+    //doPrompt(client_fd);
 
+// ===============================
+//
+    __initialize_client_list();
+
+
+// =======================
+
+    while (1)
+    {
+        //if (isTimeToQuit == TRUE)
+            //break;
+
+        pump(client_fd,main_window);
+    };
+
+/*
+//=================================
     // Podemos chamar mais de um diálogo
     // Retorna TRUE quando o diálogo chamado 
     // consumiu o evento passado à ele.
@@ -1171,7 +1370,7 @@ int main(int argc, char *argv[])
         }
     };
 //=================================
-
+*/
     // Isso eh estranho ... um cliente remoto nao deve poder fazer isso.
     //gws_debug_print ("gws: Sending command to close the server. \n");
     //gws_async_command(client_fd,1,0,0);

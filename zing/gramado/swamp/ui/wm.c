@@ -9,7 +9,6 @@
 #include "../gwsint.h"
 
 const char *rootwindow_name = "RootWin";
-//const char *startmenu_label = "Gramado";
 
 // #test (#bugbgu)
 #define MSG_MOUSE_DOUBLECLICKED   60
@@ -55,11 +54,21 @@ struct gws_window_d *mouse_owner;  // captured
 // Mouse hover.
 struct gws_window_d *mouse_hover;  // hover
 
+//
+// Taskbar
+//
+
+// --------------------
+// Embedded taskbar.
 // If the display server has a taskbar.
 // maybe we don't need that.
-struct gws_window_d  *taskbar_window; 
-struct gws_window_d  *taskbar_startmenu_button_window; 
-//char startmenu_string[32];
+//struct gws_window_d  *taskbar_window; 
+//struct gws_window_d  *taskbar_startmenu_button_window; 
+
+// --------------------
+// Taskbar created by the user.
+struct gws_window_d  *taskbar2_window;
+
 
 // ...
 // z-order ?
@@ -88,11 +97,6 @@ static unsigned long last_input_jiffie=0;
 #define TB_BUTTON_HEIGHT  (TB_HEIGHT - (TB_BUTTON_PADDING*2))
 #define TB_BUTTON_WIDTH  TB_BUTTON_HEIGHT
 // #define TB_BUTTONS_MAX  8
-*/
-
-/*
-struct start_menu_d StartMenu;
-struct quick_launch_d QuickLaunch;
 */
 
 //
@@ -130,7 +134,7 @@ static unsigned long ____new_time=0;
 static void animate_window( struct gws_window_d *window );
 static void wm_tile(void);
 
-static void on_quick_launch(int button_wid);
+
 static void launch_app_by_id(int id);
 
 
@@ -170,7 +174,6 @@ static int control_action(int msg, unsigned long long1);
 void __button_pressed(int wid);
 void __button_released(int wid);
 
-void wmProcessMenuEvent(int event_number, int button_wid);
 
 // Key combination.
 inline int is_combination(int msg_code);
@@ -214,43 +217,6 @@ struct gws_window_d *get_parent(struct gws_window_d *w)
     }
 
     return (struct gws_window_d *) p;
-}
-
-static void on_quick_launch(int button_wid)
-{
-    int ButtonWID = button_wid;
-    int DoLaunch = FALSE;
-    int AppID = -1;
-
-    if (ButtonWID < 0)
-        return;
-    if (QuickLaunch.initialized != TRUE)
-        return;
-     
-    if (ButtonWID == QuickLaunch.buttons[0])
-    {
-        DoLaunch = TRUE;
-        AppID = 1;
-    }
-    if (ButtonWID == QuickLaunch.buttons[1])
-    {
-        DoLaunch = TRUE;
-        AppID = 2;
-    }
-    if (ButtonWID == QuickLaunch.buttons[2])
-    {
-        DoLaunch = TRUE;
-        AppID = 3;
-    }
-    if (ButtonWID == QuickLaunch.buttons[3])
-    {
-        DoLaunch = TRUE;
-        AppID = 4;
-    }
-
-// Launch
-    if (DoLaunch == TRUE)
-        launch_app_by_id(AppID);
 }
 
 static void launch_app_by_id(int id)
@@ -491,26 +457,28 @@ wmProcessKeyboardEvent(
         // Cada tecla de funçao aciona um botao da barra de tarefas.
 
         // We have 4 buttons in the taskbar.
-        if (long1 == VK_F1){
-            __button_pressed(QuickLaunch.buttons[0]);
-            return 0;
-        }
-        if (long1 == VK_F2){
-            __button_pressed(QuickLaunch.buttons[1]);
-            return 0;
-        }
-        if (long1 == VK_F3){
-            __button_pressed(QuickLaunch.buttons[2]);
-            return 0;
-        }
-        if (long1 == VK_F4){
-            __button_pressed(QuickLaunch.buttons[3]);
+        if (long1 == VK_F1 ||
+            long1 == VK_F2 ||
+            long1 == VK_F3 ||
+            long1 == VK_F4 )
+        {
+            if ((void*)active_window != NULL)
+            {
+                if (active_window->magic == 1234)
+                {
+                    window_post_message( 
+                        active_window->id, 
+                        GWS_SysKeyDown, 
+                        long1, 
+                        long1 );
+                }
+            }
             return 0;
         }
 
-        // F9=minimize button
-        // F10=maximize button
-        // F11=close button
+        // F9  = Minimize button
+        // F10 = Maximize button
+        // F11 = Close button
         // #todo: Explain it better.
         if (long1 == VK_F9 || 
             long1 == VK_F10 || 
@@ -549,24 +517,20 @@ wmProcessKeyboardEvent(
         // Cada tecla lança um processo filho diferente,
         // todos pre-definidos aqui.
 
-        if (long1 == VK_F1){
-            __button_released(QuickLaunch.buttons[0]);
-            launch_app_by_id(1);
+        if (long1 == VK_F1)
+        {
             return 0;
         }
-        if (long1 == VK_F2){
-            __button_released(QuickLaunch.buttons[1]);
-            launch_app_by_id(2);
+        if (long1 == VK_F2)
+        {
             return 0;
         }
-        if (long1 == VK_F3){
-            __button_released(QuickLaunch.buttons[2]);
-            launch_app_by_id(3);
+        if (long1 == VK_F3)
+        {
             return 0;
         }
-        if (long1 == VK_F4){
-            __button_released(QuickLaunch.buttons[3]);
-            launch_app_by_id(4);
+        if (long1 == VK_F4)
+        {
             return 0;
         }
 
@@ -798,9 +762,7 @@ static void on_mouse_pressed(void)
 // Not a control, not the start menu, not the menuitem.
     if (mouse_hover->type == WT_BUTTON)
     {
-        if ( mouse_hover->isControl != TRUE &&
-             mouse_hover->id != StartMenu.wid &&
-             mouse_hover->isMenuItem != TRUE )
+        if ( mouse_hover->isControl != TRUE )
         {
             __button_pressed(ButtonID);
             return;
@@ -810,11 +772,13 @@ static void on_mouse_pressed(void)
 // -------------------------
 //#test
 // Start menu button.
+    /*
     if (mouse_hover->id == StartMenu.wid)
     {
         __button_pressed(ButtonID);
         return;
     }
+    */
 
 //
 // Title bar
@@ -906,6 +870,8 @@ static void on_mouse_pressed(void)
 // Lidando com menuitens
 // Se clicamos em um menu item.
 // Redraw the button
+    // #deprecated
+    /*
     if (mouse_hover->isMenuItem == TRUE)
     {
         if (mouse_hover->type == WT_BUTTON)
@@ -914,6 +880,7 @@ static void on_mouse_pressed(void)
             return;
         }
     }
+    */
 }
 
 // When clicked or 'pressed' via keyboard.
@@ -1284,7 +1251,8 @@ static void on_mouse_released(void)
         
             // #bugbug
             // Na verdade o app so le a main window.
-            window_post_message( mouse_hover->id, event_type, in_x, in_y );
+            //window_post_message( mouse_hover->id, event_type, in_x, in_y );
+            
             //------------------
             // done for editbox. return
             return;
@@ -1299,22 +1267,39 @@ static void on_mouse_released(void)
 // -------------------------
 // Regular button or quick launch button.
 // Not a control, not the start menu, not the menuitem.
+    struct gws_window_d *p1; // parent.
+    
     if (mouse_hover->type == WT_BUTTON)
     {
-        if ( mouse_hover->isControl != TRUE &&
-             mouse_hover->id != StartMenu.wid &&
-             mouse_hover->isMenuItem != TRUE )
+        if ( mouse_hover->isControl != TRUE )
         {
             __button_released(ButtonWID);
             
-            // Is a quick launch button?
-            // Se for um dos quatro botoes da quick launch.
-            if ( ButtonWID == QuickLaunch.buttons[0] || 
-                 ButtonWID == QuickLaunch.buttons[1] || 
-                 ButtonWID == QuickLaunch.buttons[2] || 
-                 ButtonWID == QuickLaunch.buttons[3] )
+            // Sending a message
+            // #todo
+            // Send a message to the overlapped window
+            // sending the new status of the button.
+            // #bugbug
+            // Its not valid on all cases,
+            // because sometimes the button is a child of a child.
+            // Get the parent
+            p1 = mouse_hover->parent;
+            if ((void*)p1 == NULL)
+                return;
+            if (p1->magic != 1234)
+                return;
+            
+            // Send to parent. (Overlapped?)
+            // A barra de tarefas nao e' overlapped.
+            // teremos que mandar mensagens pra ela tambem
+            if ( p1->type == WT_OVERLAPPED || 
+                 p1 == taskbar2_window )
             {
-                on_quick_launch(ButtonWID);
+                window_post_message( 
+                    p1->id, 
+                    GWS_MouseClicked, 
+                    mouse_hover->id, 
+                    mouse_hover->id );
             }
             return;
         }
@@ -1328,10 +1313,12 @@ static void on_mouse_released(void)
 // -------------------
 // #test
 // Start menu button was released.
+    /*
     if (ButtonWID == StartMenu.wid){
-        wmProcessMenuEvent(MENU_EVENT_RELEASED,StartMenu.wid);
+        //wmProcessMenuEvent(MENU_EVENT_RELEASED,StartMenu.wid);
         return;
     }
+    */
 
 //
 // Grabbing a window.
@@ -1475,6 +1462,9 @@ static void on_mouse_released(void)
 // Lidando com menuitens
 // Se clicamos em um menu item.
 // Redraw the button
+    
+    //#deprecated
+    /*
     unsigned long selected_item=0;
     if (mouse_hover->isMenuItem == TRUE)
     {
@@ -1494,6 +1484,7 @@ static void on_mouse_released(void)
             return;
         }
     }
+    */
 }
 
 // Post a message into the window with focus message queue.
@@ -1845,7 +1836,7 @@ void wmInitializeStructure(void)
 // At this moment we don't have a root window.
     WindowManager.root = NULL;
 // At this moment we don't have a taskbar window.
-    WindowManager.taskbar = NULL;
+    //WindowManager.taskbar = NULL;
 
 // #todo
 // Desktop composition.
@@ -3255,13 +3246,7 @@ void wm_update_desktop(int tile, int show)
 // Lion: Last of the stack.
     struct gws_window_d *l;
 
-// The state of the buttons in the quick lanch area.
-    set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[1],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[2],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
     WindowManager.is_fullscreen = FALSE;
-
 
 // #test
 // Starting with the first window of the list,
@@ -3314,8 +3299,9 @@ void wm_update_desktop(int tile, int show)
     if ((void*)w == NULL)
     {
         first_window = NULL;
-        swamp_update_taskbar("DESKTOP",FALSE);
+        //swamp_update_taskbar("DESKTOP",FALSE);
         flush_window(__root_window);
+        goto end;
         return;
     }
 // --------------
@@ -3324,7 +3310,7 @@ void wm_update_desktop(int tile, int show)
     if (w->magic != 1234)
     {
         first_window = NULL;
-        swamp_update_taskbar("DESKTOP",FALSE);
+        //swamp_update_taskbar("DESKTOP",FALSE);
         flush_window(__root_window);
         return;
     }
@@ -3414,7 +3400,7 @@ void wm_update_desktop(int tile, int show)
             if ((void*) l->name != NULL)
             {
                 aw_name = l->name;
-                swamp_update_taskbar(aw_name,FALSE);
+                //swamp_update_taskbar(aw_name,FALSE);
             }
         }
     }
@@ -3423,20 +3409,20 @@ void wm_update_desktop(int tile, int show)
     if ((void*) l == NULL)
     {
         last_window = NULL;
-        swamp_update_taskbar("DESKTOP",FALSE);
+        //swamp_update_taskbar("DESKTOP",FALSE);
         flush_window(__root_window);
+        goto end;
         return;
     }
 
     yellowstatus0("Gramado",FALSE);
 
-// Invalidate the root window.
+// ------------------
+// Show
 // Shows the whole screen
-    //invalidate_window(__root_window);
     if (show){
         flush_window(__root_window);
     }
-
 
 // ------------------
 // If i'm gonna show the whole screen, so
@@ -3466,6 +3452,18 @@ void wm_update_desktop(int tile, int show)
         w = w->next;
     };    
 
+
+end:
+
+//#test
+//------------------------
+// Show the taskbar created by the user.
+    if ((void*)taskbar2_window != NULL)
+    {
+        redraw_window(taskbar2_window,FALSE);
+        // #todo: Send message to update the client area of tb.
+        on_update_window(taskbar2_window,GWS_Paint);
+    }
 
 // #test
 // #debug
@@ -3501,11 +3499,7 @@ void  wm_update_desktop2(void)
 
     struct gws_window_d *w;
 
-// The state of the buttons in the quick lanch area.
-    set_status_by_id(QuickLaunch.buttons[0],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[1],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[2],BS_RELEASED);
-    set_status_by_id(QuickLaunch.buttons[3],BS_RELEASED);
+
     WindowManager.is_fullscreen = FALSE;
 
 // Root
@@ -3542,6 +3536,18 @@ done:
 // #test
     yellowstatus0("Gramado",FALSE);
 
+
+//#test
+//------------------------
+// Show the taskbar created by the user.
+    if ((void*)taskbar2_window != NULL)
+    {
+        redraw_window(taskbar2_window,FALSE);
+        // #todo: Send message to update the client area of tb.
+        on_update_window(taskbar2_window,GWS_Paint);
+    }
+
+
 // Show everything
     if ( (void*)__root_window != NULL )
     {
@@ -3575,6 +3581,12 @@ done:
             w = w->next;
         };    
     }
+
+    window_post_message_broadcast( 
+        0,           // wid = Ignored
+        GWS_Paint,   // msg = msg code
+        0,        // long1 = 
+        0 );      // long2 = 
 }
 
 void wm_update_desktop3(struct gws_window_d *new_active_window)
@@ -4992,15 +5004,15 @@ __probe_window_hover(
             }
             
             // #test
-            // Are we hover a menu item?
-            // We have two types of menuitens.
+            // Are we hover
+            // We 
             // Titlebar is also SIMPLE.
             if (w->type == WT_SIMPLE)
             {
                 if (w->isTitleBar == TRUE)
                 {
                     Status = is_within( (struct gws_window_d *) w, long1, long2 );
-                    // Yes, we are inside a menuitem.
+                    // Yes, 
                     if (Status==TRUE)
                     {
                         if (w != mouse_hover)
@@ -5070,51 +5082,6 @@ int wmSTDINInputReader(void)
     return (int) nreads;
 }
 
-void wmProcessMenuEvent(int event_number, int button_wid)
-{
-
-// Effect
-// Mouse button released the start menu button
-    if ( event_number == MENU_EVENT_RELEASED || 
-         event_number == MENU_EVENT_COMBINATION )
-    {
-        if (button_wid == StartMenu.wid){
-            __button_released(StartMenu.wid);
-        }
-
-        // Not created. Create and show it.
-        if (StartMenu.is_created != TRUE)
-        {
-            create_main_menu();
-            return;
-        }
-
-        // Created, but not visible. Show it!
-        if (StartMenu.is_visible != TRUE)
-        {
-            // Enable all the windows in the menu.
-            main_menu_all_windows_input_status(TRUE);
-            // Redraw and show it.
-            redraw_main_menu();
-            StartMenu.is_visible = TRUE;
-            return;
-        }
-
-        // Created and visible.
-        // Update desktop but don't show the menu.
-        if (StartMenu.is_visible == TRUE)
-        {
-            // Disable all the windows in the menu.
-            main_menu_all_windows_input_status(FALSE);
-            // Update desktop but don't show the menu.
-            wm_update_desktop(TRUE,TRUE);
-            // Set the flag to do not draw it in the next time.
-            StartMenu.is_visible = FALSE;
-            return;
-        }
-    }
-}
-
 static int wmProcessCombinationEvent(int msg_code)
 {
 // Handle combination code.
@@ -5151,18 +5118,11 @@ static int wmProcessCombinationEvent(int msg_code)
         //wm_update_desktop2();
         
         // #test
-        //disable_main_menu();
-
-        //#test
-        //active_window->state = WINDOW_STATE_MINIMIZED;
-  
-        //#test: Minimize all windows
-        //MinimizeAllWindows();
-        // Update desktop respecting the current list.
-        //wm_update_desktop2();
-        
+      
         // minimize all windows.
-        show_desktop();
+        //show_desktop();
+
+        //
 
         return 0;
     }
@@ -5175,19 +5135,9 @@ static int wmProcessCombinationEvent(int msg_code)
         //__switch_active_window(FALSE);  //active NOT FIRST
 
         //#test
-        //enable_main_menu();
-
-        //#test
-        //active_window->state = WINDOW_STATE_NORMAL;
-
-        //#test: Restore all windows
-        // Back to normal state.
-        //RestoreAllWindows();
-        // Update desktop respecting the current list.
-        //wm_update_desktop2();
 
         // restore all windows
-        restore_desktop_windows();
+        //restore_desktop_windows();
 
         return 0;
     }
@@ -5230,12 +5180,11 @@ static int wmProcessCombinationEvent(int msg_code)
 
 // Control + s
 // #test
-// Creates a menu for the root window.
+// Cfor the root window.
 // Only refresh if it is already created.
     if (msg_code == GWS_Save)
     {
         yellow_status("Control + s");
-        wmProcessMenuEvent(MENU_EVENT_COMBINATION,-1);
         return 0;
     }
 
@@ -6196,9 +6145,10 @@ int dock_active_window(int position)
         return -1;
     }
 // Can't be the taskbar.
-    if (w == taskbar_window){
-        return -1;
-    }
+    //if (w == taskbar_window){
+    //    return -1;
+    //}
+    
 // Dock
     dock_window(w,position);
     return 0;
@@ -6248,9 +6198,9 @@ int dock_window( struct gws_window_d *window, int position )
         return -1;
     }
 // Can't be the active window
-    if (window == taskbar_window){
-        return -1;
-    }
+    //if (window == taskbar_window){
+    //    return -1;
+    //}
 
 // Window type
     if (window->type == WT_BUTTON){

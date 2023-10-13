@@ -37,12 +37,12 @@ static const char *app4_name = "netctl.bin";
 
 // Flags:
 // --dm - Launches the default Display Manager.
+// --tb - Launches the default taskbar application.
 // -?   - ...
-// -?   - ...
-static const char *cmdline1 = "gramland -1 -2 -3";
-//static const char *cmdline1 = "gwnsrv -1 -2 -3 --dm";
+//static const char *cmdline1 = "gramland -1 -2 -3";
+//static const char *cmdline1 = "gramland -1 -2 -3 --dm";
+static const char *cmdline1 = "gramland -1 -2 -3 --tb";
 // ...
-
 
 struct init_d  Init;
 

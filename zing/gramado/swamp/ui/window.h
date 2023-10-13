@@ -104,7 +104,7 @@ extern struct gws_window_d *top_window;     // z-order
 #define WS_APP       0x10000
 #define WS_DIALOG    0x20000
 #define WS_TERMINAL  0x40000
-// 0x80000
+#define WS_TASKBAR   0x80000
 
 //----------
 
@@ -732,6 +732,7 @@ struct gws_window_d
     int isEditBox;
     int isCheckBox;
     int isStatusBar; 
+    int isTaskBar;
     // ...
 
 //==================================================	
@@ -949,11 +950,16 @@ struct gws_window_d
 
 extern struct gws_window_d  *__root_window; 
 extern struct gws_window_d  *active_window;
+
+
 // If the window server has a taskbar.
 // maybe we don't need that.
-extern struct gws_window_d  *taskbar_window; 
-extern struct gws_window_d  *taskbar_startmenu_button_window; 
-//char startmenu_string[32];
+//extern struct gws_window_d  *taskbar_window; 
+//extern struct gws_window_d  *taskbar_startmenu_button_window; 
+
+// Taskbar created by the user.
+extern struct gws_window_d  *taskbar2_window; 
+
 // z-order ?
 // But we can use multiple layers.
 // ex-wayland: background, bottom, top, overlay.
