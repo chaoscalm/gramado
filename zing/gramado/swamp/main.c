@@ -1320,6 +1320,7 @@ int serviceNextEvent(void)
     unsigned long *message_address = (unsigned long *) &__buffer[0];
     struct gws_window_d *w;
     register int Head=0;
+    register int i=0;
 
 //
 // The window
@@ -1346,6 +1347,9 @@ int serviceNextEvent(void)
 
 // Building the next response.
 // It will be sent in the socket loop.
+// Lets clean
+    for (i=0; i<32; i++)
+        next_response[i] = 0;
 
 //header
     next_response[0] = 0;
@@ -1392,6 +1396,7 @@ int serviceNextEvent2(void)
     int Index=0;
     int Restart=0;
     register int Head=0;
+    register int i=0;
 
     focus_w = (struct gws_window_d *) get_focus();
     if ((void*) focus_w == NULL){
@@ -1406,6 +1411,9 @@ int serviceNextEvent2(void)
 // ====================================
 // Building the next response.
 // It will be sent in the socket loop.
+
+    for (i=0; i<32; i++)
+        next_response[i] = 0;
 
 //header
     next_response[0] = 0;  //
@@ -1471,6 +1479,7 @@ int serviceGetWindowInfo(void)
     struct gws_window_d *w;
     int wid = -1;
     int msg_code = -1;
+    register int i=0;
 
 // Get wid and message code.
     wid      = (int) message_address[0];  // window id 
@@ -1493,6 +1502,12 @@ int serviceGetWindowInfo(void)
     if (w->magic != 1234){
         goto fail;
     }
+
+// Building the next response.
+// Let's clean the buffer.
+    for (i=0; i<32; i++)
+        next_response[i] = 0;
+
 // Header
 // wid, msg type, signature1, signature2.
     next_response[0] = (unsigned long) (wid & 0xFFFFFFFF);
@@ -1596,6 +1611,8 @@ int serviceAsyncCommand(void)
 
 // Helper
     int wid = -1;
+
+    register int i=0;
 
     //#debug
     //gwssrv_debug_print ("serviceAsyncCommand:\n");
@@ -1882,8 +1899,9 @@ int serviceAsyncCommand(void)
     goto fail;
 
 done:
-    //gwssrv_debug_print ("serviceAsyncCommand: done\n");
-    //asm("sti");
+// Clear the buffer to avoid leak.
+    for (i=0; i<MSG_BUFFER_SIZE; i++)
+        __buffer[i] = 0;
     return 0;
 fail:
     gwssrv_debug_print ("serviceAsyncCommand: FAIL\n");
@@ -2306,8 +2324,17 @@ int serviceCreateWindow(int client_fd)
 // It is gonna be used to send replies, just like input events.
     // Window->client_fd = ?;
 
+// --------------------------------------
 // Building the next response.
 // It will be sent in the socket loop.
+// First let's clean the buffer to avoid
+// the leaking of dirty data.
+// Holy is the Lord.
+    for (i=0; i<MSG_BUFFER_SIZE; i++)
+        __buffer[i] = 0;
+    for (i=0; i<32; i++)
+        next_response[i] = 0;
+
     next_response[0] = (unsigned long) (wid & 0xFFFFFFFF);  // wid
     next_response[1] = SERVER_PACKET_TYPE_REPLY;            // msg code
     next_response[2] = 0;  //#todo: Maybe we can send aditional info here.
@@ -2439,6 +2466,8 @@ int serviceChangeWindowPosition(void)
     int window_id = -1;
     unsigned long x = 0;
     unsigned long y = 0;
+    
+    register int i=0;
 
     // #debug
     //gwssrv_debug_print ("gwssrv: serviceChangeWindowPosition\n");
@@ -2475,6 +2504,9 @@ int serviceChangeWindowPosition(void)
         (unsigned long) x, 
         (unsigned long) y );
 
+    for (i=0; i<MSG_BUFFER_SIZE; i++)
+        __buffer[i] = 0;
+
     return 0;
 }
 
@@ -2488,6 +2520,7 @@ int serviceResizeWindow(void)
     int window_id = -1;
     unsigned long w = 0;
     unsigned long h = 0;
+    register int i=0;
 
     // #debug
     //gwssrv_debug_print ("gwssrv: serviceResizeWindow\n");
@@ -2529,6 +2562,9 @@ int serviceResizeWindow(void)
         (struct gws_window_d *) window, 
         (unsigned long) w, 
         (unsigned long) h );
+
+    for (i=0; i<MSG_BUFFER_SIZE; i++)
+        __buffer[i] = 0;
 
     return 0;
 }
@@ -2782,6 +2818,8 @@ int serviceDrawText(void)
     //unsigned long deviceWidth  = (__device_width  & 0xFFFF);
     //unsigned long deviceHeight = (__device_height & 0xFFFF);
 
+    register int i=0;
+
     // #debug
     // gwssrv_debug_print ("gwssrv: serviceDrawText\n");
 
@@ -2822,7 +2860,6 @@ int serviceDrawText(void)
 // Get string from message
 // #todo: Talvez poderiamos receber o tamanho da string.
     unsigned char buf[256+1];
-    register int i=0;
     int string_off=8;
     char *p = (char *) &message_address[string_off];
     for (i=0; i<256; i++)
@@ -2876,6 +2913,11 @@ int serviceDrawText(void)
 // #todo: invalidate, not show.
     //gws_show_window_rect(window);
     invalidate_window(window);
+
+// Clear the buffer.
+    for (i=0; i<MSG_BUFFER_SIZE; i++)
+        __buffer[i] = 0;
+
     return 0;
 crazy_fail:
     debug_print("serviceDrawText: [ERROR] crazy_fail\n");
