@@ -497,8 +497,12 @@ static int __gws_get_next_event_request(int fd,int wid)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes = 0;
+    register int i=0;
 
-    //gws_debug_print ("__gws_get_next_event_request: wr\n");
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 // window id.
     message_buffer[0] = (unsigned long) (wid & 0xFFFFFFFF); 
@@ -905,12 +909,18 @@ __gws_change_window_position_request (
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes = 0;
+    register int i=0;
 
     //gws_debug_print ("__gws_change_window_position_request: wr\n");
 
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     message_buffer[0] = (unsigned long) (window & 0xFFFFFFFF);
 // Message code
@@ -1049,12 +1059,18 @@ __gws_resize_window_request (
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes = 0;
+    register int i=0;
 
     //gws_debug_print ("__gws_resize_window_request: wr\n");
 
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     message_buffer[0] = window;
 // Message code
@@ -1403,6 +1419,7 @@ __gws_drawtext_request (
         (unsigned long *) &__gws_message_buffer[0];
     //unsigned long *string_buffer = (unsigned long *) &__gws_message_buffer[128];
     int n_writes = 0;
+    register int i=0;
 
     //gws_debug_print ("gws_drawtext_request: wr\n");
 
@@ -1414,6 +1431,11 @@ __gws_drawtext_request (
         return -1;
     if (*string == 0)
         return -1;
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     message_buffer[0] = 0;
 // Message code
@@ -1428,7 +1450,6 @@ __gws_drawtext_request (
 
 // String support
 // Fill the string buffer
-    register int i=0;
     int string_off=8;
     char *p = (char *) &message_buffer[string_off];
     for (i=0; i<250; i++)
@@ -1924,6 +1945,7 @@ __gws_clone_and_execute_request (
         (unsigned long *) &__gws_message_buffer[0];
     //unsigned long *string_buffer = (unsigned long *) &__gws_message_buffer[128];
     int n_writes = 0;
+    register int i=0;
 
     //gws_debug_print ("__gws_clone_and_execute_request: wr\n");
 
@@ -1934,6 +1956,12 @@ __gws_clone_and_execute_request (
         return -1;
     if (*string == 0)
         return -1;
+
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     message_buffer[0] = 0;
 // Message code
@@ -1948,7 +1976,6 @@ __gws_clone_and_execute_request (
 
 // String support
 // Fill the string buffer.
-    register int i=0;
     int string_off=8;
     char *p = (char *) &message_buffer[string_off];
     for (i=0; i<250; i++)
@@ -2115,6 +2142,11 @@ __gws_createwindow_request (
         return -1;
     if (*name == 0)
         return -1;
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 // wid, message code, long1, long2.
     message_buffer[0] = 0;
@@ -2932,6 +2964,7 @@ gws_send_message_to_process (
     unsigned long message_buffer[8];
     unsigned long Value=0;
 
+
     if (pid<0){
         gws_debug_print ("gws_send_message_to_process: pid\n");
         return (int) (-1);
@@ -2940,6 +2973,7 @@ gws_send_message_to_process (
     //if(message<0){
     //    return -1;
     //}
+
 
 // wid, message code, long1, long2.
     message_buffer[0] = (unsigned long) (window & 0xFFFFFFFF);
@@ -4174,6 +4208,7 @@ gws_async_command (
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes=0;
     int Value=0;
+    register int i=0;
 
 // Enviamos um request para o servidor.
 // Precisamos mesmo de um loop para isso?
@@ -4181,6 +4216,11 @@ gws_async_command (
 // Se foi possível enviar, então saimos do loop.  
 // Nesse caso, corremos o risco de ficarmos presos
 // caso não seja possível escrever.
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 // wid, message code, request, subrequest, data1
     message_buffer[0] = 0;
@@ -4252,6 +4292,7 @@ gws_async_command2 (
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes=0;
     int Value=0;
+    register int i=0;
 
     // #debug
     // gws_debug_print ("gws_async_command2: send...\n"); 
@@ -4262,6 +4303,11 @@ gws_async_command2 (
 // Se foi possível enviar, então saimos do loop.  
 // Nesse caso, corremos o risco de ficarmos presos
 // caso não seja possível escrever.
+
+// --------------------
+// Clean the main buffer.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 // Window ID
     message_buffer[0] = 0;
