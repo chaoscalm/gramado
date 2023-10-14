@@ -372,7 +372,7 @@ send (
     size_t len, 
     int flags )
 {
-    if(sockfd<0)
+    if (sockfd < 0)
     {
         errno = EBADF;
         return (ssize_t) -1;
@@ -383,7 +383,7 @@ send (
         //(const void *) buf, (size_t) len, (int) flags,
         //(const struct sockaddr *) dest_addr, (socklen_t) addrlen );
 
-    return (ssize_t) write ( sockfd, (const void *) buf, len );
+    return (ssize_t) write( sockfd, (const void *) buf, len );
 }
 
 

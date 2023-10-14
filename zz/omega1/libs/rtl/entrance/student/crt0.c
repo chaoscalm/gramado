@@ -167,28 +167,27 @@ void crt0(unsigned long rdi)
     // #debug: put char
     //sc80(65,'1',0,0); 
 
-
+// ------------------------------------
 // Initialize heap support.
-// See: 
-// stdlib/stdlib.c
-
-    int rt_status = -1;  //fail
+// See: stdlib.c
+    int rt_status = FALSE;
     rt_status = (int) libcInitRT();
     // #debug: put char
-    if (rt_status != 0){
+    if (rt_status != TRUE)
+    {
         sc80(65,'e',0,0);
+        //exit(1);
     }
 
     // Stage 2
     // #debug: put char
     //sc80(65,'2',0,0);
 
-// return void.
-// See: 
-// stdio/stdio.c
-
+// ------------------------------------
+// Initialize the stadard stream.
+// OUT: void
+// See: stdio.c
     stdioInitialize();
-
 
 // #todo
 // Chamar esse ao invés de chamar os dois acima.

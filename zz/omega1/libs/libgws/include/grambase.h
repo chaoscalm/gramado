@@ -14,7 +14,7 @@ void *gws_system_call (
     unsigned long d );
 
 // Debug via serial port. (COM1)
-void gws_debug_print(char *string);
+void gws_debug_print(const char *string);
 
 // Initialize the library.
 int gws_initialize_library(void);
@@ -84,7 +84,7 @@ void gws_start_thread (void *thread);
 // Child process support.
 //
 
-int gws_clone_and_execute(char *name);
+int gws_clone_and_execute(const char *name);
 
 //#todo: change arguments.
 int 
@@ -94,7 +94,7 @@ gws_clone_and_execute2 (
     unsigned long arg2,
     unsigned long arg3,
     unsigned long arg4,
-    char *string );
+    const char *string );
 
 void gws_clone_and_execute_from_prompt(int fd);
 
@@ -122,12 +122,14 @@ void gws_exit_critical_section(void);
 // We are testing the path support.
 int 
 gws_load_path ( 
-    char *path, 
+    const char *path, 
     unsigned long buffer, 
     unsigned long buffer_len );
 
-int gws_create_empty_file(char *file_name);
-int gws_create_empty_directory(char *dir_name);
+
+int gws_create_empty_directory(const char *dir_name);
+int gws_create_empty_file(const char *file_name);
+
 
 // 
 // Application

@@ -207,7 +207,7 @@ void set_input_status(int is_accepting)
 }
 
 // Print a simple string in the serial port.
-void gwssrv_debug_print (char *string)
+void gwssrv_debug_print(char *string)
 {
     if ( (void*) string == NULL ){
         return;
@@ -548,19 +548,10 @@ static int __send_response(int fd, int type)
     }
 
 // Write
+    for (i=0; i<8; i++){
 
     n_writes = write( fd, __buffer, sizeof(__buffer) );
     //n_writes = send ( fd, __buffer, sizeof(__buffer), 0 );
-
-// Cleaning
-// Limpa se a resposta der certo ou se der errado.
-// If the sizes are equal, we can do both at the same time.
-    for (i=0; i<MSG_BUFFER_SIZE; ++i){
-        __buffer[i] = 0;
-    };
-    for (i=0; i<NEXTRESPONSE_BUFFER_SIZE; ++i){
-        next_response[i] = 0;
-    };
 
 // No. 
 // We couldn't send a response.
@@ -576,14 +567,32 @@ static int __send_response(int fd, int type)
         printf             ("__send_response: Couldn't send reply\n");
         //close(fd);
         Status = -1;
-        goto exit1;
+        //goto exit1;
     }
 
 // YES, We sent the response.
-    if (n_writes > 0){
-        Status = 0;
-        goto exit0;
+    if (n_writes > 0)
+    {
+        Status = 0; //OK
+        //goto exit0;
+        break;
     }
+
+    };
+
+    if (Status < 0)
+        goto exit0;
+
+// Cleaning
+// Limpa se a resposta der certo ou se der errado.
+// If the sizes are equal, we can do both at the same time.
+    for (i=0; i<MSG_BUFFER_SIZE; ++i){
+        __buffer[i] = 0;
+    };
+    for (i=0; i<NEXTRESPONSE_BUFFER_SIZE; ++i){
+        next_response[i] = 0;
+    };
+
 
     // Fall through.
 
@@ -2860,6 +2869,7 @@ int serviceDrawText(void)
 // Get string from message
 // #todo: Talvez poderiamos receber o tamanho da string.
     unsigned char buf[256+1];
+    memset(buf,0,256);
     int string_off=8;
     char *p = (char *) &message_address[string_off];
     for (i=0; i<256; i++)
@@ -2986,6 +2996,7 @@ int serviceSetText(void)
 // Get string from message
 // #todo: Talvez poderiamos receber o tamanho da string.
     unsigned char buf[256+1];
+    memset(buf,0,256);
     int string_off=8;
     char *p = (char *) &message_address[string_off];
     for (i=0; i<256; i++)

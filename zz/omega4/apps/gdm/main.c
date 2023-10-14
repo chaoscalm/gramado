@@ -39,6 +39,7 @@
 #include <gws.h>
 
 // Internal
+#include "globals.h"
 #include <packet.h>
 #include <gdm.h>
 
@@ -59,26 +60,7 @@ struct sockaddr_in addr = {
 };
 */
 
-static const char *program_name = "GDM";
 
-
-// buttons
-static const char *bar1_string = "bar 1";
-static const char *bar2_string = "bar 2";
-
-// buttons
-static const char *b1_string = "button 1";
-static const char *b2_string = "Start"; //"button 2";
-
-// texts
-static const char *t1_string = "text 1";
-static const char *t2_string = "text 2";
-static const char *t3_string = "Press F1 to start";
-
-static const char *bar1_text_string = "admin";
-
-
-static const char *tb_image_name = "taskbar.bin";
 
 // Screen
 unsigned long screen_width=0;
@@ -558,7 +540,6 @@ static void __event_loop(int fd)
 
 int main( int argc, char *argv[] )
 {
-    struct gws_display_d *Display;
     int client_fd = -1;
     register int i=0;
 // Flags
@@ -611,15 +592,12 @@ int main( int argc, char *argv[] )
     blink_status=FALSE;
 
 
-
 // ============================
 // Open display.
 // IN: 
 // hostname:number.screen_number
 
-    Display = 
-        (struct gws_display_d *) gws_open_display("display:name.0");
-
+    Display = (struct gws_display_d *) gws_open_display(display_name);
     if ((void*) Display == NULL)
     {
         debug_print("gdm: Couldn't open display\n");
@@ -630,8 +608,8 @@ int main( int argc, char *argv[] )
 // Socket fd.
     client_fd = (int) Display->fd;
     if (client_fd <= 0){
-        debug_print ("gdm: bad fd\n");
-        printf      ("gdm: bad fd\n");
+        debug_print("gdm: bad fd\n");
+        printf     ("gdm: bad fd\n");
         exit(1);
     }
 
@@ -719,7 +697,7 @@ int main( int argc, char *argv[] )
         (unsigned long) 2, 
         (unsigned long) 4 +(24/3), 
         (unsigned long) COLOR_BLACK,
-        t1_string);
+        t1_string );
     //#debug
     //gws_refresh_window(client_fd, main_window);
 

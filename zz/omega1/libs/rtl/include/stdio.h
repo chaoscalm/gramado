@@ -449,11 +449,8 @@ int fputs ( const char *s, FILE *stream );
 int getw (FILE *stream);
 int putw (int w, FILE *stream);
 
-
-
 // Serial port debug.
-void debug_print(char *string);
-
+void debug_print(const char *string);
 
 // #deprecated?
 // Printf using draw mode.

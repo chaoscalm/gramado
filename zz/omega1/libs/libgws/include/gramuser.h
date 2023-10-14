@@ -39,7 +39,7 @@ gws_draw_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string );
+    const char *string );
 
 int 
 gws_set_text (
@@ -48,7 +48,7 @@ gws_set_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string );
+    const char *string );
 
 int 
 gws_get_text (
@@ -57,7 +57,7 @@ gws_get_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string );
+    const char *string );
 
 
 //
@@ -144,7 +144,7 @@ gws_create_window (
     unsigned long type,        //1, Tipo de janela (popup,normal,...)
     unsigned long status,      //2, Estado da janela (ativa ou nao) (button state)
     unsigned long view,        //3, (min, max ...)
-    char *windowname,          //4, Título. #todo maybe const char.
+    const char *windowname,    //4, Título. #todo maybe const char.
     unsigned long x,           //5, Deslocamento em relação às margens do Desktop. 
     unsigned long y,           //6, Deslocamento em relação às margens do Desktop.
     unsigned long width,       //7, Largura da janela.
@@ -157,7 +157,7 @@ gws_create_window (
 wid_t 
 gws_create_application_window(
     int fd,
-    char *windowname,         // Título. #todo maybe const char.
+    const char *windowname,         // Título. #todo maybe const char.
     unsigned long x,          // Deslocamento em relação às margens do Desktop. 
     unsigned long y,          // Deslocamento em relação às margens do Desktop.
     unsigned long width,      // Largura da janela.
@@ -193,7 +193,7 @@ struct gws_menu_d *gws_create_menu (
 // Menu item
 struct gws_menu_item_d *gws_create_menu_item (
     int fd,
-    char *label,
+    const char *label,
     int id,
     struct gws_menu_d *menu);
 

@@ -37,6 +37,11 @@
 // Buffer to save a event. (one msg)
 unsigned long RTLEventBuffer[32];
 
+static int 
+__rtl_clone_and_execute_imp(
+    const char *name,
+    unsigned long flags );
+
 // =========================
 
 // System call.
@@ -409,17 +414,18 @@ rtl_post_to_tid(
     unsigned long long2 )
 {
 // Send async hello. 44888.
-
     unsigned long message_buffer[32];
-
     int target_tid = tid;
     unsigned long msg = (unsigned long) (msg_code & 0xFFFFFFFF);
-
 // Response support.
     //int __src_tid = -1;
     //int __dst_tid = -1;
 
 // The hello message
+    register int i=0;
+    for (i=0; i<32; i++)
+        message_buffer[i]=0;
+
     message_buffer[0] = 0; //window
     message_buffer[1] = (unsigned long) msg;  // message code
     message_buffer[2] = (unsigned long) long1;   // 
@@ -2075,9 +2081,9 @@ void rtl_broken_vessels(void)
 
 
 // OUT: Child's PID.
-int 
+static int 
 __rtl_clone_and_execute_imp(
-    char *name,
+    const char *name,
     unsigned long flags )
 {
 // Worker: Clone and execute implementation.
@@ -2094,23 +2100,31 @@ __rtl_clone_and_execute_imp(
     unsigned long clone_flags=0;  // (flags for clone_process()).
 // Reserved parameter.
     unsigned long long2=0;  // 
+    char LocalName[256];
 
 // Return value.
     int ret_value=0;
 
+// name
     if ((void *) name == NULL){
-        printf ("rtl_clone_and_execute: [FAIL] name\n");
+        printf("rtl_clone_and_execute: [FAIL] name\n");
         goto fail;
     }
     if (*name == 0){
-        printf ("rtl_clone_and_execute: [FAIL] *name\n");
+        printf("rtl_clone_and_execute: [FAIL] *name\n");
         goto fail;
     }
-    NameAddress = (unsigned long) name;
+    //NameAddress = (unsigned long) name;
 
-    //rewind(stdin);
-    //fprintf(stdin,"%s",name);
-    //fprintf(stdin,"One Two Three ...");
+    size_t StringSize = 0;
+    StringSize = (size_t) strlen(name);
+    if (StringSize <= 0)
+        goto fail;
+    if (StringSize > 256)
+        goto fail;
+    memset(LocalName,0,256);
+    sprintf(LocalName,name);
+    NameAddress = (unsigned long) LocalName;
 
 // #todo
 // Parameters vector.
@@ -2129,9 +2143,15 @@ fail:
     return (int) -1;
 }
 
-int rtl_clone_and_execute(char *name)
+int rtl_clone_and_execute(const char *name)
 {
     unsigned long clone_flags = 0;
+
+    if ((void*) name == NULL)
+        return -1;
+    if (*name == 0)
+        return -1;
+
     return (int) __rtl_clone_and_execute_imp(name,clone_flags);
 }
 

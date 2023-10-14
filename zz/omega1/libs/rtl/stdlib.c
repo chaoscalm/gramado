@@ -100,7 +100,7 @@ static int stdlib_strncmp ( char *s1, char *s2, int len )
 // See: heap.h
 static int __init_heap(void)
 {
-    int i=0;
+    register int i=0;
 
     //Globals.
     //...@todo:
@@ -125,9 +125,10 @@ static int __init_heap(void)
 // Usada pelo window server.
 // Se essa libc for usada por ela, então o pid pode ser o pid 0, do kernel.
 
-    int thisprocess_id = (int) sc80 ( 85, 0, 0, 0); 
+    int thisprocess_id = (int) sc80( 85, 0, 0, 0); 
     //if (thisprocess_id <= 0 ){
-    if (thisprocess_id < 0){
+    if (thisprocess_id < 0)
+    {
         debug_print ("__init_heap: thisprocess_id\n");
         goto fail;
     }
@@ -171,8 +172,8 @@ static int __init_heap(void)
 
 //------
 
-    heap_start  = (unsigned long) HEAP_START;
-    heap_end    = (unsigned long) HEAP_END;
+    heap_start = (unsigned long) HEAP_START;
+    heap_end   = (unsigned long) HEAP_END;
 
 // Heap Pointer.
     g_heap_pointer = 
@@ -190,8 +191,8 @@ static int __init_heap(void)
 // #bugbug: No permission
 //
     //#testing heaps permission
-    debug_print ("__init_heap: Testing heaps permission \n");    
-    
+    //debug_print ("__init_heap: Testing heap permission\n");    
+
     //Endereço valido somente para processo init
     //if ( heap_start != 0x0000000030A00000 ){
     //    debug_print ("__init_heap: [ERROR] wrong address  \n");
@@ -210,34 +211,34 @@ static int __init_heap(void)
     last_size = 0;
 
 // Check Heap Pointer.
-    if ( g_heap_pointer == 0 ){
-        printf ("__init_heap fail: Heap pointer!\n");
+    if (g_heap_pointer == 0){
+        debug_print("__init_heap fail: Heap pointer!\n");
         goto fail;
     }
 
 // Check Heap Pointer overflow.
-    if ( g_heap_pointer > heap_end ){
-        printf("__init_heap fail: Heap Pointer Overflow!\n");
+    if (g_heap_pointer > heap_end){
+        debug_print("__init_heap fail: Heap Pointer Overflow!\n");
         goto fail;
     }
 
-// Heap Start.
-    if ( heap_start == 0 ){
-        printf ("__init_heap fail: HeapStart={%x}\n",heap_start);
+// Heap Start
+    if (heap_start == 0)
+    {
+        debug_print("__init_heap fail: heap_start == 0\n");
         goto fail;
     }
 
-// Heap End.
-    if ( heap_end == 0 ){
-        printf ("__init_heap fail: HeapEnd={%x}\n",heap_end);
+// Heap End
+    if (heap_end == 0){
+        debug_print("__init_heap fail: heap_end == 0\n");
         goto fail;
     }
 
 // Check available heap.
-    if ( g_available_heap == 0 )
-    {
-        //@todo: Tentar crescer o heap.
-        printf("__init_heap fail: Available heap\n");
+// #todo: Tentar crescer o heap.
+    if (g_available_heap == 0){
+        debug_print("__init_heap fail: Available heap\n");
         goto fail;
     }
 
@@ -252,14 +253,14 @@ static int __init_heap(void)
 // More?
 
 done:
-    debug_print("__init_heap: done\n");
+    //debug_print("__init_heap: done\n");
     //printf("Done.\n");
-    return 0;
+    return TRUE;
 
 // Fail. 
 // Falha ao iniciar o heap do kernel.
 fail:
-    printf("__init_heap: Fail\n");
+    debug_print("__init_heap: Fail\n");
 
 /*
     printf("Debug: %x %x %x %x \n", 
@@ -272,7 +273,7 @@ fail:
     while(1){}
 */
 
-    return (int) 1;
+    return (int) FALSE;
 }
 
 
@@ -283,10 +284,10 @@ fail:
 static int __init_mm(void)
 {
     register int i=0;
-    int Status = 0;
+    int Status = FALSE;
 
     //#debug
-    debug_print ("__init_mm:\n");
+    //debug_print ("__init_mm:\n");
 
 // @todo: 
 // Inicializar algumas variáveis globais.
@@ -297,10 +298,9 @@ static int __init_mm(void)
 
 // Heap
     Status = (int) __init_heap();
-    if (Status != 0){
-        debug_print ("__init_mm: [FAIL] __init_heap\n");
-        //printf      ("__init_mm: [FAIL] __init_heap\n");
-        return (int) 1;
+    if (Status != TRUE){
+        debug_print("__init_mm: [FAIL] __init_heap\n");
+        goto fail;
     }
 
 // Lista de blocos de memória dentro do heap.
@@ -322,10 +322,14 @@ static int __init_mm(void)
 // Continua...
 
     //#debug
-    debug_print ("__init_mm: done\n");
+    //debug_print ("__init_mm: done\n");
     //printf      ("__init_mm: done\n");
 
-    return (int) Status;
+    // ok
+    return TRUE;
+
+fail:
+    return FALSE;
 }
 
 // __findenv:
@@ -785,18 +789,26 @@ unsigned long FreeHeap (unsigned long size)
 
 int libcInitRT (void)
 {
-    int Status = -1;
+    int Status = FALSE;
+
     // #debug
     debug_print ("libcInitRT:\n");
     Status = (int) __init_mm();
-    if (Status != 0){
-        debug_print ("libcInitRT: [FAIL] __init_mm\n");
-        return (int) 1; 
+    if (Status != TRUE){
+        debug_print("libcInitRT: [FAIL] __init_mm\n");
+        goto fail;
     }
+
     //...
+    
     //#debug
-    debug_print ("libcInitRT: done\n");
-    return 0;
+    //debug_print ("libcInitRT: done\n");
+
+    // OK
+    return TRUE;
+
+fail:
+    return FALSE;
 }
 
 //
@@ -921,12 +933,13 @@ void *malloc(size_t size)
 // ===========
 
     void *ptr;
-    unsigned long new_size = ( unsigned long) size;
+    unsigned long new_size = 
+        (unsigned long) (size & 0xFFFFFFFF);
 
     //debug_print ("malloc:\n");
 
     if (size < 0){
-        debug_print ("malloc: size\n");
+        debug_print("malloc: size\n");
         return NULL; 
     }
     if (size == 0){ 

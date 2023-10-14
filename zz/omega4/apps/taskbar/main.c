@@ -95,6 +95,8 @@ const char *start_menu_button_label = "Gramado";
 const char *app1_name = "terminal.bin";
 const char *app2_name = "editor.bin";
 
+static const char *cmdline1 = "gramland -1 -2 -3 --tb";
+
 //
 // == Private functions: prototypes ====================
 //
@@ -106,6 +108,8 @@ static void doPrompt(int fd);
 static void compareStrings(int fd);
 static void testASCIITable(int fd,unsigned long w, unsigned long h);
 static void print_ascii_table(int fd);
+
+static void do_launch_app(int app_number);
 
 static int 
 tbProcedure(
@@ -383,6 +387,51 @@ static void testASCIITable(int fd,unsigned long w, unsigned long h)
     };
 }
 
+static void do_launch_app(int app_number)
+{
+    int ret_val=-1;
+
+    char filename[16];
+    size_t string_size=0;
+    memset(filename,0,16);
+
+    //do_clear_console();
+    //printf ("Launching GUI\n");
+
+// Sending cmdline via stdin
+    rewind(stdin);
+    write( fileno(stdin), cmdline1, strlen(cmdline1) );
+
+// Launch new process.
+
+    if (app_number == 1){
+        sprintf(filename,app1_name);
+        string_size = strlen(app1_name);
+    }else if (app_number == 2){
+        sprintf(filename,app2_name);
+        string_size = strlen(app2_name);
+    }else{
+        return;
+    }
+
+    filename[string_size] = 0;
+    ret_val = (int) rtl_clone_and_execute(filename);
+    //ret_val = (int) rtl_clone_and_execute(app1_name);
+    if (ret_val<=0){
+        printf("Couldn't clone\n");
+        return;
+    }
+
+// Sleep (Good!)
+    //sc82( 266, 8000, 8000, 8000 );
+
+    //printf("pid=%d\n",ret_val);
+
+// Quit the command line.
+    //isTimeToQuit = TRUE;
+}
+
+
 static int 
 tbProcedure(
     int fd, 
@@ -528,10 +577,12 @@ tbProcedure(
             //printf("taskbar: MSG_SYSKEYDOWN\n");
             switch (long1){
                 case VK_F1:
-                    gws_clone_and_execute(app1_name);
+                    //gws_clone_and_execute(app1_name);
+                    do_launch_app(1);
                     break;
                 case VK_F2:
-                    gws_clone_and_execute(app2_name);
+                    //gws_clone_and_execute(app2_name);
+                    do_launch_app(2);
                     break;
                 default:
                     break;

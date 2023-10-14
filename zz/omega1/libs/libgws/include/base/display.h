@@ -66,13 +66,13 @@ extern struct gws_display_d *libgwsCurrentDisplay;
 
 // ================
 
-struct gws_display_d *gws_open_display(char *display_name);
-void gws_close_display( struct gws_display_d *display);
+struct gws_display_d *gws_open_display(const char *display_name);
+void gws_close_display(struct gws_display_d *display);
 
-int gws_set_current_display( struct gws_display_d *display );
+int gws_set_current_display(struct gws_display_d *display);
 struct gws_display_d *gws_get_current_display(void);
 
-void gws_display_exit( struct gws_display_d *display );
+void gws_display_exit(struct gws_display_d *display);
 
 
 #endif    

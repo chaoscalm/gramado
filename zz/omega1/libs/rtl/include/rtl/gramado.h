@@ -311,14 +311,8 @@ ssize_t rtl_console_beep(void);
 void rtl_broken_vessels(void);
 
 
-int 
-__rtl_clone_and_execute_imp(
-    char *name,
-    unsigned long flags );
-
 // Clone and execute a process.
-// #todo: maybe use 'const char*'
-int rtl_clone_and_execute(char *name);
+int rtl_clone_and_execute(const char *name);
 
 int rtl_spawn_process( const char *path );
 

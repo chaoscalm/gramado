@@ -3328,13 +3328,12 @@ ssize_t getline (char **lineptr, size_t *n, FILE *stream)
 }  
 */
 
-
-// interna
-// #todo: criar essa rotina na libc.
-void debug_print(char *string)
+void debug_print(const char *string)
 {
     if ((void*) string == NULL)
         return;
+    //if (*string == 0)
+        //return;
 
     sc80 ( 
         289, 
@@ -4223,18 +4222,19 @@ extern __inline int vprintf (const char *__fmt, __gnuc_va_list __arg)
 // function.
 // See: http://man7.org/linux/man-pages/man3/perror.3.html
 
-void perror (const char *str)
+void perror(const char *str)
 {
 // #todo
 // Maybe we need to use stderr output;
 // Vamos imprimir a string se ela for válida.
-    if ( (void *) str != NULL ){
-        printf ("Error: %s, ",str);
+    if ((void *) str != NULL){
+        printf("Error: %s, ",str);
     }
+
 // #bugbug
 // There is a list of strings for errors.
 // We gotta fill this list with string before using it.
-    printf ("The last error number is {%d} [TODO].\n",errno);
+    printf("The last error number is {%d} [TODO].\n",errno);
     //printf ("The last is: {%s}.\n",errno_list[errno]);
 }
 
@@ -5199,7 +5199,8 @@ char *ctermid (char *s)
 /*
  * stdioInitialize:
  *     Inicializa stdio para usar o fluxo padrão.
- *     O retorno deve ser (int) e falhar caso dê algo errado.
+ * #todo:
+ * O retorno deve ser (int) e falhar caso dê algo errado.
  */
 // This routine ws called by crt0() in crt0.c
 // #bugbug
@@ -5237,7 +5238,7 @@ void stdioInitialize(void)
     //unsigned char buffer1_data[BUFSIZ];
     //unsigned char buffer2_data[BUFSIZ];
 
-    debug_print ("stdioInitialize:\n");
+    debug_print("stdioInitialize:\n");
 
 //
 // Pointers
@@ -5257,42 +5258,36 @@ void stdioInitialize(void)
 
 // ===============
 // stdin
-    debug_print ("stdioInitialize: [1] stdin\n");  
+    debug_print("stdioInitialize: [0] stdin\n");  
     stdin = (FILE *) malloc( sizeof(FILE) );
-    if ((void*) stdin == NULL)
-    {
-        debug_print ("stdioInitialize: stdin fail\n");
-        //printf      ("stdioInitialize: stdin fail\n");
+    if ((void*) stdin == NULL){
+        debug_print("stdioInitialize: stdin fail\n");
         exit(1);
     }
     memset( stdin, 0, sizeof(struct _iobuf) );
 
 // ===============
 // stdout
-    debug_print ("stdioInitialize: [2] stdout\n");  
+    debug_print ("stdioInitialize: [1] stdout\n");  
     stdout = (FILE *) malloc( sizeof(FILE) );
-    if ((void*) stdout == NULL)
-    {
+    if ((void*) stdout == NULL){
         debug_print ("stdioInitialize: stdout fail\n");
-        //printf ("stdioInitialize: stdout fail\n");
         exit(1);
     }
     memset( stdout, 0, sizeof(struct _iobuf) );
 
 // ===============
 // stderr
-    debug_print ("stdioInitialize: [3] stderr\n");  
+    debug_print ("stdioInitialize: [2] stderr\n");  
     stderr = (FILE *) malloc( sizeof(FILE) );
-    if ((void*) stderr == NULL)
-    {
+    if ((void*) stderr == NULL){
         debug_print ("stdioInitialize: stderr fail\n");
-        //printf ("stdioInitialize: stderr fail\n");
         exit(1);
     }
     memset( stderr, 0, sizeof(struct _iobuf) );
 
 //
-// Buffers
+// ==== Buffers ==================================
 //
 
     // Buffers.
@@ -5304,24 +5299,22 @@ void stdioInitialize(void)
 // ========
 // stdin
     stdin->_base = (char *) malloc(BUFSIZ);
-    if ( (void*) stdin->_base == NULL ){
-        debug_print ("stdioInitialize: stdin->_base fail\n");
-        //printf ("stdioInitialize: stdin->_base fail\n");
+    if ((void*) stdin->_base == NULL){
+        debug_print("stdioInitialize: stdin->_base fail\n");
         exit(1);
     }
     stdin->_lbfsize = BUFSIZ;
     stdin->_p  = stdin->_base;
-    stdin->_cnt  = 0;  //BUFSIZ-1;
-    stdin->_w  = 0;
-    stdin->_r  = 0;
-    stdin->_file  = 0;
+    stdin->_cnt = 0;  //BUFSIZ-1;
+    stdin->_w = 0;
+    stdin->_r = 0;
+    stdin->_file = 0;
 
 // ========
 // stdout
     stdout->_base = (char *) malloc(BUFSIZ);
-    if ( (void*) stdout->_base == NULL ){
-        debug_print ("stdioInitialize: stdout->_base fail\n");
-        //printf ("stdioInitialize: stdout->_base fail\n");
+    if ((void*) stdout->_base == NULL){
+        debug_print("stdioInitialize: stdout->_base fail\n");
         exit(1);
     }
     stdout->_lbfsize = BUFSIZ;
@@ -5334,9 +5327,8 @@ void stdioInitialize(void)
 // ========
 // stderr   
     stderr->_base = (char *) malloc(BUFSIZ);
-    if ( (void*) stderr->_base == NULL ){
-        debug_print ("stdioInitialize: stderr->_base fail\n");
-        //printf ("stdioInitialize: stderr->_base fail\n");
+    if ((void*) stderr->_base == NULL){
+        debug_print("stdioInitialize: stderr->_base fail\n");
         exit(1);
     }
     stderr->_lbfsize = BUFSIZ;
@@ -5393,10 +5385,10 @@ void stdioInitialize(void)
 
 // ok
 // This is the tty of this process.
-    __libc_tty_id = (int) sc80 ( 266, getpid(), 0, 0 );
+    __libc_tty_id = (int) sc80( 266, getpid(), 0, 0 );
+
 // Clear prompt[] buffer.
     prompt_clean();
-    //debug_print ("stdioInitialize: done\n");
 }
 
 // ---------------------------------------
@@ -5408,7 +5400,7 @@ void stdioInitialize(void)
 char __unix_get_buf[512];
 int __unix_get_nread = 1;
 
-int unix_get (int ifile) 
+int unix_get(int ifile) 
 {
     char *ibuf;
     //static ibuf;

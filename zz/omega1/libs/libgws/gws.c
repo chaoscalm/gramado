@@ -124,7 +124,7 @@ __gws_createwindow_request (
     unsigned long view,
     unsigned long style,
     unsigned long parent,
-    char *name );
+    const char *name );
 static wid_t __gws_createwindow_response(int fd);
 
 // == refresh rectangle
@@ -155,8 +155,8 @@ __gws_drawtext_request (
     int window_id,
     unsigned long left,
     unsigned long top,
-    unsigned long color,
-    char *string );
+    unsigned int color,
+    const char *string );
 static int __gws_drawtext_response(int fd);
 
 // == set text ==========================
@@ -192,7 +192,7 @@ __gws_clone_and_execute_request (
     unsigned long arg2,
     unsigned long arg3,
     unsigned long arg4,
-    char *string );
+    const char *string );
 static int __gws_clone_and_execute_response(int fd);
 
 // == ... ==========================
@@ -231,9 +231,8 @@ static void __gws_clear_msg_buff(void)
     }; 
 }
 
-
 // Debug via serial port. (COM1)
-void gws_debug_print(char *string)
+void gws_debug_print(const char *string)
 {
     if ((void*) string == NULL){
         return;
@@ -362,6 +361,7 @@ static struct gws_window_info_d *__gws_get_window_info_response(
     int msg_code=0;
     int sig1=0;
     int sig2=0;
+    register int i=0;
 
     if ((void*) window_info == NULL){
         return NULL;
@@ -376,6 +376,12 @@ static struct gws_window_info_d *__gws_get_window_info_response(
     }
 
 // read
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     n_reads = 
         (ssize_t) recv ( 
@@ -549,6 +555,7 @@ static struct gws_event_d *__gws_get_next_event_response (
     int msg_code=0;
     unsigned long sig1=0;
     unsigned long sig2=0;
+    register int i=0;
 
     //gws_debug_print ("__gws_get_next_event_response: rd\n"); 
 
@@ -560,6 +567,13 @@ static struct gws_event_d *__gws_get_next_event_response (
     }
 
 // Read
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
+
 
     n_reads = 
         (ssize_t) recv ( 
@@ -718,12 +732,19 @@ static int __gws_refresh_window_reponse(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
     if (fd<0){
         return (int) -1;
     }
 
 // Read
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     n_reads = 
         (ssize_t) recv ( 
@@ -805,6 +826,7 @@ static int __gws_redraw_window_reponse(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
 // Waiting for response.
 // Espera para ler a resposta. 
@@ -826,6 +848,12 @@ static int __gws_redraw_window_reponse(int fd)
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 response_loop:
 
@@ -950,6 +978,7 @@ static int __gws_change_window_position_reponse(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
 // Waiting for response. ==================
 
@@ -975,6 +1004,12 @@ static int __gws_change_window_position_reponse(int fd)
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 response_loop:
 
@@ -1098,6 +1133,7 @@ static int __gws_resize_window_reponse(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
 // Waiting for response.
 // Espera para ler a resposta. 
@@ -1124,6 +1160,12 @@ static int __gws_resize_window_reponse(int fd)
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 response_loop:
 
@@ -1254,6 +1296,7 @@ static int __gws_refresh_rectangle_response(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
     //gws_debug_print ("__gws_refresh_rectangle_response: rd\n");      
 
@@ -1262,6 +1305,12 @@ static int __gws_refresh_rectangle_response(int fd)
     }
 
 // Read
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     n_reads = 
         (ssize_t) recv( 
@@ -1360,12 +1409,19 @@ static int __gws_drawchar_response(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
     if (fd<0){
         return (int) -1;
     }
 
 // Read
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     n_reads = 
         (ssize_t) recv( 
@@ -1412,25 +1468,40 @@ __gws_drawtext_request (
     int window_id,
     unsigned long left,
     unsigned long top,
-    unsigned long color,
-    char *string )
+    unsigned int color,
+    const char *string )
 {
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     //unsigned long *string_buffer = (unsigned long *) &__gws_message_buffer[128];
     int n_writes = 0;
     register int i=0;
+    char LocalString[256];
 
     //gws_debug_print ("gws_drawtext_request: wr\n");
 
     if (fd<0){
-        return (int) -1;
+        goto fail;
     }
 
-    if ( (void*) string == NULL )
-        return -1;
+//--------------------------
+// String validation
+    if ((void*) string == NULL)
+        goto fail;
     if (*string == 0)
-        return -1;
+        goto fail;
+
+//--------------------------
+// String size
+    size_t StringSize = 0;
+    StringSize = (size_t) strlen(string);
+    if (StringSize <= 0)
+        goto fail;
+    if (StringSize > 256)
+        goto fail;
+
+    memset(LocalString, 0, 256);
+    sprintf(LocalString,string);
 
 // --------------------
 // Clean the main buffer.
@@ -1446,20 +1517,31 @@ __gws_drawtext_request (
     message_buffer[4] = window_id;
     message_buffer[5] = left; 
     message_buffer[6] = top; 
-    message_buffer[7] = color;
+    message_buffer[7] = (unsigned long) (color & 0xFFFFFFFF);
 
+//--------------------------
 // String support
 // Fill the string buffer
     int string_off=8;
-    char *p = (char *) &message_buffer[string_off];
-    for (i=0; i<250; i++)
+    
+    char *target_base = (char *) &message_buffer[string_off];
+    // Clean the target buffer.
+    memset(target_base, 0, 256);
+    if (StringSize > 256)
+        goto fail;
+    // Copy the string, given it's size.
+    for (i=0; i<StringSize; i++)
     {
-        *p = *string;   // Put a char.
+        //*target_base = *string;   // Put a char.
         // Increment both
-        p++;
-        string++; 
+        //target_base++;
+        //string++; 
+        *target_base = LocalString[i];
+        target_base++;
     };
-    *p = 0;  // finalize the string
+    // Finalize the string
+    *target_base = 0;
+
 
 // Write
 
@@ -1470,11 +1552,13 @@ __gws_drawtext_request (
                   sizeof(__gws_message_buffer), 
                   0 );
 
-    if (n_writes<=0){
-            return (int) -1;
+    if (n_writes <= 0){
+        goto fail;
     }
        
     return (int) n_writes;
+fail:
+    return (int) -1;
 }
 
 // Draw text - response.
@@ -1496,10 +1580,17 @@ static int __gws_drawtext_response(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
     if (fd<0){
         return (int) -1;
     }
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
 // #caution
 // Waiting for response.
@@ -1939,7 +2030,7 @@ __gws_clone_and_execute_request (
     unsigned long arg2,
     unsigned long arg3,
     unsigned long arg4,
-    char *string )
+    const char *string )
 {
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
@@ -1952,11 +2043,20 @@ __gws_clone_and_execute_request (
     if (fd<0){
         return (int) -1;
     }
-    if ( (void*) string == NULL )
+
+// path
+    if ((void*) string == NULL)
         return -1;
     if (*string == 0)
         return -1;
 
+
+    size_t StringSize = 0;
+    StringSize = (size_t) strlen(string);
+    if (StringSize <= 0)
+        return -1;
+    if (StringSize > 250)
+        return -1;
 
 // --------------------
 // Clean the main buffer.
@@ -1978,14 +2078,17 @@ __gws_clone_and_execute_request (
 // Fill the string buffer.
     int string_off=8;
     char *p = (char *) &message_buffer[string_off];
-    for (i=0; i<250; i++)
+    memset(p, 0, 250);
+    for (i=0; i<StringSize; i++)
     {
         *p = *string;
         p++;
         string++;
     };
+    // finalize
     *p = 0;
     p++;
+    // finalize again.
     *p = 0;
 
 // Write
@@ -2122,13 +2225,14 @@ __gws_createwindow_request (
     unsigned long view,
     unsigned long style,
     unsigned long parent,
-    char *name )
+    const char *name )
 {
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     int n_writes=0;
     register int i=0;
     char *Name;
+    char LocalName[256];
     int client_pid = (int) rtl_current_process();
     int client_tid = (int) rtl_current_thread();
 
@@ -2137,8 +2241,9 @@ __gws_createwindow_request (
     if (fd<0){
        return (int) -1;
     }
+
 // name
-    if ( (void*) name == NULL )
+    if ((void*) name == NULL)
         return -1;
     if (*name == 0)
         return -1;
@@ -2182,21 +2287,37 @@ __gws_createwindow_request (
 
 // Local pointer
     Name = name;
-    if ( (void*) Name == NULL ){
+    if ((void*) Name == NULL){
         Name = title_when_no_title;
     }
 
+
+    size_t StringSize = 0;
+    StringSize = (size_t) strlen(Name);
+    if (StringSize <= 0)
+        return -1;
+    if (StringSize > 250)
+        return -1;
+
+    // Local name
+    memset(LocalName, 0, 256);
+    sprintf(LocalName,Name);
+
 // String support
 // Set up the string starting in the offset '14'.
-    int max=250;
+    //int max=250;
     int string_off=14;
     char *p = (char *) &message_buffer[string_off];
-    for (i=0; i<max; i++)
+    memset(p, 0, 250);
+    for (i=0; i<StringSize; i++)
     {
-        *p = *Name;   // Put the char into the message buffer.
+        //*p = *Name;   // Put the char into the message buffer.
+        //p++;
+        //Name++;
+        *p = LocalName[i];
         p++;
-        Name++;
     };
+    // Finalize
     *p = 0;
 // ------
 
@@ -2240,6 +2361,7 @@ static wid_t __gws_createwindow_response(int fd)
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     ssize_t n_reads=0;
+    register int i=0;
 
     //gws_debug_print ("__gws_createwindow_response: rd\n");
 
@@ -2247,7 +2369,15 @@ static wid_t __gws_createwindow_response(int fd)
         return (wid_t) -1;
     }
 
+//
 // Read
+//
+
+// --------------------
+// Clean the local buffer,
+// and then populate with some data.
+    for (i=0; i<512; i++)
+        __gws_message_buffer[i] = 0;
 
     n_reads = 
         (ssize_t) recv ( 
@@ -2356,7 +2486,7 @@ gws_draw_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string )
+    const char *string )
 {
 // Draw text.
 
@@ -2367,7 +2497,8 @@ gws_draw_text (
     if (fd<0)    { goto fail; }
     if (window<0){ goto fail; }
 
-    if ( (void*) string == NULL )
+// String validation.
+    if ((void*) string == NULL)
         goto fail;
     if (*string == 0)
         goto fail;
@@ -2381,9 +2512,10 @@ gws_draw_text (
                   (int) window,
                   (unsigned long) x,
                   (unsigned long) y,
-                  (unsigned long) (color & 0xFFFFFFFF),
-                  (char *) string );
-    if (req_status<=0){
+                  (unsigned int) color,
+                  (const char *) string );
+
+    if (req_status <= 0){
         goto fail;
     }
     rtl_set_file_sync( 
@@ -2420,7 +2552,7 @@ gws_set_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string )
+    const char *string )
 {
 // Inject a text into the text buffer of a window.
 // Editbox only
@@ -2484,7 +2616,7 @@ gws_get_text (
     unsigned long x,
     unsigned long y,
     unsigned int color,
-    char *string )
+    const char *string )
 {
 // Get a text from the text buffer of a window.
 // Editbox only
@@ -2578,7 +2710,7 @@ gws_clone_and_execute2 (
     unsigned long arg2,
     unsigned long arg3,
     unsigned long arg4,
-    char *string )
+    const char *string )
 {
     int response=0;
     int Value=0;
@@ -2588,7 +2720,8 @@ gws_clone_and_execute2 (
         goto fail;
     }
 
-    if ( (void*) string == NULL )
+// path
+    if ((void*) string == NULL)
         goto fail;
     if (*string == 0)
         goto fail;
@@ -2603,7 +2736,7 @@ gws_clone_and_execute2 (
                   (unsigned long) arg2,
                   (unsigned long) arg3,
                   (unsigned long) arg4,
-                  (char *) string );
+                  (const char *) string );
     if(req_status<=0){
         goto fail;
     }
@@ -2636,11 +2769,15 @@ fail:
 // Try to execute the command line in the prompt[] buffer.
 void gws_clone_and_execute_from_prompt(int fd)
 {
-
+    char filename_buffer[12]; //8+3+1
 // Limits:
 // + The prompt[] limit is BUFSIZ = 1024;
 // + The limit for the write() operation is 512 for now.
     size_t WriteLimit = 512;
+
+
+// Clean the buffer.
+    memset(filename_buffer,0,12);
 
     if (fd<0){
         return;
@@ -2704,7 +2841,6 @@ void gws_clone_and_execute_from_prompt(int fd)
 //int rtl_get_first_word_in_a_string(char *buffer_pointer, char *string);
 
     register int ii=0;
-    char filename_buffer[12]; //8+3+1
     char *p;
     p = prompt;
 
@@ -3087,13 +3223,14 @@ void gws_pong(int fd)
 // #todo: Explain the return value.
 int 
 gws_load_path ( 
-    char *path, 
+    const char *path, 
     unsigned long buffer, 
     unsigned long buffer_len )
 {
     unsigned long Value=0;
 
-    if ( (void*) path == NULL ){
+// string
+    if ((void*) path == NULL){
         return -1;
     }
     if ( *path == 0 ){
@@ -3386,7 +3523,7 @@ fail:
 // It is not working.
 // The window server can not get the window number.
 
-int gws_refresh_window (int fd, wid_t wid )
+int gws_refresh_window(int fd, wid_t wid)
 {
     int value=0;
     int req_status=-1;
@@ -3517,7 +3654,7 @@ gws_create_window (
     unsigned long type,        //1, Tipo de janela (popup,normal,...)
     unsigned long status,      //2, Estado da janela.
     unsigned long view,        //3, (min, max ...)
-    char *windowname,          //4, Título.                          
+    const char *windowname,          //4, Título.                          
     unsigned long x,           //5, Deslocamento em relação às margens do Desktop.                           
     unsigned long y,           //6, Deslocamento em relação às margens do Desktop.
     unsigned long width,       //7, Largura da janela.
@@ -3529,7 +3666,7 @@ gws_create_window (
 {
     int value=0;
     wid_t wid = -1;
-    char *Name;
+    //char *Name;
     int req_status=-1;
 
     //gws_debug_print("gws_create_window:\n");
@@ -3537,7 +3674,9 @@ gws_create_window (
     if (fd<0){
         goto fail;
     }
-    if ( (void*) windowname == NULL ){
+
+// name
+    if ((void*) windowname == NULL){
         goto fail;
     }
     if ( *windowname == 0 )
@@ -3556,10 +3695,10 @@ gws_create_window (
 
 // Local pointer
 
-    Name = windowname;
-    if ((void*) Name == NULL){
-        Name = title_when_no_title;
-    }
+    //Name = windowname;
+    //if ((void*) Name == NULL){
+    //    Name = title_when_no_title;
+    //}
 
 // Request
     req_status = 
@@ -3572,7 +3711,7 @@ gws_create_window (
                   view,
                   style, 
                   parentwindow, 
-                  Name );
+                  (const char *) windowname );
 
     if (req_status <= 0){
         goto fail;
@@ -3609,13 +3748,14 @@ gws_create_window (
 // Simply read the file.
     wid = (wid_t) __gws_createwindow_response(fd); 
     
-    // #test
-    // Probably this is the root window.
-    //if (wid == 0)
-        //goto fail;
+// #test
+// Probably this is the root window.
+    if (wid == 0)
+        goto fail;
 
     __gws_clear_msg_buff();
     return (wid_t) wid;
+
 fail:
     __gws_clear_msg_buff();
     return (wid_t) -1;
@@ -3626,7 +3766,7 @@ fail:
 wid_t 
 gws_create_application_window(
     int fd,
-    char *windowname,         // Título. #todo maybe const char.
+    const char *windowname,         // Título. #todo maybe const char.
     unsigned long x,          // Deslocamento em relação às margens do Desktop. 
     unsigned long y,          // Deslocamento em relação às margens do Desktop.
     unsigned long width,      // Largura da janela.
@@ -3646,6 +3786,7 @@ gws_create_application_window(
 
     if (fd<0)
         goto fail;
+
     if ((void*) windowname == NULL)
         goto fail;
     if (*windowname == 0)
@@ -3793,11 +3934,11 @@ void gws_start_thread (void *thread)
 // #todo: Use 'const char*'.
 // OUT: ??
 
-int gws_clone_and_execute(char *name)
+int gws_clone_and_execute(const char *name)
 {
     unsigned long Value=0;
 
-    if ( (void*) name == NULL ){ 
+    if ((void*) name == NULL){ 
         debug_print("gws_clone_and_execute: name\n");
         goto fail;
     }
@@ -3808,9 +3949,9 @@ int gws_clone_and_execute(char *name)
 
     // #todo
     // Ret = (int) rtl_clone_and_execute(name);
-    
+
     Value = 
-        (unsigned long) sc82 ( 900, (unsigned long) name, 0, 0 );
+        (unsigned long) sc82( 900, (unsigned long) name, 0, 0 );
 
 // #todo
 // Error message
@@ -3994,7 +4135,7 @@ fail:
 // The synchronization is made when we call gws_create_window.
 struct gws_menu_item_d *gws_create_menu_item (
     int fd,
-    char *label,
+    const char *label,
     int id,
     struct gws_menu_d *menu)
 {
@@ -4078,8 +4219,7 @@ unsigned int gws_explode_byte_32(unsigned char data)
 }
 
 // Create empty file.
-// #todo: Change parameter type to const char 
-int gws_create_empty_file (char *file_name)
+int gws_create_empty_file(const char *file_name)
 {
 
 // #todo
@@ -4087,6 +4227,7 @@ int gws_create_empty_file (char *file_name)
 
     unsigned long Value=0;
 
+// name
     if ((void*) file_name == NULL){
         debug_print("gws_create_empty_file: [FAIL] file_name\n");
         return (int) -1;
@@ -4109,10 +4250,8 @@ int gws_create_empty_file (char *file_name)
     return (int) (Value & 0xF);
 }
 
-
 // Create empty directory.
-// #todo: Change parameter type to const char 
-int gws_create_empty_directory (char *dir_name)
+int gws_create_empty_directory(const char *dir_name)
 {
 
 // #todo
@@ -4120,6 +4259,7 @@ int gws_create_empty_directory (char *dir_name)
 
     unsigned long Value=0;
 
+// name
     if ((void*) dir_name == NULL){
         debug_print("gws_create_empty_directory: [FAIL] dir_name\n");
         return (int)(-1);
@@ -4391,7 +4531,7 @@ void gws_send_wm_magic( int fd, int pid )
 // It opens a display device ... 
 // A device to control the screen access.
 // 
-struct gws_display_d *gws_open_display(char *display_name)
+struct gws_display_d *gws_open_display(const char *display_name)
 {
     struct gws_display_d *Display;
     int DisplayID = 0; //?
