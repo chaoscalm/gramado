@@ -1086,7 +1086,7 @@ gwsProcedure (
     // Service 9099:
     case GWS_CloneAndExecute:
         serviceCloneAndExecute();
-        NoReply = TRUE;
+        NoReply = FALSE;
         return 0;
         break;
 
@@ -2699,6 +2699,10 @@ int serviceRefreshRectangle(void)
 // Flush it into the framebuffer.
 // See: rect.c
     gws_refresh_rectangle ( left, top, width, height );
+    
+    next_response[0] = 0;
+    next_response[1] = SERVER_PACKET_TYPE_REPLY;  // msg code
+
     return 0;
 fail:
     debug_print("serviceRefreshRectangle: fail\n");
@@ -2803,7 +2807,19 @@ void serviceCloneAndExecute(void)
     };
     buf[i] = 0;
 // ==================================
-    rtl_clone_and_execute(buf);
+    int response_value = -1;
+    response_value = (int) rtl_clone_and_execute(buf);
+
+// ==================================
+// Set up the next response.
+    for (i=0; i<32; i++)
+        next_response[i] = 0;
+
+    next_response[0] = 
+        (unsigned long)(response_value & 0xFFFFFFFF);
+    next_response[1] = SERVER_PACKET_TYPE_REPLY;  // msg code
+    //next_response[2] = 0;  
+    //next_response[3] = 0;  
 }
 
 

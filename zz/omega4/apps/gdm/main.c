@@ -677,7 +677,7 @@ int main( int argc, char *argv[] )
                   COLOR_RED,   // #todo: client bg. Not implemented. 
                   COLOR_GRAY );
 
-    if (main_window < 0)
+    if (main_window <= 0)
     {
         debug_print("gdm: main_window\n");
         printf     ("gdm: main_window\n");
@@ -691,13 +691,17 @@ int main( int argc, char *argv[] )
 
 // 'username:' text
 // Text inside the main window.
-     gws_draw_text (
-        (int) client_fd,      // fd,
-        (int) main_window,    // window id,
-        (unsigned long) 2, 
-        (unsigned long) 4 +(24/3), 
-        (unsigned long) COLOR_BLACK,
-        t1_string );
+    if (main_window > 0)
+    {
+        gws_draw_text (
+            (int) client_fd,      // fd,
+            (int) main_window,    // window id,
+            (unsigned long) 2, 
+            (unsigned long) 4 +(24/3), 
+            (unsigned int) COLOR_BLACK,
+           t1_string );
+    }
+
     //#debug
     //gws_refresh_window(client_fd, main_window);
 
@@ -717,7 +721,7 @@ int main( int argc, char *argv[] )
                   bar1_l, bar1_t, bar1_w, bar1_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
-    if (bar1_window<0)
+    if (bar1_window <= 0)
     {
         debug_print("gdm: bar1_window fail\n");
         printf     ("gdm: bar1_window\n");
@@ -735,7 +739,7 @@ int main( int argc, char *argv[] )
             (int) bar1_window,          // window id
             (unsigned long) 8,          // left
             (unsigned long) 8,          // top
-            (unsigned long) COLOR_BLACK,
+            (unsigned int) COLOR_BLACK,
             bar1_text_string);
      }
     //#debug
@@ -760,7 +764,7 @@ int main( int argc, char *argv[] )
                   bu1_l, bu1_t, bu1_w, bu1_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
-    if (button1_window<0)
+    if (button1_window <= 0)
     {
         debug_print("gdm: button1_window fail\n");
         printf     ("gdm: button1_window\n");
@@ -774,13 +778,15 @@ int main( int argc, char *argv[] )
 
 // 'username:' text
 // Text inside the main window.
+    if (main_window > 0){
      gws_draw_text (
         (int) client_fd,      // fd
         (int) main_window,    // window id
         (unsigned long)  2,
         (unsigned long)  4 +(24) +4 +(24/3), 
-        (unsigned long) COLOR_BLACK,
+        (unsigned int) COLOR_BLACK,
         t2_string);
+    }
     //#debug
     //gws_refresh_window(client_fd, main_window);
 
@@ -798,7 +804,7 @@ int main( int argc, char *argv[] )
                   bar2_l, bar2_t, bar2_w, bar2_h,
                   main_window, 0, COLOR_WHITE, COLOR_WHITE );
 
-    if (bar2_window<0)
+    if (bar2_window <= 0)
     {
         debug_print("gdm: bar2_window fail\n");
         printf     ("gdm: bar2_window\n");
@@ -827,7 +833,7 @@ int main( int argc, char *argv[] )
                   bu2_l, bu2_t, bu2_w, bu2_h,
                   main_window, 0, COLOR_GRAY, COLOR_GRAY );
 
-    if (button2_window<0)
+    if (button2_window <= 0)
     {
         debug_print("gdm: button2_window fail\n");
         printf     ("gdm: button2_window\n");
@@ -838,13 +844,15 @@ int main( int argc, char *argv[] )
 
 // ---------------------
 // Tip
-     gws_draw_text (
+    if (main_window > 0){
+    gws_draw_text (
         (int) client_fd,      // fd
         (int) main_window,    // window id
         (unsigned long)  2,
         (unsigned long)  4 +(24) +4 +(24/3) +(24), 
-        (unsigned long) COLOR_BLACK,
+        (unsigned int) COLOR_BLACK,
         t3_string );
+    }
 
 /*
     int t=0;

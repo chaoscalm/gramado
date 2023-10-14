@@ -104,11 +104,9 @@ static int __gws_resize_window_reponse(int fd);
 // == Redraw window ==========================
 static int 
 __gws_redraw_window_request( int fd, int window, unsigned long flags );
-static int __gws_redraw_window_reponse(int fd);
 
 // == Refresh Window ==========================
 static int __gws_refresh_window_request( int fd, int window );
-static int __gws_refresh_window_reponse(int fd);
 
 // == Create Window ==========================
 static int 
@@ -146,7 +144,7 @@ __gws_drawchar_request (
     unsigned long top,
     unsigned int color,
     unsigned int ch );
-static int __gws_drawchar_response(int fd);
+
 
 // == Draw text ==========================
 static int 
@@ -157,7 +155,6 @@ __gws_drawtext_request (
     unsigned long top,
     unsigned int color,
     const char *string );
-static int __gws_drawtext_response(int fd);
 
 // == set text ==========================
 static int 
@@ -168,7 +165,6 @@ __gws_settext_request (
     unsigned long top,
     unsigned long color,
     char *string );
-static int __gws_settext_response(int fd);
 
 
 // == get text ==========================
@@ -726,60 +722,6 @@ static int __gws_refresh_window_request( int fd, int window )
     return (int) n_writes;
 }
 
-
-static int __gws_refresh_window_reponse(int fd)
-{
-    unsigned long *message_buffer = 
-        (unsigned long *) &__gws_message_buffer[0];
-    ssize_t n_reads=0;
-    register int i=0;
-
-    if (fd<0){
-        return (int) -1;
-    }
-
-// Read
-
-// --------------------
-// Clean the local buffer,
-// and then populate with some data.
-    for (i=0; i<512; i++)
-        __gws_message_buffer[i] = 0;
-
-    n_reads = 
-        (ssize_t) recv ( 
-                      fd, 
-                      __gws_message_buffer, 
-                      sizeof(__gws_message_buffer), 
-                      0 );
-
-    if (n_reads <= 0){
-        return (int) -1;
-    }
-
-// The msg packet
-// Get the message sent by the server.
-
-    int msg   = (int) message_buffer[1];
-    int value = (int) message_buffer[2];
-
-    switch (msg){
-    // Reply!
-    case GWS_SERVER_PACKET_TYPE_REPLY:
-        return (int) value;
-        break;
-    case GWS_SERVER_PACKET_TYPE_REQUEST:
-    case GWS_SERVER_PACKET_TYPE_EVENT:
-    case GWS_SERVER_PACKET_TYPE_ERROR:
-    default:
-        return (int) -1;
-        break; 
-    };
-//fail:
-    return (int) -1;
-}
-
-
 static int 
 __gws_redraw_window_request ( 
     int fd, 
@@ -820,112 +762,6 @@ __gws_redraw_window_request (
 
     return (int) n_writes;
 }
-
-static int __gws_redraw_window_reponse(int fd)
-{
-    unsigned long *message_buffer = 
-        (unsigned long *) &__gws_message_buffer[0];
-    ssize_t n_reads=0;
-    register int i=0;
-
-// Waiting for response.
-// Espera para ler a resposta. 
-// Esperando com yield como teste.
-// Isso demora, pois a resposta só será enviada depois de
-// prestado o servido.
-// obs: Nesse momento deveríamos estar dormindo.
-
-// #todo
-// Podemos checar antes se o fd 
-// representa um objeto que permite leitura.
-// Pode nem ser possível.
-// Mas como sabemos que é um soquete,
-// então sabemos que é possível ler.
-// #caution
-// Waiting for response.
-// We can stay here for ever.
-
-    if (fd<0){
-        return (int) -1;
-    }
-
-// --------------------
-// Clean the local buffer,
-// and then populate with some data.
-    for (i=0; i<512; i++)
-        __gws_message_buffer[i] = 0;
-
-response_loop:
-
-    n_reads = 
-        (ssize_t) recv ( 
-                      fd, 
-                      __gws_message_buffer, 
-                      sizeof(__gws_message_buffer), 
-                      0 );
-
-    //if (n_reads<=0){
-    //    goto response_loop;
-    //}
-    
-    // Se retornou 0, podemos tentar novamente.
-    if (n_reads == 0){
-        goto response_loop;
-    }
-    
-    // Se retornou -1 é porque algo está errado com o arquivo.
-    if (n_reads < 0){
-        gws_debug_print ("__gws_redraw_window_reponse: recv fail.\n");
-        printf          ("__gws_redraw_window_reponse: recv fail.\n");
-        printf ("Something is wrong with the socket.\n");
-        exit (1);
-    }
-
-// The msg index.
-// Get the message sended by the server.
-
-    int msg = (int) message_buffer[1];
-    
-    switch (msg){
-
-        // Reply!
-        case GWS_SERVER_PACKET_TYPE_REPLY:
-            goto process_reply;
-            break;
-
-        case GWS_SERVER_PACKET_TYPE_REQUEST:
-        case GWS_SERVER_PACKET_TYPE_EVENT:
-        case GWS_SERVER_PACKET_TYPE_ERROR:
-        default:
-            return -1;
-            break; 
-    };
-
-// Process reply.
-// A resposta tras o window id no início do buffer.
-process_reply:
-
-    // #test
-    //gws_debug_print ("terminal: Testing close() ...\n"); 
-    //close (fd);
-
-    //gws_debug_print ("terminal: bye\n"); 
-    //printf ("terminal: Window ID %d \n", message_buffer[0] );
-    //printf ("terminal: Bye\n");
-    
-    // #todo
-    // Podemos usar a biblioteca e testarmos
-    // vários serviços da biblioteca nesse momento.
-
-    //return 0;
-    return (int) message_buffer[0];
-
-// Process an event.
-process_event:
-    //gws_debug_print ("__gws_redraw_window_reponse: We got an event\n"); 
-    return 0;
-}
-
 
 static int 
 __gws_change_window_position_request ( 
@@ -1402,63 +1238,6 @@ __gws_drawchar_request (
     return (int) n_writes;
 }
 
-// Response
-// A sincronização nos diz que já temos um reply.
-static int __gws_drawchar_response(int fd)
-{
-    unsigned long *message_buffer = 
-        (unsigned long *) &__gws_message_buffer[0];
-    ssize_t n_reads=0;
-    register int i=0;
-
-    if (fd<0){
-        return (int) -1;
-    }
-
-// Read
-
-// --------------------
-// Clean the local buffer,
-// and then populate with some data.
-    for (i=0; i<512; i++)
-        __gws_message_buffer[i] = 0;
-
-    n_reads = 
-        (ssize_t) recv( 
-                      fd, 
-                      __gws_message_buffer, 
-                      sizeof(__gws_message_buffer), 
-                      0 );
-
-    if (n_reads <= 0){
-        return (int) -1;
-    }
-
-// The msg index.
-// Get the message sended by the server.
-
-    int msg   = (int) message_buffer[1];
-    int value = (int) message_buffer[2];
-
-    switch (msg){
-
-        // Reply
-        case GWS_SERVER_PACKET_TYPE_REPLY:
-            return (int) value;
-            break;
-
-        case GWS_SERVER_PACKET_TYPE_REQUEST:
-        case GWS_SERVER_PACKET_TYPE_EVENT:
-        case GWS_SERVER_PACKET_TYPE_ERROR:
-        default:
-            return -1;
-            break; 
-    };
-
-//fail:
-    return -1;
-}
-
 //------------------------------------------------
 
 // Draw text
@@ -1471,6 +1250,8 @@ __gws_drawtext_request (
     unsigned int color,
     const char *string )
 {
+// OUT:
+
     unsigned long *message_buffer = 
         (unsigned long *) &__gws_message_buffer[0];
     //unsigned long *string_buffer = (unsigned long *) &__gws_message_buffer[128];
@@ -1561,112 +1342,6 @@ fail:
     return (int) -1;
 }
 
-// Draw text - response.
-// Waiting for response.
-// Espera para ler a resposta. 
-// Esperando com yield como teste.
-// Isso demora, pois a resposta só será enviada depois de
-// prestado o servido.
-// obs: Nesse momento deveríamos estar dormindo.
-// #todo
-// Podemos checar antes se o fd 
-// representa um objeto que permite leitura.
-// Pode nem ser possível.
-// Mas como sabemos que é um soquete,
-// então sabemos que é possível ler.
-
-static int __gws_drawtext_response(int fd)
-{
-    unsigned long *message_buffer = 
-        (unsigned long *) &__gws_message_buffer[0];
-    ssize_t n_reads=0;
-    register int i=0;
-
-    if (fd<0){
-        return (int) -1;
-    }
-
-// --------------------
-// Clean the local buffer,
-// and then populate with some data.
-    for (i=0; i<512; i++)
-        __gws_message_buffer[i] = 0;
-
-// #caution
-// Waiting for response.
-// We can stay here for ever.
-
-response_loop:
-
-    n_reads = 
-        (ssize_t) recv(
-                      fd, 
-                      __gws_message_buffer, 
-                      sizeof(__gws_message_buffer), 
-                      0 );
-
-    //if (n_reads<=0){
-    //    goto response_loop;
-    //}
-
-    // Se retornou 0, podemos tentar novamente.
-    if (n_reads == 0){
-        goto response_loop;
-    }
-    
-    // Se retornou -1 é porque algo está errado com o arquivo.
-    if (n_reads < 0){
-        gws_debug_print ("gws_drawtext_response: recv fail.\n");
-        printf          ("gws_drawtext_response: recv fail.\n");
-        printf ("Something is wrong with the socket.\n");
-        return -1;
-        //exit (1);
-    }
-
-// The msg index.
-// Get the message sended by the server.
-
-    int msg = (int) message_buffer[1];
-    
-    switch (msg){
-
-        // Reply!
-        case GWS_SERVER_PACKET_TYPE_REPLY:
-            goto process_reply;
-            break;
-
-        case GWS_SERVER_PACKET_TYPE_REQUEST:
-        case GWS_SERVER_PACKET_TYPE_EVENT:            
-        case GWS_SERVER_PACKET_TYPE_ERROR:
-        default:
-            return -1;
-            break; 
-    };
-
-// Process reply
-// A resposta tras o window id no início do buffer. 
-process_reply:
-
-    // #test
-    //gws_debug_print ("terminal: Testing close() ...\n"); 
-    //close (fd);
-
-    //gws_debug_print ("terminal: bye\n"); 
-    //printf ("terminal: Window ID %d \n", message_buffer[0] );
-    //printf ("terminal: Bye\n");
-    
-    // #todo
-    // Podemos usar a biblioteca e testarmos
-    // vários serviços da biblioteca nesse momento.
-
-    return (int) message_buffer[0];
-
-// Process an event.
-process_event:
-    //gws_debug_print ("gws_drawtext_response: We got an event\n"); 
-    return 0;
-}
-
 //-----------------------------------------
 
 static int 
@@ -1736,106 +1411,6 @@ __gws_settext_request (
        
     return (int) n_writes;
 }
-
-// Draw text - response.
-// Waiting for response.
-// Espera para ler a resposta. 
-// Esperando com yield como teste.
-// Isso demora, pois a resposta só será enviada depois de
-// prestado o servido.
-// obs: Nesse momento deveríamos estar dormindo.
-// #todo
-// Podemos checar antes se o fd 
-// representa um objeto que permite leitura.
-// Pode nem ser possível.
-// Mas como sabemos que é um soquete,
-// então sabemos que é possível ler.
-
-static int __gws_settext_response(int fd)
-{
-    unsigned long *message_buffer = 
-        (unsigned long *) &__gws_message_buffer[0];
-    ssize_t n_reads=0;
-
-    if (fd<0){
-        return (int) -1;
-    }
-
-// #caution
-// Waiting for response.
-// We can stay here for ever.
-
-response_loop:
-
-    n_reads = 
-        (ssize_t) recv(
-                      fd, 
-                      __gws_message_buffer, 
-                      sizeof(__gws_message_buffer), 
-                      0 );
-
-    //if (n_reads<=0){
-    //    goto response_loop;
-    //}
-    
-    // Se retornou 0, podemos tentar novamente.
-    if (n_reads == 0){
-        goto response_loop;
-    }
-    
-    // Se retornou -1 é porque algo está errado com o arquivo.
-    if (n_reads < 0){
-        gws_debug_print ("__gws_settext_response: recv fail.\n");
-        printf          ("__gws_settext_response: recv fail.\n");
-        printf ("Something is wrong with the socket.\n");
-        return -1;
-        //exit (1);
-    }
-
-// The msg index.
-// Get the message sended by the server.
-
-    int msg = (int) message_buffer[1];
-    
-    switch (msg){
-
-        // Reply!
-        case GWS_SERVER_PACKET_TYPE_REPLY:
-            goto process_reply;
-            break;
-
-        case GWS_SERVER_PACKET_TYPE_REQUEST:
-        case GWS_SERVER_PACKET_TYPE_EVENT:            
-        case GWS_SERVER_PACKET_TYPE_ERROR:
-        default:
-            return -1;
-            break; 
-    };
-
-// Process reply
-// A resposta tras o window id no início do buffer. 
-process_reply:
-
-    // #test
-    //gws_debug_print ("terminal: Testing close() ...\n"); 
-    //close (fd);
-
-    //gws_debug_print ("terminal: bye\n"); 
-    //printf ("terminal: Window ID %d \n", message_buffer[0] );
-    //printf ("terminal: Bye\n");
-    
-    // #todo
-    // Podemos usar a biblioteca e testarmos
-    // vários serviços da biblioteca nesse momento.
-
-    return (int) message_buffer[0];
-
-// Process an event.
-process_event:
-    //gws_debug_print ("gws_drawtext_response: We got an event\n"); 
-    return 0;
-}
-
 
 //-----------------------------------------
 
@@ -2424,7 +1999,7 @@ fail:
 // == Functions ===================================
 //
 
-int 
+void 
 gws_draw_char (
     int fd, 
     int window,
@@ -2464,14 +2039,12 @@ gws_draw_char (
     while (1){
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { goto fail; }
-        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
+        //if (Value == ACTION_REPLY ) { break; }
+        if (Value == ACTION_ERROR ) { goto done; }
+        if (Value == ACTION_NULL )  { goto done; }  //no reponse. (syncronous)
     };
 
-// A sincronização nos diz que já temos um reply.
-    Response = __gws_drawchar_response ((int) fd);  
-
+done:
     __gws_clear_msg_buff();
     return (int) Response;
 fail:
@@ -2479,7 +2052,7 @@ fail:
     return -1;
 }
 
-int 
+void 
 gws_draw_text (
     int fd, 
     int window,
@@ -2489,6 +2062,7 @@ gws_draw_text (
     const char *string )
 {
 // Draw text.
+// #todo: void
 
     int response =0;
     int Value=0;
@@ -2506,6 +2080,8 @@ gws_draw_text (
 
 // Request
 // IN: fd, window, x, y, color, string
+    int count=0;
+    for (count=0; count<8; count++){
     req_status = 
         (int) __gws_drawtext_request (
                   (int) fd,
@@ -2515,37 +2091,49 @@ gws_draw_text (
                   (unsigned int) color,
                   (const char *) string );
 
+    //if (req_status <= 0){
+        //goto fail;
+    //}
+    if (req_status > 0){
+        break;
+    }
+    };
+
     if (req_status <= 0){
         goto fail;
     }
+
     rtl_set_file_sync( 
         fd, 
         SYNC_REQUEST_SET_ACTION, 
         ACTION_REQUEST );
 
+// ---------------------------------
+// No response
 // Response
 // Waiting to read the response.
     //gws_debug_print("gws_draw_text: response\n");
     while (1){
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { goto fail; }
-        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
+        //if (Value == ACTION_REPLY ) { break; }
+        if (Value == ACTION_ERROR ) { goto done; }
+        if (Value == ACTION_NULL )  { goto done; }  //no reponse. (syncronous)
+        
+        gws_debug_print("gws_draw_text: Waiting sync flag\n"); 
     };
 
-    response = (int) __gws_drawtext_response (fd);
-
+done:
     __gws_clear_msg_buff();
-    return (int) response;
+    return; 
 fail:
     __gws_clear_msg_buff();
-    return -1;
+    return; 
 }
 
 //--------------------------------------
 
-int 
+void 
 gws_set_text (
     int fd, 
     int window,
@@ -2556,6 +2144,7 @@ gws_set_text (
 {
 // Inject a text into the text buffer of a window.
 // Editbox only
+// No reply
 
     int response =0;
     int Value=0;
@@ -2594,17 +2183,18 @@ gws_set_text (
     while (1){
         Value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) { goto fail; }
-        if (Value == ACTION_NULL )  { goto fail; }  //no reponse. (syncronous)
+        //if (Value == ACTION_REPLY ) { break; }
+        if (Value == ACTION_ERROR ) { goto done; }
+        if (Value == ACTION_NULL )  { goto done; }  //no reponse. (syncronous)
     };
 
-    response = (int) __gws_settext_response (fd);
+done:
     __gws_clear_msg_buff();
-    return (int) response;
+    //return (int) response;
+    return;
 fail:
     __gws_clear_msg_buff();
-    return -1;
+    return;
 }
 
 //--------------------------------------
@@ -2712,6 +2302,8 @@ gws_clone_and_execute2 (
     unsigned long arg4,
     const char *string )
 {
+// No reply
+
     int response=0;
     int Value=0;
     int req_status = -1;
@@ -3338,12 +2930,14 @@ fail:
 }
 
 // Redraw window.
-int 
+void 
 gws_redraw_window (
    int fd, 
    int window, 
    unsigned long flags )
 {
+// No reply
+
     unsigned long Value=0;
     int req_status = -1;
 
@@ -3365,17 +2959,17 @@ gws_redraw_window (
     while (TRUE){
         Value = (unsigned long) rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
         //if (Value == ACTION_REQUEST){}
-        if (Value == ACTION_REPLY ) { break; }
-        if (Value == ACTION_ERROR ) {goto fail;}
-        if (Value == ACTION_NULL )  {goto fail;}  //no reponse. (syncronous)
+        //if (Value == ACTION_REPLY ) { break; }
+        if (Value == ACTION_ERROR ) {goto done;}
+        if (Value == ACTION_NULL )  {goto done;}  //no reponse. (syncronous)
     };
 
-    __gws_redraw_window_reponse(fd);
+done:
     __gws_clear_msg_buff();
-    return 0;
+    return;
 fail:
     __gws_clear_msg_buff();
-    return -1;
+    return;
 }
 
 // The server will return an event 
@@ -3523,8 +3117,11 @@ fail:
 // It is not working.
 // The window server can not get the window number.
 
-int gws_refresh_window(int fd, wid_t wid)
+void 
+gws_refresh_window(int fd, wid_t wid)
 {
+// no reply
+
     int value=0;
     int req_status=-1;
 
@@ -3542,16 +3139,17 @@ int gws_refresh_window(int fd, wid_t wid)
 // Waiting to read the response.
     while (TRUE){
         value = rtl_get_file_sync( fd, SYNC_REQUEST_GET_ACTION );
-        if (value == ACTION_REPLY ) { break; }
-        if (value == ACTION_ERROR ) {goto fail;}
-        if (value == ACTION_NULL )  {goto fail;}  //no reponse. (syncronous)
+        //if (value == ACTION_REPLY ) { break; }
+        if (value == ACTION_ERROR ) {goto done;}
+        if (value == ACTION_NULL )  {goto done;}  //no reponse. (syncronous)
     };
 
+done:
     __gws_clear_msg_buff();
-    return (int) __gws_refresh_window_reponse(fd);
+    return;
 fail:
     __gws_clear_msg_buff();
-    return -1;
+    return;
 }
 
 int

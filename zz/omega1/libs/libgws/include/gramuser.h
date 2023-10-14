@@ -18,7 +18,7 @@ unsigned int gws_argb(int a, int r, int g, int b);
 //
 
 // Draw a char.
-int 
+void 
 gws_draw_char (
     int fd, 
     int window,
@@ -32,7 +32,7 @@ gws_draw_char (
 //
 
 // Draw a text.
-int 
+void 
 gws_draw_text (
     int fd, 
     int window,
@@ -41,7 +41,7 @@ gws_draw_text (
     unsigned int color,
     const char *string );
 
-int 
+void 
 gws_set_text (
     int fd, 
     int window,
@@ -96,7 +96,7 @@ void invalidate_surface_retangle (void);
 //
 
 // Redraw a window.
-int 
+void 
 gws_redraw_window (
     int fd, 
     int window, 
@@ -115,7 +115,8 @@ struct gws_window_info_d *gws_get_window_info(
     struct gws_window_info_d *window_info );
 
 // Refresh a window.
-int gws_refresh_window (int fd, wid_t wid);
+void 
+gws_refresh_window (int fd, wid_t wid);
 
 // Change window position.
 int 
