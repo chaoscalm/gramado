@@ -47,7 +47,7 @@ not all the features needed by a commercial operating system.
 
 ## Userland features.
 
-> * Display Server. See: userland/services/gramland/
+> * Display Server. See: zing/gramado/swamp/
 > * Unix-like commands running in the virtual console.
 > * Some few clients connected to the display server via unix-sockets.
 > * Ring3 processes can access the i/o ports via syscall. (For ring3 drivers only).
