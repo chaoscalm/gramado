@@ -13,13 +13,28 @@
 #define MI_TYPE_SEPARATOR  1000
 #define MI_TYPE_TEXT       2000
 
-//#define MAINMENU_BUTTONS_MAX  5
-//extern int mainmenu_buttons_count;  
-//extern int mainmenu_buttons[MAINMENU_BUTTONS_MAX];
 
+// --------------------
+// Menu item
+struct gws_menu_item_d
+{
+    int id;
+    int selected;
+    unsigned int color;
 
-/*
-// menu
+    // Relative
+    unsigned long x;
+    unsigned long y;
+    unsigned long width;
+    unsigned long height;
+
+    struct gws_window_d *bg_window;
+
+    struct gws_menu_item_d *next;
+};
+
+// --------------------
+// Menu
 struct gws_menu_d
 {
 // TRUE = the menu procedure is running at the moment.
@@ -40,10 +55,8 @@ struct gws_menu_d
     struct gws_window_d *owner_window;
 // List of items.
     int itens_count;
-    //struct gws_menu_item_d *list;
+    struct gws_menu_item_d *list;
 };
-//extern struct gws_menu_d *main_menu;
-*/
 
 //
 // == Prototypes ==============================================
