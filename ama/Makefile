@@ -52,10 +52,11 @@ clean
 
 # Giving permitions to run.
 	chmod 755 ./run
-	chmod 755 ./runkvm
+	chmod 755 ./runnokvm
+
 # tests
-	chmod 755 ./run2
-	chmod 755 ./runkvm2
+	chmod 755 ./runt1
+	chmod 755 ./runt2
 	@echo "Done?"
 
 # --------------------------------------
@@ -280,18 +281,19 @@ vhd-unmount:
 	sudo umount /mnt/gramadoxvhd
 
 # --------------------------------------
-# Run on qemu.
+# Run on qemu using kvm.
 PHONY := run
 run: do_run
 do_run:
 	sh ./run
 
 # --------------------------------------
-# Run on qemu using kvm.
-PHONY := runkvm
-runkvm: do_runkvm
-do_runkvm:
-	sh ./runkvm
+# Run on qemu with no kvm.
+PHONY := runnokvm
+runnokvm: do_runnokvm
+do_runnokvm:
+	sh ./runnokvm
+
 
 # --------------------------------------
 # Basic clean.
@@ -347,7 +349,7 @@ usage:
 	@echo "make clean-all"
 	@echo "Testing on qemu:"
 	@echo "./run"
-	@echo "./runkvm"
+	@echo "./runnokvm"
 
 # --------------------------------------
 # Danger zone!
