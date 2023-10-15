@@ -75,31 +75,31 @@ request.o \
 system.o \
 mod.o \
 cali.o \
-kmain.o \
 zero.o \
 sys.o \
-sci.o    
+sci.o \
+kmain.o    
 
 
 all:
 
 # Overall routines.
-	$(CC) -c overall/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
-	$(CC) -c overall/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
-	$(CC) -c overall/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
-	$(CC) -c overall/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
-	$(CC) -c overall/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
-	$(CC) -c overall/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
-	$(CC) -c overall/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
+	$(CC) -c cali/debug.c    $(KERNEL_INCLUDE) $(CFLAGS) -o debug.o
+	$(CC) -c cali/info.c     $(KERNEL_INCLUDE) $(CFLAGS) -o info.o
+	$(CC) -c cali/panic.c    $(KERNEL_INCLUDE) $(CFLAGS) -o panic.o  
+	$(CC) -c cali/reboot.c   $(KERNEL_INCLUDE) $(CFLAGS) -o reboot.o
+	$(CC) -c cali/request.c  $(KERNEL_INCLUDE) $(CFLAGS) -o request.o
+	$(CC) -c cali/system.c   $(KERNEL_INCLUDE) $(CFLAGS) -o system.o
+	$(CC) -c cali/mod.c      $(KERNEL_INCLUDE) $(CFLAGS) -o mod.o    
+	$(CC) -c cali/zero.c     $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
+	$(CC) -c cali/cali.c     $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
 
-	$(CC) -c overall/cali.c   $(KERNEL_INCLUDE) $(CFLAGS) -o cali.o
+# Kernel API.
+	$(CC) -c kapi/sys.c   $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
 
-# APIs
-	$(CC) -c apis/sys/sys.c      $(KERNEL_INCLUDE)  $(CFLAGS)  -o sys.o
-	$(CC) -c apis/zero/zero.c    $(KERNEL_INCLUDE)  $(CFLAGS)  -o zero.o
 
-# gateway
-	$(CC) -c gateway/visitor/sci.c  \
+# System Call Interface. (SCI_XXX).
+	$(CC) -c sci/sci.c  \
 $(KERNEL_INCLUDE)  $(CFLAGS)  -o sci.o    
 
 # kmain

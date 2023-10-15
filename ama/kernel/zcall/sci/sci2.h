@@ -6,8 +6,7 @@
 
 // The handler is sci2().
 
-
-#define SCI2_NULL  0  // <<<<<<--- #todo Use this pattern.
+#define SCI2_NULL  SCI_NULL
 
 
 // 1 - Set magic (in kernel console)
@@ -134,9 +133,6 @@
 // arg2 = address
 // arg3 = pid
 // arg4 = signature
-
-
-
 
 #endif   
 

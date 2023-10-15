@@ -11,7 +11,7 @@
 // Maybe we can use this only to get kernel info.
 // Maybe it can be a handle to the ring0 module. MOD0.BIN.
 
-#define SCI1_NULL  0  // <<<<<<--- #todo Use this pattern.
+#define SCI1_NULL  SCI_NULL
 
 #endif   
 
