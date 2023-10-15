@@ -29,7 +29,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <rtl/gramado.h> 
-#include <sysdeps/gramado/syscall.h>
+
+#include "gramado/syscalls.h"
+
 #include <pthread.h>
 
 // global
@@ -97,6 +99,25 @@ void *sc82 (
 
     return (void *) __Ret; 
 }
+
+// System call.
+// Interrupt 0x83.
+void *sc83 ( 
+    unsigned long a, 
+    unsigned long b, 
+    unsigned long c, 
+    unsigned long d )
+{
+// Adapter. System dependent.
+    unsigned long __Ret=0;
+
+    asm volatile ( " int %1 \n"
+                 : "=a"(__Ret)
+                 : "i"(0x83), "a"(a), "b"(b), "c"(c), "d"(d) );
+
+    return (void *) __Ret; 
+}
+
 
 // =============================================================
 
