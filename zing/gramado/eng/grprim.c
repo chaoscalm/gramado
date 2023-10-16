@@ -1493,6 +1493,7 @@ fillTriangle0(
     unsigned long rop )
 {
 // Triangle rasterization.
+// 2D.
 
 // Number of changed pixels.
     int npixels=0;

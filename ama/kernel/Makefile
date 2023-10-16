@@ -108,6 +108,7 @@ objects-y += ar_mm.o
 objects-y += ar_crt.o  
 objects-y += ar_dev.o  
 objects-y += ar_ke.o  
+objects-y += ar_gramk.o  
 objects-y += ar_net.o  
 objects-y += ar_fs.o  
 objects-y += ar_zcall.o
@@ -139,6 +140,7 @@ k2:
 # Originals - Cali.
 k3:
 	@echo "Compiling: Compiling k3/"
+	$(MAKE) -C gramk/
 	$(MAKE) -C ke/
 	$(MAKE) -C zcall/
 

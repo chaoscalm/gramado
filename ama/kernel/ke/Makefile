@@ -79,9 +79,8 @@ pit.o ports64.o rtc.o \
 x64.o x64info.o x64init.o x64mi.o x64nmi.o x64smp.o \
 queue.o \
 ts.o dispatch.o spawn.o x64cont.o \
-sched.o schedi.o schedq.o \
-pixel.o line.o rect.o bitblt.o bg.o font.o char.o text.o gre.o \
-input.o dispsrv.o callback.o user.o    
+sched.o schedi.o schedq.o    
+
 
 all:
 
@@ -127,26 +126,9 @@ all:
 
 #--------
 
-	$(CC) -c queue.c     $(KERNEL_INCLUDE) $(CFLAGS) -o queue.o
-	$(CC) -c ke.c        $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
-	$(CC) -c hal.c       $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
-
-# gre - Graphics Engine
-	$(CC) -c gre/pixel.c   $(KERNEL_INCLUDE) $(CFLAGS) -o pixel.o
-	$(CC) -c gre/line.c    $(KERNEL_INCLUDE) $(CFLAGS) -o line.o
-	$(CC) -c gre/rect.c    $(KERNEL_INCLUDE) $(CFLAGS) -o rect.o
-	$(CC) -c gre/bitblt.c  $(KERNEL_INCLUDE) $(CFLAGS) -o bitblt.o
-	$(CC) -c gre/bg.c      $(KERNEL_INCLUDE) $(CFLAGS) -o bg.o
-	$(CC) -c gre/font.c    $(KERNEL_INCLUDE) $(CFLAGS) -o font.o
-	$(CC) -c gre/char.c    $(KERNEL_INCLUDE) $(CFLAGS) -o char.o
-	$(CC) -c gre/text.c    $(KERNEL_INCLUDE) $(CFLAGS) -o text.o
-	$(CC) -c gre/gre.c     $(KERNEL_INCLUDE) $(CFLAGS) -o gre.o
-
-#
-	$(CC) -c user/input.c     $(KERNEL_INCLUDE) $(CFLAGS) -o input.o
-	$(CC) -c user/dispsrv.c   $(KERNEL_INCLUDE) $(CFLAGS) -o dispsrv.o
-	$(CC) -c user/callback.c  $(KERNEL_INCLUDE) $(CFLAGS) -o callback.o
-	$(CC) -c user/user.c      $(KERNEL_INCLUDE) $(CFLAGS) -o user.o
+	$(CC) -c queue.c  $(KERNEL_INCLUDE) $(CFLAGS) -o queue.o
+	$(CC) -c ke.c     $(KERNEL_INCLUDE) $(CFLAGS) -o ke.o
+	$(CC) -c hal.c    $(KERNEL_INCLUDE) $(CFLAGS) -o hal.o
 
 # link
 	$(LD) -r -o ar_ke.o $(OBJS)

@@ -1142,6 +1142,7 @@ fillTriangle0(
     unsigned long rop )
 {
 // Triangle rasterization.
+// 2D.
 
 // #suspended.
 // We are NOT counting for now.
