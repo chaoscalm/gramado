@@ -34,22 +34,21 @@ gwsViewport(
     int height);
 
 // Point. 
-// #todo: maybe we can ues the structure dc.
+// #todo: 
+// Maybe we can use the dc structure.
+// Or create another function that can do that.
+// maybe grPlot00().
 int 
 grPlot0 (
     struct gws_window_d *clipping_window,   
-    int z, 
-    int x, 
-    int y, 
+    int z, int x, int y, 
     unsigned int color,
     unsigned long rop );
 
 int 
 grPlot1 ( 
     struct gws_window_d *clipping_window,   
-    int x, 
-    int y, 
-    int z, 
+    int x, int y, int z, 
     unsigned int color,
     unsigned long rop,
     unsigned long flags );
@@ -110,6 +109,14 @@ rectangle_ras3D (
 //
 // == triangle ==========================
 //
+
+int 
+fillTriangle0(
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3, 
+    unsigned int c,
+    unsigned long rop );
 
 int xxxTriangleZ ( struct gr_triangle_d *triangle );
 int grTriangle( struct gr_triangle_d *triangle);

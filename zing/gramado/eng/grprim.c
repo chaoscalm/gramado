@@ -13,7 +13,8 @@
 struct gr_projectionF_d  CurrentProjectionF;
 
 // Swap two bytes
-#define ____SWAP(x,y)  do { (x)=(x)^(y); (y)=(x)^(y); (x)=(x)^(y); } while(0)
+#define ____SWAP(x,y)  \
+    do { (x)=(x)^(y); (y)=(x)^(y); (x)=(x)^(y); } while(0)
 
 // See:
 // https://wiki.osdev.org/3D_Renderer_Basics

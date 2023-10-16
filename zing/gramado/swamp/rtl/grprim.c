@@ -5,6 +5,11 @@
 
 #include "../gwsint.h"
 
+// Swap two bytes
+#define ____SWAP(x,y)  \
+    do { (x)=(x)^(y); (y)=(x)^(y); (x)=(x)^(y); } while(0)
+
+
 // See:
 // https://wiki.osdev.org/3D_Renderer_Basics
 // http://members.chello.at/easyfilter/bresenham.html
@@ -537,8 +542,8 @@ grPlot0 (
 //-------------------------------------
 // tmp: zNear zFar
 // Clipping
-    int zNear =  0;
-    int zFar =  80;
+    int zNear = 0;
+    int zFar = 80;
     if ((void*) CurrentProjection != NULL){
         zNear = (int) CurrentProjection->zNear;
         zFar  = (int) CurrentProjection->zFar;
@@ -581,9 +586,10 @@ grPlot0 (
 // or something like that.
 
 // Window validation.
+    //UseClipping = FALSE;
     if ((void*) clipping_window != NULL)
     {
-        if ( clipping_window->used  == TRUE && 
+        if ( clipping_window->used == TRUE && 
              clipping_window->magic == 1234 )
         {
             UseClipping = TRUE;
@@ -622,7 +628,7 @@ grPlot0 (
     __transform_from_modelspace_to_screespace( 
         (int *) &finalx,
         (int *) &finaly,
-        x,y,z,
+        x, y, z,
         UseZTranslation );
 
 // Draw and clipping.
@@ -703,9 +709,7 @@ fail:
 int 
 grPlot1 ( 
     struct gws_window_d *clipping_window,   
-    int x, 
-    int y, 
-    int z, 
+    int x, int y, int z, 
     unsigned int color,
     unsigned long rop,
     unsigned long flags )
@@ -1124,6 +1128,240 @@ rectangle_ras3D (
             color );
     };
 }
+
+// Fill a triangle - Bresenham method.
+// Original from 
+// http://www.sunshine2k.de/\
+// coding/java/TriangleRasterization/TriangleRasterization.html
+int 
+fillTriangle0(
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3, 
+    unsigned int c,
+    unsigned long rop )
+{
+// Triangle rasterization.
+
+// #suspended.
+// We are NOT counting for now.
+// Number of changed pixels.
+    int npixels=0;
+
+    int t1x=0;
+    int t2x=0;
+    int y=0;
+    int minx=0;
+    int maxx=0;
+    int t1xp=0;
+    int t2xp=0;
+    int changed1 = FALSE;
+    int changed2 = FALSE;
+    int signx1=0;
+    int signx2=0;
+    int dx1=0;
+    int dy1=0;
+    int dx2=0;
+    int dy2=0;
+    int e1=0; 
+    int e2=0;
+
+// Sort vertices
+    if (y1>y2) { ____SWAP(y1,y2); ____SWAP(x1,x2); }
+    if (y1>y3) { ____SWAP(y1,y3); ____SWAP(x1,x3); }
+    if (y2>y3) { ____SWAP(y2,y3); ____SWAP(x2,x3); }
+
+// Starting points
+    t1x = t2x = x1; 
+    y=y1; 
+
+    dx1 = (int)(x2 - x1);
+    if(dx1<0) { dx1=-dx1; signx1=-1; } else { signx1=1; }
+    dy1 = (int)(y2 - y1);
+ 
+    dx2 = (int)(x3 - x1); 
+    if(dx2<0) { dx2=-dx2; signx2=-1; } else { signx2=1; }
+    dy2 = (int)(y3 - y1);
+
+// swap values
+    if (dy1 > dx1){  ____SWAP(dx1,dy1);  changed1 = TRUE;  }
+    if (dy2 > dx2){  ____SWAP(dy2,dx2);  changed2 = TRUE;  }
+
+    e2 = (int)(dx2>>1);
+
+// Flat top, just process the second half.
+    if (y1==y2){
+        goto next;
+    }
+    
+    e1 = (int)(dx1>>1);
+
+    register int i=0;
+    for (i=0; i<dx1;)
+    {
+        t1xp=0; t2xp=0;
+        if(t1x<t2x) { minx=t1x; maxx=t2x; }
+        else        { minx=t2x; maxx=t1x; }
+
+        // Process first line until 
+        // y value is about to change.
+        while (i<dx1) 
+        {
+            i++;
+            e1 += dy1;
+            while (e1 >= dx1) 
+            {
+                e1 -= dx1;
+                if (changed1) 
+                    t1xp=signx1;//t1x += signx1;
+                else 
+                    goto next1;
+            };
+
+            if (changed1) 
+                break;
+            else 
+                t1x += signx1;
+        };
+
+    // Move line
+    next1:
+        // Process second line 
+        // until y value is about to change
+        while (1)
+        {
+            e2 += dy2;
+            while (e2 >= dx2) {
+                e2 -= dx2;
+                if (changed2) t2xp=signx2;  //t2x += signx2;
+                else          goto next2;
+            };
+            if (changed2) break;
+            else          t2x += signx2;
+        };
+
+    next2:
+
+        if(minx>t1x) minx=t1x; 
+        if(minx>t2x) minx=t2x;
+        
+        if(maxx<t1x) maxx=t1x; 
+        if(maxx<t2x) maxx=t2x;
+        
+        // #test
+        //if(minx<0) minx=0; 
+
+        // Draw line from min to max points found on the y
+        // #todo: return the number of pixels changed.
+        // #todo: The counter is supended.
+        //npixels += grBackbufferDrawHorizontalLine( minx, y, maxx, c, rop );
+        grBackbufferDrawHorizontalLine( minx, y, maxx, c );
+
+        // Now increase y
+        if(!changed1){ t1x += signx1; }
+        t1x += t1xp;
+        if(!changed2){ t2x += signx2; }
+        t2x+=t2xp;
+        
+        y += 1;
+        
+        if(y==y2){
+            break;
+        }
+    };
+
+// --------------------------------------------
+// Second half
+
+    next:
+
+    dx1 = (int)(x3 - x2); 
+    if (dx1<0){ 
+        dx1 = -dx1; 
+        signx1=-1; 
+    }else{ 
+        signx1=1; 
+    };
+
+    dy1 = (int)(y3 - y2);
+    t1x=x2;
+
+// swap values
+    if (dy1 > dx1){
+        ____SWAP(dy1,dx1);
+        changed1=TRUE;
+    }else{ 
+        changed1=FALSE;
+    };
+
+    e1 = (int)(dx1>>1);
+
+    register int ii=0;
+    for (ii=0; ii<=dx1; ii++)
+    {
+        t1xp=0; 
+        t2xp=0;
+        if(t1x<t2x) { minx=t1x; maxx=t2x; }
+        else        { minx=t2x; maxx=t1x; }
+        // process first line until y value is about to change
+        while(ii<dx1)
+        {
+            e1 += dy1;
+            while (e1 >= dx1)
+            {
+                e1 -= dx1;
+                if (changed1) { t1xp=signx1; break; }//t1x += signx1;
+                else goto next3;
+            };
+            if (changed1) break;
+            else          t1x += signx1;
+            if (ii<dx1)
+                ii++;
+        };
+    next3:
+        // process second line until y value is about to change
+        while (t2x!=x3) 
+        {
+            e2 += dy2;
+            while (e2 >= dx2) {
+                e2 -= dx2;
+                if(changed2) t2xp=signx2;
+                else          goto next4;
+            };
+            if (changed2)  break;
+            else           t2x += signx2;
+        };
+    next4:
+
+        if(minx>t1x) minx=t1x; 
+        if(minx>t2x) minx=t2x;
+
+        if(maxx<t1x) maxx=t1x; 
+        if(maxx<t2x) maxx=t2x;
+
+        // Draw line from min to max points found on the y
+        // #todo: return the number of pixels changed.
+        // #todo: the counter is suspended.
+        // see: line.c
+        //npixels += grBackbufferDrawHorizontalLine( minx, y, maxx, c, rop );
+        grBackbufferDrawHorizontalLine( minx, y, maxx, c );
+        
+        // Now increase y
+        if(!changed1) { t1x += signx1; }
+        t1x+=t1xp;
+        if(!changed2) { t2x += signx2; }
+        t2x+=t2xp;
+        y += 1;
+        if (y>y3){
+            return (int) npixels;
+        }
+    };
+
+    return (int) npixels;
+}
+
+
+
 
 // xxxTriangleZ:
 // ...
