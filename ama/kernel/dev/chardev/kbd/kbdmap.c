@@ -291,6 +291,7 @@ VK_ABNT2_DELETE,  //',',    //83 abnt2(,)
 // control + key
 // CONTROL ABNT2.
 unsigned char ctl_abnt2[ABNT2_CHARMAP_SIZE] = {
+
 0,     //0
 033,   //1
 '!',   //2
@@ -307,6 +308,8 @@ ASCII_US,     //12   ^_
 '+',          //13 
 034,          //14
 '\177',       //15
+
+// No spot 17 colocamos o valor 17 (ASCII_DC1).
 ASCII_DC1,    //16  ^Q
 ASCII_ETB,    //17  ^W
 ASCII_ENQ,    //18  ^E  
@@ -318,9 +321,11 @@ ASCII_HT,     //23  ^I
 ASCII_SI,     //24  ^O
 ASCII_DLE,    //25  ^P
 033,          //26
-ASCII_ESC,    //27     ^[
+ASCII_ESC,    //27  ^[
 '\r',         //28
 CTL,          //29
+
+// No spot 31 comocamos o valor 31 (ASCII_SOH)
 ASCII_SOH,    //30 ^A
 ASCII_DC3,    //31 ^S
 ASCII_EOT,    //32 ^D
@@ -335,6 +340,7 @@ ASCII_RS,     //40  ^^
 '`',          //41
 SHF,          //42
 ASCII_GS,     //43 ^]
+
 ASCII_SUB,    //44 ^Z
 ASCII_CAN,    //45 ^X
 ASCII_ETX,    //46 ^C
@@ -342,6 +348,7 @@ ASCII_SYN,    //47 ^V
 ASCII_STX,    //48 ^B
 ASCII_SO,     //49 ^N
 ASCII_CR,     //50 ^M
+
 '<',    //51 
 '>',    //52
 '?',    //53

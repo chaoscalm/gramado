@@ -2122,6 +2122,7 @@ console_write (
                 //console_putchar ( '@',console_number);
                 //console_putchar ( '0',console_number);
                 //console_putchar ( '\n',console_number);
+               
                // Is printable?
                // ascii, not abnt2
                if (ch >= 32 && ch <= 127){
@@ -2135,19 +2136,19 @@ console_write (
                // >>>> [ Escape ]
                // Entramos em uma escape sequence,
                // entao o proximo case inicia o tratamento da escape sequence.
-               } else if (ch==27){
+               } else if (ch == 27){
                    __EscapeSequenceStage=1;
                
                // ?? \n
                //}else if (ch==10 || ch==11 || ch==12){
-               }else if (ch == '\n'){
+               } else if (ch == '\n'){
                
                    console_putchar(ch,console_number);
                // Enter ? cr \n
-               }else if (ch == '\r'){ 
+               } else if (ch == '\r'){ 
                    console_putchar(ch,console_number); 
                // Backspace
-               }else if (ch=='\b') {
+               } else if (ch=='\b') {
                    console_putchar(ch,console_number);
                // Tab.
                } else if (ch=='\t') {

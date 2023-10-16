@@ -17,6 +17,9 @@
 
 #include "init.h"
 
+// Used when processing the control keys.
+#include "ascii.h"
+
 //Used by creat()
 //#include <fcntl.h>
 
@@ -58,6 +61,7 @@ static int __CompareString(void);
 
 static int processCmdLine(void);
 static int processPrintableChar(int ch);
+static int processControlChar(int ch);
 
 static void do_help(void);
 static void do_launch_de(void);
@@ -534,10 +538,60 @@ static int processPrintableChar(int ch)
         // Feed the command line in prompt[], I guess.
         input(ch);
 
-        // Sending data to the terminal.
+        // Sending data to the kernel console.
         printf("%c",ch);
         fflush(stdout);
     }
+
+    return 0;
+}
+
+static int processControlChar(int ch)
+{
+    if (ch<0)
+        return -1;
+
+    if (ch > 0x1F)
+        return -1;
+
+
+// Process the control chars.
+    switch (ch)
+    {
+        // Escape
+        case ASCII_ESC:
+            do_launch_de();
+            break;
+
+        // Device control.
+        case ASCII_DC1:  // ^q
+        case ASCII_DC2:  // ^r
+        case ASCII_DC3:  // ^s
+        case ASCII_DC4:  // ^t
+            do_launch_de();
+            break;
+
+        // DATA LINK ESCAPE
+        case ASCII_DLE:    // ^p
+            do_launch_de();
+            break;
+
+        // HORIZONTAL TAB
+        case ASCII_HT:  // ^i
+            printf("\t");
+            fflush(stdout);
+            break;
+
+        // ENQUIRY: Who are You?
+        // Just for fun, not for profit.
+        case ASCII_ENQ:   // ^e
+            printf ("INIT.BIN: This is the first user application\n");
+            break;
+
+        // ...
+        default:
+            break;
+    };
 
     return 0;
 }
@@ -570,10 +624,15 @@ static int __stdin_loop(void)
         
         if (C > 0)
         {
+            // [Enter]
             if (C == __VK_RETURN){
                 processCmdLine();
+            // Printable
             } else if ( C >= 0x20 && C <= 0x7F ){
                 processPrintableChar(C);
+            // #todo: Control chars. (0~0x1F)
+            } else if ( C <= 0x1F ){
+                processControlChar(C);
             }
         }
     };

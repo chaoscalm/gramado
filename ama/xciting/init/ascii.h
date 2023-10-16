@@ -16,13 +16,13 @@
 #define ASCII_BEL 7    //BELL               ^G  Audible signal
 #define ASCII_BS  8    //BACKSPACE          ^H  Format effector
 #define ASCII_HT  9    //HORIZONTAL TAB     ^I  Horizontal tabulation/ Skip (punched card)
-#define ASCII_LF    0xA   //LINE FEED          ^J  Line feed
-#define ASCII_VT    0xB   //VERTICAL TAB       ^K  Vertical tabulation
-#define ASCII_FF    0xC   //FORM FEED          ^L  Form feed
-#define ASCII_CR    0xD   //CARRIEGE RETURN    ^M  Carriage return
-#define ASCII_SO    0xE   //SHIFT OUT          ^N  Shift out
-#define ASCII_SI    0xF   //SHIFT IN           ^O  Shift in
-#define ASCII_DLE   0x10  //DATA LINK ESCAPE   ^P  Device control reserved for data link escape
+#define ASCII_LF   0xA   //LINE FEED          ^J  Line feed
+#define ASCII_VT   0xB   //VERTICAL TAB       ^K  Vertical tabulation
+#define ASCII_FF   0xC   //FORM FEED          ^L  Form feed
+#define ASCII_CR   0xD   //CARRIEGE RETURN    ^M  Carriage return
+#define ASCII_SO   0xE   //SHIFT OUT          ^N  Shift out
+#define ASCII_SI   0xF   //SHIFT IN           ^O  Shift in
+#define ASCII_DLE  0x10  //DATA LINK ESCAPE   ^P  Device control reserved for data link escape
 
 /*
 dc1: ^q

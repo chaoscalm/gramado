@@ -804,6 +804,9 @@ wmKeyEvent(
 // Maybe its gonna depend on the input mode.
 
     int Prefix = (int) (prefix & 0xFF);
+
+// Um bit sinaliza o break, 
+// que representa que a tecla foi liberada.
     int fBreak = FALSE;
 
 // Step 0 
@@ -928,6 +931,8 @@ wmKeyEvent(
 
 // ================================================
 // Make or Break?
+// Um bit sinaliza o break, 
+// que representa que a tecla foi liberada.
 
     // Released: Yes, it's a break.
     if ( (Keyboard_RawByte & BREAK_MASK) != 0 ){
@@ -1014,8 +1019,23 @@ wmKeyEvent(
                 break;
         };
 
-        // Selecionando o char para os casos de tecla liberada.
+        // ----------------------
+        // Analiza: 
+        // Se for do sistema usa o mapa de caracteres apropriado. 
+        // Normal.
         
+        if (Event_Message == MSG_SYSKEYUP)
+        {   
+            // se liberada teclas de sistema como capslock ligado
+            if (capslock_status == FALSE)
+            { Event_LongASCIICode = map_abnt2[Keyboard_ScanCode];   goto done; }
+            // se liberada teclas de sistema como capslock desligado
+            if (capslock_status == TRUE)
+            { Event_LongASCIICode = shift_abnt2[Keyboard_ScanCode]; goto done; }
+            // ...
+        }
+
+        // ----------------------
         // Analiza: 
         // Se for tecla normal, pega o mapa de caracteres apropriado.
         // minúscula
@@ -1035,21 +1055,7 @@ wmKeyEvent(
             // ...
         }
 
-        // Analiza: Se for do sistema usa o mapa de caracteres apropriado. 
-        // Normal.
-        
-        if (Event_Message == MSG_SYSKEYUP)
-        {   
-            // se liberada teclas de sistema como capslock ligado
-            if (capslock_status == FALSE)
-            { Event_LongASCIICode = map_abnt2[Keyboard_ScanCode];   goto done; }
-            // se liberada teclas de sistema como capslock desligado
-            if (capslock_status == TRUE)
-            { Event_LongASCIICode = shift_abnt2[Keyboard_ScanCode]; goto done; }
-            // ...
-        }
-
-        // Nothing.
+        // Nothing
         goto done;
     }
 
@@ -1178,36 +1184,7 @@ wmKeyEvent(
                 break;
         };
 
-        // ==============================
-        // Teclas de digitaçao
-        // Uma tecla normal foi pressionada ou liberada
-        // mensagem de digitação.
-        if (Event_Message == MSG_KEYDOWN)
-        {
-            // Minúsculas.
-            if (capslock_status == FALSE && shift_status == FALSE)
-            { 
-                Event_LongASCIICode = map_abnt2[Keyboard_ScanCode];
-                //if (Prefix == 0xE0)
-                //    panic("0xE0\n");
-                //if (Prefix == 0xE1)
-                // #todo: precisamos de uma map para teclado extendido abnt2.
-                goto done; 
-            }
-            // Maiúsculas.
-            if (capslock_status == TRUE || shift_status == TRUE)
-            {
-                Event_LongASCIICode = shift_abnt2[Keyboard_ScanCode];
-                //if (Prefix == 0xE0)
-                //if (Prefix == 0xE1)
-                // #todo: precisamos de uma map para teclado extendido abnt2.
-                goto done;
-            }
-            
-            // ...
-        }
-
-        // ==============================
+        // ----------------------
         // Teclas de sistema
         // Uma tecla do sistema foi pressionada ou liberada.
         if (Event_Message == MSG_SYSKEYDOWN)
@@ -1220,6 +1197,45 @@ wmKeyEvent(
             { Event_LongASCIICode = shift_abnt2[Keyboard_ScanCode]; goto done; }
             // ...
         }
+
+        // ----------------------
+        // Teclas de digitaçao
+        // Uma tecla normal foi pressionada ou liberada
+        // mensagem de digitação.
+        if (Event_Message == MSG_KEYDOWN)
+        {
+            // Minúsculas.
+            if (capslock_status == FALSE && shift_status == FALSE)
+            { 
+                Event_LongASCIICode = map_abnt2[Keyboard_ScanCode];
+
+                // #test
+                // We send a combination event,
+                // and the ascii char.
+                // For stdin we send just the ascii char.
+                if (ctrl_status == TRUE)
+                    Event_LongASCIICode = ctl_abnt2[Keyboard_ScanCode];
+
+                goto done; 
+            }
+            // Maiúsculas.
+            if (capslock_status == TRUE || shift_status == TRUE)
+            {
+                Event_LongASCIICode = shift_abnt2[Keyboard_ScanCode];
+
+                // #test
+                // We send a combination event,
+                // and the ascii char.
+                // For stdin we send just the ascii char.
+                if (ctrl_status == TRUE)
+                    Event_LongASCIICode = ctl_abnt2[Keyboard_ScanCode];
+
+                goto done;
+            }
+            
+            // ...
+        }
+
         // Nothing
         goto done;
     }
@@ -1293,8 +1309,18 @@ done:
         // Only normal keys. For terminal support.
         if (Event_Message == MSG_KEYDOWN)
         {
-            if ( alt_status != TRUE && 
-                 ctrl_status != TRUE && 
+
+            // #bugbug
+            // #todo
+            // We need to send the ascii representation for
+            // control keys. (0~-x1F)
+            // The applications reading stdin 
+            // can process this ascii chars as commands.
+
+            //if ( alt_status != TRUE && 
+            //     ctrl_status != TRUE && 
+            //     shift_status != TRUE )
+            if ( alt_status != TRUE &&  
                  shift_status != TRUE )
             {
                 wbytes = (int) kstdio_feed_stdin((int) __int_ascii_code);
@@ -1348,10 +1374,6 @@ done:
 // os aceleradores de teclado estiverem habilitados.
 // #todo
 // precisamos de uma flag que indique que isso deve ser feito.
-
-
-// Quando devemos processar internamente?
-// + Somente quando uma tecla de controle estiver acionada.
 
 // Uma flag global poderia nos dizer se devemos ou não
 // processar algumas combinações. Mas o sistema deve
@@ -1534,9 +1556,11 @@ keProcessInput (
         // Se ela for do tipo editbox.
         // O ws mandará mensagens para a thread associa
         // à janela com foco de entrada.
-            
-        if (ShellFlag!=TRUE){
-            //wmSendInputToWindowManager(0,MSG_KEYDOWN,long1,long2);
+
+        // Nao proccessaremos keydown 
+        // se nao estivermos em modo shell.
+        if (ShellFlag != TRUE){
+            //return 0;
         }
 
         switch (long1){
@@ -1546,7 +1570,7 @@ keProcessInput (
                 //wmSendInputToWindowManager(0,MSG_KEYDOWN,long1,long2);
                 //return 0;
             //}
-            if(ShellFlag==TRUE)
+            if (ShellFlag==TRUE)
             {
                 kinput('\0');               // finalize
                 __CompareStrings();   // compare
