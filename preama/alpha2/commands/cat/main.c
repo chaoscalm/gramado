@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     };
 
     if (argc > Max){
-        printf("Too much files in the commnads line\n");
+        printf("Too much files in the commnad line\n");
         goto fail;
     }
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         }
         
         //
-        // It' not a flag.
+        // It's not a flag.
         //
 
         // Open the file and print the content into the screen.
@@ -123,9 +123,9 @@ int main(int argc, char *argv[])
                 goto fail;
             }
             // Read from fd.
-            nreads = read( fd, buffer, 511 );  
+            nreads = read( fd, buffer, 511 );
             if (nreads <= 0){
-                printf ("cat: read fail\n");
+                printf ("cat: read() failed\n");
                 goto fail;
             }
             // Write on stdout.

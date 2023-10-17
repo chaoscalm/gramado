@@ -899,6 +899,11 @@ void *rtl_malloc(size_t size)
     return (void *) malloc(size);
 }
 
+void _Exit(int status)
+{
+    _exit(status);
+}
+
 /*
  * malloc:
  *     Aloca memória para um programa em user mode. 

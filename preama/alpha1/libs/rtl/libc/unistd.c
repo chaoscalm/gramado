@@ -8,6 +8,8 @@
 
 #include <sys/types.h>  
 #include <errno.h>
+#include <stdlib.h>
+#include <sysexits.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -403,6 +405,31 @@ int ftruncate (int fd, off_t length)
     return -1;
 }
 
+// see:
+// https://linux.die.net/man/2/_exit
+// The function _exit() terminates the calling process "immediately". 
+// Any open file descriptors belonging to the process are closed; 
+// any children of the process are inherited by process 1, 
+// init, and the process's parent is sent a SIGCHLD signal.
+// The value status is returned to the parent process 
+// as the process's exit status, and can be collected 
+// using one of the wait(2) family of calls. 
+void _exit(int status)
+{
+    int value;
+
+    value = 
+        (int) sc80( 
+                  UNISTD_SYSTEMCALL_EXIT, 
+                  (unsigned long) status, 
+                  (unsigned long) status, 
+                  (unsigned long) status );
+
+// Wait forever
+    while (1){
+        asm ("pause"); 
+    };
+}
 
 /*
  * exit:
@@ -420,26 +447,43 @@ int ftruncate (int fd, off_t length)
 // The exit() function causes normal process termination and the value
 // of status & 0xFF is returned to the parent.
 
-void exit(int status)
-{
-    int value=-1;
-
-    debug_print ("exit:\n");
-
     // #todo
     // Chamar rotina para finalizar a biblioteca.
     // Liberando os recursos usados.
-
-    // #importante:
-    // #todo: 
-    
-    // ??
     // Se o status for (1) devemos imprimir o conteúdo 
-    // de stderr na tela.
+    // de stderr na tela?
 
-    //if(status==1)
-        //printf(stderr);
+void exit(int status)
+{
+    int value = -1;
 
+    debug_print("exit:\n");
+
+// -----------------------------
+// Check against stdlib.h
+// Permitimos que esses valores sejam passados para o kernel.
+    if (status == EXIT_SUCCESS){
+        goto DoExit;
+    } else if (status == EXIT_FAILURE){
+        goto DoExit;
+    }
+
+// -----------------------------
+// Check against sysexits.h
+// Permitimos que esses valores sejam passados para o kernel.
+    if ( status >= EX__BASE &&
+         status <= EX__MAX )
+    {
+        goto DoExit;
+    }
+
+// -----------------------------
+// Invalid status
+// Nao permitimos outros valores alem dos
+// valores permitidos acima.
+    status = EXIT_FAILURE;
+
+DoExit:
     value = 
         (int) sc80( 
                   UNISTD_SYSTEMCALL_EXIT, 
@@ -447,10 +491,10 @@ void exit(int status)
                   (unsigned long) status, 
                   (unsigned long) status );
 
-    //if (value ...
-
-// Wait forever.
-    while (1){ asm ("pause"); };
+// Wait forever
+    while (1){
+        asm ("pause"); 
+    };
 }
 
 
@@ -2043,16 +2087,6 @@ unsigned int sleep(unsigned int seconds)
 {
     debug_print ("sleep: [TODO]\n");
     return -1;
-}
-
-// ??
-// todo
-// exit deveria ser o wrapper para _exit ?
-
-void _exit(int status)
-{
-    debug_print ("_exit: [error=O]\n");
-    exit(0);
 }
 
 void swab_w (const short *from, short *to, ssize_t n)

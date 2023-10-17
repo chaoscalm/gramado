@@ -61,12 +61,10 @@ const char *my_environ[] = {
 
 
 // ==============================
-
 // Import from the ring3 application.
-extern int main ( int argc, char *argv[] );
+extern int main(int argc, char *argv[]);
 
 // ==============================
-
 
 // # importante
 // Esses aplicativos rodam no terminal.
@@ -83,6 +81,9 @@ void crt0(unsigned long rdi)
     // #todo
     // We can get the command line from 'stdin'.
 
+// #warning
+// Only the last 8 bits are used
+// as a return value to the father.
     int main_ret=0;
 
 // Token support.
@@ -303,18 +304,16 @@ e o crt0 do driver, não ativa.
 
     // IN: argc, argv.
     main_ret = (int) main( token_count, tokenList );
+
+// Check against stdlin.h
     switch (main_ret){
-    case 0:
-        //printf ("crt0: main returned 0\n");
-        exit(0);
+    case EXIT_SUCCESS:
+        exit(EXIT_SUCCESS);
         break;
-    case 1:
-        //printf ("crt0: main returned 1\n");
-        exit(1);
+    case EXIT_FAILURE:
+        exit(EXIT_FAILURE);
         break;
-    // ...
     default:
-        //printf ("crt0: main returned default\n");
         exit(-1);
         break; 
     };

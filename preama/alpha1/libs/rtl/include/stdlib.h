@@ -91,8 +91,9 @@ typedef struct {
 #endif
 
 
-#define EXIT_FAILURE  1
 #define EXIT_SUCCESS  0
+#define EXIT_FAILURE  1
+
 
 // bsd-like
 // #todo rand max for 64 bit?
@@ -165,6 +166,10 @@ int clearenv(void);
 // 4.3BSD, POSIX.1-2001.  
 // POSIX.1-2008 removes the specification of mktemp().
 char *mktemp (char *template);
+
+
+void _Exit(int status); 
+
 
 //
 // alloc

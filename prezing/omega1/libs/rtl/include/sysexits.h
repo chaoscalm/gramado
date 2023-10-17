@@ -2,7 +2,7 @@
 
 /*
  * Copyright (c) 1987, 1993
- *	The Regents of the University of California.  All rights reserved.
+ * The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,7 +28,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)sysexits.h	8.1 (Berkeley) 6/2/93
+ *  @(#)sysexits.h	8.1 (Berkeley) 6/2/93
  */
 
 #ifndef	_SYSEXITS_H_
@@ -93,29 +93,32 @@
  *	Please update the sysexits(3) man page after adding more entries.
  */
 
-#define EX_OK		0	/* successful termination */
+/* successful termination */
+// The same found in EXIT_SUCCESS.
+// see: stdlib.h.
+#define EX_OK  0
 
-#define EX__BASE	64	/* base value for error messages */
+/* base value for error messages */
+#define EX__BASE  64
 
-#define EX_USAGE	64	/* command line usage error */
-#define EX_DATAERR	65	/* data format error */
-#define EX_NOINPUT	66	/* cannot open input */
-#define EX_NOUSER	67	/* addressee unknown */
-#define EX_NOHOST	68	/* host name unknown */
-#define EX_UNAVAILABLE	69	/* service unavailable */
-#define EX_SOFTWARE	70	/* internal software error */
-#define EX_OSERR	71	/* system error (e.g., can't fork) */
-#define EX_OSFILE	72	/* critical OS file missing */
-#define EX_CANTCREAT	73	/* can't create (user) output file */
-#define EX_IOERR	74	/* input/output error */
-#define EX_TEMPFAIL	75	/* temp failure; user is invited to retry */
-#define EX_PROTOCOL	76	/* remote error in protocol */
-#define EX_NOPERM	77	/* permission denied */
-#define EX_CONFIG	78	/* configuration error */
+#define EX_USAGE        64  /* command line usage error */
+#define EX_DATAERR      65  /* data format error */
+#define EX_NOINPUT      66  /* cannot open input */
+#define EX_NOUSER       67  /* addressee unknown */
+#define EX_NOHOST       68  /* host name unknown */
+#define EX_UNAVAILABLE  69  /* service unavailable */
+#define EX_SOFTWARE     70  /* internal software error */
+#define EX_OSERR        71  /* system error (e.g., can't fork) */
+#define EX_OSFILE       72  /* critical OS file missing */
+#define EX_CANTCREAT    73  /* can't create (user) output file */
+#define EX_IOERR        74  /* input/output error */
+#define EX_TEMPFAIL     75  /* temp failure; user is invited to retry */
+#define EX_PROTOCOL     76  /* remote error in protocol */
+#define EX_NOPERM       77  /* permission denied */
+#define EX_CONFIG       78  /* configuration error */
 
-#define EX__MAX	78	/* maximum listed value */
+/* maximum listed value */
+#define EX__MAX  78
 
-#endif /* !_SYSEXITS_H_ */
-
-
+#endif    
 

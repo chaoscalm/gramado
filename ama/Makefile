@@ -8,7 +8,7 @@
 
 BASE    = base/
 ASSETS  = xciting/assets
-#ASSETS2 = ../prezing/../assets
+#ASSETS2 = ../prezing/omega1/assets
 
 # Make variables (CC, etc...)
 AS      = as
