@@ -13,19 +13,15 @@ all: userland-domain core-domain
 # Step 1
 PHONY := userland-domain
 userland-domain:
-# Warning: Respect the order!
-
-# graminit, gramado and netd.
-# zing has all the dependencies.
+	make -C  prezing/
 	make -C  zing/
-
-# omega1, omega2 and omega3.
-	make -C  zz/
 
 # Step 2
 PHONY := core-domain
 core-domain:
+	make -C  preama/
 	make -C  ama/
+
 
 # ------------------------
 
@@ -51,22 +47,20 @@ clean-userland:
 	-rm -f zing/netd/bin/*.BIN
 
 # ------------
-# zz/
+# prezing/
 
 # omega1
-	-rm -f zz/omega1/libs/libdisp/obj/*.o
-	-rm -f zz/omega1/libs/libgr/obj/*.o
-	-rm -f zz/omega1/libs/libgr3d/obj/*.o
-	-rm -f zz/omega1/libs/libgws/obj/*.o
+	-rm -f prezing/omega1/libs/libdisp/obj/*.o
+	-rm -f prezing/omega1/libs/libgr/obj/*.o
+	-rm -f prezing/omega1/libs/libgr3d/obj/*.o
+	-rm -f prezing/omega1/libs/libgws/obj/*.o
 
 # omega2
-	-rm -f zz/omega2/apps/bin/*.BIN
-	-rm -f zz/omega2/commands/bin/*.BIN
-	-rm -f zz/omega2/drivers/bin/*.BIN
-	-rm -f zz/omega2/servers/bin/*.BIN
+	-rm -f prezing/omega2/drivers/bin/*.BIN
+	-rm -f prezing/omega2/servers/bin/*.BIN
 
 # omega3
-#data
+	-rm -f prezing/omega3/apps/bin/*.BIN
 
 
 PHONY := clean-core

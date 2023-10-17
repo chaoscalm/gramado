@@ -55,27 +55,23 @@ not all the features needed by a commercial operating system.
 
 ## userland system programs.
 
-> * zing/graminit/ - The init process.
-> * zing/gramlan0/ - Gramland, the display server.
-> * zing/netd/     - The network server.
+> * zing/gramado/swamp/ - Gramland, the display server.
+> * zing/netd/ - The network server.
 
 ## userland libraries, toolkits and apis.
 
 > * posix libc - (rtl)
 > * Client-sie library for GUI applications - (libgws)
-> * see: zz/omega1/libs/ for all the libraries, toolkits and apis.
+
+> * see: prezing/omega1/libs/ for all the libraries, toolkits and apis.
 
 ## userland user programs.
 
-> * see: zz/omega2/apps/ for Client-side GUI application.
-> * see: zz/omega2/commands/ for posix commands.
-> * see: zz/omega2/drivers/ for ring3 drivers.
-> * see: zz/omega2/servers/ for ring3 servers.
+> * see: preama/alpha2/commands/ for posix commands.
 
-## userland system data.
-
-> * zz/omega3/assets - Icons for the User Interface.
-> * zz/omega3/base   - All binaries go here to build the final virtual disk.
+> * see: prezing/omega2/drivers/ for ring3 drivers.
+> * see: prezing/omega2/servers/ for ring3 servers.
+> * see: prezing/omega3/apps/ for Client-side GUI application.
 
 ## The source code.
 
@@ -95,25 +91,30 @@ desktop/ is a place for the graphical user interface.
     The next few lines has a brief description of the subdirectories:
 
 ```
- * `aa/` - Ring 0 first loadable module.
-   * `cancun/` - Running gramado commands on Linux host.
-
- * `ama/` - Low level basic components of the system.  
+ * `ama/` - Low level basic components of the system. 
+   * `base` - The root dir for the virtual disk. 
    * `boot` - The boot loader.
    * `kernel` - The Gramado OS kernel.
    * `kmods` - Kernel module.
    * `xciting` - init process and data.
 
- * `boring/docs/` - Documentation.
+ * `preama/` - 
+   * `alpha1` - libc
+   * `alpha2` - Commands.
+   * `cancun/` - Running gramado commands on Linux host.
+
+ * `preamble/docs/` - Documentation.
+
+ * `prezing` - 
+   * `omega1` - Libraries, toolkits and apis. 
+   * `omega2` - drivers and servers. 
+   * `omega3` - Client-side GUI applications. 
 
  * `zing/` - Desktop Environment (DE).
    * `gramland` - Display server. (GRAMLAND.BIN)
    * `netd` - The network server.
 
- * `zz` - 
-   * `omega1` - Libraries, toolkits and apis. 
-   * `omega2` - apps, commands, drivers and servers. 
-   * `omega3` - data 
+
 ```
 
 ## Who are the developers?
@@ -209,14 +210,14 @@ You're reaching the boring area of this document!
 
 ## How to Build?
 
-> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/boring/docs/build.md)
+> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/preamble/docs/build.md)
 
 ## Documentation
 
 The project has a folder for documentation and design notes. 
 The folder is docs/.
 
-> See the [docs](https://github.com/gramado/gramado/tree/master/boring/docs).
+> See the [docs](https://github.com/gramado/gramado/tree/master/preamble/docs).
 
 The project is looking for some people to create a better documentation, for free, 
 as a contribuition to the open source community. To create this new documentation 
@@ -231,7 +232,8 @@ The source code uses the BSD license.
 ## Quotes:
 
 ```
-  * "Close to the borders and beyond."
+  * Transfiguration
+  * "Close to the borders and beyond." (Grace).
   * "Exciting"
   * "(+ spontaneous)"
 ```

@@ -32,16 +32,15 @@ The main library for the GUI applications is libs/libgws/.
 ## Folders
 
 ```
- * graminit/:
-    * Init process.
- * gramlan0/:
+ * gramado/swamp/:
     * Display server.
  * netd:
     * Network server and first client.
 ```
 
 ## Quotes:
-> X
+> Transfiguration
+
 
 
 

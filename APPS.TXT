@@ -2,12 +2,13 @@
 	How to create posix commands, client-side GUI applications and servers.
 
 	How to create posix-like commands to run in the terminal?
-	Create a new commands in userland/commands and use the library libs/rtl.
+	Create a new commands in preama/ and use the library libs/rtl.
 
-	How to create a clien-side GUI application?
-	Create a new application in userland/apps and use the library libs/libgws.
+	How to create a client-side GUI application?
+	Create a new application in prezing/ and use the library libs/libgws.
 
 	How to create a server?
-	Create a server in userland/services.
+	Create a server in prezing/
+	
 
 

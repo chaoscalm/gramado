@@ -6,9 +6,9 @@
 
 # ama/ depends on ama/libs/
 
-BASE    = ../aa/base
+BASE    = base/
 ASSETS  = xciting/assets
-ASSETS2 = ../zz/omega3/assets
+#ASSETS2 = ../prezing/../assets
 
 # Make variables (CC, etc...)
 AS      = as
@@ -195,46 +195,46 @@ copy-extras:
 #	-sudo cp ../zz/omega2/servers/bin/???.BIN  $(BASE)/
 
 #-------------------------
-# omega3 - Commands
+# alpha2 - Commands
 
-	-sudo cp ../zz/omega3/commands/bin/SHELL.BIN   $(BASE)/
-	-sudo cp ../zz/omega3/commands/bin/BARNSH.BIN  $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/SHELL.BIN   $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/BARNSH.BIN  $(BASE)/
 
-	-sudo cp ../zz/omega3/commands/bin/CAT.BIN       $(BASE)/
-	-sudo cp ../zz/omega3/commands/bin/REBOOT.BIN    $(BASE)/
-	-sudo cp ../zz/omega3/commands/bin/SHUTDOWN.BIN  $(BASE)/
-	-sudo cp ../zz/omega3/commands/bin/UNAME.BIN     $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/CAT.BIN       $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/REBOOT.BIN    $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/SHUTDOWN.BIN  $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/UNAME.BIN     $(BASE)/
 
-	-sudo cp ../zz/omega3/commands/bin/CMP.BIN       $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/FALSE.BIN     $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/GRAMCNF.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/SHOWFUN.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/SUM.BIN       $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/TASCII.BIN    $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/TPRINTF.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega3/commands/bin/TRUE.BIN      $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/CMP.BIN       $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/FALSE.BIN     $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/GRAMCNF.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/SHOWFUN.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/SUM.BIN       $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/TASCII.BIN    $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/TPRINTF.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preama/alpha2/commands/bin/TRUE.BIN      $(BASE)/PROGRAMS/
 
-#	-sudo cp ../zz/omega3/commands/bin/N9.BIN   $(BASE)/PROGRAMS/
-#	-sudo cp ../zz/omega3/commands/bin/N10.BIN  $(BASE)/PROGRAMS/
-#	-sudo cp ../zz/omega3/commands/bin/N11.BIN  $(BASE)/PROGRAMS/
+#	-sudo cp ../preama/alpha2/commands/bin/N9.BIN   $(BASE)/PROGRAMS/
+#	-sudo cp ../preama/alpha2/commands/bin/N10.BIN  $(BASE)/PROGRAMS/
+#	-sudo cp ../preama/alpha2/commands/bin/N11.BIN  $(BASE)/PROGRAMS/
 
 #-------------------------
-# omega4 - Client-side GUI applications.
-	-sudo cp ../zz/omega4/apps/bin/TERMINAL.BIN  $(BASE)/
-	-sudo cp ../zz/omega4/apps/bin/BARNTERM.BIN  $(BASE)/
+# omega3 - Client-side GUI applications.
+	-sudo cp ../prezing/omega3/apps/bin/TERMINAL.BIN  $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/BARNTERM.BIN  $(BASE)/
 
-	-sudo cp ../zz/omega4/apps/bin/EDITOR.BIN   $(BASE)/
-	-sudo cp ../zz/omega4/apps/bin/GDM.BIN   $(BASE)/
-	-sudo cp ../zz/omega4/apps/bin/BROWSER.BIN  $(BASE)/
-	-sudo cp ../zz/omega4/apps/bin/TASKBAR.BIN  $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/EDITOR.BIN   $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/GDM.BIN   $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/BROWSER.BIN  $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/TASKBAR.BIN  $(BASE)/
 
-	-sudo cp ../zz/omega4/apps/bin/DOCV.BIN     $(BASE)/PROGRAMS/
-	-sudo cp ../zz/omega4/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
+	-sudo cp ../prezing/omega3/apps/bin/DOCV.BIN     $(BASE)/PROGRAMS/
+	-sudo cp ../prezing/omega3/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
 
 
-#	-sudo cp ../zz/omega4/apps/bin/GDM2.BIN  $(BASE)/
-#	-sudo cp ../zz/omega4/apps/bin/GWS.BIN   $(BASE)/
-#	-sudo cp ../zz/omega4/apps/bin/FILEMAN.BIN  $(BASE)/
+#	-sudo cp ../prezing/omega3/apps/bin/GDM2.BIN  $(BASE)/
+#	-sudo cp ../prezing/omega3/apps/bin/GWS.BIN   $(BASE)/
+#	-sudo cp ../prezing/omega3/apps/bin/FILEMAN.BIN  $(BASE)/
 
 
 #----------------------------------

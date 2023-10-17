@@ -57,24 +57,25 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 
 ## userland system programs.
 
-> * zing/graminit/ - The init process.
-> * zing/gramlan0/ - Gramland, the display server.
-> * zing/netd/     - The network server.
+> * zing/gramado/swamp/ - Gramland, the display server.
+> * zing/netd/  - The network server.
 
 ## userland libraries, toolkits and apis.
 
 > * posix libc - (rtl)
 > * Client-sie library for GUI applications - (libgws)
 
-> * zz/omega1/libs/   - All the libraries, toolkits and apis.
-> * zz/omega1/assets/ - Icons for the User Interface.
+> * prezing/omega1/libs/ - All the libraries, toolkits and apis.
+> * prezing/omega1/assets/ - Icons for the User Interface.
 
 ## userland user programs.
 
-> * see: zz/omega2/drivers/ for ring3 drivers.
-> * see: zz/omega2/servers/ for ring3 servers.
-> * see: zz/omega3/commands/ for posix commands.
-> * see: zz/omega4/apps/ for Client-side GUI application.
+> * see: preama/alpha2/commands/ for posix commands.
+
+> * see: prezing/omega2/drivers/ for ring3 drivers.
+> * see: prezing/omega2/servers/ for ring3 servers.
+> * see: prezing/omega3/apps/ for Client-side GUI application.
+
 
 ## Fred's compilation on Linux.
 
@@ -95,7 +96,7 @@ The kernel has only one ring0 loadable module. It uses a static address and the 
 
 ## How to Build?
 
-> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/boring/docs/build.md)
+> See the [Gramado OS build instructions](https://github.com/gramado/gramado/blob/master/preamble/docs/build.md)
 
 ## Testing
 
@@ -129,6 +130,4 @@ Gramado is a Free and Open Source operating system.
 The source code uses the BSD license.
 
 ## Quotes:
-> X
-
-
+> Transfiguration 
