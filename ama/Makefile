@@ -178,7 +178,7 @@ copy-extras:
 # Graphics engine
 	-sudo cp ../zing/gramado/eng/bin/ENG.BIN  $(BASE)/
 # Display server.
-	-sudo cp ../zing/gramado/swamp/bin/GRAMLAND.BIN  $(BASE)/
+	sudo cp ../zing/gramado/server/bin/GRAMLAND.BIN  $(BASE)/
 # c3
 	-sudo cp ../zing/netd/bin/NETCTL.BIN   $(BASE)/
 	-sudo cp ../zing/netd/bin/NETCTLD.BIN  $(BASE)/
@@ -226,7 +226,7 @@ copy-extras:
 	-sudo cp ../prezing/omega3/apps/bin/EDITOR.BIN   $(BASE)/
 	-sudo cp ../prezing/omega3/apps/bin/GDM.BIN   $(BASE)/
 	-sudo cp ../prezing/omega3/apps/bin/BROWSER.BIN  $(BASE)/
-	-sudo cp ../prezing/omega3/apps/bin/TASKBAR.BIN  $(BASE)/
+	sudo cp ../prezing/omega3/apps/bin/TASKBAR.BIN  $(BASE)/
 
 	-sudo cp ../prezing/omega3/apps/bin/DOCV.BIN     $(BASE)/PROGRAMS/
 	-sudo cp ../prezing/omega3/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
