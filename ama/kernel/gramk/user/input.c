@@ -1303,7 +1303,8 @@ done:
 
     int wbytes = 0;  //written bytes.
 
-    // Not in the embedded shell.
+// --------------------
+// Not in the embedded shell.
     if (ShellFlag != TRUE)
     {
         // Only normal keys. For terminal support.
@@ -1615,43 +1616,51 @@ keProcessInput (
             // enquanto o console virtual está imprimindo.
             if (ShellFlag != TRUE)
             {
-                if (ctrl_status == TRUE && long1 == 'c'){
+                // ^c
+                if (ctrl_status == TRUE && long1 == ASCII_ETX){
                     post_message_to_ws( MSG_COPY, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 'v'){
+                // ^v
+                if (ctrl_status == TRUE && long1 == ASCII_SYN){
                     post_message_to_ws( MSG_PASTE, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 'x'){
+                // ^x
+                if (ctrl_status == TRUE && long1 == ASCII_CAN){
                     post_message_to_ws( MSG_CUT, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 'z'){
+                // ^z
+                if (ctrl_status == TRUE && long1 == ASCII_SUB){
                     post_message_to_ws( MSG_UNDO, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 'a'){
+                // ^a
+                if (ctrl_status == TRUE && long1 == ASCII_SOH){
                     post_message_to_ws( MSG_SELECT_ALL, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 'f'){
+                // ^f
+                if (ctrl_status == TRUE && long1 == ASCII_ACK){
                     post_message_to_ws( MSG_FIND, long1, long2 );
                     return 0;
                 }
 
-                if (ctrl_status == TRUE && long1 == 's'){
+                // ^s
+                if (ctrl_status == TRUE && long1 == ASCII_DC3){
                     post_message_to_ws( MSG_SAVE, long1, long2 );
                     return 0;
                 }
 
                 // ...
 
+                // ?? #bugbug
                 // No caso da combinação não ter sido tratada na rotina acima.
                 // Enviamos combinação de [shift + tecla] de digitaçao.
                 post_message_to_ws( msg, long1, long2 );
