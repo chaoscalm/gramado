@@ -14,6 +14,7 @@ static void *__kmalloc_impl(size_t size, int clean);
 
 // ring0 srand:
 // Alimenta a função rand.
+// see: https://linux.die.net/man/3/srand.
 void srand(unsigned int seed)
 {
     __randseed = (unsigned int) seed;
@@ -23,10 +24,14 @@ void srand(unsigned int seed)
 // Gera um número inteiro semi-randômico. 
 int rand(void)
 {
-    int extra = (int) (jiffies & 0xFFFFFFFF);
-    __randseed = (int) ((__randseed * extra) + 8);
+    int ret_value=0;
+    int extra_value = 8;
+    unsigned int seed = (unsigned int) (jiffies & 0xFFFFFFFF);
 
-    return (int) __randseed;
+    srand(seed);
+    ret_value = (int) ((__randseed * extra_value) + extra_value);
+
+    return (int) ret_value;
 }
 
 int abs(int j)

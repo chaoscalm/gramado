@@ -1,5 +1,5 @@
 
-// caliuser/input.c - Input.
+// gramk/user/input.c - Input.
 // mouse/kdb/timer
 
 // This is an in-kernel input event handler.

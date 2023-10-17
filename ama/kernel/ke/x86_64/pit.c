@@ -189,6 +189,13 @@ void DeviceInterface_PIT(void)
 
 // Increment tick counter.
     jiffies++;
+
+// Update the seed for rand() function.
+// Ring0 only
+// see: kstdlib.c
+    unsigned int new_seed = (unsigned int) (jiffies & 0xFFFFFFFF);
+    srand(new_seed);
+
 // The master timer.
 // see: grinput.c
     wmTimerEvent(1234);
