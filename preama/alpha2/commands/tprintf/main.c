@@ -2,7 +2,7 @@
 // Testing libc functions.
 
 #include <ctype.h> 
-#include <types.h>
+#include <sys/types.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@ static int printf_test(void);
 
 /*
  * printf_test:
- *     Essa função testa a função printf() e seus recursos.
+ *     Essa funï¿½ï¿½o testa a funï¿½ï¿½o printf() e seus recursos.
  *     Obs: We can implement this test in user mode.
  * Obs:
  *     If you compile this file with
@@ -42,13 +42,13 @@ static int printf_test(void);
  * -3:   -3 right justif.
  */
 //testando 
-//não tradicional, mas funciona.
+//nï¿½o tradicional, mas funciona.
 
 static int printf_test(void)
 {
     int mi;
     int i=5;
-    unsigned int bs = sizeof(int) * 8;
+    unsigned int bs = (sizeof(int) * 8);
     char *np = 0;
     char *ptr = "Hello world!";
     char buf[128];
@@ -114,15 +114,24 @@ static int printf_test(void)
 
 int main (int argc, char *argv[])
 {
+// Testing printf() function.
+
+    // #debug
     printf("TPRINTF.BIN: initializing ...");
     fflush(stdout);
 
+// Call the test.
     printf_test();
 
+    // #debug
     printf("TPRINTF.BIN: Done");
     fflush(stdout);
 
-    return 0;
+    return EXIT_SUCCESS;
+
+//fail:
+    //return EXIT_FAILURE;
 }
+
 
 

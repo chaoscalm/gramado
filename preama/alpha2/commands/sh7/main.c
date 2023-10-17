@@ -94,6 +94,11 @@ int main (int argc, char **argv)
     for (i = 0; i < argc; i ++)
         printf("arg %d: %s\n", i, argv[i]);
 
+
+// #todo
+// We need a better event loop here.
+// See init.bin as an example.
+
     while (1) {
         volatile char c = 0;
 
@@ -132,21 +137,24 @@ read_more:
         
         if (ret == 0)
             exit(0);
-        
+
         cmdbuf[strlen(cmdbuf) - 1] = 0;
         
         //printf("read \"%s\"\n", cmdbuf);
-        
-        
-        
+
         //
         // Calling process_cmd()
         //
-        
+
         printf ("OK: calling command! :0 )");
         //process_cmd(cmdbuf);
 
         goto prompt;
-    }
+    };
+
+    return EXIT_SUCCESS;
+
+fail:
+    return EXIT_FAILURE;
 }
 

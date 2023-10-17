@@ -101,15 +101,14 @@ int main( int argc, char *argv[] )
     serial_write_char('.');
     serial_write_char('.');
 
-    puts        ("\n");
-    printf      ("REBOOT.BIN: Rebooting ...\n");
-    debug_print ("REBOOT.BIN: Rebooting ...\n");
-    
+    puts       ("\n");
+    printf     ("REBOOT.BIN: Rebooting ...\n");
+    debug_print("REBOOT.BIN: Rebooting ...\n");
+
     // #test
     // using the stadard method.
     goto via_rtl;
     //goto via_libio;
-
 
     // get info from crt0.o
 
@@ -168,11 +167,12 @@ via_rtl:
     //printf("saving fat...\n");
     //sc82( 10008, 0, 0, 0);
 
-    // The kernel save the fat.
-    // see: service 110. sys_reboot()
+// The kernel save the fat.
+// see: service 110. sys_reboot()
     rtl_reboot();
 
-    exit(1);
-    return (int) (-1);
+fail:
+    return EXIT_FAILURE;
 }
+
 

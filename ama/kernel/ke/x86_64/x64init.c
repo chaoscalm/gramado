@@ -296,10 +296,10 @@ static int I_x64CreateInitialProcess(void)
     InitProcess->priority = Priority;
 
 // see: layer.h
-    InitProcess->_layer = LAYER_INIT;
+    InitProcess->_layer = LAYER_AMA_INIT;
 
 // The init process. This is part og the gramland subsystem.
-    InitProcess->env_subsystem = EnvSubsystemGramland;
+    InitProcess->env_subsystem = GramadoSubsystem;
 
 
     if ( init_mm_data.used != TRUE || 
@@ -867,10 +867,10 @@ static int I_x64CreateKernelProcess(void)
     KernelProcess->priority = Priority;
 
 // see: layer.h
-    KernelProcess->_layer = LAYER_KERNEL;
+    KernelProcess->_layer = LAYER_AMA_KERNEL;
 
 // This is the kernel process.
-    KernelProcess->env_subsystem = EnvSubsystemKernel;
+    KernelProcess->env_subsystem = CaliSubsystem;
 
 //
 // mm

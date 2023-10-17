@@ -13,9 +13,10 @@
 int main(int argc, char *argv[])
 {
     register FILE *f;
-    register unsigned sum;
-    register i, c;
-    register long nbytes;
+    register unsigned sum=0;
+    register int i=0;
+    int c=0;
+    register long nbytes=0;
     int errflg = 0;
 
     i=1;
@@ -85,9 +86,9 @@ int main(int argc, char *argv[])
     } while (++i < argc);
 
     printf("done\n");
-    exit(errflg);
+    return (int) errflg;
 
-    return 0;
-    //return (int) errflg;
+fail:
+    return EXIT_FAILURE;
 }
 

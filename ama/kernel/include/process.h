@@ -32,10 +32,11 @@ extern int copy_process_in_progress;
 
 // -----------------------------
 // Environment subsystems.
+// For commands and applications.
 typedef enum {
-    EnvSubsystemUnknown,
-    EnvSubsystemKernel,
-    EnvSubsystemGramland
+    UnknownSubsystem,
+    CaliSubsystem,
+    GramadoSubsystem
     // ...
 } env_subsystem_t;
 
@@ -188,7 +189,7 @@ struct process_d
     int _layer;
 
 // The environment subsystem that this process is running into.
-// unknown, kernel, gramland.
+// unknown, cali, gramado.
     env_subsystem_t env_subsystem;
 
     int exit_in_progress;

@@ -71,19 +71,13 @@
  * A GER�NCIA DE ARQUIVOS E DISPOSITIVOS DE ARMAZENAMENTO, EM SEGUNDO LUGAR
  * A GERENCIA DOS RECURSOS DO SISTEMA, POIS ISSO � ATRIBUI��O DO APP TASKMAN.
  *
- *
  * History:
  *     2016 - Created by Fred Nora.
  *     2018 - More commands.
  */
- 
- 
- 
- 
 
 /*
  Como o kernel envia mensagens para o terminal em user mode?
- 
  The mechanism for delivering messages to the console is implemented by the 
  printk function, defined in kernel/printk.c. 
  The function uses vsprintf (defined in lib/vsprintf.c) to create a message 
@@ -91,7 +85,6 @@
  passes it to all active console devices if the priority of the message is 
  less than console_loglevel. 
 */ 
-
 
 #include "shell.h"
 
@@ -116,21 +109,12 @@
 #define SHELLFLAG_EXIT 8
 //...
 
-
-
-
-
-
 /*
-
- //para ficar igual a do Nelson;
-
+//para ficar igual a do Nelson;
 struct shell_command {
-	
     char *name;
     void *fun;
     char *help;
-	
 };
 
 //extern struct command cmd_table[];
@@ -155,11 +139,7 @@ struct command cmd_table[] = {
     {"time",        cmd_time,           "Time"                                          },
     {"version",     cmd_version,        "Shell version"                                 },
 };
-
 */
-
- 
- 
 
 //#define MIN(x,y) ((x < y) ? x : y)
 
@@ -185,7 +165,7 @@ char password[11];
 //char *password; 
 
 //#define DEFAULT_WINDOW_TITLE "Shell"
-	
+
 /* Non-zero means that this shell has already been run; i.e. you should
    call shell_reinitialize () if you need to start afresh. */
 int shell_initialized = 0;
@@ -325,11 +305,9 @@ int no_brace_expansion = 0;	/* Non-zero means no foo{a,b} -> fooa fooa. */
 #define Charp 2
 
 struct {
-
     char *name;
     int *value;
     int type;
-
 } long_args[] = {
 
     { "debug",             &debugging,           Int   },
@@ -6777,27 +6755,22 @@ void shellSocketTest()
 	tmp = iplong;
 	tmp = (tmp >> 16);
 	ip[1] = (char) ( tmp & 0x000000FF );
-	
+
 	tmp = iplong;
 	tmp = (tmp >> 24);
 	ip[0] = (char) ( tmp & 0x000000FF );
-	
+
 	printf("\n");
 	//printf("iplong=%x\n",iplong);
 	printf ("Socket: ( %d.%d.%d.%d:%d )\n", 
 		ip[0], ip[1], ip[2], ip[3], port );
-	
+
 	printf ("done\n");
 }
 
-
-
 /*
- **************************************************************
  * main: 
- *     Fun��o principal.
- *     The Application Entry Point.
- *
+
  * @todo:
  *    +Checar argumentos.
  *    +Criar a janela do TERMINAL. (Ok).
@@ -6819,40 +6792,37 @@ void shellSocketTest()
 // onde os argumentos s�o criados � m�o. Mas precisamos usar o crt0 padr�o
 // que pega os argumentos enviados pelo processo pai.
 
-int main ( int argc, char *argv[] ){
-	
+int main( int argc, char *argv[] )
+{
     int i, arg_index = 1;
-	
-	//extern int yydebug;
-	
+
+    //extern int yydebug;
+
     FILE *default_input = stdin;
-    
-	char *local_pending_command = (char *) NULL;	
-	
-	 //extern int last_command_exit_value;
-	 int locally_skip_execution = 0, top_level_arg_index;
-	 //extern char *base_pathname ();
-	
+
+    char *local_pending_command = (char *) NULL;
+
+     //extern int last_command_exit_value;
+    int locally_skip_execution = 0, top_level_arg_index;
+    //extern char *base_pathname ();
+
 //#ifdef JOB_CONTROL
   //extern int job_control;
-//#endif	
-	
-	
+//#endif
+
     /* Wait forever if we are debugging a login shell. */
     //  while (debugging_login_shell);	
-	
-	
-    /* If this shell has already been run, then reinitialize it to a
-     vanilla state. */
-    
-	if (shell_initialized)
+
+ /* If this shell has already been run, then reinitialize it to a vanilla state. */
+
+    if (shell_initialized)
     {
         //shell_reinitialize ();
-		
+
         //if ( setjmp (top_level) )
-	        //exit (2);
-    }	
-	
+            //exit (2);
+    }
+
     /* Here's a hack.  If the name of this shell is "sh", then don't do
     any startup files; just try to be more like /bin/sh. */
    //{
@@ -6863,34 +6833,31 @@ int main ( int argc, char *argv[] ){
 
        //if (strcmp (tshell_name, "sh") == 0)
            //act_like_sh++;
-   //}	
-	
-	
-	//yydebug = 0;
-	
-	
+   //}
+
+
+    //yydebug = 0;
+
     //shell_environment = env;
     //shell_name = argv[0];
-	
+
     //if (*shell_name == '-')
     //{
     //  shell_name++;
     //  login_shell++;
     //}
-	
-	
+
 #ifdef JOB_CONTROL
     if (act_like_sh)
         job_control = 0;
 #endif
-	
-	//dollar_vars[0] = savestring (argv[0]);
-	
-	
-	/* Parse argument flags from the input line. */
-	
+
+    //dollar_vars[0] = savestring (argv[0]);
+
+    /* Parse argument flags from the input line. */
+
     // Find full word arguments first. 
-	
+
     while ( (arg_index != argc) && *(argv[arg_index]) == '-' )
     {
         for ( i=0; long_args[i].name; i++ )
@@ -6919,14 +6886,13 @@ int main ( int argc, char *argv[] ){
 	        }
 			//Nothing.
 	    }
-		
-        break;			/* No such argument.  Maybe flag arg. */
+
+        break;  /* No such argument.  Maybe flag arg. */
         
 		next_arg:
             arg_index++;
-    };	
-	
-	
+    };
+
 	//??
     /* If user supplied the "-login" flag, then set and invert LOGIN_SHELL. */
     if (make_login_shell)
@@ -6938,9 +6904,9 @@ int main ( int argc, char *argv[] ){
 		    argv[arg_index]    && 
 		    (*(argv[arg_index]) == '-' || (*argv[arg_index] == '+')) )
     {
-		
+
       /* There are flag arguments, so parse them. */
-      
+
 	  int arg_character;
       int on_or_off = ( *argv[arg_index] );
       int  i = 1;
@@ -7795,9 +7761,9 @@ Mainloop:
 			
 		if ( message_buffer[1] != 0 )
         {
-            //printf(".");			
+            //printf(".");
 		}	
-		
+
 		if ( message_buffer[1] != 0 )
 		{
 	        shellProcedure ( (struct window_d *) message_buffer[0], 
@@ -7808,8 +7774,8 @@ Mainloop:
 			message_buffer[0] = 0;
             message_buffer[1] = 0;
             message_buffer[3] = 0;
-            message_buffer[4] = 0;	
-        };				
+            message_buffer[4] = 0;
+        }
 	};
 	
 	//
@@ -7825,41 +7791,37 @@ Mainloop:
 
 		//@todo:
         //op��es ...
-		
-		// Sai do shell.	
+
+		// Sai do shell.
         default:
             goto end;
-			break;		
+			break;
 	};
 
-	
-	//
-	// Pulamos a parte que pega mensgens de input de teclado 
-	// porque esse shell n�o est� configurado como interativo.
-	//
-	
-//	
+// Pulamos a parte que pega mensgens de input de teclado 
+// porque esse shell n�o est� configurado como interativo.
+
+//
 // # RunScript #	
 //
 
 skip_input:	
 
-    shellExecuteThisScript ( argv[3] );
+    shellExecuteThisScript( argv[3] );
 
-	
-	//
-	// Exit process.
-	//
-	
+// Exit 
 end:
 
-    // Desabilitando o cursor de texto.
-    // Quando outro aplicativo precisar ele clica em uma janela, 
-	// ela ganha o foco e habilita o cursor piscante.	
-	
-    system_call ( 245, (unsigned long) 0, (unsigned long) 0, (unsigned long) 0);
+// #?
+// Desabilitando o cursor de texto.
+// Quando outro aplicativo precisar ele clica em uma janela, 
+// ela ganha o foco e habilita o cursor piscante.	
 
-	
+    system_call( 
+        245, 
+        (unsigned long) 0, (unsigned long) 0, (unsigned long) 0);
+
+
     /* Do trap[0] if defined. */
     //run_exit_trap ();	
 	
@@ -7877,26 +7839,16 @@ end:
 	        write_history (hf);
     }	
 	*/
-	
-	
+
 #ifdef SHELL_VERBOSE		
     printf ("gdeshell: Exiting code '0' ...\n");
 #endif 
-	
-	//
-	// ## Exit ##
-	//
-	
-	// Sair do shell.
-    /* Always return the exit status of the last command to our parent. */
-	//exit (last_command_exit_value);	
-	
-	// Retornar para o crt0.
-	return 0;
+
+    return EXIT_SUCCESS;
 }
 
 //
-// End.
+// End
 //
 
 

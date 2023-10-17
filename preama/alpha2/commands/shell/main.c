@@ -6,10 +6,11 @@
 
 // rtl
 #include <types.h>
+//#include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <rtl/gramado.h>
 
 // Internal routines.
@@ -124,7 +125,7 @@ static void shellPrompt(void)
 {
     register int i=0;
 
-// Clean prompt buffer   
+// Clean prompt buffer
     for ( i=0; i<PROMPT_MAX_DEFAULT; i++ ){
         prompt[i] = (char) '\0';
     };
@@ -461,6 +462,9 @@ int main(int argc, char *argv[])
             // printable chars: So print a regular key.
             } else if (C >= 0x20 && C <= 0x7F){
                 shellProcessPrintableChar(C);
+            // #todo:
+            // Control keys: (0~0x1F)
+            // See the example in init.bin.
             };
         }
     };
@@ -474,9 +478,16 @@ int main(int argc, char *argv[])
     }
 
 done:
+
     printf("Quit ok ");
     fflush(stdout);
-    return 0;
+
+    return EXIT_SUCCESS;
+
+fail:
+    return EXIT_FAILURE;
 }
+
+
 
 

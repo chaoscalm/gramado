@@ -2028,7 +2028,7 @@ struct process_d *create_and_initialize_process_object(void)
 
 // #test
 // No environment yet.
-    new_process->env_subsystem = EnvSubsystemUnknown;
+    new_process->env_subsystem = UnknownSubsystem;
 
 // Get PID.
 // Obtêm um índice para um slot vazio na lista de processos.

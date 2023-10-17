@@ -1,43 +1,33 @@
-/*
- * main.c - TASCII.BIN
- * Aplicativo de teste para o sistema operacional Gramado.
- * Exibe os acarteres da tabela ascii.
- * @todo: Pode haver alguma seleção, baseada em argumentos.
- * @todo: usar apenas a libC.
- * 2018 - Fred Nora.
- */
+// Print the ascii table.
+// 2018 - Fred Nora.
 
+#include <sys/types.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#define STANDARD_ASCII_MAX  128
 
-#define STANDARD_ASCII_MAX 128
 
-int main (int argc, char *argv[] )
+int main(int argc, char *argv[] )
 {
     unsigned char count=0;
     unsigned char standard_ascii_max = STANDARD_ASCII_MAX;
 
-	//libc_set_output_mode (LIBC_DRAW_MODE);
+// #todo
+// Maybe we can get some parameters.
 
-	//printf ("\n");
-	printf ("ASCII.BIN:\n");
-	//printf ("Show ascii table ...\n");
-	//printf ("\n");
-	
+    printf("ASCII.BIN:\n");
 
-	//libc_set_output_mode (LIBC_NORMAL_MODE);
-	
     for ( count=0; 
           count < standard_ascii_max; 
           count++ )
     {
-        // printable.
+        // Printable chars
         if( count >= 0x20 && count <= 0x7F )
         {
-            printf (" [%d:%c]", count, count);
+            printf(" [%d:%c]", count, count);
         }
         
         if ( count % 8 == 0 )
@@ -46,17 +36,9 @@ int main (int argc, char *argv[] )
         }
     };
 
-    printf ("\n");
-    printf ("Done!\n");
+    return EXIT_SUCCESS;
 
-	// #bugbug
-	// Falha ao sair. Talvez falte o crt0.o
-	//while (1){}
-	
-    return 0;
+//fail:
+    //return EXIT_FAILURE;
 }
-
-
-
-
 

@@ -3,6 +3,7 @@
 // 2022 - Fred Nora.
 
 #include <types.h>
+//#include <sys/types.h>
 #include <stdlib.h>
 //#include <stddef.h>
 #include <stdio.h>
@@ -61,8 +62,7 @@ Flags
 
 static void usage(void)
 {
-    printf("usage: Fail\n");
-    exit(1);
+    printf("usage: #todo\n");
 }
 
 // Main
@@ -123,10 +123,11 @@ display_info:
     if (fRelease==TRUE) { printf ("release:  %s\n", un.release  ); }
     if (fMachine==TRUE) { printf ("machine:  %s\n", un.machine  ); }
     if (fNodeName==TRUE){ printf ("nodename: %s\n", un.nodename ); }
-        
-    return 0;
+
+    return EXIT_SUCCESS;
+
 fail:
     usage();
-    return -1;
+    return EXIT_FAILURE;
 }
 

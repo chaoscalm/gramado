@@ -99,7 +99,7 @@ static void __initialize_ws_info(pid_t pid)
 // ----------------
 // The environment.
 // The display server.
-    p->env_subsystem = EnvSubsystemGramland;
+    p->env_subsystem = GramadoSubsystem;
 
     WindowServerInfo.initialized = TRUE;
 }
@@ -215,7 +215,7 @@ network_register_ring3_display_server(
     console_set_current_virtual_console(CONSOLE1);
 
 // Setup the new layer for this process.
-    p->_layer = (int) LAYER_GRAMLAND;
+    p->_layer = (int) LAYER_ZING_DISPLAY_SERVER;
 
     return TRUE;
 

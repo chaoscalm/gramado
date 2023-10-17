@@ -14,6 +14,10 @@
 //#test
 #include "qemu.h"
 
+#define QEMU_MAGIC_PORT  0x0604
+#define QEMU_SHUTDOWN_COMMAND  0x2000 
+
+
 static void __save_fat_cache(void);
 static void __poweroff(void);
 
@@ -28,8 +32,8 @@ static void __save_fat_cache(void)
 static void __poweroff(void)
 {
     libio_outport16(
-        (unsigned short) 0x604, 
-        (unsigned short) 0x2000 );
+        (unsigned short) QEMU_MAGIC_PORT, 
+        (unsigned short) QEMU_SHUTDOWN_COMMAND );
 }
 
 

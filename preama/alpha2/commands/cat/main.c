@@ -138,10 +138,9 @@ int main(int argc, char *argv[])
     };
 
 done:
-    return 0;
+    return EXIT_SUCCESS;
 fail:
-    printf("~Fail\n");
-    return 0;
+    return EXIT_FAILURE;
 }
 
 

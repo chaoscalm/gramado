@@ -5,6 +5,7 @@
 // Environment: ring 3 application.
 // Created by Fred Nora.
 
+//#include <sys/types.h>
 #include <rtl/gramado.h>
 #include <stddef.h>
 #include <ctype.h>
@@ -109,12 +110,12 @@ int main(int argc, char *argv[])
     //}
 
 fail:
-    printf ("shutdown: FAIL\n");
-    if (isQEMU != TRUE){
-        printf ("Not running on qemu.\n");
-    }
-    exit(0);
-    return (int) (-1);
-}
 
+    printf("shutdown.bin: Failed\n");
+    if (isQEMU != TRUE){
+        printf("Not running on qemu\n");
+    }
+
+    return EXIT_FAILURE;
+}
 
