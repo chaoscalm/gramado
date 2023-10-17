@@ -126,13 +126,16 @@ static int __setup_stdin_cmdline(void)
 // Talvez seja porque a gerência de memória
 // reservou esse espaço de 2mb para o primeiro processo em ring3
 // na hora de mapear as regiões principais da memória ram.
+// #todo
+// Check the information in the elf header.
+// Save some of this information in the process structure. 
+// see: exec_elf.h and process.h
 static int __load_initbin_image(void)
 {
 
 // The virtual address for the init process image.
     unsigned long ImageAddress = 
         (unsigned long) CONTROLTHREAD_BASE;
-
 
 // #bugbug
 // We have a limit for the image size.
@@ -144,7 +147,6 @@ static int __load_initbin_image(void)
     if ((void*) init_image_name == NULL){
         panic("__load_initbin_image: init_image_name\n");
     }
-
 
 // ---------------------
 // It loads a file into the memory.
@@ -172,7 +174,7 @@ static int __load_initbin_image(void)
 
     if (Status != 0){
         printf("__load_initbin_image: on fsLoadFile()\n");
-        return -1;
+        goto fail;
     }
 
 // OUT: 
@@ -180,6 +182,8 @@ static int __load_initbin_image(void)
 //    0 = ok
 
     return 0;
+fail:
+    return -1;
 }
 
 // Load INIT.BIN.
@@ -205,7 +209,12 @@ static int I_x64CreateInitialProcess(void)
         printf ("I_x64CreateInitialProcess: system_state\n");    
         return FALSE;
     }
-    
+
+// #todo
+// Check the information in the elf header.
+// Save some of this information in the process structure. 
+// see: exec_elf.h and process.h
+
     int ret0 = -1;
     ret0 = (int) __load_initbin_image();
     if (ret0 != 0)
@@ -735,6 +744,11 @@ void I_x64ExecuteInitialProcess(void)
 
 
 // Local worker
+// #todo
+// Check the information in the elf header.
+// Save some of this information in the process structure. 
+// see: exec_elf.h and process.h
+
 static int __load_mod_image(void)
 {
 // The virtual address for the module image.
@@ -782,13 +796,15 @@ static int __load_mod_image(void)
 
     if (fileret != 0){
         printf("__load_mod_image: on fsLoadFile()\n");
-        return -1;
+        goto fail;
     }
 
 // OUT: 
 //    1 = fail 
 //    0 = ok
     return 0;
+fail:
+    return -1;
 }
 
 // Create the kernel process.
@@ -805,7 +821,6 @@ static int __load_mod_image(void)
 
 static int I_x64CreateKernelProcess(void)
 {
-
     int Status=FALSE;
     unsigned long BasePriority = PRIORITY_MAX;
     unsigned long Priority     = PRIORITY_MAX;
@@ -816,6 +831,11 @@ static int I_x64CreateKernelProcess(void)
 //
 // Load module image.
 //
+
+// #todo
+// Check the information in the elf header.
+// Save some of this information in the process structure. 
+// see: exec_elf.h and process.h
 
     __load_mod_image();
 
