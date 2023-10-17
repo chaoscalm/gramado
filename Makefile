@@ -38,11 +38,9 @@ clean-userland:
 # ------------
 # zing/
 
-# graminit
-	-rm -f zing/graminit/init/bin/*.BIN
 # gramland and eng
 	-rm -f zing/gramado/eng/bin/*.BIN
-	-rm -f zing/gramado/swamp/bin/*.BIN
+	-rm -f zing/gramado/server/bin/*.BIN
 # NETCTL
 	-rm -f zing/netd/bin/*.BIN
 

@@ -19,7 +19,7 @@ clean-all:
 
 # gramland and eng
 	-rm -f gramado/eng/bin/*.BIN
-	-rm -f gramado/swamp/bin/*.BIN
+	-rm -f gramado/server/bin/*.BIN
 	#-rm -f gramado/libs/libgns/obj/*.o
 	-rm -f gramado/libs/rtl/obj/*.o
 
