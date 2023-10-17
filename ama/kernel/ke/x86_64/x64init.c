@@ -417,7 +417,7 @@ static int I_x64CreateInitialProcess(void)
 // Passa o comando para o primeiro processo em user mode.
 // Esse processo ja foi previamente configurado.
 // Called by booting_end() in init.c
-void I_x64ExecuteInitialProcess (void)
+void I_x64ExecuteInitialProcess(void)
 {
     struct thread_d *t;
     register int i=0;
@@ -590,7 +590,7 @@ void I_x64ExecuteInitialProcess (void)
 // >>> Mas logo acima, acabamos de mudar as tabelas.
 
     int elfStatus = -1;
-    elfStatus = (int) fsCheckELFFile( (unsigned long) CONTROLTHREAD_BASE );
+    elfStatus = (int) fsCheckELFFile((unsigned long) CONTROLTHREAD_BASE);
     if (elfStatus < 0)
     {
         debug_print("I_x64ExecuteInitialProcess: .ELF signature\n");
@@ -1401,7 +1401,6 @@ int I_x64_initialize(void)
 // -------------------------------
 // Starting phase 2.
     Initialization.current_phase = 2;
-    // :)
 
 // -------------------------------
 // Starting phase 3.

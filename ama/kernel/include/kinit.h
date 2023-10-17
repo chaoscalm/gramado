@@ -14,6 +14,7 @@ struct initialization_d
 {
 
 // Current phase
+// #todo: Review this thing.
     int current_phase;
 
 // Checkpoints:
@@ -21,10 +22,15 @@ struct initialization_d
     int phase1_checkpoint; 
     int phase2_checkpoint;
     int phase3_checkpoint;
-    int hal_checkpoint;
-    int microkernel_checkpoint;
-    int executive_checkpoint;
-    int gramado_checkpoint;
+
+// mm
+    int mm_phase0;
+    int mm_phase1;
+    
+// ke
+    int ke_phase0;
+    int ke_phase1;
+    int ke_phase2;
 
 //
 // Flags
@@ -55,8 +61,8 @@ extern struct initialization_d  Initialization;
 
 // ========================
 
-// See: ke/x86_64/x64init/x64init.c
-// See: init.c
+// See: kmain.c
+// See: ke/x86_64/x64init.c
 void init_globals(void);
 
 #endif    

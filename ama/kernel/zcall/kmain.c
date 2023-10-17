@@ -56,7 +56,7 @@ static kernel_subsystem_t __failing_kernel_subsystem =
 //unsigned long gInitializationPhase=0;
 
 // The initialization structure.
-// See: config/superv/kinit.h
+// See: kinit.h
 struct initialization_d  Initialization;
 
 
@@ -510,10 +510,15 @@ static int preinit(void)
     Initialization.phase1_checkpoint = FALSE;
     Initialization.phase2_checkpoint = FALSE;
     Initialization.phase3_checkpoint = FALSE;
-    Initialization.hal_checkpoint = FALSE;
-    Initialization.microkernel_checkpoint = FALSE;
-    Initialization.executive_checkpoint = FALSE;
-    Initialization.gramado_checkpoint = FALSE;
+
+// mm
+    Initialization.mm_phase0 = FALSE;
+    Initialization.mm_phase1 = FALSE;
+    
+// ke
+    Initialization.ke_phase0 = FALSE;
+    Initialization.ke_phase1 = FALSE;
+    Initialization.ke_phase2 = FALSE;
 
 // Flags
 // We still dont have any log/verbose support.
@@ -673,6 +678,7 @@ void I_kmain(int arch_type)
         }
         goto fail;
     }
+    Initialization.mm_phase0 = TRUE;
 
 // Initialize mm phase 1.
 // + Initialize framepoll support.
@@ -689,6 +695,7 @@ void I_kmain(int arch_type)
         }
         goto fail;
     }
+    Initialization.mm_phase1 = TRUE;
 
     g_module_runtime_initialized = TRUE;
 
@@ -713,6 +720,7 @@ void I_kmain(int arch_type)
             KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
+    Initialization.ke_phase0 = TRUE;
 
 /*
 //++
@@ -743,6 +751,7 @@ void I_kmain(int arch_type)
             KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
+    Initialization.ke_phase1 = TRUE;
 
 // Initialize ke phase 2.
 // + Initialize background.
@@ -755,7 +764,7 @@ void I_kmain(int arch_type)
             KERNEL_SUBSYSTEM_KE;
         goto fail;
     }
-
+    Initialization.ke_phase2 = TRUE;
 
 // #test
 // Creating the legacy pty maste and pty slave.

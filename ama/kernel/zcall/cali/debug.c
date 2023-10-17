@@ -30,7 +30,7 @@ static int __debug_check_inicialization (void)
 // Check phase
     if (Initialization.current_phase != 3){
        Status = FALSE;
-       printf ("__debug_check_inicialization: Initialization phase = {%d}\n",
+       printf("debug.c: Initialization phase = {%d}\n",
            Initialization.current_phase );
        goto fail;
     }
@@ -39,34 +39,41 @@ static int __debug_check_inicialization (void)
 // Checkpoints
 //
 
-// Hal
-    if (Initialization.hal_checkpoint != TRUE){
+    int cp_status = TRUE;
+    if (Initialization.mm_phase0 != TRUE){
+        printf("debug.c: mm_phase0 failed\n");
+        cp_status = FALSE;
+    }
+    if (Initialization.mm_phase1 != TRUE){
+        printf("debug.c: mm_phase1 failed\n");
+        cp_status = FALSE;
+    }
+    if (Initialization.ke_phase0 != TRUE){
+        printf("debug.c: ke_phase0 failed\n");
+        cp_status = FALSE;
+    }
+    if (Initialization.ke_phase1 != TRUE){
+        printf("debug.c: ke_phase1 failed\n");
+        cp_status = FALSE;
+    }
+    if (Initialization.ke_phase2 != TRUE){
+        printf("debug.c: ke_phase2 failed\n");
+        cp_status = FALSE;
+    }
+
+    if (cp_status != TRUE)
         Status = FALSE;
-        printf ("__debug_check_inicialization: hal\n");
-        goto fail;
-    }
-
-// Microkernel
-    if (Initialization.microkernel_checkpoint != TRUE){
-       Status = FALSE;
-       printf ("__debug_check_inicialization: microkernel\n");
-       goto fail;
-    }
-
-// Executive
-    if (Initialization.executive_checkpoint != TRUE){
-        Status = FALSE;
-        printf ("__debug_check_inicialization: executive\n");
-        goto fail;
-    }
-
-// More?!
 
 // OK
 //done:
     return (int) Status;
+
 fail:
-    die(); 
+
+// #bugbug
+// We need to see some messages.
+    //die(); 
+
     return (int) Status;
 }
 
@@ -200,7 +207,7 @@ int debug(void)
 
     Status = (int) __debug_check_inicialization();
     if (Status == TRUE){
-        panic ("debug: __debug_check_inicialization fail\n");
+        panic("debug: __debug_check_inicialization fail\n");
     }
 
 // 'processor' struct.

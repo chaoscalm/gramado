@@ -234,7 +234,6 @@ int halInitialize(void)
 {
     int Status = FALSE;
 
-    Initialization.hal_checkpoint = FALSE;
     init_cpu();
 // #todo:
 // Chamaremos essa inicialização básica nesse momento.
@@ -242,8 +241,6 @@ int halInitialize(void)
     early_timer_init();
 // Detecta fabricantes específicos suportados pelo núcleo.  
     hal_hardware_detect();
-
-    Initialization.hal_checkpoint = TRUE;
 
     return TRUE;
 }

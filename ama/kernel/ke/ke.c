@@ -759,10 +759,7 @@ int psInitializeMKComponents(void)
 {
     //int Status = FALSE;
 
-    Initialization.microkernel_checkpoint = TRUE;
-
     //PROGRESS("psInitializeMKComponents:\n");
-
 
 // Init scheduler.
 // See: sched/sched.c
@@ -804,8 +801,6 @@ int psInitializeMKComponents(void)
     DispatchCountBlock->used=TRUE;
     DispatchCountBlock->magic=1234;
     DispatchCountBlock->initialized = TRUE;
-
-    Initialization.microkernel_checkpoint = TRUE;
 
 // #debug 
 // A primeira mensagem só aparece após a inicialização da runtime

@@ -616,13 +616,12 @@ int zeroInitializeSystemComponents(void)
     //int Status = FALSE;
 
     debug_print ("zeroInitializeSystemComponents:\n");
-    Initialization.executive_checkpoint = FALSE;
+
     init_pci();
     init_rtc();
     // IN: msg, data1.
     init_ata( 1, FORCEPIO );
     //while(1){}
-    Initialization.executive_checkpoint = TRUE;
 
     return TRUE;
 }

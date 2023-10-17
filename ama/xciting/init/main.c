@@ -554,25 +554,36 @@ static int processControlChar(int ch)
     if (ch > 0x1F)
         return -1;
 
-
 // Process the control chars.
     switch (ch)
     {
         // Escape
         case ASCII_ESC:
+            printf("launching via escape\n");
             do_launch_de();
             break;
 
         // Device control.
         case ASCII_DC1:  // ^q
+            printf("launching via dc1\n");
+            do_launch_de();
+            break;
         case ASCII_DC2:  // ^r
+            printf("launching via dc2\n");
+            do_launch_de();
+            break;
         case ASCII_DC3:  // ^s
+            printf("launching via dc3\n");
+            do_launch_de();
+            break;
         case ASCII_DC4:  // ^t
+            printf("launching via dc4\n");
             do_launch_de();
             break;
 
         // DATA LINK ESCAPE
         case ASCII_DLE:    // ^p
+            printf("launching via dle\n");
             do_launch_de();
             break;
 
@@ -585,7 +596,7 @@ static int processControlChar(int ch)
         // ENQUIRY: Who are You?
         // Just for fun, not for profit.
         case ASCII_ENQ:   // ^e
-            printf ("INIT.BIN: This is the first user application\n");
+            printf("INIT.BIN: This is the first user application\n");
             break;
 
         // ...
