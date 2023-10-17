@@ -35,8 +35,8 @@ extern int copy_process_in_progress;
 // For commands and applications.
 typedef enum {
     UnknownSubsystem,
-    CaliSubsystem,
-    GramadoSubsystem
+    CaliSubsystem,     // ama/
+    GramadoSubsystem   // zing/
     // ...
 } env_subsystem_t;
 
