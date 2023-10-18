@@ -4,20 +4,19 @@
 #ifndef  __STORAGE_H
 #define  __STORAGE_H    1
 
-
 // See storage.c
 extern unsigned long gNumberOfSectorsInBootDisk;
 
 
-
 struct storage_d
 {
+    int used;
+    int magic;
 
 // Fast access
 // The number of sectors in the boot disk.
 // See: storage_set_total_lba_for_boot_disk().
     unsigned long mumber_of_sectors_in_boot_disk;
-
 
 // boot disk?
 
@@ -65,15 +64,12 @@ struct storage_d
 // tudo seguindo definições unix-like para esse tipo de estrutura.
 // Na inicialização uma das estruturas deve ser apontada aqui.
 
-// #importante 
-// devemos permitir que os programas em user mode tenham acesso 
-// as streams gerenciadas pelo kernel.
-// na estrutura de processo devemos indicar 
-// quais são as streams gerenciadas pelo kernel que 
-// o processo tem acesso, também devemos indicar quais são 
-// as streams abertas pelo processo.
-
-    file *__file;
+// #test
+// The rootdir.
+// The file pointer represents the boot volume.
+// This file is created when the fs/ module is initialized.
+// see: fsInit() in fs.c.
+    file *bootvolume_fp;
 };
 
 

@@ -1150,11 +1150,11 @@ static int I_initKernelComponents(void)
 
     //PROGRESS("storage, disk, volume, fs\n"); 
 // Storage
-// Create the main storage structure.
+// Create the main 'storage' structure.
     int st_status=FALSE;
     st_status = init_storage_support();
     if (st_status != TRUE){
-       printf ("I_initKernelComponents: init_storage_support fail\n");
+       printf("I_initKernelComponents: init_storage_support fail\n");
        return FALSE;
     }
 // Disks and volumes.

@@ -272,16 +272,24 @@ static int __create_system_partition(void)
 int init_storage_support(void)
 {
 // Called by I_initKernelComponents in x64init.c
+// #bugbug
+// When the rest of the structure is initialized?
 
-    storage = (void *) kmalloc ( sizeof(struct storage_d) );
-    if ( (void *) storage == NULL )
+    storage = (void *) kmalloc( sizeof(struct storage_d) );
+    if ((void *) storage == NULL)
     {
        printf ("init_storage_support: storage\n");
        return FALSE;
     }
+    // Set up only the main elements of the structure.
+    storage->used = TRUE;
+    storage->magic = 1234;
+    storage->system_disk = NULL;
+    storage->system_volume = NULL;
+    storage->bootvolume_fp = NULL;
+    // ...
     return TRUE;
 }
-
 
 // local
 // Create vfs partition
