@@ -1123,16 +1123,13 @@ int rtl_file_exists (const char *filename)
 }
 */
 
-
 // #todo
 // We need some arguments here.
 int rtl_reboot(void)
 {
     int value = -1;
-
     debug_print ("rtl_reboot:\n");
-
-    value = (int) gramado_system_call(110,0,0,0);
+    value = (int) sc80(110,0,0,0);
     if (value<0)
     {
         errno = (-value);

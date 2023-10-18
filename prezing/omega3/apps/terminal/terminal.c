@@ -663,8 +663,12 @@ static void __try_execute(int fd)
     register int ii=0;
     char filename_buffer[12]; //8+3+1
     char *p;
-    p = prompt;
 
+
+// ---------------
+// Grab the filename in the first word of the cmdline.
+    memset(filename_buffer,0,12);
+    p = prompt;
     while (1)
     {
         // Se tem tamanho o suficiente ou sobra.
@@ -706,7 +710,7 @@ static void __try_execute(int fd)
     register int i=0;
 // Is it a valid extension?
 // Pois podemos executar sem extensão.
-    int isInvalidExt = FALSE;
+    int isValidExt = FALSE;
     int dotWasFound = FALSE;
 
 // Look up for the first occorence of '.'.
@@ -723,16 +727,15 @@ static void __try_execute(int fd)
             break;
         }        
 
-        if ( filename_buffer[i] == '.' )
-        {
+        if ( filename_buffer[i] == '.' ){
             dotWasFound = TRUE;
-            isInvalidExt = FALSE;
             break;
         }
     };
 
 // ----------------
-// '.' was NOT found, but the filename is bigger than 8 bytes.
+// '.' was NOT found, 
+// but the filename is bigger than 8 bytes.
     if (dotWasFound != TRUE)
     {
         if (i > 8){
@@ -747,31 +750,32 @@ static void __try_execute(int fd)
 // o que segue o ponto não é 'bin' ou 'BIN',
 // entao a estencao e' invalida.
 
-    if (dotWasFound == TRUE){
-    if ( filename_buffer[i] == '.' )
+    if (dotWasFound == TRUE)
     {
+        if ( filename_buffer[i] != '.' )
+            goto fail;
+
         // Ainda nao temos uma extensao valida.
         // Encontramos um ponto,
         // mas ainda não sabemos se a extensão é valida
         // ou não.
-        // isInvalidExt = TRUE;
+        // isValidExt = TRUE;
         
         // Valida a extensao se os proximos chars forem "bin".
         if ( filename_buffer[i+1] == 'b' &&
              filename_buffer[i+2] == 'i' &&
              filename_buffer[i+3] == 'n'  )
         {
-            isInvalidExt = TRUE;
+            isValidExt = TRUE;
         }
-
         // Valida a extensao se os proximos chars forem "BIN".
         if ( filename_buffer[i+1] == 'B' &&
              filename_buffer[i+2] == 'I' &&
              filename_buffer[i+3] == 'N'  )
         {
-            isInvalidExt = TRUE;
+            isValidExt = TRUE;
         }
-    }
+        // ...
     }
 
 // No extension
@@ -779,11 +783,14 @@ static void __try_execute(int fd)
 // Invalid extension.
     if (dotWasFound == TRUE)
     {
-        if (isInvalidExt == FALSE){
+        if (isValidExt == FALSE){
             printf("terminal: Invalid extension in command name\n");
             goto fail;
         }
     }
+
+//----------------------------------
+
 
 //
 // Clone and execute.
@@ -827,7 +834,6 @@ static void __try_execute(int fd)
     if (WriteLimit > 512){
         WriteLimit = 512;
     }
-    //write(fileno(stdin), "dirty", 5);
     write(fileno(stdin), prompt, WriteLimit);
 
     //rtl_clone_and_execute(filename_buffer);
@@ -843,11 +849,6 @@ static void __try_execute(int fd)
 // four arguments and a string pointer.
 
     int res = -1;
-
-    //gws_clone_and_execute2(
-    //    fd,
-    //    0,0,0,0,
-    //    "reboot.bin" );
 
     res = 
         (int) gws_clone_and_execute2(

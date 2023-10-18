@@ -1425,15 +1425,13 @@ sys_open (
         return (int) (-EINVAL);
     }
 
-//
 // Local copy
-//
+// Coping more than we need, 
+// this way we're coping the 0x00 byte at the end of string
+// and some extra bytes.
 
     char pathname_local_copy[256];
     memset(pathname_local_copy,0,256);
-    // Coping more than we need, 
-    // this way we're coping the 0x00 byte at the and of string
-    // and some extra bytes.
     strncpy(pathname_local_copy,pathname,256);
 
 //----------------------------
@@ -1443,8 +1441,10 @@ sys_open (
 // See: devmgr.c
 
     fp = (file *) devmgr_search_in_dev_list(pathname_local_copy);
-    // Yes, we have a valid pointer 
-    // found in the table.
+
+// Yes, 
+// we have a valid pointer found in the table.
+
     if ((void*) fp != NULL)
     {
         if (fp->isDevice == TRUE)

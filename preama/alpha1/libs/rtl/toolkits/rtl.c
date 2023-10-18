@@ -1148,7 +1148,7 @@ int __rtl_reboot_imp(unsigned long flags)
     int value = -1;
     unsigned long Flags = flags;
     debug_print ("__rtl_reboot_imp:\n");
-    value = (int) sc81(110,Flags,Flags,Flags);
+    value = (int) sc80(110,Flags,Flags,Flags);
     if (value<0)
     {
         errno = (-value);

@@ -346,7 +346,6 @@ Hallelujah, my King - (Transfiguration)
 // Syscalls. 
 // (Called by the interrups 0x80, 0x81, 0x82, 0x83).
 #include "syscalls.h"
-
 // zero. (Used during the kernel initialization)
 #include "zero.h"
 
