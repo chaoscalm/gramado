@@ -1,5 +1,6 @@
 
 // apictim.h
+// apic timer support.
 
 #ifndef __HAL_APIC_TIM_H
 #define __HAL_APIC_TIM_H    1

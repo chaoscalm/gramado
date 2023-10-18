@@ -1,4 +1,8 @@
 # preamble
 
-Boring  
+
+## Quote 
+
+" Veritas " - B.
+
 

@@ -129,5 +129,14 @@ Please, give us some feedback.
 Gramado is a Free and Open Source operating system.
 The source code uses the BSD license.
 
-## Quotes:
-> Transfiguration 
+## Quote:
+
+```
+ " Holy is the Lord revealed before my eyes
+   And my burning heart can scarcely take it in
+   As I behold Your beauty with unworthy eyes
+   And the only song my soul can find to sing 
+   Is hallelujah
+   Hallelujah
+   Hallelujah, my King " - (Transfiguration)
+```

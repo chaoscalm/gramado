@@ -1,6 +1,6 @@
 # prezing 
 
-# Quotes
+# Quote
 
 "The limit"
 

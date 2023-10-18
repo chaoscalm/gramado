@@ -38,8 +38,17 @@ The main library for the GUI applications is libs/libgws/.
     * Network server and first client.
 ```
 
-## Quotes:
-> Transfiguration
+## Quote:
+
+```
+ " Holy is the Lord revealed before my eyes
+   And my burning heart can scarcely take it in
+   As I behold Your beauty with unworthy eyes
+   And the only song my soul can find to sing 
+   Is hallelujah
+   Hallelujah
+   Hallelujah, my King " - (Transfiguration)
+```
 
 
 
