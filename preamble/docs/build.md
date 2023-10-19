@@ -43,20 +43,16 @@ sudo apt install build-essential nasm make qemu-system-x86-64 qemu-system-gui qe
 
 ```console
 $ make
-$ cd core
+$ cd ama
 $ ./run
 ```
 
-The command 'make' will compile the GramadoOS and install the files 
-into the 'core/control/disk' directory. It will also build 
-a disk image into the 'core/' directory, called GRAMADO.VHD.
+The command 'make' will compile the Gramado OS and install the files 
+into the 'base/' directory. 
 
-After that, You can go inside the directory 'core/' and 
-run the disk image using the command './run' or the command './runkvm'. 
+After that, You can go inside the directory 'ama/' and 
+run the disk image using the command './run' or the command './runnokvm'. 
 You also can run the disk image using the Virtualbox.
 
-To clean the mess you can use the command 'make clean-all' inside
-the directories 'gramado/' and 'core/'. 
-
-
+To clean the mess you can use the command 'make clean-all'.
 

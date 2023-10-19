@@ -1,23 +1,34 @@
 
 	The Amazing Gramado Operating System 
 
---------------------------------------
-	+ aa     
+======================================
+	+ ama/ (base domain)
 		- Grace. Do not crash here. 
-		- The inovative host-side stuff.
---------------------------------------
-	+ ama
-		- Border. 
-		- The inovative kernel.
---------------------------------------
-	+ boring 
-		- Not hot/Not cold.
---------------------------------------
-	+ zing
-		- Border. 
-		- The consistent display server.
---------------------------------------
-	+ zz 
-		- Grace. Do not crash here. 
-		- The consistent client-side GUI applications.
+		- bootloader and kernel
+======================================
 
+======================================
+	+ preama/ (cloud domain)
+		- Border. 
+		- commands
+======================================
+
+
+=+=+=+=+=+=+=+=+=+
+	+ preamble/  (edge domain)
+		- Not hot/Not cold.
+		- commands and client-side gui applications.
+=+=+=+=+=+=+=+=+=+
+
+
+======================================
+	+ prezing/ (cloud domain)
+		- Border. 
+		- clien-side gui applications.
+======================================
+
+======================================
+	+ zing/ (base domain) 
+		- Grace. Do not crash here. 
+		- display server.
+======================================

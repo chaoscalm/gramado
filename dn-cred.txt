@@ -1,4 +1,6 @@
 
+  (Design note)
+
   Sistema de creditos para threads.
 
   O sistema de credito tem por objetivo valorizar

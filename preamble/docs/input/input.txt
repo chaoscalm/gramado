@@ -4,6 +4,6 @@
 
 --------------------------
 in-kernel input event handler:
-see: dev/grinput.c
+see: input.c
 
 

@@ -91,26 +91,27 @@ desktop/ is a place for the graphical user interface.
     The next few lines has a brief description of the subdirectories:
 
 ```
- * `ama/` - Low level basic components of the system. 
+ * `ama/` - base domain
    * `base` - The root dir for the virtual disk. 
    * `boot` - The boot loader.
    * `kernel` - The Gramado OS kernel.
    * `kmods` - Kernel module.
    * `xciting` - init process and data.
 
- * `preama/` - 
+ * `preama/` - cloud domain
    * `alpha1` - libc
-   * `alpha2` - Commands.
-   * `cancun/` - Running gramado commands on Linux host.
+   * `alpha2` - Commands
 
- * `preamble/docs/` - Documentation.
+ * `preamble/` - edge domain 
+   * `docs/` - Documentation.
+   * `zports/` - Running gramado commands on Linux host.
 
- * `prezing` - 
+ * `prezing` - cloud domain
    * `omega1` - Libraries, toolkits and apis. 
    * `omega2` - drivers and servers. 
    * `omega3` - Client-side GUI applications. 
 
- * `zing/` - Desktop Environment (DE).
+ * `zing/` - base domain
    * `gramland` - Display server. (GRAMLAND.BIN)
    * `netd` - The network server.
 

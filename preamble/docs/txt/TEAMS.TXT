@@ -1,11 +1,24 @@
 
     Teams:
 
-------------------
-Gramado Core
-    boot, kernel, init process and commands.
-------------------
-Gramado Desktop
-    window server, gui apps and graphics engine.
+    Respect the layers:
+
+
+-------------------------
+(1) 
+ama/ and zing/
+
+
+-------------------------
+(2)
+preama/ and prezing/
+
+
+-------------------------
+(3)
+preamble/
+
+
+
 
 

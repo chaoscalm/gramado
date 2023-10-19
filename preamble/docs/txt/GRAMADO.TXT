@@ -5,7 +5,9 @@
 
 boot:
     ...
+
 kernel:
     ...
+
 window server and clients:
    ...

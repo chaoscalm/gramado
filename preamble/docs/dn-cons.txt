@@ -6,6 +6,7 @@
 a parte mais consistente, ou seja, nao deve mudar com o passar do tempo. 
 Isso porque as camadas mais altas estao mais proximas do usuario, 
 que nao deve ser surpreendido com quebras de paradigmas.
+
   Ja as camadas mais baixas sao o ambiente perfeito para inovaçoes e 
 implementaçao de novas tecnologias. Ou seja, a camada tradicional de cima 
 invoca a implementaçao na camada de baixo, que pode variar com o tempo 

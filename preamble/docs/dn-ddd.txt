@@ -1,23 +1,4 @@
 
-  Domain Driven Design - hahaha
+  ?
 
--------------------------
-  + OS
-    + core/ (kernel)
-    + userland/ (Desktop environment)
-
--------------------------
-  + core/
-    + Bootloader. 
-      (core/boot)
-    + Kernel.
-      (core/kernel)
-    + Commands (CLI applications).
-      (core/commands)
--------------------------
-  + userland/
-    + Window server.
-      (userland/services/gramland)
-    + Client-side GUI applications.
-      (userland/apps)
-
+  

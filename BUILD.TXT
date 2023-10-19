@@ -1,0 +1,15 @@
+
+  Build order:
+  #warning: Respect the order.
+
+(1) - Cloud domain
+    + preama/    - Commands
+    + prezing/   - GUI applications
+
+(2) - Edge domain
+    + preamble/  - Commands and gui applications.
+
+(3) - Base domain
+    + zing/ - Display server
+    + ama/  - Bootloader and kernel.
+

@@ -21,8 +21,8 @@ base-domain:
 PHONY := cloud-domain
 cloud-domain:
 #warning: Respect the order
-	make -C  prezing/
 	make -C  preama/
+	make -C  prezing/
 
 # Step 2
 PHONY := edge-domain

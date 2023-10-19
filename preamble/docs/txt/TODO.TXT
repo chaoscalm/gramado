@@ -29,6 +29,8 @@
      e para sua pilha.
      Os aplicativos estão com tamanhos que variam de 100KB à 200KB.
      
+     update: more than 400KB now.
+
      --------------------------------
      
      Remember::

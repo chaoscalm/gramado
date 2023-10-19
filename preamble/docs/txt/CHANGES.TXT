@@ -29,6 +29,7 @@ It was the last 32bit release.
 The project was created.
 It was just a 16bit boot loader for x86 machines.
 
-
+1.1.xxx
+----------------------
 
 

@@ -8,6 +8,7 @@ Normalmente um shell manda dados para um terminal virtual atraves de tty.
 Outra coisa, normalmente um processo pode criar dois pipes, 
 clonar a si mesmo e o processo pai fica com um pipe e 
 o processo filho fica com outro pipe. Assim eles se comunicam via pipe.
+
 -------
 O Gramado nao tem a funçao fork(), mas ele cria processos filhos 
 atravez de clonagem. Dessa forma, durante a clonagem de um terminal, 

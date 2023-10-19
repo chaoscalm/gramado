@@ -1,4 +1,5 @@
 
   See the version info in:
 
-  include/admin/product/
+  include/beauty/version.h 
+  

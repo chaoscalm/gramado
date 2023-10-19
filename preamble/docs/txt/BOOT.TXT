@@ -7,4 +7,6 @@ The boot sequence:
     + /BL.BIN
     + /GRAMADO/KERNEL.BIN
     + /INIT.BIN
-    
+
+After that we can use the init.bin to select the next step.
+
