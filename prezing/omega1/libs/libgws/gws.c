@@ -2370,15 +2370,14 @@ fail:
 // Try to execute the command line in the prompt[] buffer.
 void gws_clone_and_execute_from_prompt(int fd)
 {
-    char filename_buffer[12]; //8+3+1
+    char filename_buffer[32]; //8+3+1
 // Limits:
 // + The prompt[] limit is BUFSIZ = 1024;
 // + The limit for the write() operation is 512 for now.
     size_t WriteLimit = 512;
 
-
 // Clean the buffer.
-    memset(filename_buffer,0,12);
+    memset(filename_buffer,0,32);
 
     if (fd<0){
         return;
@@ -2448,8 +2447,9 @@ void gws_clone_and_execute_from_prompt(int fd)
     while (1)
     {
         // Se tem tamanho o suficiente ou sobra.
+        // 0~7 | 8 | 9~11
         if (ii >= 12){
-            filename_buffer[11] = 0;  //finalize
+            filename_buffer[12] = 0;  //finalize
             break;
         }
 
@@ -2487,12 +2487,14 @@ void gws_clone_and_execute_from_prompt(int fd)
     register int i=0;
 // Is it a valid extension?
 // Pois podemos executar sem extensão.
-    int isInvalidExt = FALSE;
+    int isValidExt = FALSE;
     int dotWasFound = FALSE;
+    int dot_found_in = 0;
 
 // Look up for the first occorence of '.'.
 // 12345678.123 = (8+1+3) = 12
-    for (i=0; i<=12; i++)
+// 0~7 | 8 | 9~11
+    for (i=0; i<12; i++)
     {
         // The command name can't have these chars.
         // It means that we reached the end of the command name.
@@ -2507,15 +2509,18 @@ void gws_clone_and_execute_from_prompt(int fd)
         if ( filename_buffer[i] == '.' )
         {
             dotWasFound = TRUE;
-            isInvalidExt = FALSE;
+            dot_found_in = i;
+            isValidExt = FALSE;
             break;
         }
     };
 
 // ----------------
 // '.' was NOT found, but the filename is bigger than 8 bytes.
+// The limit for the '.' if the byte 8. '01234567.'
     if (dotWasFound != TRUE)
     {
+        //dot_found_in
         if (i > 8){
             printf("libgws: Long command name\n");
             goto fail;
@@ -2542,7 +2547,7 @@ void gws_clone_and_execute_from_prompt(int fd)
              filename_buffer[i+2] == 'i' &&
              filename_buffer[i+3] == 'n'  )
         {
-            isInvalidExt = TRUE;
+            isValidExt = TRUE;
         }
 
         // Valida a extensao se os proximos chars forem "BIN".
@@ -2550,7 +2555,7 @@ void gws_clone_and_execute_from_prompt(int fd)
              filename_buffer[i+2] == 'I' &&
              filename_buffer[i+3] == 'N'  )
         {
-            isInvalidExt = TRUE;
+            isValidExt = TRUE;
         }
     }
     }
@@ -2560,7 +2565,7 @@ void gws_clone_and_execute_from_prompt(int fd)
 // Invalid extension.
     if (dotWasFound == TRUE)
     {
-        if (isInvalidExt == FALSE){
+        if (isValidExt != TRUE){
             printf("libgws: Invalid extension in command name\n");
             goto fail;
         }
