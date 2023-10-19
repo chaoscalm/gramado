@@ -21,7 +21,7 @@ struct dispatch_count_d  *DispatchCountBlock;
 // Create error messages.
 // Isse é chamado várias vezes, é melhor não ter mensagem de debug.
 // See: dispatch.h
-void IncrementDispatcherCount (int type)
+void IncrementDispatcherCount(int type)
 {
 
 // #todo: max limit.
@@ -42,27 +42,21 @@ void IncrementDispatcherCount (int type)
         case SELECT_IDLE_COUNT:
             DispatchCountBlock->SelectIdleCount++;
             break;
-
         case SELECT_INITIALIZED_COUNT:
             DispatchCountBlock->SelectInitializedCount++;
             break;
-
         case SELECT_NEXT_COUNT:
             DispatchCountBlock->SelectNextCount++;
             break;
-
         case SELECT_CURRENT_COUNT:
             DispatchCountBlock->SelectCurrentCount++;
             break;
-
        case SELECT_ANY_COUNT:
             DispatchCountBlock->SelectAnyCount++;
             break;
-
        case SELECT_IDEAL_COUNT:
             DispatchCountBlock->SelectIdealCount++;
             break;
-
        case SELECT_DISPATCHER_COUNT:
             DispatchCountBlock->SelectDispatcherQueueCount++;
             break;

@@ -1137,9 +1137,7 @@ static int I_initKernelComponents(void)
 // ===============================
 // Initialize device manager.
 // see: dev/devmgr.c
-    init_device_manager();
-    //PROGRESS("init_device_manager ok\n"); 
-
+    devmgr_initialize();
 
 // ===============================
 // Storage manager

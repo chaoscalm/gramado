@@ -14,6 +14,10 @@ unsigned long deviceList[DEVICE_LIST_MAX];
 // para uma estrutura de dispositivo nic de marca especifica.
 unsigned long nicList[8]; 
 
+static int __devmgr_init_device_list(void);
+
+// ------------------------
+
 // devmgr_search_in_dev_list:
 //     Search a name into the device list.
 // Used by sys_open();
@@ -80,11 +84,11 @@ file *devmgr_search_in_dev_list(char *path)
 }
 
 // Initialize the list.
-int devmgr_init_device_list(void)
+static int __devmgr_init_device_list(void)
 {
     register int i=0;
 
-    debug_print ("devmgr_init_device_list:\n");
+    debug_print ("__devmgr_init_device_list:\n");
     for (i=0; i<DEVICE_LIST_MAX; i++){
         deviceList[i] = 0;
     };
@@ -141,17 +145,6 @@ void devmgr_show_device_list(int object_type)
 // Show all the strings.
     printf("Done\n");
     //refresh_screen();
-}
-
-// init_device_manager:
-// Called by init() in init.c.
-// Inicializa o gerenciamento de dispositivos.
-// Inicializa a lista de dispositivos.
-void init_device_manager(void)
-{
-    debug_print("init_device_manager:\n");
-    devmgr_init_device_list();
-    // ...
 }
 
 // OUT: 
@@ -340,4 +333,22 @@ devmgr_register_device (
     // ...
     return 0;
 }
+
+// devmgr_initialize:
+// Called by I_initKernelComponents() in x64init.c.
+// Inicializa o gerenciamento de dispositivos.
+// Inicializa a lista de dispositivos.
+void devmgr_initialize(void)
+{
+    debug_print("devmgr_initialize:\n");
+    __devmgr_init_device_list();
+    // ...
+}
+
+//
+// End
+//
+
+
+
 
