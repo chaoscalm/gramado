@@ -1,30 +1,33 @@
 # Makefile in the root folder.
 # Build Gramado OS.
 
-BASE = aa/base
+BASE = ama/base
 
 # This is the default target
 PHONY := all
-all: userland-domain core-domain
+all: cloud-domain edge-domain base-domain
 # Warning: Respect the order!
 	@echo "Done"
 	@echo "Go to ama/ and type ./run or ./runkvm"
 
-# Step 1
-PHONY := userland-domain
-userland-domain:
+# Step 3
+PHONY := base-domain
+base-domain:
 #warning: Respect the order
 	make -C  zing/
-	make -C  prezing/
-	make -C  preamble/
-
-# Step 2
-PHONY := core-domain
-core-domain:
-#warning: Respect the order
-	make -C  preama/
 	make -C  ama/
 
+# Step 1
+PHONY := cloud-domain
+cloud-domain:
+#warning: Respect the order
+	make -C  prezing/
+	make -C  preama/
+
+# Step 2
+PHONY := edge-domain
+edge-domain:
+	make -C  preamble/
 
 # ------------------------
 
@@ -32,20 +35,32 @@ PHONY := clean
 clean: clean-all
 
 PHONY := clean-all
-clean-all: clean-userland clean-core clean-base clean-cancun
+clean-all: \
+clean-base-domain clean-cloud-domain clean-edge-domain \
+clean-base clean-cancun  
 
-PHONY := clean-userland
-clean-userland:
-# Clear the userland domain.
+
+PHONY := clean-base-domain
+clean-base-domain:
+# Clear the base domain.
 
 # ------------
+# ama/
+	-rm ama/GRAMADO.VHD
+	-rm ama/MBR0.BIN
+	-rm ama/kernel/KERNEL.BIN
+	-rm ama/kmods/newm0/MOD0.BIN
+# ------------
 # zing/
-
 # gramland and eng
 	-rm -f zing/gramado/eng/bin/*.BIN
 	-rm -f zing/gramado/server/bin/*.BIN
 # NETCTL
 	-rm -f zing/netd/bin/*.BIN
+
+
+PHONY := clean-cloud-domain
+clean-cloud-domain:
 
 # ------------
 # prezing/
@@ -63,16 +78,9 @@ clean-userland:
 # omega3
 	-rm -f prezing/omega3/apps/bin/*.BIN
 
+PHONY := clean-edge-domain
+clean-edge-domain:
 
-PHONY := clean-core
-clean-core:
-
-# Clear the core domain.
-	-rm ama/GRAMADO.VHD
-	-rm ama/MBR0.BIN
-	-rm ama/kernel/KERNEL.BIN
-
-	-rm kmods/newm0/MOD0.BIN
 
 PHONY := clean-base
 clean-base:

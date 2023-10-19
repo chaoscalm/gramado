@@ -191,6 +191,8 @@ copy-extras:
 
 #-------------------------
 # preamble/
+
+# Client-side GUI applications
 	-sudo cp ../preamble/bin/EDITOR.BIN   $(BASE)/
 	-sudo cp ../preamble/bin/GDM.BIN      $(BASE)/
 	#-sudo cp ../preamble/bin/GWS.BIN      $(BASE)/
@@ -198,29 +200,29 @@ copy-extras:
 	sudo cp ../preamble/bin/TASKBAR.BIN   $(BASE)/
 	-sudo cp ../preamble/bin/DOCV.BIN     $(BASE)/PROGRAMS/
 
+# Commands
+	-sudo cp ../preamble/bin/CAT.BIN       $(BASE)/
+	-sudo cp ../preamble/bin/UNAME.BIN     $(BASE)/
+	-sudo cp ../preamble/bin/CMP.BIN       $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/FALSE.BIN     $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/GRAMCNF.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/SHOWFUN.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/SUM.BIN       $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/TASCII.BIN    $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/TPRINTF.BIN   $(BASE)/PROGRAMS/
+	-sudo cp ../preamble/bin/TRUE.BIN      $(BASE)/PROGRAMS/
+#	-sudo cp ../preamble/bin/N9.BIN   $(BASE)/PROGRAMS/
+#	-sudo cp ../preamble/bin/N10.BIN  $(BASE)/PROGRAMS/
+#	-sudo cp ../preamble/bin/N11.BIN  $(BASE)/PROGRAMS/
+
 #-------------------------
 # preama/
 	@echo ":: Copying every image from preama/"
 
-	-sudo cp ../preama/alpha2/commands/bin/SHELL.BIN   $(BASE)/
-	-sudo cp ../preama/alpha2/commands/bin/BARNSH.BIN  $(BASE)/
-
-	-sudo cp ../preama/alpha2/commands/bin/CAT.BIN       $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/SHELL.BIN     $(BASE)/
+	-sudo cp ../preama/alpha2/commands/bin/BARNSH.BIN    $(BASE)/
 	-sudo cp ../preama/alpha2/commands/bin/REBOOT.BIN    $(BASE)/
 	-sudo cp ../preama/alpha2/commands/bin/SHUTDOWN.BIN  $(BASE)/
-	-sudo cp ../preama/alpha2/commands/bin/UNAME.BIN     $(BASE)/
-
-	-sudo cp ../preama/alpha2/commands/bin/CMP.BIN       $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/FALSE.BIN     $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/GRAMCNF.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/SHOWFUN.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/SUM.BIN       $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/TASCII.BIN    $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/TPRINTF.BIN   $(BASE)/PROGRAMS/
-	-sudo cp ../preama/alpha2/commands/bin/TRUE.BIN      $(BASE)/PROGRAMS/
-#	-sudo cp ../preama/alpha2/commands/bin/N9.BIN   $(BASE)/PROGRAMS/
-#	-sudo cp ../preama/alpha2/commands/bin/N10.BIN  $(BASE)/PROGRAMS/
-#	-sudo cp ../preama/alpha2/commands/bin/N11.BIN  $(BASE)/PROGRAMS/
 
 #----------------------------------
 # Install BMPs
