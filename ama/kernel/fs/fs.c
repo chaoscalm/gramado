@@ -1440,6 +1440,14 @@ sys_open (
 // in the deviceList[]
 // See: devmgr.c
 
+// #test #todo
+// OK, it's working when we call open() from ring3,
+// using a pathname.
+// Now we need to get the filepointer 
+// from the device data structures,
+// put it into the process structure in p->Objects[]
+// and return the index to the ring3.
+
     fp = (file *) devmgr_search_in_dev_list(pathname_local_copy);
 
 // Yes, 

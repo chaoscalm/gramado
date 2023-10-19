@@ -224,7 +224,7 @@ static void __try_execute(int fd);
 
 static void doHelp(int fd);
 static void doAbout(int fd);
-static void libc_test(int fd);
+static void __libc_test(int fd);
 
 static void clear_terminal_client_window(int fd);
 static void __send_to_child (void);
@@ -882,7 +882,7 @@ fail:
     return;
 }
 
-static void libc_test(int fd)
+static void __libc_test(int fd)
 {
     int NumberOfFilesToCreate = 8;
     int file_index=0;
@@ -1020,7 +1020,7 @@ static void compareStrings(int fd)
 // Testing libc components.
     if ( strncmp(prompt,"libc",4) == 0 )
     {
-        libc_test(fd);
+        __libc_test(fd);
         goto exit_cmp; 
     }
 
@@ -1125,17 +1125,19 @@ static void compareStrings(int fd)
         goto exit_cmp;
     }
 
-    /*
+
+// open1
+// Test open() function.
     if ( strncmp(prompt,"open1",5) == 0 )
     {
-        open("/DEV/KBD0", 0,"a+"); 
-        open("/TTY0", 0, "a+");
-        open("/TTY1", 0, "a+");
-        open("/DEV_1234_1111", 0, "a+");  // Bochs Graphics Adapter.
+        // #test: ok, found.
+        open("/DEV/TTY0",          0, "a+"); 
+        open("/DEV/PS2KBD",        0, "a+");
+        open("/DEV/DEV_1234_1111", 0, "a+");  //?
+        open("/DEV/DEV_8086_100E", 0, "a+");  //?
         // ...
         goto exit_cmp;
     }
-    */
 
     if ( strncmp(prompt,"int3",4) == 0 ){
         do_int3();
@@ -1286,56 +1288,7 @@ static void compareStrings(int fd)
 
 // =============
 // 't1'
-    if ( strncmp(prompt,"t1",2) == 0 )
-    {
-        //printf("One Two \b\b\b\b\b\b\b\b\b\bX\n");
-        
-        // pixel: ok
-        //gws_plot0(fd, 20, 20, 0, COLOR_RED );
-        //gws_plot0(fd, 30, 30, 0, COLOR_GREEN );
-        //gws_plot0(fd, 40, 40, 0, COLOR_BLUE );
-
-        // char: #testing
-        //gws_draw_char ( 
-        //    fd, 
-        //    Terminal.client_window_id, 
-        //    (cursor_x*8), 
-        //    (cursor_y*8), 
-        //    fg_color, 
-        //    '/' ); 
-        
-        // #bugbug
-        // Esta travando.
-        // #fixed: Essa chamada esta funcionando agora.
-        //gws_async_command(fd,2,0,0);    // PING
-        //gws_async_command(fd,5,0,0);  //rectangle ring3
-        //gws_async_command(fd,10,0,0); //ramdom tests
-        //gws_async_command(fd,6,0,0);  // show fps bar.
-
-        //demos: IN: fd,service,demo_index,0.
-        //gws_async_command(fd,4,1,0); // points (works, but sometimes it fails)
-        //gws_async_command(fd,4,5,0);  //cube1 (ok)
-        //gws_async_command(fd,4,6,0);  //cube2 (ok)
-        //gws_async_command(fd,4,7,0);  //curve (ok)
-        //gws_async_command(fd,4,9,0);  //cat   (ok)
-        //gws_async_command(fd,4,10,0);  // triangle (ok)
-        //gws_async_command(fd,4,11,0); //mesh1 (ok)
-        //gws_async_command(fd,4,14,0);  //polygon (ok)
-        //gws_async_command(fd,4,15,0);  //polygon2 (ok)
-        
-        //gws_async_command(fd,22,0,0);  // clone a process.
-        
-        // #bugbug
-        // Não podemos pegar esse falor corretamente.
-        //printf ("M=%d\n",rtl_get_system_metrics(118) ); //jiffies
-        //printf ("M=%d\n",rtl_get_system_metrics(120) ); // variável de time
-        //printf ("M=%d\n",rtl_get_system_metrics(1) );
-        //printf ("M=%d\n",rtl_get_system_metrics(2) );
-
-        // Clear the window
-        // Repaint it using the default background color.
-        //gws_clear_window(fd,Terminal.client_window_id);
-
+    if ( strncmp(prompt,"t1",2) == 0 ){
         goto exit_cmp;
     }
 
@@ -3059,7 +3012,7 @@ static int __input_STDIN(int fd)
     int window_id = Terminal.client_window_id;
     int C=0;
     int fGetSystemEvents = TRUE;  // from kernel.
-    int fGetWSEvents = TRUE;  // from window server.
+    int fGetWSEvents = TRUE;  // from display server.
 
     //new_stdin = (FILE *) fopen("gramado.txt","a+");
     new_stdin = stdin;
@@ -3109,8 +3062,7 @@ static int __input_STDIN(int fd)
                 C,            // long1 (ascii)
                 C );          // long2 (ascii)
         }
-        // Get events from the window server.
-        
+      
         // System events.
         if (fGetSystemEvents == TRUE){
             __get_system_event( client_fd, window_id );
