@@ -924,7 +924,8 @@ int keInitialize(int phase)
 
         //PROGRESS(":: kgws, ws, ws callback\n"); 
         // Graphics infrastruture.
-        KGWS_initialize();
+        // see: gramk/gre/gre.c
+        gre_initialize();
         // Desktop stuff.
         init_logon_manager();
         // ws registration support.

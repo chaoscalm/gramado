@@ -5,6 +5,11 @@
 
 #include <kernel.h>  
 
+//  Compositor
+int DemoFlag=0;
+int UpdateScreenFlag=0;
+
+
 // see: ws.h
 struct color_scheme_d *HumilityColorScheme; // Simples.
 struct color_scheme_d *PrideColorScheme;    // Colorido.
@@ -67,16 +72,18 @@ int kgws_ws_status;
 //see: ws.h
 struct ws_info_d  WindowServerInfo;
 
+static int __gre_initialize_globals(void);
+
 //=================================
 
 
-// called by x86_64/x64init.c
+// called by ke.c
 // #todo
 // Maybe we can use some parametes here.
-
-int KGWS_initialize(void)
+int gre_initialize(void)
 {
-    grInit();
+    __gre_initialize_globals();
+    // ...
     return 0;
 }
 
@@ -576,39 +583,37 @@ void demoFred1(void)
     };
 }
 
-
 void demo0(void)
 {
     // #test 
-
     //grPlot0(0,10,10,COLOR_GREEN);
     //plotCircleZ ( 0, 12, 25, COLOR_GREEN, 0); 
-    //plotLine3d ( 4, 3,0, 40, 2,0, COLOR_WHITE);
-                        
+    //plotLine3d ( 4, 3,0, 40, 2,0, COLOR_WHITE);      
     //noraDrawingStuff3(20,20,0);
     //demoFred0();
     //demoFred1();
-                        
-    //rectangleZ( 10, 10, 10+20,10+20,COLOR_BLUE,0);
-                        
+    //rectangleZ( 10, 10, 10+20,10+20,COLOR_BLUE,0);                  
     //refresh_screen();
 }
 
-
-int grInit (void)
+static int __gre_initialize_globals(void)
 {
+// Called by gre_initialize().
+
+// Device
     unsigned long deviceWidth  = (unsigned long) screenGetWidth();
     unsigned long deviceHeight = (unsigned long) screenGetHeight();
-
     if ( deviceWidth == 0 || deviceHeight == 0 )
     {
-        debug_print ("grInit: [PANIC] w h\n");
-        panic       ("grInit: [PANIC] w h\n");
+        debug_print("__gre_initialize_globals: w h\n");
+        // #bugbug
+        // We don't know if 'panic' is working at this moment.
+        panic      ("__gre_initialize_globals: w h\n");
     }
-    
+
+// Hotspot for 3D stuff.
     HotSpotX = (deviceWidth>>1);
     HotSpotY = (deviceHeight>>1);
-
     return 0;
 }
 

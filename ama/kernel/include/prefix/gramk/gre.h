@@ -1,8 +1,9 @@
 
-// graphics.h
+// gre.h
+// Graphics Engine
 
-#ifndef __GRAPHICS_H
-#define __GRAPHICS_H    1
+#ifndef __GRAMK_GRE_H
+#define __GRAMK_GRE_H    1
 
 #define grMIN2(a, b)  (((a) < (b)) ? (a) : (b))
 #define grMAX2(a, b)  (((a) > (b)) ? (a) : (b))
@@ -10,8 +11,8 @@
 #define grMAX3(x,y,z)     ( (x>y) ? ((x>z)?x:z)     : ((y>z)?y:z) )
 
 //  Compositor
-int DemoFlag;
-int UpdateScreenFlag;
+extern int DemoFlag;
+extern int UpdateScreenFlag;
 
 //
 // == prototypes =====================================
@@ -66,8 +67,7 @@ int kgwsRegisterWindowServer(pid_t pid);
 int windowLoadGramadoIcons(void);
 void *ui_get_system_icon(int n);
 
-int grInit(void);
-int KGWS_initialize(void);
+int gre_initialize(void);
 
 #endif   
 
