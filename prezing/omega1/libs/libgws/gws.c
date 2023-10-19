@@ -2449,7 +2449,7 @@ void gws_clone_and_execute_from_prompt(int fd)
     {
         // Se tem tamanho o suficiente ou sobra.
         if (ii >= 12){
-            filename_buffer[ii] = 0;  //finalize
+            filename_buffer[11] = 0;  //finalize
             break;
         }
 
@@ -2469,7 +2469,8 @@ void gws_clone_and_execute_from_prompt(int fd)
 
         // Printable.
         // Put the char into the buffer.
-        // What are these chars? It includes symbols? Or just letters?
+        // What are these chars? 
+        // It includes symbols? Or just letters?
         if ( *p >= 0x20 && *p <= 0x7F )
         {
             filename_buffer[ii] = (char) *p;

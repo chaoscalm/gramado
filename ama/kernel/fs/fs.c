@@ -1471,6 +1471,12 @@ sys_open (
 // See: fs.c
 // OUT: fd
 
+// #bugbug
+// This function is gonna call fs_fntos()
+// that is gonna include the extension .bin
+// if the name doesn't have one.
+// This is not what we want for all the cases.
+
     value = 
         (int) do_read_file_from_disk ( 
                   (char *) pathname_local_copy, 
@@ -3496,9 +3502,11 @@ void fs_fntos(char *name)
     int i=0;
     int ns = 0;
     char ext[4];
+    //int WeReallyNeedAnBinExt = add_bin_ext;
 
     // #todo
     int fAddNewExt = FALSE;
+    
 
 // No extension
 // 
@@ -3625,7 +3633,8 @@ CompleteName8WithSpaces:
 // Add extension.
 AddExt:
 
-// Prepare a new extension if it is the case.
+// Prepare a new extension 
+// if no extension was provided.
     if (fAddNewExt == TRUE)
     {
         // Pre-load the new extension bytes.
@@ -3654,8 +3663,186 @@ AddExt:
         }
     };
 
+// #bugbug
+// Is it an overflow?
+
     *name = '\0';
 }
+
+// No 'BIN' extension is added.
+// Add '3 spaces' in the extension field.
+void fs_fntos2(char *name)
+{
+    int i=0;
+    int ns = 0;
+    char ext[4];
+    //int WeReallyNeedAnBinExt = add_bin_ext;
+
+    // #todo
+    int fAddNewExt = FALSE;
+    
+// No extension
+    ext[0] = 0;
+    ext[1] = 0;
+    ext[2] = 0;
+    ext[3] = 0;
+
+// Invalid parameter
+    if ((void*) name == NULL){
+        return;
+    }
+    if (*name == 0){
+        return;
+    }
+
+// Transforma em maiúscula enquanto não achar um ponto.
+// #bugbug: 
+// E se a string já vier maiúscula teremos problemas.
+
+// Transforma somente as letras e 
+// somente ate encontrarmos o ponto.
+    //int max = (8+1+3); 
+    //int max = (8); 
+    while ( *name && *name != '.' )
+    {
+        // Se a string eh muito grande.
+        //if (ns >= max)
+            //break;
+        
+        if ( *name >= 'a' && *name <= 'z' )
+        {
+            *name -= 0x20;
+        }
+        name++;
+        ns++;
+    };
+
+// #bugbug
+// Esse negócio de acrescentar a extensão
+// não é bom para todos os casos.
+// >> name[0] significa que na ultima posiçao do ponteiro *p,
+//    encontramos o valor 0x00.
+// >> Mas ainda somos menor ou igual a 8, que eh o campo
+//    para nome de 8 bytes.
+
+    if ( name[0] == '\0' && ns <= 8 )
+    {
+        // The flag says that 
+        // we're gonna have a new extension.
+        fAddNewExt = TRUE;
+        // Complete the DOS name with spaces. Until 8 bytes.
+        goto CompleteName8WithSpaces;
+    }
+
+    //if ( name[0] == '.' && ns < 8 )
+
+// Aqui name[0] é o ponto. 
+// Mas o nome tem 8 bytes.
+// Então constrói a extensão colocando as letras na extensão.
+
+    for ( i=0; 
+          i<3 && name[i+1]; 
+          i++ )
+    {
+        // #ps: name[0] = '.'
+
+        //Transforma uma letra da extensão em maiúscula.
+
+        // Letras na extensao: 
+        // Mudando as letras para maiusculo.
+        if ( name[i+1] >= 'a' && 
+             name[i+1] <= 'z' )
+        {
+            name[i+1] -= 0x20;   // Change
+            ext[i] = name[i+1];  // Save
+        }
+
+        // Bytes especiais na extensao: 
+        // Colocando os bytes, sem mudar.
+        // Allowed in fat16: $ % ' - _ @ ~ ` ! ( ) { } ^ # &
+                
+        if ( name[i+1] == '$' ||
+             name[i+1] == '%' ||
+             name[i+1] == '-' ||
+             name[i+1] == '_' ||
+             name[i+1] == '(' ||
+             name[i+1] == ')' ||
+             name[i+1] == '{' ||
+             name[i+1] == '}'  )
+        {
+            ext[i] = name[i+1];  // Save
+        }
+
+        // Se a extensao tiver numeros.
+        if  ( name[i+1] >= '0' &&
+              name[i+1] <= '9' ) 
+        {
+            ext[i] = name[i+1];  // Save
+        }
+        
+        // E se tiver um 0x00 entre os bytes da extensao?
+        // Mas a extensao tinha um ponto.
+        if ( name[i+1] == 0x00 )
+        {
+            fAddNewExt = FALSE;
+            goto CompleteName8WithSpaces;
+        }
+    };
+
+// Acrescentamos ' ' até completarmos as oito letras do nome.
+// Acrescentamos a extensão
+// Finalizamos.
+
+CompleteName8WithSpaces:
+
+// Save some spaces in the name until 8 bytes.
+    while (ns < 8)
+    {
+        *name++ = ' ';
+        ns++;
+    };
+
+// Add extension.
+AddExt:
+
+// Prepare a new extension 
+// if no extension was provided.
+    if (fAddNewExt == TRUE)
+    {
+        // Pre-load the new extension bytes.
+        // #warning:
+        // fs_fntos2() do NOT add the .bin extension.
+        ext[0] = ' ';  
+        ext[1] = ' ';  
+        ext[2] = ' ';  
+        ext[3] = '\0';
+    }
+
+// Save extension bytes.
+    for (i=0; i<3; i++)
+    {
+        // No caso de extensoes com 3 bytes
+        // copiamos todos os bytes.
+        if ( ext[i] != 0x00 )
+        {
+            *name++ = ext[i];  
+        }
+        
+        // No caso das extensoes com menos bytes,
+        // o buffer pode ter 0x00.
+        // No lugar no 0x00 colocaremos ' '.
+        if ( ext[i] == 0x00 )
+        {
+            *name++ = ' ';  
+        }
+    };
+
+// #bugbug
+// Is it an overflow?
+
+    *name = '\0';
+}
+
 
 // Pega um fd na lista de arquivos do processo, dado o PID.
 // Objects[i]
@@ -4635,7 +4822,11 @@ do_read_file_from_disk (
 // >>> "12345678XYZ"
 // #todo: 
 // Não fazer isso em ring3.
-    fs_fntos((char *) file_name);
+
+// Add 'BIN' extension if we don't have one.
+    //fs_fntos((char *) file_name);
+// Add '   ' (3 spaces) extension if we don't have one.
+    fs_fntos2((char *) file_name);
 
 // #debug
 

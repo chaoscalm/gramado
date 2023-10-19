@@ -1327,7 +1327,13 @@ fs_load_image(
 
 __search:
 
+// #bugbug
+// fs_fntos() is gonna include the extension .bin
+// if the name doesn't have one.
+// This is not what we want for all the cases.
+
     fs_fntos((char *) name);
+
     Status = (int) search_in_dir(name,dir_va);
     if (Status == 1){ 
         goto __found; 

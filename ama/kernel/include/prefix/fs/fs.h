@@ -584,8 +584,9 @@ fs_save_rootdir (
 void fsUpdateWorkingDiretoryString (char *string);
 
 
-
 void fs_fntos(char *name);
+void fs_fntos2(char *name);
+
 int fs_get_free_fd_from_pid (pid_t pid);
 int fs_initialize_process_cwd ( pid_t pid, char *string );
 void fs_pathname_backup ( pid_t pid, int n );
