@@ -1,11 +1,8 @@
 
-#browser.bin
-#history:
 #2019 - Created by Fred Nora.
 #todo:
 #fazer um makefile pra compilar o shell
 #obs: #bugbug tem que arrumas as coisas aqui.
-
 
 VERSION = 0
 PATCHLEVEL = 0
@@ -50,26 +47,25 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
+LIBC      = ../../prezing/omega1/libs/rtl/include/
+LIBCOBJ   = ../../prezing/omega1/libs/rtl/obj
 
-LIBC      = ../../../omega1/libs/rtl/include/
-LIBCOBJ   = ../../../omega1/libs/rtl/obj
-
-LIBGWS    = ../../../omega1/libs/libgws/include/
-LIBGWSOBJ = ../../../omega1/libs/libgws/obj
-
+LIBGWS    = ../../prezing/omega1/libs/libgws/include/
+LIBGWSOBJ = ../../prezing/omega1/libs/libgws/obj
 
 # Objects
 myObjects = crt0.o main.o rtl.o \
-ctype.o stdio.o fcntl.o stdlib.o string.o \
-unistd.o termios.o ioctl.o socket.o \
-libgws.o   
+ctype.o stdio.o fcntl.o stdlib.o string.o unistd.o termios.o ioctl.o \
+socket.o \
+math.o \
+libgws.o    
 
 .PHONY: all all-c hello-link finalize clean
 
 all: main.o all-c hello-link finalize clean
 	@echo "Ok?"
 main.o:
-	gcc  -c  main.c  $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o main.o
+	gcc  -c  main.c  $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -o main.o
 all-c:
 
 	cp $(LIBCOBJ)/crt0.o   .
@@ -86,15 +82,17 @@ all-c:
 	cp $(LIBCOBJ)/ioctl.o  .
 	cp $(LIBCOBJ)/socket.o  .
 
+#test
+	cp $(LIBCOBJ)/math.o  .
+
 # libgws
 	cp $(LIBGWSOBJ)/libgws.o .
 
 hello-link:
-	ld $(linkFlags) -o BROWSER.BIN $(myObjects)    
+	ld $(linkFlags) -o TASKBAR.BIN $(myObjects)    
 finalize:
-	cp BROWSER.BIN  ../bin
+	cp TASKBAR.BIN  ../bin
 clean:
 	-rm *.o
-	-rm BROWSER.BIN 
-	
+	-rm TASKBAR.BIN 
 	

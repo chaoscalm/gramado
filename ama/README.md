@@ -1,4 +1,4 @@
-# ama - Bootloader and kernel.
+# ama - Bootloader and kernel. (base)
 
 ## What is Gramado?
 

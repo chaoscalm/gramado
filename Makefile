@@ -13,12 +13,15 @@ all: userland-domain core-domain
 # Step 1
 PHONY := userland-domain
 userland-domain:
-	make -C  prezing/
+#warning: Respect the order
 	make -C  zing/
+	make -C  prezing/
+	make -C  preamble/
 
 # Step 2
 PHONY := core-domain
 core-domain:
+#warning: Respect the order
 	make -C  preama/
 	make -C  ama/
 

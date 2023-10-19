@@ -173,8 +173,7 @@ copy-extras:
 #-----------------------------
 # zing
 # Copying every image from zing/.
-	@echo ":: Copying every image from zing"
-
+	@echo ":: Copying every image from zing/"
 # Graphics engine
 	-sudo cp ../zing/gramado/eng/bin/ENG.BIN  $(BASE)/
 # Display server.
@@ -183,19 +182,25 @@ copy-extras:
 	-sudo cp ../zing/netd/bin/NETCTL.BIN   $(BASE)/
 	-sudo cp ../zing/netd/bin/NETCTLD.BIN  $(BASE)/
 
-#-----------------------------
-# zz
-# Copying every image from zz/.
-	@echo ":: Copying every image from zz"
+#-------------------------
+# prezing/
+# omega3 - Client-side GUI applications.
+	-sudo cp ../prezing/omega3/apps/bin/TERMINAL.BIN  $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/BARNTERM.BIN  $(BASE)/
+	-sudo cp ../prezing/omega3/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
 
 #-------------------------
-# omega2 - Drivers and servers
-
-#	-sudo cp ../zz/omega2/drivers/bin/VGA1.BIN  $(BASE)/
-#	-sudo cp ../zz/omega2/servers/bin/???.BIN  $(BASE)/
+# preamble/
+	-sudo cp ../preamble/bin/EDITOR.BIN   $(BASE)/
+	-sudo cp ../preamble/bin/GDM.BIN      $(BASE)/
+	#-sudo cp ../preamble/bin/GWS.BIN      $(BASE)/
+	-sudo cp ../preamble/bin/BROWSER.BIN  $(BASE)/
+	sudo cp ../preamble/bin/TASKBAR.BIN   $(BASE)/
+	-sudo cp ../preamble/bin/DOCV.BIN     $(BASE)/PROGRAMS/
 
 #-------------------------
-# alpha2 - Commands
+# preama/
+	@echo ":: Copying every image from preama/"
 
 	-sudo cp ../preama/alpha2/commands/bin/SHELL.BIN   $(BASE)/
 	-sudo cp ../preama/alpha2/commands/bin/BARNSH.BIN  $(BASE)/
@@ -213,29 +218,9 @@ copy-extras:
 	-sudo cp ../preama/alpha2/commands/bin/TASCII.BIN    $(BASE)/PROGRAMS/
 	-sudo cp ../preama/alpha2/commands/bin/TPRINTF.BIN   $(BASE)/PROGRAMS/
 	-sudo cp ../preama/alpha2/commands/bin/TRUE.BIN      $(BASE)/PROGRAMS/
-
 #	-sudo cp ../preama/alpha2/commands/bin/N9.BIN   $(BASE)/PROGRAMS/
 #	-sudo cp ../preama/alpha2/commands/bin/N10.BIN  $(BASE)/PROGRAMS/
 #	-sudo cp ../preama/alpha2/commands/bin/N11.BIN  $(BASE)/PROGRAMS/
-
-#-------------------------
-# omega3 - Client-side GUI applications.
-	-sudo cp ../prezing/omega3/apps/bin/TERMINAL.BIN  $(BASE)/
-	-sudo cp ../prezing/omega3/apps/bin/BARNTERM.BIN  $(BASE)/
-
-	-sudo cp ../prezing/omega3/apps/bin/EDITOR.BIN   $(BASE)/
-	-sudo cp ../prezing/omega3/apps/bin/GDM.BIN   $(BASE)/
-	-sudo cp ../prezing/omega3/apps/bin/BROWSER.BIN  $(BASE)/
-	sudo cp ../prezing/omega3/apps/bin/TASKBAR.BIN  $(BASE)/
-
-	-sudo cp ../prezing/omega3/apps/bin/DOCV.BIN     $(BASE)/PROGRAMS/
-	-sudo cp ../prezing/omega3/apps/bin/CMDLINE.BIN  $(BASE)/PROGRAMS/
-
-
-#	-sudo cp ../prezing/omega3/apps/bin/GDM2.BIN  $(BASE)/
-#	-sudo cp ../prezing/omega3/apps/bin/GWS.BIN   $(BASE)/
-#	-sudo cp ../prezing/omega3/apps/bin/FILEMAN.BIN  $(BASE)/
-
 
 #----------------------------------
 # Install BMPs

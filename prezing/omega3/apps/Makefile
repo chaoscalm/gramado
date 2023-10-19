@@ -3,18 +3,15 @@
 
 all:
 
-# The virtual terminal
+# Virtual terminal connected with the child.
 	make -C barnterm/
+# Virtual terminal with an embedded command line interpreter.
 	make -C terminal/
 
-	make -C browser
+# First client.
 	make -C client
 	make -C cmdline
-	make -C docv
-	make -C editor
-	make -C gdm
-	make -C setup
-	make -C taskbar
+
 
 clean:
 	-rm bin/*.BIN

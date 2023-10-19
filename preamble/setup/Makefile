@@ -48,11 +48,11 @@ CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -fno-optimize-sibling-calls    
 
 
-LIBC      = ../../../omega1/libs/rtl/include/
-LIBCOBJ   = ../../../omega1/libs/rtl/obj
+LIBC      = ../../prezing/omega1/libs/rtl/include/
+LIBCOBJ   = ../../prezing/omega1/libs/rtl/obj
 
-LIBGWS    = ../../../omega1/libs/libgws/include/
-LIBGWSOBJ = ../../../omega1/libs/libgws/obj
+LIBGWS    = ../../prezing/omega1/libs/libgws/include/
+LIBGWSOBJ = ../../prezing/omega1/libs/libgws/obj
 
 # Objects
 myObjects = crt0.o main.o rtl.o \

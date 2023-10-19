@@ -1,4 +1,4 @@
-# zing - Init, display server and network server.
+# zing - Display server and network server. (base)
 
 ## Where is the Display Server?
 
