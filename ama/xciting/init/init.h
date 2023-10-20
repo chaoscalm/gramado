@@ -21,6 +21,8 @@ struct init_d
     int argc;
 // Save the runlevel value.
     int runlevel;
+// Running in headless mode.
+    int is_headless;
 // Save the pid.
     pid_t pid;
 // Unlock kernel features.

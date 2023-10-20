@@ -172,6 +172,10 @@ network_handle_udp(
             network_push_packet( udp_payload, 512 );
         } else {
             printf("UDP: MESSAGE: {%s}\n", udp_payload );
+            
+            // #test
+            // Send a command to the init process.
+            //post_message_to_init(77888, 1234, 5678);
         };
         // Clear UDP local buffer.
         memset(udp_payload,0,sizeof(udp_payload));

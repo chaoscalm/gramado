@@ -72,7 +72,9 @@ static void do_launch_list(void);
 
 static void do_clear_console(void);
 
+
 // ====================
+
 
 static void do_help(void)
 {
@@ -680,6 +682,7 @@ int main( int argc, char **argv)
     Init.initialized = FALSE;
     Init.argc = (int) argc;
     //Init.runlevel = (int) ?;
+    Init.is_headless = FALSE;
     Init.pid = (pid_t) getpid();
 
     //#todo
@@ -695,6 +698,9 @@ int main( int argc, char **argv)
 
 // ------------------------------
 // Parameters
+// These parameters are created by the kernel
+// in x64init.c
+
     register int i=0;
     if (argc >= 2)
     {
@@ -799,6 +805,7 @@ int main( int argc, char **argv)
 // see: msgloop.c
     if (fHeadlessMode == TRUE)
     {
+        Init.is_headless = TRUE;
         initialize_headless_mode();
         goto unexpected_exit;
     }

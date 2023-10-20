@@ -973,14 +973,16 @@ static void compareStrings(int fd)
 
 
 // Enable network
-    if ( strncmp(prompt,"net-on",6) == 0 ){
+    if ( strncmp(prompt,"net-on",6) == 0 )
+    {
         sc82 ( 22001, 
         1,  // ON 
         0, 0 );
         goto exit_cmp;
     }
 // Disable network
-    if ( strncmp(prompt,"net-off",7) == 0 ){
+    if ( strncmp(prompt,"net-off",7) == 0 )
+    {
         sc82 ( 22001, 
         0,  // OFF
          0, 0 );

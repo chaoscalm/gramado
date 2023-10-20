@@ -68,7 +68,13 @@ post_message_to_foreground_thread (
     int msg, 
     unsigned long long1, 
     unsigned long long2 );
-    
+
+int
+post_message_to_init ( 
+    int msg, 
+    unsigned long long1, 
+    unsigned long long2 );
+ 
 int
 post_message_to_ws( 
     int msg, 

@@ -337,7 +337,7 @@ post_message_to_ws (
     unsigned long long1, 
     unsigned long long2 )
 {
-//  Post msg to the window server's tid.
+//  Post msg to the display server's tid.
 
 // #bugbug
 // We can't send messages to the display server
@@ -345,7 +345,7 @@ post_message_to_ws (
 // Ex: Right after we close the demo ENG.BIN
 // using control + c.
 // It is because the thread will have an invalid pointer.
-
+    // #test: KERNEL_MESSAGE_TID
     tid_t src_tid = 0;   // sender tid #todo
     tid_t dst_tid = -1;  // receiver tid
 
@@ -376,6 +376,50 @@ post_message_to_ws (
 
    return 0;
 }
+
+int
+post_message_to_init ( 
+    int msg, 
+    unsigned long long1, 
+    unsigned long long2 )
+{
+//  Post msg to the display server's tid.
+
+// #bugbug
+// We can't send messages to the display server
+// when the server was closed.
+// Ex: Right after we close the demo ENG.BIN
+// using control + c.
+// It is because the thread will have an invalid pointer.
+    // #test: KERNEL_MESSAGE_TID
+    tid_t src_tid = KERNEL_MESSAGE_TID;   // sender tid #todo
+    tid_t dst_tid = INIT_TID;  // receiver tid
+
+// Is this a valid destination?
+    if ( dst_tid < 0 || dst_tid >= THREAD_COUNT_MAX ){
+        return -1;
+    }
+
+    //if(msg==MSG_MOUSEMOVE){
+    //    printf ("x:%d y:%d\n",long1, long2);
+    //    refresh_screen();
+    //}
+
+// #todo
+// precisamos de uma flag que indique que isso deve ser feito.
+// See: tlib.c
+// IN: tid, window pointer, msgcode, data1, data2.
+
+    post_message_to_tid(
+        (tid_t) src_tid,  // sender tid
+        (tid_t) dst_tid,  // receiver tid
+        (int) msg,
+        (unsigned long) long1,
+        (unsigned long) long2 );
+
+   return 0;
+}
+
 
 int 
 cali_post( 

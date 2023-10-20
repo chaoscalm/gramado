@@ -44,7 +44,41 @@ processEvent (
     unsigned long long2,
     int caller_tid );
 
+static void do_net_on(void);
+static void do_net_off(void);
+static void do_dhcp_dialog(void);
+
+
 // ===========================
+
+// Enable network
+static void do_net_on(void)
+{
+    sc82 ( 
+        22001, 
+        1,  // ON 
+        0, 
+        0 );
+}
+
+// Disable network
+static void do_net_off(void)
+{
+    sc82 ( 
+        22001, 
+        0,  // OFF
+        0, 
+        0 );
+}
+
+// Do the dhcp dialog for the first time.
+static void do_dhcp_dialog(void)
+{
+    sc82( 22003, 3, 0, 0 );
+}
+
+
+
 
 // #test Hello.
 // Responding the hello.
@@ -132,6 +166,12 @@ processEvent (
         //return -1;
 
     switch (msg){
+
+    // From the network infra-structure.
+    // From udp, port 11888.
+    case 77888:
+        printf("init.bin: [77888] Motification\n");
+        break;
 
 // Start a client.
 // It's gonna wor only if the is already running.
@@ -298,6 +338,14 @@ int run_server(void)
 {
     int IdleLoopStatus = -1;
 
+/*
+// We need to be in the initialized state.
+    if (Init.initialized != TRUE){
+        printf("run_server: Not initialized\n");
+        //
+    }
+*/
+
     printf("init.bin: Running in server mode\n");
 
     Caller.tid = -1;
@@ -318,8 +366,31 @@ int run_server(void)
 int initialize_headless_mode(void)
 {
     int Status = -1;
+
+/*
+// We need to be in the initialized state.
+    if (Init.initialized != TRUE){
+        printf("run_server: Not initialized\n");
+        //
+    }
+    if (Init.is_headless != TRUE){
+    }
+*/
+
     //debug_print("init: Initializing headless mode\n");
     printf("init: Initializing headless mode\n");
+
+
+// Enable network.
+// The network infra-structure has a flag
+// to not pump data from the NIC device.
+// Let's enable the input.
+    do_net_on();
+
+// dhcp
+// Let's o the dhcp dialog.
+// Maybe this is the first time we're doing this.
+    do_dhcp_dialog();
 
     Status = (int) run_server();
     if (Status<0){
