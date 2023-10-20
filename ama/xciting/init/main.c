@@ -38,6 +38,8 @@ static const char *app2_name = "nicctl.bin";
 static const char *app3_name = "netctld.bin";    // #c3
 static const char *app4_name = "netctl.bin";
 
+// ------------------------------------------
+// Command line for the display server.
 // Flags:
 // --dm - Launches the default Display Manager.
 // --tb - Launches the default taskbar application.
@@ -660,6 +662,9 @@ int main( int argc, char **argv)
 // #todo
 // Get the runlevel value.
 
+    //int fHeadlessMode = TRUE;
+    int fHeadlessMode = FALSE;
+
 // Run the command line. 
 // Getting input from stdin.
     int fRunCommandLine = FALSE;
@@ -671,7 +676,6 @@ int main( int argc, char **argv)
 
 // Was it launched by the kernel?
     int InvalidLauncher = FALSE;
-    
 
     Init.initialized = FALSE;
     Init.argc = (int) argc;
@@ -696,14 +700,19 @@ int main( int argc, char **argv)
     {
         for (i=1; i < argc; i++)
         {
+            if (strcmp("--hl", argv[i]) == 0)
+                fHeadlessMode = TRUE;
+
             // Run the embedded cmdline interpreter.
             if (strcmp("--cmd", argv[i]) == 0)
                 fRunCommandLine = TRUE;
-            
+
             // Run the init process in server mode.
             if (strcmp("--server", argv[i]) == 0)
                 fRunEventLoop = TRUE;
-            
+
+            //...
+
             //printf ("ARG: %s\n",argv[i]);
         };
     }
@@ -782,11 +791,22 @@ int main( int argc, char **argv)
 //================================
 */
 
+    Init.initialized = TRUE;
+
+
+// ----------------------------
+// Headless mode
+// see: msgloop.c
+    if (fHeadlessMode == TRUE)
+    {
+        initialize_headless_mode();
+        goto unexpected_exit;
+    }
+
 //
 // Loop
 //
 
-    Init.initialized = TRUE;
 
 //================================
 // Get input from stdin.
@@ -812,6 +832,7 @@ int main( int argc, char **argv)
 // Maybe the init process will never return.
 // The worst case scenario is the reboot.
 // It depends on the runlevel.
+unexpected_exit:
 
     printf("init.bin: Unexpected exit()\n");
     while (1){
@@ -820,6 +841,7 @@ int main( int argc, char **argv)
 
 // Not reached!
     return 0;
+
 fail:
     if (InvalidLauncher == TRUE){
         printf ("init.bin: Not launched by the kernel\n");

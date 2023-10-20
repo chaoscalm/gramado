@@ -72,7 +72,20 @@ static int __setup_stdin_cmdline(void)
 {
     char cmdline[64];
 
-    memset(cmdline, 0, 64);  
+// The command line for init.bin.
+// --hl = Headless mode. No cmdline interpreter.
+// --cmd = Run the cmdline interpreter.
+// --server = Run embedded server.
+// --reboot = Reboot the machine.
+// --shutdown = Shutdown the machine.
+
+    const char *initbin_cmdline = "INIT.BIN: --cmd --server";
+    //const char *initbin_cmdline = "INIT.BIN: --reboot";
+    //const char *initbin_cmdline = "INIT.BIN: --shutdown";
+    //const char *initbin_cmdline = "INIT.BIN: --hl";
+    //...
+
+    memset(cmdline, 0, 64); 
     //cmdline[63]=0;
 
 // Write
@@ -83,9 +96,9 @@ static int __setup_stdin_cmdline(void)
     //refresh_screen();
 
 // Run both modes, cmdline and then server mode.
-    crt_sprintf(
-        cmdline, 
-        "INIT.BIN: --cmd --server");
+// #todo: We can copy a different comand line depending on
+// the runlevel number.
+    crt_sprintf( cmdline, initbin_cmdline );
 
 /*
 // Running only in servermode.

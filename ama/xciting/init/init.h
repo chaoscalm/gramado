@@ -34,7 +34,7 @@ extern struct init_d  Init;
 // ---------------
 
 int run_server(void);
+int initialize_headless_mode(void);
 
-#endif  
-
+#endif    
 

@@ -306,9 +306,28 @@ int run_server(void)
     //# no focus!
     //rtl_focus_on_this_thread();
     IdleLoopStatus = (int) __idlethread_loop();
-    if (IdleLoopStatus<0){
-        printf ("init.bin: loop fail\n");
+    if (IdleLoopStatus < 0){
+        printf ("run_server: Loop failed\n");
+        return -1;
     }
     return 0;
+}
+
+// #todo
+// Maybe we can get some parameters here.
+int initialize_headless_mode(void)
+{
+    int Status = -1;
+    //debug_print("init: Initializing headless mode\n");
+    printf("init: Initializing headless mode\n");
+
+    Status = (int) run_server();
+    if (Status<0){
+        Status = -1;
+        goto fail;
+    }
+    return (int) Status;
+fail:
+    return -1;
 }
 
