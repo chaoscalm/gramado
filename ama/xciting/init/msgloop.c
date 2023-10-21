@@ -170,6 +170,9 @@ processEvent (
     // From the network infra-structure.
     // From udp, port 11888.
     case 77888:
+        // Only message from the kernel.
+        if (caller_tid != 99)
+            return;
         printf("init.bin: [77888] Motification\n");
         break;
 
@@ -181,6 +184,11 @@ processEvent (
         //printf("init.bin: MSG_COMMAND %d \n",long1);
         switch (long1)
         {
+            //case 2000:
+            //    break;
+            //case 2001:
+            //    break;
+
             // #bugbug
             // There is something wrong with the filename strings
             // when calling the launcher rtl_clone_and_execute("?").

@@ -53,7 +53,7 @@ LIBGWS    = ../../prezing/omega1/libs/libgws/include/
 LIBGWSOBJ = ../../prezing/omega1/libs/libgws/obj
 
 # Objects
-myObjects = crt0.o main.o rtl.o \
+myObjects = crt0.o main.o editor.o globals.o rtl.o \
 ctype.o stdio.o fcntl.o stdlib.o string.o unistd.o termios.o \
 ioctl.o socket.o \
 libgws.o   
@@ -64,7 +64,9 @@ all: main.o all-c hello-link finalize clean
 	@echo "Ok?"
 
 main.o:
-	gcc  -c  main.c  $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o main.o
+	gcc  -c  main.c     $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o main.o
+	gcc  -c  editor.c   $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o editor.o
+	gcc  -c  globals.c  $(CFLAGS) -I $(LIBC) -I $(LIBGWS) -I include/ -o globals.o
 all-c:
 
 	cp $(LIBCOBJ)/crt0.o   .
